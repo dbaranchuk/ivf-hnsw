@@ -6,7 +6,7 @@
 #include <chrono>
 #include "hnswlib.h"
 
-
+#include <map>
 #include <unordered_set>
 using namespace std;
 using namespace hnswlib;
@@ -104,8 +104,6 @@ size_t getPeakRSS()
 	return (size_t)0L;          /* Unsupported. */
 #endif
 }
-
-
 
 
 
@@ -228,7 +226,43 @@ inline bool exists_test(const std::string& name) {
 	return f.good();
 }
 
+/**
+ * Print Configuration
+ **/
+void printNumElementsPerLayer(vector<int> elementLevels)
+{
+    map<int, int> table = map<int, int>();
 
+    for (int layerNum : elementLevels) {
+        if (table.count(layerNum) == 0) {
+            table[layerNum] = 1;
+        } else {
+            table[layerNum]++;
+        }
+    }
+    for (auto elementsPerLayer : table){
+        cout << "Number of elements on the " << elementsPerLayer.first << "layer: " << elementsPerLayer.second << endl;
+    }
+}
+
+void printInfo(HierarchicalNSW<int> *hnsw)
+{
+    if (hnsw == NULL){
+        throw "Empty HNSW";
+    }
+    cout << "Information about constructed HNSW" << endl;
+
+    cout << "M: " << hnsw->M_ << endl;
+    cout << "Max M: " << hnsw->maxM_ << endl;
+    cout << "M0: " << hnsw->maxM0_ << endl;
+    cout << "efConstruction: " << hnsw->efConstruction_<< endl;
+    printNumElementsPerLayer(hnsw->elementLevels);
+}
+
+
+/**
+ * Main Test Function
+**/
 void sift_test1B() {
 	
 	
@@ -353,7 +387,7 @@ void sift_test1B() {
 		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
 		appr_alg->SaveIndex(path_index);
 	}
-	
+	printInfo(appr_alg);
 	
 	vector<std::priority_queue< std::pair< int, labeltype >>> answers;
 	size_t k = 1;
@@ -367,3 +401,5 @@ void sift_test1B() {
 
 
 }
+
+
