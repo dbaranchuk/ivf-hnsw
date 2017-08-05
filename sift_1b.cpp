@@ -246,7 +246,7 @@ void sift_test1B() {
 	char path_gt[1024];
 	char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
-	sprintf(path_index, "sift1b_%dm_ef_%d_M_%d.bin", subset_size_milllions, efConstruction, M);
+	sprintf(path_index, "/sata2/dbaranchuk/sift1b_%dm_ef_%d_M_%d.bin", subset_size_milllions, efConstruction, M);
 	
 	sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
 	
