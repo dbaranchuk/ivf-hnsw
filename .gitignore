@@ -2,3 +2,4 @@
 bin
 CMakeFiles
 cmake_install*
+.idea
