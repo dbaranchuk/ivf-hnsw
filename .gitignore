@@ -3,3 +3,5 @@ bin
 CMakeFiles
 cmake_install*
 .idea
+*.a
+main
