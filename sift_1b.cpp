@@ -254,7 +254,7 @@ void printInfo(HierarchicalNSW<int> *hnsw)
     }
     cout << "Information about constructed HNSW" << endl;
     cout << "M: " << hnsw->M_ << endl;
-    cout << "Test K: " << 1 << endl
+    cout << "Test K: " << 1 << endl;
     cout << "efConstruction: " << hnsw->efConstruction_<< endl;
     printNumElementsPerLayer(hnsw->elementLevels);
 }
