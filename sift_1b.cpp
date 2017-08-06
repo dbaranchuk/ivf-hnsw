@@ -378,7 +378,7 @@ void sift_test1B()
 	printInfo(appr_alg);
 	
 	vector<std::priority_queue< std::pair< int, labeltype >>> answers;
-	size_t k = 10;
+	size_t k = 1;
 	cout << "Parsing gt:\n";	
 	get_gt(massQA, massQ, mass, vecsize, qsize, l2space, vecdim, answers, k);
 	cout << "Loaded gt\n";
