@@ -254,7 +254,7 @@ void printInfo(HierarchicalNSW<int> *hnsw)
     }
     cout << "Information about constructed HNSW" << endl;
     cout << "M: " << hnsw->M_ << endl;
-    cout << "Test K: " << 1 << endl;
+    cout << "Test K: " << 10 << endl;
     cout << "efConstruction: " << hnsw->efConstruction_<< endl;
     printNumElementsPerLayer(hnsw->elementLevels);
 }
@@ -265,7 +265,7 @@ void printInfo(HierarchicalNSW<int> *hnsw)
 **/
 void sift_test1B()
 {
-	int subset_size_milllions = 50;
+	int subset_size_milllions = 1;
 	int efConstruction = 40;
 	int M = 16;
 
@@ -378,7 +378,7 @@ void sift_test1B()
 	printInfo(appr_alg);
 	
 	vector<std::priority_queue< std::pair< int, labeltype >>> answers;
-	size_t k = 1;
+	size_t k = 10;
 	cout << "Parsing gt:\n";	
 	get_gt(massQA, massQ, mass, vecsize, qsize, l2space, vecdim, answers, k);
 	cout << "Loaded gt\n";
