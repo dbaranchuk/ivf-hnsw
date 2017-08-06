@@ -254,7 +254,7 @@ void printInfo(HierarchicalNSW<int> *hnsw)
     }
     cout << "Information about constructed HNSW" << endl;
     cout << "M: " << hnsw->M_ << endl;
-    cout << "Test K: " << 10 << endl;
+    cout << "Test K: " << 1 << endl;
     cout << "efConstruction: " << hnsw->efConstruction_<< endl;
     printNumElementsPerLayer(hnsw->elementLevels);
 }
@@ -265,7 +265,7 @@ void printInfo(HierarchicalNSW<int> *hnsw)
 **/
 void sift_test1B()
 {
-	int subset_size_milllions = 50;
+	int subset_size_milllions = 1;
 	int efConstruction = 40;
 	int M = 16;
 
@@ -278,7 +278,7 @@ void sift_test1B()
 	char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
 
-	sprintf(path_index, "/sata2/dbaranchuk/sift1b_%dm_ef_%d_M_%d_1layer.bin", subset_size_milllions, efConstruction, M);
+	sprintf(path_index, "/sata2/dbaranchuk/sift1b_%dm_ef_%d_M_%d_random.bin", subset_size_milllions, efConstruction, M);
 	sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
 
 	unsigned char *massb = new unsigned char[vecdim];
@@ -370,7 +370,6 @@ void sift_test1B()
 				}
 			}
 			appr_alg->addPoint((void *)(mass), (size_t)j1);
-
 		}
 		input.close();
 		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";

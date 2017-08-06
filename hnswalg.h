@@ -435,8 +435,6 @@ namespace hnswlib {
       elementLevels[cur_c] = curlevel;
 
 
-
-
       unique_lock<mutex> templock(global);
       int maxlevelcopy = maxlevel_;
       if (curlevel <= maxlevelcopy)
@@ -455,16 +453,10 @@ namespace hnswlib {
         memset(linkLists_[cur_c], 0, size_links_per_element_*curlevel);
       }
       if (currObj != -1) {
-
-
-
-
         if (curlevel < maxlevelcopy) {
 
           dist_t curdist = fstdistfunc_(datapoint, getDataByInternalId(currObj), dist_func_param_);
           for (int level = maxlevelcopy; level > curlevel; level--) {
-
-
 
             bool changed = true;
             while (changed) {
