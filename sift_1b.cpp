@@ -105,7 +105,6 @@ size_t getPeakRSS()
 }
 
 
-
 /**
 * Returns the current resident set size (physical memory use) measured
 * in bytes, or zero if the value cannot be determined on this OS.
@@ -149,19 +148,22 @@ size_t getCurrentRSS()
 
 
 
-static void get_gt(unsigned int *massQA, unsigned char *massQ, unsigned char *mass, size_t vecsize, size_t qsize, L2SpaceI &l2space, size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k) {
-
-	
+static void get_gt(unsigned int *massQA, unsigned char *massQ, unsigned char *mass, size_t vecsize, size_t qsize,
+                   L2SpaceI &l2space, size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
+{
 	(vector<std::priority_queue< std::pair< int, labeltype >>>(qsize)).swap(answers);
 	DISTFUNC<int> fstdistfunc_ = l2space.get_dist_func();
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
-		for (int j = 0; j <k; j++) {
+		for (int j = 0; j < k; j++) {
 			answers[i].emplace(0.0f, massQA[1000 * i + j]);
 		}
 	}
 }
-static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<int> &appr_alg, size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k) {
+
+static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<int> &appr_alg,
+                         size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
+{
 	size_t correct = 0;
 	size_t total = 0;
 	//uncomment to test in parallel mode:
@@ -174,8 +176,6 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 		total += gt.size();
 		
 		while (gt.size()) {
-			
-			
 			g.insert(gt.top().second);
 			gt.pop();
 		}
@@ -193,7 +193,10 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 	}
 	return 1.0f*correct / total;
 }
-static void test_vs_recall(unsigned char *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<int> &appr_alg, size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k) {
+
+static void test_vs_recall(unsigned char *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<int> &appr_alg,
+                           size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
+{
 	vector<size_t> efs;// = { 10,10,10,10,10 };
     for (int i = k; i < 30; i++) {
 		efs.push_back(i);
@@ -250,10 +253,8 @@ void printInfo(HierarchicalNSW<int> *hnsw)
         throw "Empty HNSW";
     }
     cout << "Information about constructed HNSW" << endl;
-
     cout << "M: " << hnsw->M_ << endl;
-    cout << "Max M: " << hnsw->maxM_ << endl;
-    cout << "M0: " << hnsw->maxM0_ << endl;
+    cout << "Test K: " << 1 << endl
     cout << "efConstruction: " << hnsw->efConstruction_<< endl;
     printNumElementsPerLayer(hnsw->elementLevels);
 }
@@ -264,25 +265,22 @@ void printInfo(HierarchicalNSW<int> *hnsw)
 **/
 void sift_test1B() {
 	
-	int subset_size_milllions = 100;
+	int subset_size_milllions = 1;
 	int efConstruction = 40;
 	int M = 16;
 
-
 	size_t vecsize = subset_size_milllions * 1000000;
-
 	size_t qsize = 10000;
 	size_t vecdim = 128;
+
 	char path_index[1024];
 	char path_gt[1024];
 	char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
-	sprintf(path_index, "/sata2/dbaranchuk/sift1b_%dm_ef_%d_M_%d.bin", subset_size_milllions, efConstruction, M);
-	
-	sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
-	
 
-	
+	sprintf(path_index, "/sata2/dbaranchuk/sift1b_%dm_ef_%d_M_%d.bin", subset_size_milllions, efConstruction, M);
+	sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
+
 	unsigned char *massb = new unsigned char[vecdim];
 
 	cout << "Loading GT:\n";
@@ -318,7 +316,6 @@ void sift_test1B() {
 	}
 	inputQ.close();
 
-
 	unsigned char *mass = new unsigned char[vecdim];
 	ifstream input(path_data, ios::binary);
 	int in = 0;
@@ -329,11 +326,10 @@ void sift_test1B() {
 		cout << "Loading index from "<< path_index <<":\n";
 		appr_alg=new HierarchicalNSW<int>(&l2space, path_index, false);
 		cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
-}
+    }
 	else {
 		cout << "Building index:\n";
 		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction);
-
 
 		input.read((char *)&in, 4);
 		if (in != 128)
@@ -357,7 +353,6 @@ void sift_test1B() {
 			unsigned char mass[128];
 #pragma omp critical
 			{
-
 				input.read((char *)&in, 4);
 				if (in != 128)
 				{
@@ -375,8 +370,6 @@ void sift_test1B() {
 				}
 			}
 			appr_alg->addPoint((void *)(mass), (size_t)j1);
-
-
 
 		}
 		input.close();
@@ -397,5 +390,3 @@ void sift_test1B() {
 
 
 }
-
-

@@ -59,8 +59,6 @@ namespace hnswlib {
 
       visitedlistpool = new VisitedListPool(1, maxElements);
 
-
-
       //initializations for special treatment of the first node
       enterpoint_node = -1;
       maxlevel_ = -1;
