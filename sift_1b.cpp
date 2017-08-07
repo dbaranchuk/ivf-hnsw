@@ -174,7 +174,7 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 		std::priority_queue< std::pair< int, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 		total += gt.size();
-		cout << "Result Size: " << result.size();
+		cout << "Result Size: " << result[0];
 		
 		while (gt.size()) {
 			g.insert(gt.top().second);
