@@ -1,7 +1,10 @@
 *.make
 bin
 CMakeFiles
-cmake_install*
+#cmake_install*
+#cmake_build*
 .idea
 *.a
+#Makefile
+#CMakeCache.txt
 main
