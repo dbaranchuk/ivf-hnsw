@@ -346,10 +346,10 @@ import matplotlib.pyplot as plt
 import numpy
 import re
 
-M = 100
+M = 10
 
-splitted_rnd = re.findall(r"[0-9.]+", rnd_100m_1NN)
-splitted_one_layer = re.findall(r"[0-9.]+", one_layer_100m_1NN)
+splitted_rnd = re.findall(r"[0-9.]+", rnd_10m_M8_1NN)
+splitted_one_layer = re.findall(r"[0-9.]+", one_layer_10m_M8_1NN)
 
 ef = range(1,30) + range(30, 100, 10) + range(100, 500, 40)
 
@@ -364,6 +364,6 @@ plt.xlabel('Ef', fontsize=14)
 plt.ylabel('Recall@R', fontsize=14)
 plt.text(ef[-1]+1, rnd_recall[-1], 'HNSW', fontsize=11, color=(1,0,0))
 plt.text(ef[-1]+1, float(rnd_recall[-1])-0.05, 'One Layer', fontsize=11, color=(0,0,1))
-plt.title('SIFT ' + str(M) + 'M 1NN Recall/Ef')
-plt.savefig('recall_ef' + str(M) + 'M1NN.png')
+plt.title('SIFT ' + str(M) + 'M M8 1NN Recall/Ef')
+plt.savefig('recall_ef' + str(M) + 'M_M8_1NN.png')
 #plt.s:ow()
