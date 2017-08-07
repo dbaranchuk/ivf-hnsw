@@ -156,7 +156,7 @@ static void get_gt(unsigned int *massQA, unsigned char *massQ, unsigned char *ma
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
-			answers[i].emplace(0.0f, massQA[1000 * i + j]);
+			answers[i].emplace(0.0f, massQA[i + j]); //1000 *
 		}
 	}
 }
