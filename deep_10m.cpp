@@ -156,7 +156,7 @@ static void get_gt(unsigned int *massQA, float *massQ, float *mass, size_t vecsi
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
-			answers[i].emplace(0.0f, massQA[1000 * i + j]);
+			answers[i].emplace(0.0f, massQA[i + j]); // 1000 *
 		}
 	}
 }
@@ -277,18 +277,18 @@ void deep_test10M()
 	char *path_data = "/sata2/dbaranchuk/deep/deep10M.fvecs";
 
 	sprintf(path_index, "/sata2/dbaranchuk/deep10m_%dm_ef_%d_random.bin", efConstruction, M);
-	sprintf(path_gt,"/sata2/dbaranchuk/deep/deep10M_groundtruth1000NN.ivecs");
+	sprintf(path_gt,"/sata2/dbaranchuk/deep/deep10M_groundtruth1NN.ivecs");
 
 	float *massb = new float[vecdim];
 
 	cout << "Loading GT:\n";
 	ifstream inputGT(path_gt, ios::binary);
-	unsigned int *massQA = new unsigned int[qsize * 1000];
+	unsigned int *massQA = new unsigned int[qsize]; // * 1000
 	for (int i = 0; i < qsize; i++) {
 		int t;
 		inputGT.read((char *)&t, 4);
-		inputGT.read((char *)(massQA + 1000 * i), t * 4);
-		if (t != 1000) {
+		inputGT.read((char *)(massQA + i), t * 4); // 1000 *
+		if (t != 1) { // 1000
 			cout << "err";
 			return;
 		}
