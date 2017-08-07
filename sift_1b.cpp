@@ -402,7 +402,7 @@ void deep_test10M()
 
 	char path_index[1024];
 	char path_gt[1024];
-	char *path_q = "/sata2/dbaranchuk/deep1b/deep1b_queries.bvecs";
+	char *path_q = "/sata2/dbaranchuk/deep1b/deep1B_queries.bvecs";
 	char *path_data = "/sata2/dbaranchuk/deep1b/deep10M.bvecs";
 
 	sprintf(path_index, "/sata2/dbaranchuk/deep10m_%dm_ef_%d_random.bin", efConstruction, M);
