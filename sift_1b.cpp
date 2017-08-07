@@ -174,13 +174,12 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 		std::priority_queue< std::pair< int, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 		total += gt.size();
-		cout << "Result: " << result.top().second << endl;
 		
 		while (gt.size()) {
 			g.insert(gt.top().second);
 			gt.pop();
 		}
-		
+
 		while (result.size()) {
 			if (g.find(result.top().second) != g.end()) {
 				
@@ -403,26 +402,14 @@ void deep_test10M()
 
 	char path_index[1024];
 	char path_gt[1024];
-	char *path_q = "/sata2/dbaranchuk/deep1b/deep1B_queries.bvecs";
-	char *path_data = "/sata2/dbaranchuk/deep1b/deep10M.bvecs";
+	char *path_q = "/sata2/dbaranchuk/deep/deep1B_queries.bvecs";
+	char *path_data = "/sata2/dbaranchuk/deep/deep10M.bvecs";
 
 	sprintf(path_index, "/sata2/dbaranchuk/deep10m_%dm_ef_%d_random.bin", efConstruction, M);
-	sprintf(path_gt,"/sata2/dbaranchuk/deep1b/deem10M_groundtruth1000NN.ivecs");
+	sprintf(path_gt,"/sata2/dbaranchuk/deep/deep10M_groundtruth1000NN.ivecs");
 
 	unsigned char *massb = new unsigned char[vecdim];
 
-	//cout << "Loading GT:\n";
-	//ifstream inputGT(path_gt, ios::binary);
-	//unsigned int *massQA = new unsigned int[qsize];
-	//for (int i = 0; i < qsize; i++) {
-	//	int t;
-	//	inputGT.read((char *)&t, 4);
-	//	inputGT.read((char *)(massQA + i), t * 4);
-	//	if (t != 1) {
-	//		cout << "err";
-	//		return;
-	//	}
-	//}
 	cout << "Loading GT:\n";
 	ifstream inputGT(path_gt, ios::binary);
 	unsigned int *massQA = new unsigned int[qsize * 1000];
