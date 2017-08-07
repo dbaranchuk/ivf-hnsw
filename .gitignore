@@ -4,4 +4,5 @@ CMakeFiles
 cmake_install*
 .idea
 *.a
+*.png
 main
