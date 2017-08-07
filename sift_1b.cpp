@@ -402,8 +402,8 @@ void deep_test10M()
 
 	char path_index[1024];
 	char path_gt[1024];
-	char *path_q = "/sata2/dbaranchuk/deep1b/deep1b_queries.fvecs";
-	char *path_data = "/sata2/dbaranchuk/deep1b/deep10M.fvecs";
+	char *path_q = "/sata2/dbaranchuk/deep1b/deep1b_queries.bvecs";
+	char *path_data = "/sata2/dbaranchuk/deep1b/deep10M.bvecs";
 
 	sprintf(path_index, "/sata2/dbaranchuk/deep10m_%dm_ef_%d_random.bin", efConstruction, M);
 	sprintf(path_gt,"/sata2/dbaranchuk/deep1b/deem10M_groundtruth1NN.ivecs");
@@ -435,7 +435,7 @@ void deep_test10M()
 			cout << "file error";
 			exit(1);
 		}
-		inputQ.read((char *)massb, in * 4);
+		inputQ.read((char *)massb, in);
 		for (int j = 0; j < vecdim; j++) {
 			massQ[i*vecdim + j] = massb[j];
 		}
@@ -477,11 +477,11 @@ void deep_test10M()
 		size_t report_every = 100000;
 #pragma omp parallel for
 		for (int i = 1; i < vecsize; i++) {
-			unsigned char mass[128];
+			unsigned char mass[96];
 #pragma omp critical
 			{
 				input.read((char *)&in, 4);
-				if (in != 128)
+				if (in != 96)
 				{
 					cout << "file error";
 					exit(1);
