@@ -156,7 +156,7 @@ static void get_gt(unsigned int *massQA, unsigned char *massQ, unsigned char *ma
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
-			answers[i].emplace(0.0f, massQA[i + j]); //1000 *
+			answers[i].emplace(0.0f, massQA[1000 * i + j]);
 		}
 	}
 }
@@ -254,7 +254,7 @@ void printInfo(HierarchicalNSW<int> *hnsw)
     }
     cout << "Information about constructed HNSW" << endl;
     cout << "M: " << hnsw->M_ << endl;
-    cout << "Test K: " << 10 << endl;
+    cout << "Test K: " << 1 << endl;
     cout << "efConstruction: " << hnsw->efConstruction_<< endl;
     printNumElementsPerLayer(hnsw->elementLevels);
 }
@@ -406,23 +406,34 @@ void deep_test10M()
 	char *path_data = "/sata2/dbaranchuk/deep1b/deep10M.bvecs";
 
 	sprintf(path_index, "/sata2/dbaranchuk/deep10m_%dm_ef_%d_random.bin", efConstruction, M);
-	sprintf(path_gt,"/sata2/dbaranchuk/deep1b/deem10M_groundtruth1NN.ivecs");
+	sprintf(path_gt,"/sata2/dbaranchuk/deep1b/deem10M_groundtruth1000NN.ivecs");
 
 	unsigned char *massb = new unsigned char[vecdim];
 
+	//cout << "Loading GT:\n";
+	//ifstream inputGT(path_gt, ios::binary);
+	//unsigned int *massQA = new unsigned int[qsize];
+	//for (int i = 0; i < qsize; i++) {
+	//	int t;
+	//	inputGT.read((char *)&t, 4);
+	//	inputGT.read((char *)(massQA + i), t * 4);
+	//	if (t != 1) {
+	//		cout << "err";
+	//		return;
+	//	}
+	//}
 	cout << "Loading GT:\n";
 	ifstream inputGT(path_gt, ios::binary);
-	unsigned int *massQA = new unsigned int[qsize];
+	unsigned int *massQA = new unsigned int[qsize * 1000];
 	for (int i = 0; i < qsize; i++) {
 		int t;
 		inputGT.read((char *)&t, 4);
-		inputGT.read((char *)(massQA + i), t * 4);
-		if (t != 1) {
+		inputGT.read((char *)(massQA + 1000 * i), t * 4);
+		if (t != 1000) {
 			cout << "err";
 			return;
 		}
 	}
-
 	cout << "Loading queries:\n";
 	unsigned char *massQ = new unsigned char[qsize * vecdim];
 	ifstream inputQ(path_q, ios::binary);
