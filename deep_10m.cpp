@@ -176,7 +176,7 @@ static float test_approx(float *massQ, size_t vecsize, size_t qsize, Hierarchica
 		total += gt.size();
 		cout << "=========================" << endl;
 		cout << "Query " << i+1 << endl;
-		cout << result.top().second << endl;
+		cout << gt.top().second << endl;
 		cout << result.top().second <<  endl;
 		cout << "=========================" << endl;
 		while (gt.size()) {
