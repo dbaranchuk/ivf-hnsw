@@ -149,9 +149,9 @@ size_t getCurrentRSS()
 
 
 static void get_gt(unsigned int *massQA, float *massQ, float *mass, size_t vecsize, size_t qsize,
-                   L2Space &l2space, size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
+                   L2Space &l2space, size_t vecdim, vector<std::priority_queue< std::pair< float, labeltype >>> &answers, size_t k)
 {
-	(vector<std::priority_queue< std::pair< int, labeltype >>>(qsize)).swap(answers);
+	(vector<std::priority_queue< std::pair< float, labeltype >>>(qsize)).swap(answers);
 	DISTFUNC<float> fstdistfunc_ = l2space.get_dist_func();
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
@@ -162,15 +162,15 @@ static void get_gt(unsigned int *massQA, float *massQ, float *mass, size_t vecsi
 }
 
 static float test_approx(float *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<float> &appr_alg,
-                         size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
+                         size_t vecdim, vector<std::priority_queue< std::pair< float, labeltype >>> &answers, size_t k)
 {
 	size_t correct = 0;
 	size_t total = 0;
 	//uncomment to test in parallel mode:
 	//#pragma omp parallel for
 	for (int i = 0; i < qsize; i++) {
-		std::priority_queue< std::pair< int, labeltype >> result = appr_alg.searchKnn(massQ + 4*vecdim*i, k);
-		std::priority_queue< std::pair< int, labeltype >> gt(answers[i]);
+		std::priority_queue< std::pair< float, labeltype >> result = appr_alg.searchKnn(massQ + 4*vecdim*i, k);
+		std::priority_queue< std::pair< float, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 		total += gt.size();
 		cout << "=========================" << endl;
@@ -198,7 +198,7 @@ static float test_approx(float *massQ, size_t vecsize, size_t qsize, Hierarchica
 }
 
 static void test_vs_recall(float *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<float> &appr_alg,
-                           size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
+                           size_t vecdim, vector<std::priority_queue< std::pair< float, labeltype >>> &answers, size_t k)
 {
 	vector<size_t> efs;// = { 10,10,10,10,10 };
     for (int i = k; i < 30; i++) {
@@ -377,7 +377,7 @@ void deep_test10M()
 	}
 	printInfo(appr_alg);
 
-	vector<std::priority_queue< std::pair< int, labeltype >>> answers;
+	vector<std::priority_queue< std::pair< float, labeltype >>> answers;
 	size_t k = 1;
 	cout << "Parsing gt:\n";
 	get_gt(massQA, massQ, mass, vecsize, qsize, l2space, vecdim, answers, k);
