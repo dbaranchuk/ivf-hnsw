@@ -173,11 +173,6 @@ static float test_approx(float *massQ, size_t vecsize, size_t qsize, Hierarchica
 		std::priority_queue< std::pair< float, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 		total += gt.size();
-		//cout << "=========================" << endl;
-		//cout << "Query " << i+1 << endl;
-		//cout << gt.top().second << endl;
-		//cout << result.top().second <<  endl;
-		//cout << "=========================" << endl;
 		while (gt.size()) {
 			g.insert(gt.top().second);
 			gt.pop();
@@ -279,7 +274,7 @@ void deep_test10M()
 	char *path_q = "/sata2/dbaranchuk/deep/deep1B_queries.fvecs";
 	char *path_data = "/sata2/dbaranchuk/deep/deep10M.fvecs";
 
-	sprintf(path_index, "/sata2/dbaranchuk/deep10m_%dm_ef_%d_random.bin", efConstruction, M);
+	sprintf(path_index, "/sata2/dbaranchuk/deep/deep10m_%dm_ef_%d_one_layer.bin", efConstruction, M);
 	sprintf(path_gt,"/sata2/dbaranchuk/deep/deep10M_groundtruth1NN.ivecs");
 
 	float *massb = new float[vecdim];
