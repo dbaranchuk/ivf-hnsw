@@ -260,9 +260,9 @@ void printInfo(HierarchicalNSW<int> *hnsw)
 }
 
 /**
- * float
+ * Main DEEP Test Function
 */
-void _deep_test10M()
+void deep_test10M()
 {
 	int efConstruction = 40;
 	int M = 16;
