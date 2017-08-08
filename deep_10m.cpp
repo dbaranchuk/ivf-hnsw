@@ -152,7 +152,7 @@ static void get_gt(unsigned int *massQA, float *massQ, float *mass, size_t vecsi
                    L2Space &l2space, size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
 {
 	(vector<std::priority_queue< std::pair< int, labeltype >>>(qsize)).swap(answers);
-	DISTFUNC<int> fstdistfunc_ = l2space.get_dist_func();
+	DISTFUNC<float> fstdistfunc_ = l2space.get_dist_func();
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
