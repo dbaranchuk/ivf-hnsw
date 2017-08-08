@@ -322,15 +322,15 @@ void deep_test10M()
 	int in = 0;
 	L2Space l2space(vecdim); // I
 
-	HierarchicalNSW<int> *appr_alg;
+	HierarchicalNSW<float> *appr_alg;
 	if (exists_test(path_index)) {
 		cout << "Loading index from "<< path_index <<":\n";
-		appr_alg=new HierarchicalNSW<int>(&l2space, path_index, false);
+		appr_alg=new HierarchicalNSW<float>(&l2space, path_index, false);
 		cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 	}
 	else {
 		cout << "Building index:\n";
-		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction);
+		appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M, efConstruction);
 
 		input.read((char *)&in, 4);
 		if (in != 96)
