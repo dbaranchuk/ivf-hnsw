@@ -161,7 +161,7 @@ static void get_gt(unsigned int *massQA, float *massQ, float *mass, size_t vecsi
 	}
 }
 
-static float test_approx(float *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<int> &appr_alg,
+static float test_approx(float *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<float> &appr_alg,
                          size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
 {
 	size_t correct = 0;
