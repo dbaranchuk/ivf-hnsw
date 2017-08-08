@@ -295,8 +295,6 @@ namespace hnswlib {
         if (good) {
           returnlist.push_back(curen);
         }
-
-
       }
 
       for (std::pair< dist_t, tableint> curen2 : returnlist) {

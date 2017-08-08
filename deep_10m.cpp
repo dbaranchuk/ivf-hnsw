@@ -149,7 +149,7 @@ size_t getCurrentRSS()
 
 
 static void get_gt(unsigned int *massQA, float *massQ, float *mass, size_t vecsize, size_t qsize,
-                   L2SpaceI &l2space, size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
+                   L2Space &l2space, size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
 {
 	(vector<std::priority_queue< std::pair< int, labeltype >>>(qsize)).swap(answers);
 	DISTFUNC<int> fstdistfunc_ = l2space.get_dist_func();
@@ -320,7 +320,7 @@ void deep_test10M()
 	float *mass = new float[vecdim];
 	ifstream input(path_data, ios::binary);
 	int in = 0;
-	L2SpaceI l2space(vecdim);
+	L2Space l2space(vecdim); // I
 
 	HierarchicalNSW<int> *appr_alg;
 	if (exists_test(path_index)) {
