@@ -198,7 +198,7 @@ static float test_approx(float *massQ, size_t vecsize, size_t qsize, Hierarchica
 	return 1.0f*correct / total;
 }
 
-static void test_vs_recall(float *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<int> &appr_alg,
+static void test_vs_recall(float *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<float> &appr_alg,
                            size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
 {
 	vector<size_t> efs;// = { 10,10,10,10,10 };
@@ -251,7 +251,7 @@ void printNumElementsPerLayer(vector<int> elementLevels)
     }
 }
 
-void printInfo(HierarchicalNSW<int> *hnsw)
+void printInfo(HierarchicalNSW<float> *hnsw)
 {
     if (hnsw == NULL){
         throw "Empty HNSW";
