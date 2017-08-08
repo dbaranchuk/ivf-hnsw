@@ -173,11 +173,11 @@ static float test_approx(float *massQ, size_t vecsize, size_t qsize, Hierarchica
 		std::priority_queue< std::pair< float, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 		total += gt.size();
-		cout << "=========================" << endl;
-		cout << "Query " << i+1 << endl;
-		cout << gt.top().second << endl;
-		cout << result.top().second <<  endl;
-		cout << "=========================" << endl;
+		//cout << "=========================" << endl;
+		//cout << "Query " << i+1 << endl;
+		//cout << gt.top().second << endl;
+		//cout << result.top().second <<  endl;
+		//cout << "=========================" << endl;
 		while (gt.size()) {
 			g.insert(gt.top().second);
 			gt.pop();
