@@ -174,7 +174,8 @@ static float test_approx(float *massQ, size_t vecsize, size_t qsize, Hierarchica
 		std::priority_queue< std::pair< int, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 		total += gt.size();
-		cout << resutl.top() <<  endl;
+		cout << gt.size() << endl;
+		cout << result.top().second <<  endl;
 		
 		while (gt.size()) {
 			g.insert(gt.top().second);
@@ -183,10 +184,10 @@ static float test_approx(float *massQ, size_t vecsize, size_t qsize, Hierarchica
 
 		while (result.size()) {
 			if (g.find(result.top().second) != g.end()) {
-				
 				correct++;
 			}
-			else {				
+			else {
+
 			}
 			result.pop();
 		}
