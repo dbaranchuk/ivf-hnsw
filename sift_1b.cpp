@@ -156,7 +156,7 @@ static void get_gt(unsigned int *massQA, unsigned char *massQ, unsigned char *ma
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
-			answers[i].emplace(0.0f, massQA[100 * i + j]);
+			answers[i].emplace(0.0f, massQA[1000 * i + j]);
 		}
 	}
 }
@@ -279,8 +279,8 @@ void sift_test1B()
     char *path_q = "/sata2/dbaranchuk/synthetic_1m/sift_query.bvecs";
     char *path_data = "/sata2/dbaranchuk/synthetic_1m/sift_synthetic.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_1m/sift1m_ef_%d_M_%d_synthetic.bin", efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_1m/sift_groundtruth.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_1m/sift1m_ef_%d_M_%d_random.bin", efConstruction, M);
+    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_1m/idx_1M.ivecs");
     //char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	//char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
 
@@ -291,12 +291,12 @@ void sift_test1B()
 
 	cout << "Loading GT:\n";
 	ifstream inputGT(path_gt, ios::binary);
-	unsigned int *massQA = new unsigned int[qsize * 100];
+	unsigned int *massQA = new unsigned int[qsize * 1000];
 	for (int i = 0; i < qsize; i++) {
 		int t;
 		inputGT.read((char *)&t, 4);
-		inputGT.read((char *)(massQA + 100 * i), t * 4);
-		if (t != 100) {
+		inputGT.read((char *)(massQA + 1000 * i), t * 4);
+		if (t != 1000) {
 			cout << "err";
 			return;
 		}
@@ -349,7 +349,7 @@ void sift_test1B()
 			mass[j] = massb[j] * (1.0f);
 		}
 
-		appr_alg->addPoint((void *)(massb), (size_t)0, 0); // не было последнего 0
+		appr_alg->addPoint((void *)(massb), (size_t)0); // не было последнего 0
 		int j1 = 0;
 		StopW stopw = StopW();
 		StopW stopw_full = StopW();
@@ -388,7 +388,7 @@ void sift_test1B()
                 level = 3;
             else
                 level = 4;
-            appr_alg->addPoint((void *)(mass), (size_t)j1, level);
+            appr_alg->addPoint((void *)(mass), (size_t)j1);
 		}
 		input.close();
 		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
