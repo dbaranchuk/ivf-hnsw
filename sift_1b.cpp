@@ -397,7 +397,7 @@ void sift_test1B()
             else if (j1 < 3844)
                 level = 2;
             else if (j1 < 62344)
-                level = 2;
+                level = 1;
             else
                 level = 0;
             appr_alg->addPoint((void *)(mass), (size_t)j1, level);
