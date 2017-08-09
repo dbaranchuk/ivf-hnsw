@@ -280,7 +280,7 @@ void sift_test1B()
     char *path_data = "/sata2/dbaranchuk/synthetic_1m/sift_synthetic_reversed.bvecs";
 
     sprintf(path_index, "/sata2/dbaranchuk/synthetic_1m/sift1m_ef_%d_M_%d_reversed.bin", efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_1m/idx_1M.ivecs");
+    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_1m/idx_1M_reversed.ivecs");
     //char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	//char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
 
