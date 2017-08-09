@@ -265,9 +265,9 @@ void printInfo(HierarchicalNSW<int> *hnsw)
 */
 void sift_test1B()
 {
-	int subset_size_milllions = 10;
+	int subset_size_milllions = 1000;
 	int efConstruction = 40;
-	int M = 8;
+	int M = 16;
 
 	size_t vecsize = subset_size_milllions * 1000000;
 	size_t qsize = 10000;
@@ -278,7 +278,7 @@ void sift_test1B()
 	char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
 
-	sprintf(path_index, "/sata2/dbaranchuk/sift1b_%dm_ef_%d_M_%d_1layer.bin", subset_size_milllions, efConstruction, M);
+	sprintf(path_index, "/sata2/dbaranchuk/sift1b_%dm_ef_%d_M_%d.bin", subset_size_milllions, efConstruction, M);
 	sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
 
 	unsigned char *massb = new unsigned char[vecdim];

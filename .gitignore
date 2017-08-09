@@ -1,8 +1,7 @@
 *.make
 bin
 CMakeFiles
-cmake_install*
-cmake_build*
+cmake*
 .idea
 *.a
 Makefile
