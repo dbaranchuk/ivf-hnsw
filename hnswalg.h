@@ -47,10 +47,12 @@ namespace hnswlib {
       size_data_per_element_ = size_links_level0_ + data_size_ + sizeof(labeltype);
 
         cout << "===========================" << endl;
-        cout << "Size of Table Int: " << tableint << endl;
+        cout << "Size of Table Int: " << sizeof(tableint) << endl;
         cout << "Size 0f linklistssizeint" << sizeof(linklistsizeint) << endl;
+        cout << "size_links_level0_ :" << size_links_level0_ << endl;
         cout << "Data Size: " << data_size_ << endl;
         cout << "Size of labeltype: " << sizeof(labeltype) << endl;
+        cout << "size_data_per_element_: " << size_data_per_element_ << endl;
         cout << "===========================" << endl;
 
       offsetData_ = size_links_level0_;
