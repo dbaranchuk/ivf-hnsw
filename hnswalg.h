@@ -427,8 +427,9 @@ namespace hnswlib {
         cur_element_count++;
       }
       unique_lock<mutex> lock_el(ll_locks[cur_c]);
+
       int curlevel = getRandomLevel(mult_);
-      if (level > 0)
+      if (level >= 0) // Было прочто >
         curlevel = level;
       elementLevels[cur_c] = curlevel;
 

@@ -265,21 +265,27 @@ void printInfo(HierarchicalNSW<int> *hnsw)
 */
 void sift_test1B()
 {
-	int subset_size_milllions = 100;
+	int subset_size_milllions = 1;
 	int efConstruction = 40;
-	int M = 8;
+	int M = 16;
 
-	size_t vecsize = subset_size_milllions * 1000000;
+	size_t vecsize = 1062314;//subset_size_milllions * 1000000;
 	size_t qsize = 10000;
 	size_t vecdim = 128;
 
 	char path_index[1024];
 	char path_gt[1024];
-	char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
-	char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
+    // SMART
+    char *path_q = "/sata2/dbaranchuk/synthetic_1m/sift_query.bvecs";
+    char *path_data = "/sata2/dbaranchuk/synthetic_1m/sift_synthetic.bvecs";
 
-	sprintf(path_index, "/sata2/dbaranchuk/sift1b_%dm_ef_%d_M_%d.bin", subset_size_milllions, efConstruction, M);
-	sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_1m/sift1b_%dm_ef_%d_M_%d_synthetic.bin", subset_size_milllions, efConstruction, M);
+    sprintf(path_gt,"/sata2/dbaranchuk/bigann/synthetic_1m/idx_%dM.ivecs", subset_size_milllions);
+    //char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
+	//char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
+
+	//sprintf(path_index, "/sata2/dbaranchuk/sift1b_%dm_ef_%d_M_%d.bin", subset_size_milllions, efConstruction, M);
+	//sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
 
 	unsigned char *massb = new unsigned char[vecdim];
 
@@ -343,7 +349,7 @@ void sift_test1B()
 			mass[j] = massb[j] * (1.0f);
 		}
 
-		appr_alg->addPoint((void *)(massb), (size_t)0);
+		appr_alg->addPoint((void *)(massb), (size_t)0, 0); // не было последнего 0
 		int j1 = 0;
 		StopW stopw = StopW();
 		StopW stopw_full = StopW();
@@ -365,11 +371,24 @@ void sift_test1B()
 				}
 				j1++;
 				if (j1 % report_every == 0) {
-					cout << j1 / (0.01*vecsize) << " %, " << report_every / (1000.0*1e-6*stopw.getElapsedTimeMicro()) << " kips " << " Mem: " << getCurrentRSS() / 1000000 << " Mb \n";
-					stopw.reset();
-				}
+                    cout << j1 / (0.01 * vecsize) << " %, "
+                         << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
+                         << getCurrentRSS() / 1000000 << " Mb \n";
+                    stopw.reset();
+                }
 			}
-			appr_alg->addPoint((void *)(mass), (size_t)j1);
+            int level = 0;
+            if (j1 < 1000000)
+                level = 0;
+            else if ( j1 < 1058500)
+                level = 1;
+            else if (j1 < 1062100)
+                level = 2;
+            else if (j1 < 1062330)
+                level = 3;
+            else
+                level = 4;
+            appr_alg->addPoint((void *)(mass), (size_t)j1, level);
 		}
 		input.close();
 		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
