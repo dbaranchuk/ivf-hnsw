@@ -269,7 +269,7 @@ void sift_test1B()
 	int efConstruction = 40;
 	int M = 16;
 
-	size_t vecsize = 1062314;//subset_size_milllions * 1000000;
+	size_t vecsize = 1062344;//subset_size_milllions * 1000000;
 	size_t qsize = 10000;
 	size_t vecdim = 128;
 
