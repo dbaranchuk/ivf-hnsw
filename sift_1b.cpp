@@ -349,7 +349,7 @@ void sift_test1B()
 			mass[j] = massb[j] * (1.0f);
 		}
 
-		appr_alg->addPoint((void *)(massb), (size_t)0); // не было третьего параметра
+		appr_alg->addPoint((void *)(massb), (size_t)0, 0); // не было третьего параметра
 		int j1 = 0;
 		StopW stopw = StopW();
 		StopW stopw_full = StopW();
@@ -379,28 +379,28 @@ void sift_test1B()
 			}
             int level = 0;
             // Direct
-            //if (j1 < 1000000)
-            //    level = 0;
-            //else if ( j1 < 1058500)
-            //    level = 1;
-            //else if (j1 < 1062100)
-            //    level = 2;
-            //else if (j1 < 1062330)
-            //    level = 3;
-            //else
-            //    level = 4;
-            // Reversed
-            if (j1 < 14)
-                level = 4;
-            else if ( j1 < 244)
-                level = 3;
-            else if (j1 < 3844)
-                level = 2;
-            else if (j1 < 62344)
-                level = 1;
-            else
+            if (j1 < 1000000)
                 level = 0;
-            appr_alg->addPoint((void *)(mass), (size_t)j1);
+            else if ( j1 < 1058500)
+                level = 1;
+            else if (j1 < 1062100)
+                level = 2;
+            else if (j1 < 1062330)
+                level = 3;
+            else
+                level = 4;
+            // Reversed
+//            if (j1 < 14)
+//                level = 4;
+//            else if ( j1 < 244)
+//                level = 3;
+//            else if (j1 < 3844)
+//                level = 2;
+//            else if (j1 < 62344)
+//                level = 1;
+//            else
+//                level = 0;
+            appr_alg->addPoint((void *)(mass), (size_t)j1, level);
 		}
 		input.close();
 		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
