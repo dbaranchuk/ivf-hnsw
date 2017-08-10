@@ -1,4 +1,49 @@
-direct_synthetic_1m_smart = '''
+direct_synthetic_1m_smart = '''1	0.2823	13.3285 us	133.099 dcs
+2	0.4059	18.5259 us	161.454 dcs
+3	0.4879	22.8038 us	184.407 dcs
+4	0.5468	21.937 us	204.015 dcs
+5	0.5951	25.0815 us	222.766 dcs
+6	0.6376	28.1883 us	240.547 dcs
+7	0.6707	31.1119 us	257.468 dcs
+8	0.6965	34.0988 us	273.943 dcs
+9	0.7186	36.866 us	289.787 dcs
+10	0.7361	39.5296 us	304.295 dcs
+11	0.7533	42.0785 us	319.227 dcs
+12	0.7703	44.76 us	334.068 dcs
+13	0.783	47.2897 us	348.612 dcs
+14	0.7955	49.8908 us	362.59 dcs
+15	0.8067	52.1892 us	376.295 dcs
+16	0.8159	54.9514 us	389.916 dcs
+17	0.8236	57.3235 us	403.558 dcs
+18	0.8315	60.3294 us	416.701 dcs
+19	0.8382	62.5142 us	430.085 dcs
+20	0.8458	64.8343 us	443.64 dcs
+21	0.8521	67.2114 us	456.899 dcs
+22	0.8578	69.3213 us	469.948 dcs
+23	0.864	72.483 us	483.027 dcs
+24	0.8686	74.3246 us	495.997 dcs
+25	0.8728	76.5591 us	508.938 dcs
+26	0.8759	79.0532 us	521.849 dcs
+27	0.8805	81.8171 us	535.035 dcs
+28	0.884	84.4641 us	547.876 dcs
+29	0.8875	85.6526 us	560.493 dcs
+30	0.8918	88.6831 us	573.659 dcs
+40	0.9229	112.11 us	698.349 dcs
+50	0.9383	135.091 us	819.988 dcs
+60	0.9491	157.13 us	939.377 dcs
+70	0.9574	180.76 us	1056.22 dcs
+80	0.9638	202.858 us	1171.44 dcs
+90	0.9694	225.819 us	1284.49 dcs
+100	0.9733	246.963 us	1395.69 dcs
+140	0.9816	336.053 us	1824.34 dcs
+180	0.985	417.859 us	2233.41 dcs
+220	0.9876	500.944 us	2626.74 dcs
+260	0.9896	581.433 us	3007.99 dcs
+300	0.9907	662.413 us	3378.26 dcs
+340	0.9915	742.479 us	3738.97 dcs
+380	0.9916	821.229 us	4091.56 dcs
+420	0.9922	902.909 us	4436.73 dcs
+460	0.9925	980.675 us	4775.03 dcs
 '''
 direct_synthetic_1m_hnsw = '''1	0.2699	16.5507 us	158.614 dcs
 2	0.4063	21.7333 us	188.449 dcs
@@ -722,24 +767,24 @@ import matplotlib.pyplot as plt
 import numpy
 import re
 
-M = 10
+M = 1
 
-splitted_rnd = re.findall(r"[0-9.]+", deep_rnd_10m_1NN)
-splitted_one_layer = re.findall(r"[0-9.]+", deep_one_layer_10m_1NN)
+splitted_smart = re.findall(r"[0-9.]+", direct_synthetic_1m_smart)
+splitted_hnsw = re.findall(r"[0-9.]+", direct_synthetic_1m_hnsw)
 
 ef = range(1,30) + range(30, 100, 10) + range(100, 500, 40)
 
 
-rnd_recall = splitted_rnd[1::4]
-one_layer_recall = splitted_one_layer[1::4]
+smart_recall = splitted_rnd[1::4]
+hnsw_recall = splitted_one_layer[1::4]
 
-plt.plot(ef, rnd_recall, 'r--')
-plt.plot(ef, one_layer_recall)
+plt.plot(ef, smart_recall, 'r--')
+plt.plot(ef, hnsw_recall)
 plt.axis([1, 460, 0, 1])
 plt.xlabel('Ef', fontsize=14)
 plt.ylabel('Recall@R', fontsize=14)
-plt.text(ef[-1]+1, rnd_recall[-1], 'HNSW', fontsize=11, color=(1,0,0))
-plt.text(ef[-1]+1, float(rnd_recall[-1])-0.05, 'One Layer', fontsize=11, color=(0,0,1))
-plt.title('DEEP ' + str(M) + 'M M16 1NN Recall/Ef')
-plt.savefig('recall_ef_deep' + str(M) + 'M_M16_1NN.png')
+plt.text(ef[-1]+1, smart_recall[-1], 'Smart HNSW', fontsize=11, color=(1,0,0))
+plt.text(ef[-1]+1, float(hnsw_recall[-1])-0.05, 'HNSW', fontsize=11, color=(0,0,1))
+plt.title('SIFT' + str(M) + 'M M16 Direct Recall/Ef')
+plt.savefig('recall_ef_sift' + str(M) + 'M_M16_direct.png')
 #plt.s:ow()
