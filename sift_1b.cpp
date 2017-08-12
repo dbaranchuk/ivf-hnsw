@@ -269,18 +269,18 @@ void sift_test1B()
 	int efConstruction = 40;
 	int M = 16;
 
-	size_t vecsize = 1062344;//subset_size_milllions * 1000000;
+	size_t vecsize = 101010100;//subset_size_milllions * 1000000;
 	size_t qsize = 10000;
 	size_t vecdim = 128;
 
 	char path_index[1024];
 	char path_gt[1024];
     // SMART
-    char *path_q = "/sata2/dbaranchuk/synthetic_1m/sift_query.bvecs";
-    char *path_data = "/sata2/dbaranchuk/synthetic_1m/sift_synthetic_reversed.bvecs";
+    char *path_q = "/sata2/dbaranchuk/synthetic_1m/bigann_query.bvecs";
+    char *path_data = "/sata2/dbaranchuk/synthetic_100m/bigann_synthetic_100m.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_1m/sift1m_ef_%d_M_%d_reversed_one_layer.bin", efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_1m/idx_1M_reversed.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_1m/sift100m_ef_%d_M_%d.bin", efConstruction, M);
+    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_1m/idx_100M.ivecs");
     //char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	//char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
 
@@ -349,7 +349,7 @@ void sift_test1B()
 			mass[j] = massb[j] * (1.0f);
 		}
 
-		appr_alg->addPoint((void *)(massb), (size_t)0); // не было третьего параметра
+		appr_alg->addPoint((void *)(massb), (size_t)0, 3); // не было третьего параметра
 		int j1 = 0;
 		StopW stopw = StopW();
 		StopW stopw_full = StopW();
@@ -378,29 +378,16 @@ void sift_test1B()
                 }
 			}
             int level = 0;
-            // Direct
-//            if (j1 < 1000000)
-//                level = 0;
-//            else if ( j1 < 1058500)
-//                level = 1;
-//            else if (j1 < 1062100)
-//                level = 2;
-//            else if (j1 < 1062330)
-//                level = 3;
-//            else
-//                level = 4;
             // Reversed
-            if (j1 < 14)
-                level = 4;
-            else if ( j1 < 244)
+            if ( j1 < 100)
                 level = 3;
-            else if (j1 < 3844)
+            else if (j1 < 10000)
                 level = 2;
-            else if (j1 < 62344)
+            else if (j1 < 1000000)
                 level = 1;
             else
                 level = 0;
-            appr_alg->addPoint((void *)(mass), (size_t)j1);
+            appr_alg->addPoint((void *)(mass), (size_t)j1, level);
 		}
 		input.close();
 		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
