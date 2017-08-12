@@ -279,7 +279,7 @@ void sift_test1B()
     char *path_q = "/sata2/dbaranchuk/synthetic_100m_1m/bigann_query.bvecs";
     char *path_data = "/sata2/dbaranchuk/synthetic_100m_1m/bigann_synthetic_100m.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_1m/sift100m_ef_%d_M_%d.bin", efConstruction, M);
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_1m/sift100m_ef_%d_M_%d_hnsw.bin", efConstruction, M);
     sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_1m/idx_100M.ivecs");
     //char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	//char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
@@ -349,11 +349,11 @@ void sift_test1B()
 			mass[j] = massb[j] * (1.0f);
 		}
 
-		appr_alg->addPoint((void *)(massb), (size_t)0, 3); // не было третьего параметра
+		appr_alg->addPoint((void *)(massb), (size_t)0); // не было третьего параметра
 		int j1 = 0;
 		StopW stopw = StopW();
 		StopW stopw_full = StopW();
-		size_t report_every = 100000;
+		size_t report_every = 1010101;
 #pragma omp parallel for
 		for (int i = 1; i < vecsize; i++) {
 			unsigned char mass[128];
@@ -381,13 +381,13 @@ void sift_test1B()
             // Reversed
             if (j1 < 100)
                 level = 3;
-            else if (j1 < 10000)
+            else if (j1 < 10100)
                 level = 2;
-            else if (j1 < 1000000)
+            else if (j1 < 1010100)
                 level = 1;
             else
                 level = 0;
-            appr_alg->addPoint((void *)(mass), (size_t)j1, level);
+            appr_alg->addPoint((void *)(mass), (size_t)j1);
 		}
 		input.close();
 		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
