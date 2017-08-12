@@ -276,8 +276,8 @@ void sift_test1B()
 	char path_index[1024];
 	char path_gt[1024];
     // SMART
-    char *path_q = "/sata2/dbaranchuk/synthetic_1m/bigann_query.bvecs";
-    char *path_data = "/sata2/dbaranchuk/synthetic_100m/bigann_synthetic_100m.bvecs";
+    char *path_q = "/sata2/dbaranchuk/synthetic_100m_1m/bigann_query.bvecs";
+    char *path_data = "/sata2/dbaranchuk/synthetic_100m_1m/bigann_synthetic_100m.bvecs";
 
     sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_1m/sift100m_ef_%d_M_%d.bin", efConstruction, M);
     sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_1m/idx_100M.ivecs");
@@ -379,7 +379,7 @@ void sift_test1B()
 			}
             int level = 0;
             // Reversed
-            if ( j1 < 100)
+            if (j1 < 100)
                 level = 3;
             else if (j1 < 10000)
                 level = 2;
