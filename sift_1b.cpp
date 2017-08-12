@@ -176,7 +176,7 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 		total += gt.size();
 		
 		while (gt.size()) {
-			g.insert(gt.top().second);
+			g.insert(gt.top().second + 1010100);
 			gt.pop();
 		}
 
@@ -277,7 +277,7 @@ void sift_test1B()
 	char path_gt[1024];
     // SMART
     char *path_q = "/sata2/dbaranchuk/synthetic_100m_1m/bigann_query.bvecs";
-    char *path_data = "/sata2/dbaranchuk/synthetic_100m_1m/bigann_synthetic_100m.bvecs";
+    char *path_data = "/sata2/dbaranchuk/synthetic_100m_1m/bigann_synthetic_100m_smart.bvecs";
 
     sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_1m/sift100m_ef_%d_M_%d_hnsw.bin", efConstruction, M);
     sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_1m/idx_100M.ivecs");
