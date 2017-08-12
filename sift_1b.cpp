@@ -176,7 +176,7 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 		total += gt.size();
 		
 		while (gt.size()) {
-			g.insert(gt.top().second + 1010100);
+			g.insert(gt.top().second + 101000);
 			gt.pop();
 		}
 
@@ -269,18 +269,18 @@ void sift_test1B()
 	int efConstruction = 40;
 	int M = 16;
 
-	size_t vecsize = 101010100;//subset_size_milllions * 1000000;
+	size_t vecsize = 100101000;//subset_size_milllions * 1000000;
 	size_t qsize = 10000;
 	size_t vecdim = 128;
 
 	char path_index[1024];
 	char path_gt[1024];
     // SMART
-    char *path_q = "/sata2/dbaranchuk/synthetic_100m_1m/bigann_query.bvecs";
-    char *path_data = "/sata2/dbaranchuk/synthetic_100m_1m/bigann_synthetic_100m.bvecs";
+    char *path_q = "/sata2/dbaranchuk/synthetic_100m_100k/bigann_query.bvecs";
+    char *path_data = "/sata2/dbaranchuk/synthetic_100m_100k/bigann_synthetic_100m_100k.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_1m/sift100m_ef_%d_M_%d_hnsw.bin", efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_1m/idx_100M.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_100k/sift100m_ef_%d_M_%d_hnsw.bin", efConstruction, M);
+    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_100k/idx_100M.ivecs");
     //char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	//char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
 
@@ -353,7 +353,7 @@ void sift_test1B()
 		int j1 = 0;
 		StopW stopw = StopW();
 		StopW stopw_full = StopW();
-		size_t report_every = 1010101;
+		size_t report_every = 101000;
 #pragma omp parallel for
 		for (int i = 1; i < vecsize; i++) {
 			unsigned char mass[128];
@@ -379,11 +379,9 @@ void sift_test1B()
 			}
             int level = 0;
             // Reversed
-            if (j1 < 100)
-                level = 3;
-            else if (j1 < 10100)
+            if (j1 < 1000)
                 level = 2;
-            else if (j1 < 1010100)
+            else if (j1 < 101000)
                 level = 1;
             else
                 level = 0;
