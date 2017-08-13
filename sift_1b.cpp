@@ -269,18 +269,18 @@ void sift_test1B()
 	int efConstruction = 40;
 	int M = 16;
 
-	size_t vecsize = 100101000;//subset_size_milllions * 1000000;
+	size_t vecsize = 105263157;//subset_size_milllions * 1000000;
 	size_t qsize = 10000;
 	size_t vecdim = 128;
 
 	char path_index[1024];
 	char path_gt[1024];
     // SMART
-    char *path_q = "/sata2/dbaranchuk/synthetic_100m_100k/bigann_query.bvecs";
-    char *path_data = "/sata2/dbaranchuk/synthetic_100m_100k/bigann_synthetic_100m_100k.bvecs";
+    char *path_q = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_query.bvecs";
+    char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m_5m.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_100k/sift100m_ef_%d_M_%d_smart.bin", efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_100k/idx_100M.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_hnsw.bin", efConstruction, M);
+    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M.ivecs");
     //char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	//char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
 
@@ -349,7 +349,7 @@ void sift_test1B()
 			mass[j] = massb[j] * (1.0f);
 		}
 
-		appr_alg->addPoint((void *)(massb), (size_t)0, 2); // не было третьего параметра
+		appr_alg->addPoint((void *)(massb), (size_t)0); // не было третьего параметра
 		int j1 = 0;
 		StopW stopw = StopW();
 		StopW stopw_full = StopW();
@@ -379,13 +379,19 @@ void sift_test1B()
 			}
             int level = 0;
             // Reversed
-            if (j1 < 1000)
+            if (j1 < 32)
+                level = 5;
+            else if (j1 < 657)
+                level = 4;
+            else if (j1 < 13157)
+                level = 3;
+            else if (j1 < 263157)
                 level = 2;
-            else if (j1 < 101000)
+            else if (j1 < 5263157)
                 level = 1;
             else
                 level = 0;
-            appr_alg->addPoint((void *)(mass), (size_t)j1, level);
+            appr_alg->addPoint((void *)(mass), (size_t)j1);
 		}
 		input.close();
 		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
