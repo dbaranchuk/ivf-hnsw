@@ -176,7 +176,7 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 		total += gt.size();
 		
 		while (gt.size()) {
-			g.insert(gt.top().second + 5263157);
+			g.insert(gt.top().second);
 			gt.pop();
 		}
 
@@ -269,18 +269,18 @@ void sift_test1B()
 	int efConstruction = 40;
 	int M = 16;
 
-	size_t vecsize = 105263157;//subset_size_milllions * 1000000;
+	size_t vecsize = 100101000;//105263157;//subset_size_milllions * 1000000;
 	size_t qsize = 10000;
 	size_t vecdim = 128;
 
 	char path_index[1024];
 	char path_gt[1024];
     // SMART
-    char *path_q = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_query.bvecs";
-    char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m_5m.bvecs";
+    char *path_q = "/sata2/dbaranchuk/synthetic_100m_100k/bigann_query.bvecs";
+    char *path_data = "/sata2/dbaranchuk/synthetic_100m_100k/bigann_synthetic_100m_100k.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_smart.bin", efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_100k/sift100m_ef_%d_M_%d_smart.bin", efConstruction, M);
+    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_100k/idx_100M_synthetic.ivecs");
     //char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	//char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
 
