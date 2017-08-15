@@ -211,8 +211,8 @@ static void test_vs_recall(unsigned char *massQ, size_t vecsize, size_t qsize, H
 		appr_alg.setEf(ef);
 		StopW stopw = StopW();
 		appr_alg.dist_calc = 0;
-        appr_alg.nev9zka = 0;
-		float recall = test_approx(massQ, vecsize, qsize, appr_alg, vecdim, answers, k)
+        appr_alg.nev9zka = 0.0;
+		float recall = test_approx(massQ, vecsize, qsize, appr_alg, vecdim, answers, k);
 		float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
 		float avr_dist_count = appr_alg.dist_calc*1.f / qsize;
 		cout << ef << "\t" << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\n";
