@@ -196,16 +196,16 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 static void test_vs_recall(unsigned char *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<int> &appr_alg,
                            size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
 {
-	vector<size_t> efs = {30, 100, 460};
-//    for (int i = k; i < 30; i++) {
-//		efs.push_back(i);
-//	}
-//	for (int i = 30; i < 100; i+=10) {
-//		efs.push_back(i);
-//	}
-//	for (int i = 100; i < 500; i += 40) {
-//		efs.push_back(i);
-//	}
+	vector<size_t> efs; //= {30, 100, 460};
+    for (int i = k; i < 30; i++) {
+		efs.push_back(i);
+	}
+	for (int i = 30; i < 100; i+=10) {
+		efs.push_back(i);
+	}
+	for (int i = 100; i < 500; i += 40) {
+		efs.push_back(i);
+	}
 	for (size_t ef : efs)
 	{
 		appr_alg.setEf(ef);
@@ -220,9 +220,8 @@ static void test_vs_recall(unsigned char *massQ, size_t vecsize, size_t qsize, H
 			cout << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\n";
 			break;
 		}
-
-        cout << ef << "\t" << "Average distance from 0 level entry point to query: " << appr_alg.nev9zka << endl;
-	}
+    }
+    cout << "Average distance from 0 level entry point to query: " << appr_alg.nev9zka << endl;
 }
 
 inline bool exists_test(const std::string& name) {
