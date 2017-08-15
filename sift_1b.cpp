@@ -222,9 +222,9 @@ static void test_vs_recall(unsigned char *massQ, size_t vecsize, size_t qsize, H
 			cout << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\n";
 			break;
 		}
-        cout << "Average hops on levels 1+: " << appr_alg.hops << endl;
         cout << "Average hops on level 0: " << appr_alg.hops0 << endl;
     }
+    cout << "Average hops on levels 1+: " << appr_alg.hops << endl;
     cout << "Average distance from 0 level entry point to query: " << appr_alg.nev9zka << endl;
 }
 
