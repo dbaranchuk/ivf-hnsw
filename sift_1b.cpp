@@ -169,13 +169,11 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 	//uncomment to test in parallel mode:
 	//#pragma omp parallel for
 	for (int i = 0; i < qsize; i++) {
-
 		std::priority_queue< std::pair< int, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k);
 		std::priority_queue< std::pair< int, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 		total += gt.size();
 
-        //cout << "GT dist: " << gt.top().first << " Result dist: " << result.top().first << endl;
 		while (gt.size()) {
 			g.insert(gt.top().second);
 			gt.pop();
@@ -280,7 +278,7 @@ void sift_test1B()
     char *path_q = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_query.bvecs";
     char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m_5m.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_hnsw.bin", efConstruction, M);
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_smart.bin", efConstruction, M);
     sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M_synthetic.ivecs");
     //char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	//char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
