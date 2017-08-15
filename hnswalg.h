@@ -530,6 +530,7 @@ namespace hnswlib {
           }
         }
       }
+
       if (this->ef_ == 30 || this->ef_ == 100 || this->ef_ == 460){
           cout << curdist << endl;
       }
@@ -636,8 +637,6 @@ namespace hnswlib {
       readBinaryPOD(input, M_);
       readBinaryPOD(input, mult_);
       readBinaryPOD(input, efConstruction_);
-      cout << efConstruction_ << "\n";
-
 
 
       data_size_ = s->get_data_size();
