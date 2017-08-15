@@ -219,10 +219,9 @@ static void test_vs_recall(unsigned char *massQ, size_t vecsize, size_t qsize, H
 		float avr_dist_count = appr_alg.dist_calc*1.f / qsize;
 		cout << ef << "\t" << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\n";
 		if (recall > 1.0) {
-			cout << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\n";
+			cout << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\t" << appr_alg.hops0+appr_alg.hops << " hps\n";
 			break;
 		}
-        cout << "Average hops on level 0: " << appr_alg.hops0 << endl;
     }
     cout << "Average hops on levels 1+: " << appr_alg.hops << endl;
     cout << "Average distance from 0 level entry point to query: " << appr_alg.nev9zka << endl;
