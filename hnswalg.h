@@ -531,7 +531,7 @@ namespace hnswlib {
         }
       }
       if (this->ef_ == 30 || this->ef_ == 100 || this->ef_ == 460){
-          cout << "Ef: " << this->ef_ << " Dist from 0 level entry point to query: " << curdist << endl;
+          cout << curdist << endl;
       }
 
       std::priority_queue< std::pair< dist_t, tableint  >, vector<pair<dist_t, tableint>>, CompareByFirst> topResults = searchBaseLayerST(currObj, query_data, ef_);
