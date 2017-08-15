@@ -246,6 +246,7 @@ namespace hnswlib {
             dist_t dist = fstdistfunc_(datapoint, currObj1, dist_func_param_);
             dist_calc++;
             if (topResults.top().first > dist || topResults.size() < ef) {
+                this->hops0 += (1.0f) / 10000; //
               candidateSet.emplace(-dist, tnum);
               _mm_prefetch(data_level0_memory_ + candidateSet.top().second * size_data_per_element_ + offsetLevel0_,///////////
                 _MM_HINT_T0);////////////////////////
@@ -410,7 +411,10 @@ namespace hnswlib {
     }
     mutex global;
     size_t ef_;
+      // My
       float nev9zka = 0.0;
+      float hops = 0.0;
+      float hops0 = 0.0;
 
     void setEf(size_t ef) {
       ef_ = ef;
@@ -525,6 +529,7 @@ namespace hnswlib {
             dist_t d = fstdistfunc_(query_data, getDataByInternalId(cand), dist_func_param_);
             dist_calc++;
             if (d < curdist) {
+                this->hops += (1.0f) / 10000; //
               curdist = d;
               currObj = cand;
               changed = true;
