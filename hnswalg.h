@@ -410,9 +410,7 @@ namespace hnswlib {
     }
     mutex global;
     size_t ef_;
-      float nev9zka_30 = 0.0;
-      float nev9zka_100 = 0.0;
-      float nev9zka_460 = 0.0;
+      float nev9zka = 0.0;
 
     void setEf(size_t ef) {
       ef_ = ef;
@@ -534,18 +532,7 @@ namespace hnswlib {
           }
         }
       }
-
-        switch(this->ef_){
-            case 30:
-                this->nev9zka_30 += curdist * (1.0f) / 10000;
-                break;
-            case 100:
-                this->nev9zka_100 += curdist * (1.0f) / 10000;
-                break;
-            case 460:
-                this->nev9zka_460 += curdist * (1.0f) / 10000;
-                break;
-        }
+        this->nev9zka += curdist * (1.0f) / 10000;
 
       std::priority_queue< std::pair< dist_t, tableint  >, vector<pair<dist_t, tableint>>, CompareByFirst> topResults = searchBaseLayerST(currObj, query_data, ef_);
       std::priority_queue< std::pair< dist_t, labeltype >> results;
