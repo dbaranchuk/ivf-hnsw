@@ -280,8 +280,8 @@ void sift_test1B()
     char *path_q = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_query.bvecs";
     char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m_5m_shuffled.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_hnsw_shuffled.bin", efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M_synthetic_shuffled.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_hnsw.bin", efConstruction, M);
+    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M_synthetic.ivecs");
     //char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	//char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
 
