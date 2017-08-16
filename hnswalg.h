@@ -334,96 +334,96 @@ namespace hnswlib {
             return (linklistsizeint *) (linkLists_[cur_c] + (level - 1) * size_links_per_element_);
         };
 
-//        void mutuallyConnectNewElement(void *datapoint, tableint cur_c,
-//                                       std::priority_queue<std::pair<dist_t, tableint>> topResults, int level)
-//        {
-//            size_t Mcurmax = level ? maxM_ : maxM0_;
-//            getNeighborsByHeuristic2(topResults, M_);
-//            while (topResults.size() > M_) {
-//                throw exception();
-//                topResults.pop();
-//            }
-//            vector<tableint> rez;
-//            rez.reserve(M_);
-//            while (topResults.size() > 0) {
-//                rez.push_back(topResults.top().second);
-//                topResults.pop();
-//            }
-//            {
-//                linklistsizeint *ll_cur;
-//                if (level == 0)
-//                    ll_cur = (linklistsizeint *) (data_level0_memory_ + cur_c * size_data_per_element_ + offsetLevel0_);
-//                else
-//                    ll_cur = (linklistsizeint *) (linkLists_[cur_c] + (level - 1) * size_links_per_element_);
-//                if (*ll_cur) {
-//                    cout << *ll_cur << "\n";
-//                    cout << elementLevels[cur_c] << "\n";
-//                    cout << level << "\n";
-//                    throw runtime_error("Should be blank");
-//                }
-//                *ll_cur = rez.size();
-//                tableint *data = (tableint *) (ll_cur + 1);
-//
-//
-//                for (int idx = 0; idx < rez.size(); idx++) {
-//                    if (data[idx])
-//                        throw runtime_error("Should be blank");
-//                    if (level > elementLevels[rez[idx]])
-//                        throw runtime_error("Bad level");
-//                    data[idx] = rez[idx];
-//                }
-//            }
-//            for (int idx = 0; idx < rez.size(); idx++) {
-//
-//                unique_lock <mutex> lock(ll_locks[rez[idx]]);
-//
-//                if (rez[idx] == cur_c)
-//                    throw runtime_error("Connection to the same element");
-//
-//                linklistsizeint *ll_other;
-//                if (level == 0)
-//                    ll_other = (linklistsizeint *) (data_level0_memory_ + rez[idx] * size_data_per_element_ +
-//                                                    offsetLevel0_);
-//                else
-//                    ll_other = (linklistsizeint *) (linkLists_[rez[idx]] + (level - 1) * size_links_per_element_);
-//                if (level > elementLevels[rez[idx]])
-//                    throw runtime_error("Bad level");
-//                int sz_link_list_other = *ll_other;
-//
-//                if (sz_link_list_other > Mcurmax || sz_link_list_other < 0)
-//                    throw runtime_error("Bad sz_link_list_other");
-//
-//                if (sz_link_list_other < Mcurmax) {
-//                    tableint *data = (tableint *) (ll_other + 1);
-//                    data[sz_link_list_other] = cur_c;
-//                    *ll_other = sz_link_list_other + 1;
-//                } else {
-//                    // finding the "weakest" element to replace it with the new one
-//                    tableint *data = (tableint *) (ll_other + 1);
-//                    dist_t d_max = fstdistfunc_(getDataByInternalId(cur_c), getDataByInternalId(rez[idx]),
-//                                                dist_func_param_);
-//                    // Heuristic:
-//                    std::priority_queue<std::pair<dist_t, tableint>> candidates;
-//                    candidates.emplace(d_max, cur_c);
-//
-//                    for (int j = 0; j < sz_link_list_other; j++) {
-//                        candidates.emplace(fstdistfunc_(getDataByInternalId(data[j]), getDataByInternalId(rez[idx]),
-//                                                        dist_func_param_), data[j]);
-//                    }
-//
-//                    getNeighborsByHeuristic2(candidates, Mcurmax);
-//
-//                    int indx = 0;
-//                    while (candidates.size() > 0) {
-//                        data[indx] = candidates.top().second;
-//                        candidates.pop();
-//                        indx++;
-//                    }
-//                    *ll_other = indx;
-//                }
-//
-//            }
-//        }
+        void mutuallyConnectNewElement(void *datapoint, tableint cur_c,
+                                       std::priority_queue<std::pair<dist_t, tableint>> topResults, int level)
+        {
+            size_t Mcurmax = level ? maxM_ : maxM0_;
+            getNeighborsByHeuristic2(topResults, M_);
+            while (topResults.size() > M_) {
+                throw exception();
+                topResults.pop();
+            }
+            vector<tableint> rez;
+            rez.reserve(M_);
+            while (topResults.size() > 0) {
+                rez.push_back(topResults.top().second);
+                topResults.pop();
+            }
+            {
+                linklistsizeint *ll_cur;
+                if (level == 0)
+                    ll_cur = (linklistsizeint *) (data_level0_memory_ + cur_c * size_data_per_element_ + offsetLevel0_);
+                else
+                    ll_cur = (linklistsizeint *) (linkLists_[cur_c] + (level - 1) * size_links_per_element_);
+                if (*ll_cur) {
+                    cout << *ll_cur << "\n";
+                    cout << elementLevels[cur_c] << "\n";
+                    cout << level << "\n";
+                    throw runtime_error("Should be blank");
+                }
+                *ll_cur = rez.size();
+                tableint *data = (tableint *) (ll_cur + 1);
+
+
+                for (int idx = 0; idx < rez.size(); idx++) {
+                    if (data[idx])
+                        throw runtime_error("Should be blank");
+                    if (level > elementLevels[rez[idx]])
+                        throw runtime_error("Bad level");
+                    data[idx] = rez[idx];
+                }
+            }
+            for (int idx = 0; idx < rez.size(); idx++) {
+
+                unique_lock <mutex> lock(ll_locks[rez[idx]]);
+
+                if (rez[idx] == cur_c)
+                    throw runtime_error("Connection to the same element");
+
+                linklistsizeint *ll_other;
+                if (level == 0)
+                    ll_other = (linklistsizeint *) (data_level0_memory_ + rez[idx] * size_data_per_element_ +
+                                                    offsetLevel0_);
+                else
+                    ll_other = (linklistsizeint *) (linkLists_[rez[idx]] + (level - 1) * size_links_per_element_);
+                if (level > elementLevels[rez[idx]])
+                    throw runtime_error("Bad level");
+                int sz_link_list_other = *ll_other;
+
+                if (sz_link_list_other > Mcurmax || sz_link_list_other < 0)
+                    throw runtime_error("Bad sz_link_list_other");
+
+                if (sz_link_list_other < Mcurmax) {
+                    tableint *data = (tableint *) (ll_other + 1);
+                    data[sz_link_list_other] = cur_c;
+                    *ll_other = sz_link_list_other + 1;
+                } else {
+                    // finding the "weakest" element to replace it with the new one
+                    tableint *data = (tableint *) (ll_other + 1);
+                    dist_t d_max = fstdistfunc_(getDataByInternalId(cur_c), getDataByInternalId(rez[idx]),
+                                                dist_func_param_);
+                    // Heuristic:
+                    std::priority_queue<std::pair<dist_t, tableint>> candidates;
+                    candidates.emplace(d_max, cur_c);
+
+                    for (int j = 0; j < sz_link_list_other; j++) {
+                        candidates.emplace(fstdistfunc_(getDataByInternalId(data[j]), getDataByInternalId(rez[idx]),
+                                                        dist_func_param_), data[j]);
+                    }
+
+                    getNeighborsByHeuristic2(candidates, Mcurmax);
+
+                    int indx = 0;
+                    while (candidates.size() > 0) {
+                        data[indx] = candidates.top().second;
+                        candidates.pop();
+                        indx++;
+                    }
+                    *ll_other = indx;
+                }
+
+            }
+        }
 
         mutex global;
         size_t ef_;
