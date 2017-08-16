@@ -399,6 +399,11 @@ void sift_test1B()
                 appr_alg->M_ = 4;
                 appr_alg->maxM0_ = 8;
                 appr_alg->maxM_ = 8;
+                appr_alg->size_links_level0_ = appr_alg->maxM0_ * sizeof(tableint) + sizeof(linklistsizeint);
+                appr_alg->size_data_per_element_ = appr_alg->size_links_level0_ + appr_alg->data_size_ + sizeof(labeltype);
+                //appr_alg->offsetData_ = size_links_level0_;
+                //appr_alg->label_offset_ = size_links_level0_ + data_size_;
+                //appr_alg->offsetLevel0_ = 0;
             }
             appr_alg->addPoint((void *)(mass), (size_t)j1, level);
 		}
