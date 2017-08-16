@@ -282,10 +282,10 @@ void sift_test1B()
 	char path_gt[1024];
     // SMART
     char *path_q = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_query.bvecs";
-    char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m_5m_shuffled.bvecs";
+    char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m_5m.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_hnsw_shuffled.bin", efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M_synthetic_shuffled.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_smart_construction.bin", efConstruction, M);
+    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M_synthetic.ivecs");
     //char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	//char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
 
@@ -394,9 +394,11 @@ void sift_test1B()
                 level = 2;
             else if (j1 < 5263157)
                 level = 1;
-            else
+            else {
                 level = 0;
-            appr_alg->addPoint((void *)(mass), (size_t)j1);
+                appr_alg->efConstruction_ = 1;
+            }
+            appr_alg->addPoint((void *)(mass), (size_t)j1, level);
 		}
 		input.close();
 		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
