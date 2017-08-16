@@ -175,7 +175,8 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 		unordered_set <labeltype> g;
 		total += gt.size();
 
-        float dist2gt = appr_alg.fstdistfunc_(massQ+vecdim*i, appr_alg.getDataByInternalId(appr_alg.enterpoint0),
+        float dist2gt = appr_alg.fstdistfunc_(appr_alg.getDataByInternalId(gt.top().second),
+                                              appr_alg.getDataByInternalId(appr_alg.enterpoint0),
                                               appr_alg.dist_func_param_);
         appr_alg.nev9zka += dist2gt / 10000;
 
