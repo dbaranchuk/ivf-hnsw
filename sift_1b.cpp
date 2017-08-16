@@ -276,7 +276,7 @@ void printInfo(HierarchicalNSW<int> *hnsw)
 void sift_test1B()
 {
 	int subset_size_milllions = 1;
-	int efConstruction = 40;
+	int efConstruction = 60;
 	int M = 16;
 
 	size_t vecsize = 105263157;//subset_size_milllions * 1000000;
@@ -287,10 +287,10 @@ void sift_test1B()
 	char path_gt[1024];
     // SMART
     char *path_q = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_query.bvecs";
-    char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m_5m.bvecs";
+    char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m_shuffled.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_smart.bin", efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M_synthetic.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_hnsw_shuffled.bin", efConstruction, M);
+    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M_synthetic_shuffled.ivecs");
     //char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	//char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
 
