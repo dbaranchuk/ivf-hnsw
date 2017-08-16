@@ -389,8 +389,10 @@ void sift_test1B()
 			}
             int level = 0;
             // Reversed
-            if (j1 < 32)
+            if (j1 < 32) {
                 level = 5;
+                appr_alg->efConstruction_ = 240;
+            }
             else if (j1 < 657)
                 level = 4;
             else if (j1 < 13157)
@@ -401,6 +403,7 @@ void sift_test1B()
                 level = 1;
             else {
                 level = 0;
+                appr_alg->efConstruction_ = 60;
                 //appr_alg->M_ = 4;
                 //appr_alg->maxM0_ = 8;
                 //appr_alg->maxM_ = 8;
