@@ -354,7 +354,7 @@ void sift_test1B()
 			mass[j] = massb[j] * (1.0f);
 		}
 
-		appr_alg->addPoint((void *)(massb), (size_t)0); // не было третьего параметра
+		appr_alg->addPoint((void *)(massb), (size_t)0, 5); // не было третьего параметра
 		int j1 = 0;
 		StopW stopw = StopW();
 		StopW stopw_full = StopW();
@@ -398,6 +398,7 @@ void sift_test1B()
                 level = 0;
                 appr_alg->M_ = 1;
                 appr_alg->maxM0_ = 2;
+                appr_alg->maxM_ = 2;
             }
             appr_alg->addPoint((void *)(mass), (size_t)j1, level);
 		}
