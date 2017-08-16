@@ -403,7 +403,7 @@ void sift_test1B()
                 level = 1;
             else {
                 level = 0;
-                //appr_alg->efConstruction_ = 10;
+                appr_alg->efConstruction_ = 60;
                 //appr_alg->M_ = 4;
                 //appr_alg->maxM0_ = 8;
                 //appr_alg->maxM_ = 8;
