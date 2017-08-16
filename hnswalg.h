@@ -341,11 +341,14 @@ namespace hnswlib {
 
 
         for (int idx = 0; idx < rez.size(); idx++) {
-          if (data[idx])
-            throw runtime_error("Should be blank");
-          if (level > elementLevels[rez[idx]])
+          if (data[idx]) {
+              cout << "HUIE" << endl;
+              throw runtime_error("Should be blank");
+          }
+          if (level > elementLevels[rez[idx]]){
+              cout << "HUIO" << endl;
             throw runtime_error("Bad level");
-
+          }
           data[idx] = rez[idx];
         }
       }
@@ -353,20 +356,25 @@ namespace hnswlib {
 
         unique_lock<mutex> lock(ll_locks[rez[idx]]);
 
-        if (rez[idx] == cur_c)
-          throw runtime_error("Connection to the same element");
+        if (rez[idx] == cur_c) {
+            cout << "HUII" << endl;
+            throw runtime_error("Connection to the same element");
+        }
         linklistsizeint *ll_other;
         if (level == 0)
           ll_other = (linklistsizeint *)(data_level0_memory_ + rez[idx] * size_data_per_element_ + offsetLevel0_);
         else
           ll_other = (linklistsizeint *)(linkLists_[rez[idx]] + (level - 1) * size_links_per_element_);
-        if (level > elementLevels[rez[idx]])
-          throw runtime_error("Bad level");
+        if (level > elementLevels[rez[idx]]) {
+            cout << "HUIA" << endl;
+            throw runtime_error("Bad level");
+        }
         int sz_link_list_other = *ll_other;
 
-        if (sz_link_list_other > Mcurmax || sz_link_list_other < 0)
-          throw runtime_error("Bad sz_link_list_other");
-
+        if (sz_link_list_other > Mcurmax || sz_link_list_other < 0) {
+            cout << "HUI" << endl;
+            throw runtime_error("Bad sz_link_list_other");
+        }
         if (sz_link_list_other < Mcurmax) {
           tableint *data = (tableint *)(ll_other + 1);
           data[sz_link_list_other] = cur_c;
