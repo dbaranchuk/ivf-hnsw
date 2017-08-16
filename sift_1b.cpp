@@ -272,7 +272,7 @@ void sift_test1B()
 {
 	int subset_size_milllions = 1;
 	int efConstruction = 40;
-	int M = 16;
+	int M = 8;
 
 	size_t vecsize = 105263157;//subset_size_milllions * 1000000;
 	size_t qsize = 10000;
@@ -284,7 +284,7 @@ void sift_test1B()
     char *path_q = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_query.bvecs";
     char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m_5m.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_smart_construction.bin", efConstruction, M);
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_smart.bin", efConstruction, M);
     sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M_synthetic.ivecs");
     //char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	//char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
@@ -396,11 +396,11 @@ void sift_test1B()
                 level = 1;
             else {
                 level = 0;
-                appr_alg->M_ = 4;
-                appr_alg->maxM0_ = 8;
-                appr_alg->maxM_ = 8;
-                appr_alg->size_links_level0_ = appr_alg->maxM0_ * sizeof(tableint) + sizeof(linklistsizeint);
-                appr_alg->size_data_per_element_ = appr_alg->size_links_level0_ + appr_alg->data_size_ + sizeof(labeltype);
+                //appr_alg->M_ = 4;
+                //appr_alg->maxM0_ = 8;
+                //appr_alg->maxM_ = 8;
+                //appr_alg->size_links_level0_ = appr_alg->maxM0_ * sizeof(tableint) + sizeof(linklistsizeint);
+                //appr_alg->size_data_per_element_ = appr_alg->size_links_level0_ + appr_alg->data_size_ + sizeof(labeltype);
                 //appr_alg->offsetData_ = size_links_level0_;
                 //appr_alg->label_offset_ = size_links_level0_ + data_size_;
                 //appr_alg->offsetLevel0_ = 0;
