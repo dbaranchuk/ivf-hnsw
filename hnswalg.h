@@ -435,7 +435,7 @@ namespace hnswlib {
       unique_lock<mutex> lock_el(ll_locks[cur_c]);
 
       int curlevel = getRandomLevel(mult_);
-      if (level > 0) //
+      if (level >= 0) //
         curlevel = level;
       elementLevels[cur_c] = curlevel;
 
