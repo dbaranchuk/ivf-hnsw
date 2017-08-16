@@ -166,6 +166,7 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 {
 	size_t correct = 0;
 	size_t total = 0;
+
 	//uncomment to test in parallel mode:
 	//#pragma omp parallel for
 	for (int i = 0; i < qsize; i++) {
@@ -173,6 +174,10 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 		std::priority_queue< std::pair< int, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 		total += gt.size();
+
+        float dist2gt = appr_alg.fstdistfunc_(massQ+vecdim*i, appr_alg.getDataByInternalId(appr_alg.enterpoint0),
+                                              appr_alg.dist_func_param_);
+        appr_alg.nev9zka += dist2gt / 10000;
 
 		while (gt.size()) {
 			g.insert(gt.top().second);
@@ -217,13 +222,12 @@ static void test_vs_recall(unsigned char *massQ, size_t vecsize, size_t qsize, H
 		float recall = test_approx(massQ, vecsize, qsize, appr_alg, vecdim, answers, k);
 		float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
 		float avr_dist_count = appr_alg.dist_calc*1.f / qsize;
-		cout << ef << "\t" << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\t" << appr_alg.hops0+appr_alg.hops << " hps\n";
+		cout << ef << "\t" << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\t" << appr_alg.hops0 + appr_alg.hops << " hps\n";
 		if (recall > 1.0) {
 			cout << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\n";
 			break;
 		}
     }
-
     cout << "Average hops on levels 1+: " << appr_alg.hops << endl;
     cout << "Average distance from 0 level entry point to query: " << appr_alg.nev9zka << endl;
 }
@@ -271,7 +275,7 @@ void printInfo(HierarchicalNSW<int> *hnsw)
 void sift_test1B()
 {
 	int subset_size_milllions = 1;
-	int efConstruction = 100;
+	int efConstruction = 60;
 	int M = 16;
 
 	size_t vecsize = 105263157;//subset_size_milllions * 1000000;

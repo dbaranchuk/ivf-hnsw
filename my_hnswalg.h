@@ -48,6 +48,7 @@ namespace hnswlib {
             efConstruction_ = efConstruction;
             ef_ = 7;
 
+
             size_links_level0_ = maxM0_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_data_per_element_ = size_links_level0_ + data_size_ + sizeof(labeltype);
             offsetData_ = size_links_level0_;
@@ -75,6 +76,7 @@ namespace hnswlib {
         }
 
         ~HierarchicalNSW() {
+
             free(data_level0_memory_);
             for (tableint i = 0; i < cur_element_count; i++) {
                 if (elementLevels[i] > 0)
@@ -164,7 +166,7 @@ namespace hnswlib {
 
                 tableint curNodeNum = curr_el_pair.second;
 
-                unique_lock<mutex> lock(ll_locks[curNodeNum]);
+                unique_lock <mutex> lock(ll_locks[curNodeNum]);
 
                 int *data;// = (int *)(linkList0_ + curNodeNum * size_links_per_element0_);
                 if (layer == 0)
@@ -365,7 +367,7 @@ namespace hnswlib {
             }
             for (int idx = 0; idx < rez.size(); idx++) {
 
-                unique_lock<mutex> lock(ll_locks[rez[idx]]);
+                unique_lock <mutex> lock(ll_locks[rez[idx]]);
 
                 if (rez[idx] == cur_c)
                     throw runtime_error("Connection to the same element");
@@ -379,10 +381,9 @@ namespace hnswlib {
                     throw runtime_error("Bad level");
                 int sz_link_list_other = *ll_other;
 
-                if (sz_link_list_other > Mcurmax || sz_link_list_other < 0) {
-                    cout << "HUI" << endl;
+                if (sz_link_list_other > Mcurmax || sz_link_list_other < 0)
                     throw runtime_error("Bad sz_link_list_other");
-                }
+
                 if (sz_link_list_other < Mcurmax) {
                     tableint *data = (tableint *) (ll_other + 1);
                     data[sz_link_list_other] = cur_c;
@@ -431,6 +432,7 @@ namespace hnswlib {
         size_t ef_;
         // My
         float nev9zka = 0.0;
+        tableint enterpoint0 = 0.0;
         float hops = 0.0;
         float hops0 = 0.0;
 
@@ -442,7 +444,7 @@ namespace hnswlib {
 
             tableint cur_c = 0;
             {
-                unique_lock<mutex> lock(cur_element_count_guard_);
+                unique_lock <mutex> lock(cur_element_count_guard_);
                 if (cur_element_count >= maxelements_) {
                     cout << "The number of elements exceeds the specified limit\n";
                     throw runtime_error("The number of elements exceeds the specified limit");
@@ -450,7 +452,7 @@ namespace hnswlib {
                 cur_c = cur_element_count;
                 cur_element_count++;
             }
-            unique_lock<mutex> lock_el(ll_locks[cur_c]);
+            unique_lock <mutex> lock_el(ll_locks[cur_c]);
 
             int curlevel = getRandomLevel(mult_);
             if (level >= 0) //
@@ -458,7 +460,7 @@ namespace hnswlib {
             elementLevels[cur_c] = curlevel;
 
 
-            unique_lock<mutex> templock(global);
+            unique_lock <mutex> templock(global);
             int maxlevelcopy = maxlevel_;
             if (curlevel <= maxlevelcopy)
                 templock.unlock();
@@ -485,7 +487,7 @@ namespace hnswlib {
                         while (changed) {
                             changed = false;
                             int *data;
-                            unique_lock<mutex> lock(ll_locks[currObj]);
+                            unique_lock <mutex> lock(ll_locks[currObj]);
                             data = (int *) (linkLists_[currObj] + (level - 1) * size_links_per_element_);
                             int size = *data;
                             tableint *datal = (tableint *) (data + 1);
@@ -513,14 +515,12 @@ namespace hnswlib {
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
                 }
 
-
             } else {
                 // Do nothing for the first element
                 enterpoint_node = 0;
                 maxlevel_ = curlevel;
 
             }
-
             //Releasing lock for the maximum level
             if (curlevel > maxlevelcopy) {
                 enterpoint_node = cur_c;
@@ -555,7 +555,7 @@ namespace hnswlib {
                     }
                 }
             }
-            this->nev9zka += curdist * (1.0f) / 10000;
+            this->enterpoint0 = currObj;
 
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> topResults = searchBaseLayerST(
                     currObj, query_data, ef_);
@@ -607,7 +607,6 @@ namespace hnswlib {
         };
 
         void SaveIndex(const string &location) {
-
             cout << "Saving index to " << location.c_str() << "\n";
             std::ofstream output(location, std::ios::binary);
             streampos position;
@@ -639,8 +638,6 @@ namespace hnswlib {
         }
 
         void LoadIndex(const string &location, SpaceInterface<dist_t> *s) {
-
-
             //cout << "Loading index from " << location;
             std::ifstream input(location, std::ios::binary);
             streampos position;
