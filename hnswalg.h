@@ -35,10 +35,12 @@ namespace hnswlib {
             LoadIndex(location, s);
         }
 
-        HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxElements, size_t M = 16, size_t efConstruction = 200) :
+        HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxElements, size_t M = 16, size_t efConstruction = 200,
+                        size_t maxClusters = 0, size_t M_cluster = 0) :
                 ll_locks(maxElements), elementLevels(maxElements)
         {
             maxelements_ = maxElements;
+            maxclusters_ = maxClusters;
 
             data_size_ = s->get_data_size();
             fstdistfunc_ = s->get_dist_func();
@@ -49,28 +51,41 @@ namespace hnswlib {
             efConstruction_ = efConstruction;
             ef_ = 7;
 
+            M_cluster_ = M_cluster;
+            maxM_cluster_ = M_cluster_;
+            maxM0_cluster_ = M_cluster_ * 2;
+
+            size_links_level0_cluster_ = maxM0_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
+            size_data_per_cluster_ = size_links_level0_cluster_ + data_size_ + sizeof(labeltype);
+            offsetData_cluster_ = size_links_level0_cluster;
+            level_offset_cluster_ = size_links_level0_cluster_ + data_size_;
+            offsetLevel0_cluster_ = 0;
 
             size_links_level0_ = maxM0_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_data_per_element_ = size_links_level0_ + data_size_ + sizeof(labeltype);
             offsetData_ = size_links_level0_;
             label_offset_ = size_links_level0_ + data_size_;
-            offsetLevel0_ = 0;
+            offsetLevel0_ = (maxclusters_ == 0) ? 0 : maxclusters_ * size_data_per_cluster_;
+
             cout << offsetData_ << "\t" << label_offset_ << "\n";
             cout << size_links_level0_ << "\t" << data_size_ << "\t" << sizeof(labeltype) << "\n";
 
-            data_level0_memory_ = (char *) malloc(maxelements_ * size_data_per_element_);
+            data_level0_memory_ = (char *) malloc(maxclusters_ * size_data_per_cluster_ + maxelements_ * size_data_per_element_);
 
             size_t predicted_size_per_element = size_data_per_element_ + sizeof(void *) + 8 + 8 + 2 * 8;
-            cout << "size_mb=" << maxelements_ * (predicted_size_per_element) / (1000 * 1000) << "\n";
+            size_t predicted_size_per_cluster = size_data_per_cluster_ + sizeof(void *) + 8 + 8 + 2 * 8;
+            size_t total_size = maxclusters_ * predicted_size_per_cluster + maxelements_ * predicted_size_per_element;
+            cout << "Size Mb: " << total_size / (1000 * 1000) << "\n";
             cur_element_count = 0;
 
-            visitedlistpool = new VisitedListPool(1, maxElements);
+            visitedlistpool = new VisitedListPool(1, maxelements_ + maxclusters_);
 
             //initializations for special treatment of the first node
             enterpoint_node = -1;
             maxlevel_ = -1;
 
-            linkLists_ = (char **) malloc(sizeof(void *) * maxelements_);
+            linkLists_ = (char **) malloc(sizeof(void *) * (maxelements_ + maxclusters_));
+            size_links_per_cluster_ = maxM_cluster * sizeof(tableint) + sizeof(linklistsizeint);
             size_links_per_element_ = maxM_ * sizeof(tableint) + sizeof(linklistsizeint);
             mult_ = 1 / log(1.0 * M_);
             revSize_ = 1.0 / mult_;
@@ -86,6 +101,18 @@ namespace hnswlib {
             free(linkLists_);
             delete visitedlistpool;
         }
+        // Fields
+        size_t maxclusters_;
+        size_t size_data_per_cluster_;
+        size_t size_links_per_cluster_;
+
+        size_t M_cluster_;
+        size_t maxM_cluster;
+        size_t maxM0_cluster_;
+
+        size_t size_links_level0_cluster_;
+        size_t offsetData_cluster_;
+        size_t offsetLevel0_cluster_;
 
         size_t maxelements_;
         size_t cur_element_count;
@@ -429,7 +456,7 @@ namespace hnswlib {
         size_t ef_;
         // My
         float nev9zka = 0.0;
-        tableint enterpoint0 = 0.0;
+        tableint enterpoint0;
         float hops = 0.0;
         float hops0 = 0.0;
 
