@@ -184,6 +184,26 @@ namespace hnswlib {
             }
         }
 
+        inline linklistsizeint *get_linklist0(tableint cur_c)
+        {
+            if (cur_c < maxclusters_)
+                return (linklistsizeint *) (data_level0_memory_ + cur_c * size_data_per_cluster_ + offsetLevel0_);
+            else {
+                tableint cur_c_element = cur_c - maxclusters_;
+                return (linklistsizeint *) (data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
+                                            cur_c_element * size_data_per_element_ + offsetLevel0_);
+            }
+        };
+
+        inline linklistsizeint *get_linklist(tableint cur_c, int level)
+        {
+            //In Smart hnsw only clusters on the above levels
+            if (curNodeNum < maxclusters_)
+                return (linklistsizeint *) (linkLists_[cur_c] + (level - 1) * size_links_per_cluster_);
+            else
+                return (linklistsizeint *) (linkLists_[cur_c] + (level - 1) * size_links_per_element_);
+        };
+
         int getRandomLevel(double revSize)
         {
             std::uniform_real_distribution<double> distribution(0.0, 1.0);
@@ -221,19 +241,9 @@ namespace hnswlib {
 
                 int *data;// = (int *)(linkList0_ + curNodeNum * size_links_per_element0_);
                 if (layer == 0)
-                    if (curNodeNum < maxclusters_)
-                        data = (int *) (data_level0_memory_ + curNodeNum * size_data_per_cluster_ + offsetLevel0_);
-                    else{
-                        tableint curNodeElementNum = curNodeNum - maxclusters_;
-                        data = (int *) (data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-                                        curNodeElementNum * size_data_per_element_ + offsetLevel0_);
-                    }
+                    data = get_linklist0(curNodeNum);
                 else {
-                    //In Smart hnsw only clusters on the above layers
-                    if (curNodeNum < maxclusters_)
-                        data = (int *) (linkLists_[curNodeNum] + (layer - 1) * size_links_per_cluster_);
-                    else
-                        data = (int *) (linkLists_[curNodeNum] + (layer - 1) * size_links_per_element_);
+                    data = get_linklist(curNodeNum, layer);
                 }
                 int size = *data;
                 tableint *datal = (tableint *) (data + 1);
@@ -411,16 +421,6 @@ namespace hnswlib {
             }
         }
 
-        linklistsizeint *get_linklist0(tableint cur_c)
-        {
-            return (linklistsizeint *) (data_level0_memory_ + cur_c * size_data_per_element_ + offsetLevel0_);
-        };
-
-        linklistsizeint *get_linklist(tableint cur_c, int level)
-        {
-            return (linklistsizeint *) (linkLists_[cur_c] + (level - 1) * size_links_per_element_);
-        };
-
         void mutuallyConnectNewElement(void *datapoint, tableint cur_c,
                                        std::priority_queue<std::pair<dist_t, tableint>> topResults, int level)
         {
@@ -439,9 +439,9 @@ namespace hnswlib {
             {
                 linklistsizeint *ll_cur;
                 if (level == 0)
-                    ll_cur = (linklistsizeint *) (data_level0_memory_ + cur_c * size_data_per_element_ + offsetLevel0_);
+                    ll_cur = get_linklist0(cur_c);
                 else
-                    ll_cur = (linklistsizeint *) (linkLists_[cur_c] + (level - 1) * size_links_per_element_);
+                    ll_cur = get_linklist(cur_c, level);
                 if (*ll_cur) {
                     cout << *ll_cur << "\n";
                     cout << elementLevels[cur_c] << "\n";
@@ -469,10 +469,10 @@ namespace hnswlib {
 
                 linklistsizeint *ll_other;
                 if (level == 0)
-                    ll_other = (linklistsizeint *) (data_level0_memory_ + rez[idx] * size_data_per_element_ +
-                                                    offsetLevel0_);
+                    ll_other = get_linklist0(rez[idx]);
                 else
-                    ll_other = (linklistsizeint *) (linkLists_[rez[idx]] + (level - 1) * size_links_per_element_);
+                    ll_other = get_linklist(rez[idx], level);
+                
                 if (level > elementLevels[rez[idx]])
                     throw runtime_error("Bad level");
                 int sz_link_list_other = *ll_other;
