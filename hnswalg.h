@@ -705,7 +705,7 @@ namespace hnswlib {
                 if (linkListSize)
                     output.write(linkLists_[i], linkListSize);
             }
-            for (size_t i = max_clusters_; i < maxelements_; i++) {
+            for (size_t i = maxclusters_; i < maxelements_; i++) {
                 unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_element_ * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
@@ -757,7 +757,7 @@ namespace hnswlib {
             size_links_per_element_ = maxM_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_links_per_cluster_ = maxM_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
 
-            visitedlistpool = new VisitedListPool(1, max_clusters + maxelements_);
+            visitedlistpool = new VisitedListPool(1, maxclusters + maxelements_);
 
 
             linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ + maxelements_));
