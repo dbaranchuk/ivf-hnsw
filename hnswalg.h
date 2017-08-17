@@ -564,14 +564,13 @@ namespace hnswlib {
                 curlevel = level;
             elementLevels[cur_c] = curlevel;
 
-
             unique_lock <mutex> templock(global);
             int maxlevelcopy = maxlevel_;
             if (curlevel <= maxlevelcopy)
                 templock.unlock();
             tableint currObj = enterpoint_node;
 
-            if (cur_c < maxelements_) {
+            if (cur_c < maxclusters_) {
                 memset(data_level0_memory_ + cur_c * size_data_per_cluster_ + offsetLevel0_, 0, size_data_per_cluster_);
             } else {
                 tableint cur_c_element = cur_c - maxclusters_;
