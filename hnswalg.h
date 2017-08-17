@@ -479,6 +479,12 @@ namespace hnswlib {
                 if (rez[idx] == cur_c)
                     throw runtime_error("Connection to the same element");
 
+                size_t Mrezmax;
+                if (rez[idx] < maxclusters_)
+                    Mrezmax = level ? maxM_cluster_ : maxM0_cluster_;
+                else
+                    Mrezmax = level ? maxM_ : maxM0_;
+
                 linklistsizeint *ll_other;
                 if (level == 0)
                     ll_other = get_linklist0(rez[idx]);
@@ -492,12 +498,12 @@ namespace hnswlib {
 
                 int sz_link_list_other = *ll_other;
 
-                if (sz_link_list_other > Mcurmax || sz_link_list_other < 0) {
+                if (sz_link_list_other > Mrezmax || sz_link_list_other < 0) {
                     cout << 0 << endl;
                     throw runtime_error("Bad sz_link_list_other");
                 }
 
-                if (sz_link_list_other < Mcurmax) {
+                if (sz_link_list_other < Mrezmax) {
                     tableint *data = (tableint *) (ll_other + 1);
                     data[sz_link_list_other] = cur_c;
                     *ll_other = sz_link_list_other + 1;
@@ -515,7 +521,7 @@ namespace hnswlib {
                                                         dist_func_param_), data[j]);
                     }
 
-                    getNeighborsByHeuristic(candidates, Mcurmax);
+                    getNeighborsByHeuristic(candidates, Mrezmax);
 
                     int indx = 0;
                     while (candidates.size() > 0) {
