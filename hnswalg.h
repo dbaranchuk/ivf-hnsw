@@ -37,7 +37,7 @@ namespace hnswlib {
 
         HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxElements, size_t M = 16, size_t efConstruction = 200,
                         size_t maxClusters = 0, size_t M_cluster = 0) :
-                ll_locks(maxElements), elementLevels(maxElements)
+                ll_locks(maxElements + maxClusters), elementLevels(maxElements + maxClusters)
         {
             maxelements_ = maxElements;
             maxclusters_ = maxClusters;
@@ -426,7 +426,6 @@ namespace hnswlib {
             getNeighborsByHeuristic(topResults, curM);
 
             while (topResults.size() > curM) {
-                cout << 4 << endl;
                 throw exception();
                 topResults.pop();
             }
@@ -652,7 +651,7 @@ namespace hnswlib {
                     tableint *datal = (tableint *) (data + 1);
                     for (linklistsizeint i = 0; i < size; i++) {
                         tableint cand = datal[i];
-                        if (cand < 0 || cand > maxelements_)
+                        if (cand < 0 || cand > (maxelements_ + maxclusters_))
                             throw runtime_error("cand error");
                         dist_t d = fstdistfunc_(query_data, getDataByInternalId(cand), dist_func_param_);
                         dist_calc++;
@@ -777,7 +776,7 @@ namespace hnswlib {
 
 
             linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ + maxelements_));
-            cout << maxelements_ << "\n";
+            cout << maxelements_ + maxclusters_ << "\n";
             elementLevels = vector<int>(maxclusters_ + maxelements_);
             revSize_ = 1.0 / mult_;
             ef_ = 10;
