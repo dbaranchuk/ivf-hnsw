@@ -276,7 +276,7 @@ void printInfo(HierarchicalNSW<int> *hnsw)
 void sift_test1B()
 {
 	int subset_size_milllions = 100;
-	int efConstruction = 60;
+	int efConstruction = 10;
 	int M = 16;
     int M_cluster = 4;
 
