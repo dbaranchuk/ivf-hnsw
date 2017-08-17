@@ -59,13 +59,13 @@ namespace hnswlib {
             size_data_per_cluster_ = size_links_level0_cluster_ + data_size_ + sizeof(labeltype);
             offsetData_cluster_ = size_links_level0_cluster_;
             label_offset_cluster_ = size_links_level0_cluster_ + data_size_;
-            offsetLevel0_cluster_ = 0;
+            //offsetLevel0_cluster_ = 0;
 
             size_links_level0_ = maxM0_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_data_per_element_ = size_links_level0_ + data_size_ + sizeof(labeltype);
             offsetData_ = size_links_level0_;
             label_offset_ = size_links_level0_ + data_size_;
-            offsetLevel0_ = (maxclusters_ == 0) ? 0 : maxclusters_ * size_data_per_cluster_;
+            offsetLevel0_ = 0;//(maxclusters_ == 0) ? 0 : maxclusters_ * size_data_per_cluster_;
 
             cout << offsetData_ << "\t" << label_offset_ << "\n";
             cout << size_links_level0_ << "\t" << data_size_ << "\t" << sizeof(labeltype) << "\n";
@@ -112,7 +112,7 @@ namespace hnswlib {
 
         size_t size_links_level0_cluster_;
         size_t offsetData_cluster_;
-        size_t offsetLevel0_cluster_;
+        //size_t offsetLevel0_cluster_;
         size_t label_offset_cluster_;
 
         size_t maxelements_;
@@ -221,9 +221,20 @@ namespace hnswlib {
 
                 int *data;// = (int *)(linkList0_ + curNodeNum * size_links_per_element0_);
                 if (layer == 0)
-                    data = (int *) (data_level0_memory_ + curNodeNum * size_data_per_element_ + offsetLevel0_);
-                else
-                    data = (int *) (linkLists_[curNodeNum] + (layer - 1) * size_links_per_element_);
+                    if (curNodeNum < maxclusters_)
+                        data = (int *) (data_level0_memory_ + curNodeNum * size_data_per_cluster_ + offsetLevel0_);
+                    else{
+                        tableint curNodeElementNum = curNodeNum - maxclusters;
+                        data = (int *) (data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
+                                        curNodeElementNum * size_data_per_element_ + offsetLevel0_);
+                    }
+                else {
+                    //In Smart hnsw only clusters on the above layers
+                    if (curNodeNum < maxclusters_)
+                        data = (int *) (linkLists_[curNodeNum] + (layer - 1) * size_links_per_cluster_);
+                    else
+                        data = (int *) (linkLists_[curNodeNum] + (layer - 1) * size_links_per_element_);
+                }
                 int size = *data;
                 tableint *datal = (tableint *) (data + 1);
                 _mm_prefetch((char *) (massVisited + *(data + 1)), _MM_HINT_T0);
@@ -237,7 +248,7 @@ namespace hnswlib {
                     _mm_prefetch(getDataByInternalId(*(datal + j + 1)), _MM_HINT_T0);
                     if (!(massVisited[tnum] == currentV)) {
                         massVisited[tnum] = currentV;
-                        char *currObj1 = (getDataByInternalId(tnum));
+                        char *currObj1 = getDataByInternalId(tnum);
 
                         dist_t dist = fstdistfunc_(datapoint, currObj1, dist_func_param_);
                         if (topResults.top().first > dist || topResults.size() < efConstruction_) {
@@ -290,18 +301,41 @@ namespace hnswlib {
                 candidateSet.pop();
 
                 tableint curNodeNum = curr_el_pair.second;
-                int *data = (int *) (data_level0_memory_ + curNodeNum * size_data_per_element_ + offsetLevel0_);
+                int *data;
+                if (curNodeNum < maxclusters_)
+                    data = (int *) (data_level0_memory_ + curNodeNum * size_data_per_clusters_ + offsetLevel0_);
+                else {
+                    tableint curNodeElementNum = curNodeNum - maxclusters_;
+                    data = (int *) (data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
+                                    curNodeElementNum * size_data_per_element_ + offsetLevel0_);
+                }
                 int size = *data;
-                _mm_prefetch((char *) (massVisited + *(data + 1)), _MM_HINT_T0);
-                _mm_prefetch((char *) (massVisited + *(data + 1) + 64), _MM_HINT_T0);
-                _mm_prefetch(data_level0_memory_ + (*(data + 1)) * size_data_per_element_ + offsetData_, _MM_HINT_T0);
+                tableint nextNum = *(data + 1); /////!!!!!
+
+                _mm_prefetch((char *) (massVisited + nextNum), _MM_HINT_T0);
+                _mm_prefetch((char *) (massVisited + nextNum + 64), _MM_HINT_T0);
+                if (nextNum < maxclusters_)
+                    _mm_prefetch(data_level0_memory_ + nextNum * size_data_per_clusters_ + offsetData_, _MM_HINT_T0);
+                else {
+                    tableint nextElementNum = nextNum - maxclusters_;
+                    _mm_prefetch(data_level0_memory_ + maxclusters_ * size_data_per_clusters_ +
+                                 nextElementNum * size_data_per_element_ + offsetData_, _MM_HINT_T0);
+                }//////!!!!!!
                 _mm_prefetch((char *) (data + 2), _MM_HINT_T0);
 
                 for (int j = 1; j <= size; j++) {
                     int tnum = *(data + j);
-                    _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
-                    _mm_prefetch(data_level0_memory_ + (*(data + j + 1)) * size_data_per_element_ + offsetData_,
-                                 _MM_HINT_T0);////////////
+                    int next_tnum = *(data + j + 1); ///////!!!!!!!!
+                    ///////////////////
+                    _mm_prefetch((char *) (massVisited + next_tnum), _MM_HINT_T0);
+                    if (next_tnum < maxclusters_)
+                        _mm_prefetch(data_level0_memory_ + next_tnum * size_data_per_cluster_ + offsetData_cluster_,
+                                 _MM_HINT_T0);
+                    else {
+                        tableint next_tnum_element = next_tnum - maxclusters_;
+                        _mm_prefetch(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
+                                     next_tnum_element * size_data_per_element_ + offsetData_, _MM_HINT_T0);
+                    }
                     if (!(massVisited[tnum] == currentV)) {
 
                         massVisited[tnum] = currentV;
@@ -311,9 +345,16 @@ namespace hnswlib {
                         dist_calc++;
                         if (topResults.top().first > dist || topResults.size() < ef) {
                             candidateSet.emplace(-dist, tnum);
-                            _mm_prefetch(data_level0_memory_ + candidateSet.top().second * size_data_per_element_ +
-                                         offsetLevel0_,///////////
-                                         _MM_HINT_T0);////////////////////////
+
+                            tableint candNum = candidateSet.top().second;
+                            if (candNum < maxclusters_)
+                                _mm_prefetch(data_level0_memory_ + candNum * size_data_per_cluster_ + offsetLevel0_,
+                                             _MM_HINT_T0);
+                            else {
+                                tableint candElementNum = candNum - maxclusters_;
+                                _mm_prefetch(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
+                                             candNum * size_data_per_element_ + offsetLevel0_, _MM_HINT_T0);
+                            }
 
                             topResults.emplace(dist, tnum);
 
@@ -457,7 +498,7 @@ namespace hnswlib {
                                                         dist_func_param_), data[j]);
                     }
 
-                    getNeighborsByHeuristic2(candidates, Mcurmax);
+                    getNeighborsByHeuristic(candidates, Mcurmax);
 
                     int indx = 0;
                     while (candidates.size() > 0) {
