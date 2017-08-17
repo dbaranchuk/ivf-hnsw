@@ -181,12 +181,12 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
         appr_alg.nev9zka += dist2gt / 10000;
 
 		while (gt.size()) {
-			g.insert(gt.top().second);
+			g.insert(gt.top().second + 5263157);
 			gt.pop();
 		}
 
 		while (result.size()) {
-			if (g.find(result.top().second + 5263157) != g.end()) {
+			if (g.find(result.top().second) != g.end()) {
 				
 				correct++;
 			}
@@ -277,7 +277,7 @@ void sift_test1B()
 {
 	int subset_size_milllions = 100;
 	int efConstruction = 60;
-	int M = 2;
+	int M = 16;
     int M_cluster = 2;
 
     size_t clustersize = 5263157;
