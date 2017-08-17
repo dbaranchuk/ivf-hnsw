@@ -362,7 +362,7 @@ void sift_test1B()
 			mass[j] = massb[j] * (1.0f);
 		}
 
-		appr_alg->addPoint((void *)(massb), (size_t)0); // не было третьего параметра
+		appr_alg->addPoint((void *)(massb), (size_t)0, 5); // не было третьего параметра
 		int j1 = 0;
 		StopW stopw = StopW();
 		StopW stopw_full = StopW();
@@ -392,9 +392,8 @@ void sift_test1B()
 			}
             int level = 0;
             // Reversed
-            if (j1 < 32) {
+            if (j1 < 32)
                 level = 5;
-            }
             else if (j1 < 657)
                 level = 4;
             else if (j1 < 13157)
@@ -403,9 +402,6 @@ void sift_test1B()
                 level = 2;
             else if (j1 < 5263157)
                 level = 1;
-            else {
-                level = 0;
-            }
             appr_alg->addPoint((void *)(mass), (size_t)j1, level);
 		}
 		input.close();
