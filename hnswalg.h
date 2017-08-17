@@ -57,8 +57,8 @@ namespace hnswlib {
 
             size_links_level0_cluster_ = maxM0_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_data_per_cluster_ = size_links_level0_cluster_ + data_size_ + sizeof(labeltype);
-            offsetData_cluster_ = size_links_level0_cluster;
-            level_offset_cluster_ = size_links_level0_cluster_ + data_size_;
+            offsetData_cluster_ = size_links_level0_cluster_;
+            lebel_offset_cluster_ = size_links_level0_cluster_ + data_size_;
             offsetLevel0_cluster_ = 0;
 
             size_links_level0_ = maxM0_ * sizeof(tableint) + sizeof(linklistsizeint);
@@ -107,12 +107,13 @@ namespace hnswlib {
         size_t size_links_per_cluster_;
 
         size_t M_cluster_;
-        size_t maxM_cluster;
+        size_t maxM_cluster_;
         size_t maxM0_cluster_;
 
         size_t size_links_level0_cluster_;
         size_t offsetData_cluster_;
         size_t offsetLevel0_cluster_;
+        size_t label_offset_cluster_;
 
         size_t maxelements_;
         size_t cur_element_count;
@@ -629,7 +630,7 @@ namespace hnswlib {
 
         void LoadIndex(const string &location, SpaceInterface<dist_t> *s)
         {
-            cout << "Loading index from " << location;
+            cout << "Loading index from " << location << endl;
             std::ifstream input(location, std::ios::binary);
             streampos position;
 
