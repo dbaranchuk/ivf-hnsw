@@ -331,7 +331,7 @@ namespace hnswlib {
             return topResults;
         }
 
-        void getNeighborsByHeuristic2(std::priority_queue<std::pair<dist_t, tableint>> &topResults, const int NN) {
+        void getNeighborsByHeuristic(std::priority_queue<std::pair<dist_t, tableint>> &topResults, const int NN) {
             if (topResults.size() < NN)
                 return;
 
@@ -384,7 +384,7 @@ namespace hnswlib {
                                        std::priority_queue<std::pair<dist_t, tableint>> topResults, int level)
         {
             size_t Mcurmax = level ? maxM_ : maxM0_;
-            getNeighborsByHeuristic2(topResults, M_);
+            getNeighborsByHeuristic(topResults, M_);
             while (topResults.size() > M_) {
                 throw exception();
                 topResults.pop();
