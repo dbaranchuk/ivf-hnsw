@@ -348,7 +348,7 @@ void sift_test1B()
     }
 	else {
 		cout << "Building index:\n";
-		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize+clustersize, M, efConstruction, 0/*clustersize*/, M_cluster);
+		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
 
 		input.read((char *)&in, 4);
 		if (in != 128)
