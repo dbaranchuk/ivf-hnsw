@@ -58,7 +58,7 @@ namespace hnswlib {
             size_links_level0_cluster_ = maxM0_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_data_per_cluster_ = size_links_level0_cluster_ + data_size_ + sizeof(labeltype);
             offsetData_cluster_ = size_links_level0_cluster_;
-            lebel_offset_cluster_ = size_links_level0_cluster_ + data_size_;
+            label_offset_cluster_ = size_links_level0_cluster_ + data_size_;
             offsetLevel0_cluster_ = 0;
 
             size_links_level0_ = maxM0_ * sizeof(tableint) + sizeof(linklistsizeint);
@@ -85,7 +85,7 @@ namespace hnswlib {
             maxlevel_ = -1;
 
             linkLists_ = (char **) malloc(sizeof(void *) * (maxelements_ + maxclusters_));
-            size_links_per_cluster_ = maxM_cluster * sizeof(tableint) + sizeof(linklistsizeint);
+            size_links_per_cluster_ = maxM_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_links_per_element_ = maxM_ * sizeof(tableint) + sizeof(linklistsizeint);
             mult_ = 1 / log(1.0 * M_);
             revSize_ = 1.0 / mult_;
