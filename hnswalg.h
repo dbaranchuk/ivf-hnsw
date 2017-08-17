@@ -548,16 +548,28 @@ namespace hnswlib {
                 templock.unlock();
             tableint currObj = enterpoint_node;
 
-
-            memset(data_level0_memory_ + cur_c * size_data_per_element_ + offsetLevel0_, 0, size_data_per_element_);
+            if (cur_c < maxelements_) {
+                memset(data_level0_memory_ + cur_c * size_data_per_cluster_ + offsetLevel0_, 0, size_data_per_cluster_);
+            } else {
+                tableint cur_c_element = cur_c - maxclusters_;
+                memset(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
+                       cur_c_element * size_data_per_element_ + offsetLevel0_, 0, size_data_per_element_);
+            }
             // Initialisation of the data and label
             memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
             memcpy(getDataByInternalId(cur_c), datapoint, data_size_);
 
 
             if (curlevel) {
-                linkLists_[cur_c] = (char *) malloc(size_links_per_element_ * curlevel);
-                memset(linkLists_[cur_c], 0, size_links_per_element_ * curlevel);
+                // Above levels contain only clusters
+                if (cur_c < maxclusters_) {
+                    linkLists_[cur_c] = (char *) malloc(size_links_per_clusters_ * curlevel);
+                    memset(linkLists_[cur_c], 0, size_links_per_clusters_ * curlevel);
+                }
+                else {
+                    linkLists_[cur_c] = (char *) malloc(size_links_per_elements_ * curlevel);
+                    memset(linkLists_[cur_c], 0, size_links_per_element_ * curlevel);
+                }
             }
             if (currObj != -1) {
                 if (curlevel < maxlevelcopy) {
@@ -568,12 +580,12 @@ namespace hnswlib {
                         bool changed = true;
                         while (changed) {
                             changed = false;
-                            int *data;
+                            linklistsizeint *data;
                             unique_lock <mutex> lock(ll_locks[currObj]);
-                            data = (int *) (linkLists_[currObj] + (level - 1) * size_links_per_element_);
-                            int size = *data;
+                            data = get_linklist(currObj, level);
+                            linklistsizeint size = *data;
                             tableint *datal = (tableint *) (data + 1);
-                            for (int i = 0; i < size; i++) {
+                            for (linklistsizeint i = 0; i < size; i++) {
                                 tableint cand = datal[i];
                                 if (cand < 0 || cand > maxelements_)
                                     throw runtime_error("cand error");
@@ -619,11 +631,10 @@ namespace hnswlib {
                 bool changed = true;
                 while (changed) {
                     changed = false;
-                    int *data;
-                    data = (int *) (linkLists_[currObj] + (level - 1) * size_links_per_element_);
-                    int size = *data;
+                    linklistsizeint *data = get_linklist(currObj, level);
+                    linklistsizeint size = *data;
                     tableint *datal = (tableint *) (data + 1);
-                    for (int i = 0; i < size; i++) {
+                    for (linklistsizeint i = 0; i < size; i++) {
                         tableint cand = datal[i];
                         if (cand < 0 || cand > maxelements_)
                             throw runtime_error("cand error");
