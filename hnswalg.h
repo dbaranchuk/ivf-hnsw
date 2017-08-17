@@ -59,7 +59,6 @@ namespace hnswlib {
             size_data_per_cluster_ = size_links_level0_cluster_ + data_size_ + sizeof(labeltype);
             offsetData_cluster_ = size_links_level0_cluster_;
             label_offset_cluster_ = size_links_level0_cluster_ + data_size_;
-            //offsetLevel0_cluster_ = 0;
 
             size_links_level0_ = maxM0_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_data_per_element_ = size_links_level0_ + data_size_ + sizeof(labeltype);
@@ -242,17 +241,17 @@ namespace hnswlib {
                 linklistsizeint *data;
                 if (layer == 0)
                     data = get_linklist0(curNodeNum);
-                else {
+                else
                     data = get_linklist(curNodeNum, layer);
-                }
-                int size = *data;
+
+                linklistsizeint size = *data;
                 tableint *datal = (tableint *) (data + 1);
                 _mm_prefetch((char *) (massVisited + *(data + 1)), _MM_HINT_T0);
                 _mm_prefetch((char *) (massVisited + *(data + 1) + 64), _MM_HINT_T0);
                 _mm_prefetch(getDataByInternalId(*datal), _MM_HINT_T0);
                 _mm_prefetch(getDataByInternalId(*(datal + 1)), _MM_HINT_T0);
 
-                for (int j = 0; j < size; j++) {
+                for (linklistsizeint j = 0; j < size; j++) {
                     tableint tnum = *(datal + j);
                     _mm_prefetch((char *) (massVisited + *(datal + j + 1)), _MM_HINT_T0);
                     _mm_prefetch(getDataByInternalId(*(datal + j + 1)), _MM_HINT_T0);
@@ -621,6 +620,7 @@ namespace hnswlib {
 
                     std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
                                                                                                     level);
+                    cout << label << level << endl;
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
                 }
 
