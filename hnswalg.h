@@ -198,7 +198,7 @@ namespace hnswlib {
         inline linklistsizeint *get_linklist(tableint cur_c, int level)
         {
             //In Smart hnsw only clusters on the above levels
-            if (curNodeNum < maxclusters_)
+            if (cur_c < maxclusters_)
                 return (linklistsizeint *) (linkLists_[cur_c] + (level - 1) * size_links_per_cluster_);
             else
                 return (linklistsizeint *) (linkLists_[cur_c] + (level - 1) * size_links_per_element_);
