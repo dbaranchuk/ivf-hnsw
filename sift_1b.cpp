@@ -277,13 +277,13 @@ void sift_test1B()
 {
 	int subset_size_milllions = 100;
 	int efConstruction = 10;
-	int M = 8;
-    int M_cluster = 4;
+	int M = 2;
+    int M_cluster = 16;
 
     size_t clustersize = 5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
 
-	size_t vecsize = subset_size_milllions * 1000000 + clustersize; // remove clustersize
+	size_t vecsize = subset_size_milllions * 1000000;// + clustersize; // remove clustersize
 	size_t qsize = 10000;
 	size_t vecdim = 128;
 
@@ -348,7 +348,7 @@ void sift_test1B()
     }
 	else {
 		cout << "Building index:\n";
-		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction);//, clustersize, M_cluster);
+		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
 
 		input.read((char *)&in, 4);
 		if (in != 128)

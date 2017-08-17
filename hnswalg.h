@@ -424,14 +424,21 @@ namespace hnswlib {
         void mutuallyConnectNewElement(void *datapoint, tableint cur_c,
                                        std::priority_queue<std::pair<dist_t, tableint>> topResults, int level)
         {
-            size_t Mcurmax = level ? maxM_ : maxM0_;
-            getNeighborsByHeuristic(topResults, M_);
-            while (topResults.size() > M_) {
+            size_t Mcurmax;
+            if (cur_c < maxclusters_)
+                Mcurmax = level ? maxM_cluster_ : maxM0_cluster_;
+            else
+                Mcurmax = level ? maxM_ : maxM0_;
+
+            size_t curM = cur_c < maxclusters_ ? M_cluster_ : M_;
+            getNeighborsByHeuristic(topResults, curM);
+
+            while (topResults.size() > curM) {
                 throw exception();
                 topResults.pop();
             }
             vector<tableint> rez;
-            rez.reserve(M_);
+            rez.reserve(curM);
             while (topResults.size() > 0) {
                 rez.push_back(topResults.top().second);
                 topResults.pop();
@@ -606,6 +613,7 @@ namespace hnswlib {
 
                     std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
                                                                                                     level);
+                    cout << "HUI" << endl;
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
                 }
 
