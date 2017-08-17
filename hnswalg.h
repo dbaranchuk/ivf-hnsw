@@ -239,7 +239,7 @@ namespace hnswlib {
 
                 unique_lock <mutex> lock(ll_locks[curNodeNum]);
 
-                int *data;// = (int *)(linkList0_ + curNodeNum * size_links_per_element0_);
+                linklistsizeint *data;
                 if (layer == 0)
                     data = get_linklist0(curNodeNum);
                 else {
@@ -472,7 +472,7 @@ namespace hnswlib {
                     ll_other = get_linklist0(rez[idx]);
                 else
                     ll_other = get_linklist(rez[idx], level);
-                
+
                 if (level > elementLevels[rez[idx]])
                     throw runtime_error("Bad level");
                 int sz_link_list_other = *ll_other;
