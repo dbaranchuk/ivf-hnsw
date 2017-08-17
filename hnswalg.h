@@ -311,15 +311,8 @@ namespace hnswlib {
                 candidateSet.pop();
 
                 tableint curNodeNum = curr_el_pair.second;
-                int *data;
-                if (curNodeNum < maxclusters_)
-                    data = (int *) (data_level0_memory_ + curNodeNum * size_data_per_cluster_ + offsetLevel0_);
-                else {
-                    tableint curNodeElementNum = curNodeNum - maxclusters_;
-                    data = (int *) (data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-                                    curNodeElementNum * size_data_per_element_ + offsetLevel0_);
-                }
-                int size = *data;
+                linklistsizeint *data = get_linklist0(curNodeNum);
+                linklistsizeint size = *data;
                 tableint nextNum = *(data + 1); /////!!!!!
 
                 _mm_prefetch((char *) (massVisited + nextNum), _MM_HINT_T0);
@@ -333,7 +326,7 @@ namespace hnswlib {
                 }//////!!!!!!
                 _mm_prefetch((char *) (data + 2), _MM_HINT_T0);
 
-                for (int j = 1; j <= size; j++) {
+                for (linklistsizeint j = 1; j <= size; j++) {
                     int tnum = *(data + j);
                     int next_tnum = *(data + j + 1); ///////!!!!!!!!
                     ///////////////////
@@ -609,7 +602,7 @@ namespace hnswlib {
                             tableint *datal = (tableint *) (data + 1);
                             for (linklistsizeint i = 0; i < size; i++) {
                                 tableint cand = datal[i];
-                                if (cand < 0 || cand > maxelements_)
+                                if (cand < 0 || cand > (maxelements_ + maxclusters_))
                                     throw runtime_error("cand error");
                                 dist_t d = fstdistfunc_(datapoint, getDataByInternalId(cand), dist_func_param_);
                                 if (d < curdist) {
