@@ -151,7 +151,7 @@ namespace hnswlib {
         void *dist_func_param_;
         std::default_random_engine generator = std::default_random_engine(100);
 
-        inline labeltype getExternalLabeL(tableint internal_id)
+        inline labeltype getExternalLabel(tableint internal_id)
         {
             if (internal_id < maxclusters_)
                 return *((labeltype *) (data_level0_memory_ + internal_id * size_data_per_cluster_ + label_offset_cluster_));
@@ -161,7 +161,8 @@ namespace hnswlib {
                                       internal_element_id * size_data_per_element_ + label_offset_));
             }
         }
-        inline labeltype *getExternalLabeLp(tableint internal_id)
+
+        inline labeltype *getExternalLabelPointer(tableint internal_id)
         {
             if (internal_id < maxclusters_)
                 return (labeltype *) (data_level0_memory_ + internal_id * size_data_per_cluster_ + label_offset_cluster_);
