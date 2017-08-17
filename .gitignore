@@ -7,3 +7,4 @@ cmake*
 Makefile
 CMakeCache.txt
 main
+*.swp
