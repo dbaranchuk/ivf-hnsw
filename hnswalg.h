@@ -224,7 +224,7 @@ namespace hnswlib {
                     if (curNodeNum < maxclusters_)
                         data = (int *) (data_level0_memory_ + curNodeNum * size_data_per_cluster_ + offsetLevel0_);
                     else{
-                        tableint curNodeElementNum = curNodeNum - maxclusters;
+                        tableint curNodeElementNum = curNodeNum - maxclusters_;
                         data = (int *) (data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
                                         curNodeElementNum * size_data_per_element_ + offsetLevel0_);
                     }
@@ -303,7 +303,7 @@ namespace hnswlib {
                 tableint curNodeNum = curr_el_pair.second;
                 int *data;
                 if (curNodeNum < maxclusters_)
-                    data = (int *) (data_level0_memory_ + curNodeNum * size_data_per_clusters_ + offsetLevel0_);
+                    data = (int *) (data_level0_memory_ + curNodeNum * size_data_per_cluster_ + offsetLevel0_);
                 else {
                     tableint curNodeElementNum = curNodeNum - maxclusters_;
                     data = (int *) (data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
@@ -315,10 +315,10 @@ namespace hnswlib {
                 _mm_prefetch((char *) (massVisited + nextNum), _MM_HINT_T0);
                 _mm_prefetch((char *) (massVisited + nextNum + 64), _MM_HINT_T0);
                 if (nextNum < maxclusters_)
-                    _mm_prefetch(data_level0_memory_ + nextNum * size_data_per_clusters_ + offsetData_, _MM_HINT_T0);
+                    _mm_prefetch(data_level0_memory_ + nextNum * size_data_per_cluster_ + offsetData_, _MM_HINT_T0);
                 else {
                     tableint nextElementNum = nextNum - maxclusters_;
-                    _mm_prefetch(data_level0_memory_ + maxclusters_ * size_data_per_clusters_ +
+                    _mm_prefetch(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
                                  nextElementNum * size_data_per_element_ + offsetData_, _MM_HINT_T0);
                 }//////!!!!!!
                 _mm_prefetch((char *) (data + 2), _MM_HINT_T0);
