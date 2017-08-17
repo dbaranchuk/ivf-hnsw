@@ -550,7 +550,7 @@ namespace hnswlib {
             tableint cur_c = 0;
             {
                 unique_lock <mutex> lock(cur_element_count_guard_);
-                if (cur_element_count >= maxelements_) {
+                if (cur_element_count >= (maxelements_ + maxclusters_)) {
                     cout << "The number of elements exceeds the specified limit\n";
                     throw runtime_error("The number of elements exceeds the specified limit");
                 };
