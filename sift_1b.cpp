@@ -186,7 +186,7 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 		}
 
 		while (result.size()) {
-			if (g.find(result.top().second) != g.end()) {
+			if (g.find(result.top().second + 5263157) != g.end()) {
 				
 				correct++;
 			}
@@ -276,7 +276,7 @@ void printInfo(HierarchicalNSW<int> *hnsw)
 void sift_test1B()
 {
 	int subset_size_milllions = 100;
-	int efConstruction = 60;
+	int efConstruction = 240;
 	int M = 2;
     int M_cluster = 2;
 
@@ -291,9 +291,9 @@ void sift_test1B()
 	char path_gt[1024];
     // SMART
     char *path_q = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_query.bvecs";
-    char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_base_100m.bvecs";
+    char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_cM_%d_base.bin", efConstruction, M, M_cluster);
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_cM_%d.bin", efConstruction, M, M_cluster);
     sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M.ivecs");
     //char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
 	//char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
@@ -392,8 +392,9 @@ void sift_test1B()
 			}
             int level = 0;
             // Reversed
-            if (j1 < 32)
+            if (j1 < 32) {
                 level = 5;
+            }
             else if (j1 < 657)
                 level = 4;
             else if (j1 < 13157)
@@ -402,6 +403,7 @@ void sift_test1B()
                 level = 2;
             else if (j1 < 5263157)
                 level = 1;
+
             appr_alg->addPoint((void *)(mass), (size_t)j1, level);
 		}
 		input.close();
