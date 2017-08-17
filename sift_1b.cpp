@@ -277,13 +277,13 @@ void sift_test1B()
 {
 	int subset_size_milllions = 100;
 	int efConstruction = 10;
-	int M = 16;
+	int M = 8;
     int M_cluster = 4;
 
     size_t clustersize = 5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
 
-	size_t vecsize = subset_size_milllions * 1000000 + clustersize; // remove clustersize
+	size_t vecsize = subset_size_milllions * 1000000;// + clustersize; // remove clustersize
 	size_t qsize = 10000;
 	size_t vecdim = 128;
 
@@ -348,7 +348,8 @@ void sift_test1B()
     }
 	else {
 		cout << "Building index:\n";
-		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction);
+		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction
+                                            clustersize, M_cluster);
 
 		input.read((char *)&in, 4);
 		if (in != 128)
@@ -368,7 +369,7 @@ void sift_test1B()
 		StopW stopw_full = StopW();
 		size_t report_every = 1000000;
 #pragma omp parallel for
-		for (int i = 1; i < vecsize; i++) {
+		for (int i = 1; i < vecsize + clustersize; i++) {
 			unsigned char mass[128];
 #pragma omp critical
 			{
@@ -405,14 +406,6 @@ void sift_test1B()
                 level = 1;
             else {
                 level = 0;
-                //appr_alg->M_ = 4;
-                //appr_alg->maxM0_ = 8;
-                //appr_alg->maxM_ = 8;
-                //appr_alg->offsetLevel0_ = 5263157 * appr_alg->size_data_per_element_;
-                //appr_alg->size_links_level0_ = appr_alg->maxM0_ * sizeof(tableint) + sizeof(linklistsizeint);
-                //appr_alg->size_data_per_element_ = appr_alg->size_links_level0_ + appr_alg->data_size_ + sizeof(labeltype);
-                //appr_alg->offsetData_ = size_links_level0_;
-                //appr_alg->label_offset_ = size_links_level0_ + data_size_;
             }
             appr_alg->addPoint((void *)(mass), (size_t)j1, level);
 		}
