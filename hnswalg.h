@@ -620,7 +620,8 @@ namespace hnswlib {
 
                     std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
                                                                                                     level);
-                    cout << label << level << endl;
+                    if (label == maxelements_)
+                        cout << label << level << endl;
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
                 }
 
