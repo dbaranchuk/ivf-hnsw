@@ -181,7 +181,7 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
         appr_alg.nev9zka += dist2gt / 10000;
 
 		while (gt.size()) {
-			g.insert(gt.top().second + 0);
+			g.insert(gt.top().second + 5263157);
 			gt.pop();
 		}
 
