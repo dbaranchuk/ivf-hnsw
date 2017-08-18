@@ -156,7 +156,7 @@ static void get_gt(unsigned int *massQA, unsigned char *massQ, unsigned char *ma
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
-			answers[i].emplace(0.0f, massQA[1000*i + j]); // 1000 *
+			answers[i].emplace(0.0f, massQA[1*i + j]); // 1000 *
 		}
 	}
 }
@@ -305,12 +305,12 @@ void sift_test1B()
 
 	cout << "Loading GT:\n";
 	ifstream inputGT(path_gt, ios::binary);
-	unsigned int *massQA = new unsigned int[qsize*1000]; // *1000
+	unsigned int *massQA = new unsigned int[qsize*1]; // *1000
 	for (int i = 0; i < qsize; i++) {
 		int t;
 		inputGT.read((char *)&t, 4);
-		inputGT.read((char *)(massQA + 1000*i), t * 4); // * 1000
-		if (t != 1000) { // 1000
+		inputGT.read((char *)(massQA + 1*i), t * 4); // * 1000
+		if (t != 1) { // 1000
 			cout << "err";
 			return;
 		}
