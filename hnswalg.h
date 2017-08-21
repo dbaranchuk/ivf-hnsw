@@ -666,7 +666,7 @@ namespace hnswlib {
             }
             enterpoint0 = currObj;
 
-            std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> topResults = searchBaseLayerST(
+            std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> tmpTopResults = searchBaseLayerST(
                     currObj, query_data, ef_);
             std::priority_queue<std::pair<dist_t, labeltype >> results;
 
