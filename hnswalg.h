@@ -666,19 +666,19 @@ namespace hnswlib {
             }
             enterpoint0 = currObj;
 
-            std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> tmpTopResults = searchBaseLayerST(
+            std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> topResults = searchBaseLayerST(
                     currObj, query_data, ef_);
             std::priority_queue<std::pair<dist_t, labeltype >> results;
 
             // Remove clusters as answers
-            std::priority_queue<std::pair<dist_t, tableint >> topResults;
-            while (tmpTopResults.size() > 0) {
-                std::pair<dist_t, tableint> rez = topResults.top();
-                std::cout << rez.second << std::endl;
-                if (getExternalLabel(rez.second) >= maxclusters_)
-                    topResults.push(rez);
-                tmpTopResults.pop();
-            }
+//            std::priority_queue<std::pair<dist_t, tableint >> topResults;
+//            while (tmpTopResults.size() > 0) {
+//                std::pair<dist_t, tableint> rez = topResults.top();
+//                std::cout << rez.second << std::endl;
+//                if (getExternalLabel(rez.second) >= maxclusters_)
+//                    topResults.push(rez);
+//                tmpTopResults.pop();
+//            }
 
             while (topResults.size() > k) {
                 topResults.pop();
