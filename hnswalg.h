@@ -655,7 +655,7 @@ namespace hnswlib {
                             throw runtime_error("cand error");
                         dist_t d = fstdistfunc_(query_data, getDataByInternalId(cand), dist_func_param_);
                         dist_calc++;
-                        if (d < curdist) {
+                        if (d < curdist && cand >= maxclusters_) {
                             curdist = d;
                             currObj = cand;
                             changed = true;
