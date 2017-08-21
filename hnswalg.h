@@ -671,14 +671,13 @@ namespace hnswlib {
             std::priority_queue<std::pair<dist_t, labeltype >> results;
 
             // Remove clusters as answers
-//            std::priority_queue<std::pair<dist_t, tableint >> topResults;
-//            while (tmpTopResults.size() > 0) {
-//                std::pair<dist_t, tableint> rez = topResults.top();
-//                std::cout << rez.second << std::endl;
-//                if (getExternalLabel(rez.second) >= maxclusters_)
-//                    topResults.push(rez);
-//                tmpTopResults.pop();
-//            }
+            std::priority_queue<std::pair<dist_t, tableint >> topResults;
+            while (tmpTopResults.size() > 0) {
+                std::pair<dist_t, tableint> rez = tmpTopResults.top();
+                if (getExternalLabel(rez.second) >= maxclusters_)
+                    topResults.push(rez);
+                tmpTopResults.pop();
+            }
 
             while (topResults.size() > k) {
                 topResults.pop();
