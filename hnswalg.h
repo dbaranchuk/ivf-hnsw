@@ -342,7 +342,7 @@ namespace hnswlib {
 
                         massVisited[tnum] = currentV;
 
-                        char *currObj1 = (getDataByInternalId(tnum));
+                        char *currObj1 = getDataByInternalId(tnum);
                         dist_t dist = fstdistfunc_(datapoint, currObj1, dist_func_param_);
                         dist_calc++;
                         if (topResults.top().first > dist || topResults.size() < ef) {
@@ -655,7 +655,7 @@ namespace hnswlib {
                             throw runtime_error("cand error");
                         dist_t d = fstdistfunc_(query_data, getDataByInternalId(cand), dist_func_param_);
                         dist_calc++;
-                        if (d < curdist && cand >= maxclusters_) {
+                        if (d < curdist) {
                             curdist = d;
                             currObj = cand;
                             changed = true;
@@ -666,9 +666,19 @@ namespace hnswlib {
             }
             enterpoint0 = currObj;
 
-            std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> topResults = searchBaseLayerST(
+            std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> tmpTopResults = searchBaseLayerST(
                     currObj, query_data, ef_);
             std::priority_queue<std::pair<dist_t, labeltype >> results;
+
+            // Remove clusters as answers
+            std::priority_queue<std::pair<dist_t, labeltype >> topResults;
+            while (tmpTopResults.size() > 0) {
+                std::pair<dist_t, tableint> rez = topResults.top();
+                if (getExternalLabel(rez.second) >= maxclusters_)
+                    topResults.push(rez);
+                tmpTopResults.pop();
+            }
+
             while (topResults.size() > k) {
                 topResults.pop();
             }

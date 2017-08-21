@@ -276,7 +276,7 @@ void printInfo(HierarchicalNSW<int> *hnsw)
 void sift_test1B()
 {
 	int subset_size_milllions = 100;
-	int efConstruction = 240;
+	int efConstruction = 60;
 	int M = 16;
     int M_cluster = 16;
 
@@ -392,16 +392,17 @@ void sift_test1B()
 			}
             int level = 0;
             // Reversed
-            if (j1 < 32) {
+            if (j1 < elements_per_layer[5])
                 level = 5;
-            }
-            else if (j1 < 657)
+            else if (j1 < elements_per_layer[5]+elements_per_layer[4])
                 level = 4;
-            else if (j1 < 13157)
+            else if (j1 < elements_per_layer[5]+elements_per_layer[4]+elements_per_layer[3])
                 level = 3;
-            else if (j1 < 263157)
+            else if (j1 < elements_per_layer[5]+elements_per_layer[4]+elements_per_layer[3]+
+                          elements_per_layer[2])
                 level = 2;
-            else if (j1 < 5263157)
+            else if (j1 < elements_per_layer[5]+elements_per_layer[4]+elements_per_layer[3]+
+                          elements_per_layer[2]+elements_per_layer[1])
                 level = 1;
 
             appr_alg->addPoint((void *)(mass), (size_t)j1, level);
