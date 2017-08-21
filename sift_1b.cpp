@@ -203,7 +203,7 @@ static void test_vs_recall(unsigned char *massQ, size_t vecsize, size_t qsize, H
                            size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
 {
 	vector<size_t> efs; //= {30, 100, 460};
-    for (int i = k; i < 30; i++) {
+    for (int i = 10; i < 30; i++) {
 		efs.push_back(i);
 	}
 	for (int i = 30; i < 100; i+=10) {
