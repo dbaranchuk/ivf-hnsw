@@ -674,6 +674,7 @@ namespace hnswlib {
             std::priority_queue<std::pair<dist_t, tableint >> topResults;
             while (tmpTopResults.size() > 0) {
                 std::pair<dist_t, tableint> rez = tmpTopResults.top();
+                std::cout << rez.second << ' ' << getExternalLabel(rez.second) << std::endl;
                 if (getExternalLabel(rez.second) >= maxclusters_)
                     topResults.push(rez);
                 tmpTopResults.pop();
@@ -684,7 +685,7 @@ namespace hnswlib {
             }
             while (topResults.size() > 0) {
                 std::pair<dist_t, tableint> rez = topResults.top();
-                results.push(std::pair<dist_t, labeltype>(rez.first, getExternalLabel(rez.second)));
+                results.push(std::pair<dist_t, labeltype>(rez.first, getExternalLabel(rez.second)-maxclusters_));
                 topResults.pop();
             }
             return results;

@@ -181,7 +181,7 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
         appr_alg.nev9zka += dist2gt / 10000;
 
 		while (gt.size()) {
-			g.insert(gt.top().second + 5263157);
+			g.insert(gt.top().second);
 			gt.pop();
 		}
 
@@ -278,7 +278,7 @@ void sift_test1B()
 	int subset_size_milllions = 100;
 	int efConstruction = 60;
 	int M = 2;
-    int M_cluster = 16;
+    int M_cluster = 2;
 
     size_t clustersize = 5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
@@ -398,11 +398,9 @@ void sift_test1B()
                 level = 4;
             else if (j1 < elements_per_layer[5]+elements_per_layer[4]+elements_per_layer[3])
                 level = 3;
-            else if (j1 < elements_per_layer[5]+elements_per_layer[4]+elements_per_layer[3]+
-                          elements_per_layer[2])
+            else if (j1 < elements_per_layer[5]+elements_per_layer[4]+elements_per_layer[3]+elements_per_layer[2])
                 level = 2;
-            else if (j1 < elements_per_layer[5]+elements_per_layer[4]+elements_per_layer[3]+
-                          elements_per_layer[2]+elements_per_layer[1])
+            else if (j1 < clustersize)
                 level = 1;
 
             appr_alg->addPoint((void *)(mass), (size_t)j1, level);
