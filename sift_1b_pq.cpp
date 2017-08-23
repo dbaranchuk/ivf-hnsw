@@ -291,8 +291,6 @@ void sift_test1B()
     sprintf(path_index, "/sata2/dbaranchuk/base1B/sift1b_ef_%d_M_%d.bin", efConstruction, M);
     sprintf(path_gt,"/sata2/dbaranchuk/base1B/idx_1000M.ivecs");
 
-	unsigned char *massb = new unsigned char[vecdim];
-
 	cout << "Loading GT:\n";
 	ifstream inputGT(path_gt, ios::binary);
 	unsigned int *massQA = new unsigned int[qsize*1000];
@@ -318,11 +316,7 @@ void sift_test1B()
 			cout << "file error";
 			exit(1);
 		}
-		inputQ.read((char *)massb, in);
-		for (int j = 0; j < vecdim; j++) {
-			massQ[i*vecdim + j] = massb[j];
-		}
-
+		inputQ.read((char *)(massQ + i*vecdim), in);
 	}
 	inputQ.close();
 
@@ -340,7 +334,7 @@ void sift_test1B()
 		appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M, efConstruction);
 
 		input.read((char *)&in, 4);
-		if (in != 128)
+		if (in != vecdim)
 		{
 			cout << "file error";
 			exit(1);
