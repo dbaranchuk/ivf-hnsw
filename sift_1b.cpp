@@ -292,7 +292,7 @@ void sift_test1B()
 
 	cout << "Loading GT:\n";
 	ifstream inputGT(path_gt, ios::binary);
-	unsigned int massQA[qsize*1000];
+	unsigned int *massQA = new unsigned int[qsize * 1000];
 	for (int i = 0; i < qsize; i++) {
 		int t;
 		inputGT.read((char *)&t, 4);
@@ -392,7 +392,8 @@ void sift_test1B()
 	cout << "Loaded gt\n";
     test_vs_recall<int>(massQ, qsize, *appr_alg, vecdim, answers, k);
 	cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
-	return;
+
+    delete massQA;
 }
 
 
@@ -471,7 +472,7 @@ void sift_test1B_PQ()
         size_t report_every = 1000000;
 #pragma omp parallel for
         for (int i = 1; i < vecsize; i++) {
-            unsigned char massb[128];
+            unsigned char massb[M_PQ];
 #pragma omp critical
             {
                 input.read((char *)&in, 4);
@@ -504,5 +505,6 @@ void sift_test1B_PQ()
     cout << "Loaded gt\n";
     //test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k);
     //cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
-    return;
+
+    delete massQA;
 }
