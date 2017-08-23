@@ -152,7 +152,6 @@ static void get_gt(unsigned int *massQA, float *massQ, float *mass, size_t vecsi
                    L2Space &l2space, size_t vecdim, vector<std::priority_queue< std::pair< float, labeltype >>> &answers, size_t k)
 {
 	(vector<std::priority_queue< std::pair< float, labeltype >>>(qsize)).swap(answers);
-	DISTFUNC<float> fstdistfunc_ = l2space.get_dist_func();
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
@@ -207,7 +206,7 @@ static void test_vs_recall(float *massQ, size_t vecsize, size_t qsize, Hierarchi
 	}
 	for (size_t ef : efs)
 	{
-		appr_alg.setEf(ef);
+		appr_alg.ef_ = ef;
 		StopW stopw = StopW();
 		appr_alg.dist_calc = 0;
 		float recall = test_approx(massQ, vecsize, qsize, appr_alg, vecdim, answers, k);
