@@ -40,7 +40,7 @@ namespace hnswlib {
     class SpaceInterface {
     public:
         virtual size_t get_data_size() = 0;
-        virtual MTYPE fstdistfunc(const MTYPE *, const MTYPE *) = 0;
+        virtual MTYPE fstdistfunc(const void *, const void *) = 0;
     };
 }
 #include "L2space.h"

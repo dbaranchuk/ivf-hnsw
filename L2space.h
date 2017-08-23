@@ -231,12 +231,12 @@ namespace hnswlib {
 		//	return &dim_;
 		//}
 
-        int fstdistfunc(const unsigned char __restrict *pVect1v, const unsigned char __restrict *pVect2v)
+        int fstdistfunc(const void *pVect1v, const void *pVect2v)
         {
             size_t dim = dim_ >> 2;
             int res = 0;
-            unsigned char *a = pVect1;
-            unsigned char *b = pVect2;
+            unsigned char *a = (unsigned char *)pVect1;
+            unsigned char *b = (unsigned char *)pVect2;
             /*for (int i = 0; i < qty; i++) {
                 int t = int((a)[i]) - int((b)[i]);
                 res += t*t;
@@ -250,7 +250,6 @@ namespace hnswlib {
             }
             return res;
         }
-
 	};
 
 
