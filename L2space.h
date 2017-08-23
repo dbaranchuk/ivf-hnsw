@@ -176,11 +176,11 @@ namespace hnswlib {
 		//void *get_dist_func_param() {
 		//	return &dim_;
 		//}
-        float fstdistfunc(const float *pVect1, const float *pVect2)
+        float fstdistfunc(const void *x, const void *y)
         {
             float res = 0;
             for (int i = 0; i < dim_; i++) {
-                float t = pVect1[i] - pVect2[i];
+                float t = (float *)(x)[i] - (float *)(y)[i];
                 res += t*t;
             }
             return res;
@@ -231,12 +231,12 @@ namespace hnswlib {
 		//	return &dim_;
 		//}
 
-        int fstdistfunc(const void *pVect1v, const void *pVect2v)
+        int fstdistfunc(const void *x, const void *y)
         {
             size_t dim = dim_ >> 2;
             int res = 0;
-            unsigned char *a = (unsigned char *)pVect1;
-            unsigned char *b = (unsigned char *)pVect2;
+            unsigned char *a = (unsigned char *)x;
+            unsigned char *b = (unsigned char *)y;
             /*for (int i = 0; i < qty; i++) {
                 int t = int((a)[i]) - int((b)[i]);
                 res += t*t;
