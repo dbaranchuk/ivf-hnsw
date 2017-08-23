@@ -450,16 +450,11 @@ namespace hnswlib {
                 *ll_cur = rez.size();
                 tableint *data = (tableint *) (ll_cur + 1);
 
-
                 for (int idx = 0; idx < rez.size(); idx++) {
-                    if (data[idx]) {
-                        cout << 3 << endl;
+                    if (data[idx])
                         throw runtime_error("Should be blank");
-                    }
-                    if (level > elementLevels[rez[idx]]) {
-                        cout << 2 << endl;
+                    if (level > elementLevels[rez[idx]])
                         throw runtime_error("Bad level");
-                    }
                     data[idx] = rez[idx];
                 }
             }
@@ -482,17 +477,13 @@ namespace hnswlib {
                 else
                     ll_other = get_linklist(rez[idx], level);
 
-                if (level > elementLevels[rez[idx]]) {
-                    cout << 1 << endl;
+                if (level > elementLevels[rez[idx]])
                     throw runtime_error("Bad level");
-                }
 
                 int sz_link_list_other = *ll_other;
 
-                if (sz_link_list_other > Mrezmax || sz_link_list_other < 0) {
-                    cout << 0 << endl;
+                if (sz_link_list_other > Mrezmax || sz_link_list_other < 0)
                     throw runtime_error("Bad sz_link_list_other");
-                }
 
                 if (sz_link_list_other < Mrezmax) {
                     tableint *data = (tableint *) (ll_other + 1);
@@ -619,8 +610,6 @@ namespace hnswlib {
 
                     std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
                                                                                                     level);
-                    if (label == maxelements_)
-                        cout << label << level << endl;
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
                 }
 
