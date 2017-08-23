@@ -148,8 +148,7 @@ size_t getCurrentRSS()
 
 
 
-static void get_gt(unsigned int *massQA, unsigned char *massQ, size_t vecsize, size_t qsize,
-                   vector<std::priority_queue< std::pair<int, labeltype >>> &answers, size_t k)
+static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queue< std::pair<int, labeltype >>> &answers, size_t k)
 {
 	(vector<std::priority_queue< std::pair< int, labeltype >>>(qsize)).swap(answers);
 	cout << qsize << "\n";
@@ -315,20 +314,20 @@ void sift_test1B()
 	for (int i = 0; i < qsize; i++) {
 		int in = 0;
 		inputQ.read((char *)&in, 4);
-		if (in != 128)
+		if (in != vecdim)
 		{
 			cout << "file error";
 			exit(1);
 		}
-		inputQ.read((char *)massb, in);
-		for (int j = 0; j < vecdim; j++) {
-			massQ[i*vecdim + j] = massb[j];
-		}
+		inputQ.read((char *)(massQ + i*vecdim), in);
+		//for (int j = 0; j < vecdim; j++) {
+		//	massQ[i*vecdim + j] = massb[j];
+		//}
 
 	}
 	inputQ.close();
 
-	//unsigned char *mass = new unsigned char[vecdim];
+	unsigned char *mass = new unsigned char[vecdim];
 	ifstream input(path_data, ios::binary);
 	int in = 0;
 	L2SpaceI l2space(vecdim);
@@ -347,20 +346,20 @@ void sift_test1B()
 			cout << "file error";
 			exit(1);
 		}
-		input.read((char *)massb, in);
+		input.read((char *)mass, in);
 
 		//for (int j = 0; j < vecdim; j++) {
 		//	mass[j] = massb[j] * (1.0f);
 		//}
 
-		appr_alg->addPoint((void *)(massb), (size_t)0, 5); // не было третьего параметра
+		appr_alg->addPoint((void *)(mass), (size_t)0, 5); // не было третьего параметра
 		int j1 = 0;
 		StopW stopw = StopW();
 		StopW stopw_full = StopW();
 		size_t report_every = 1000000;
 #pragma omp parallel for
 		for (int i = 1; i < vecsize + clustersize; i++) {
-			//unsigned char mass[128];
+			unsigned char mass[128];
 #pragma omp critical
 			{
 				input.read((char *)&in, 4);
@@ -369,7 +368,7 @@ void sift_test1B()
 					cout << "file error";
 					exit(1);
 				}
-				input.read((char *)massb, in);
+				input.read((char *)mass, in);
 				//for (int j = 0; j < vecdim; j++) {
 				//	mass[j] = massb[j];
 				//}
@@ -394,7 +393,7 @@ void sift_test1B()
             else if (j1 < clustersize)
                 level = 1;
 
-            appr_alg->addPoint((void *)(massb), (size_t)j1, level);
+            appr_alg->addPoint((void *)(mass), (size_t)j1, level);
 		}
 		input.close();
 		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
@@ -405,7 +404,7 @@ void sift_test1B()
 	vector<std::priority_queue< std::pair< int, labeltype >>> answers;
 	size_t k = 1;
 	cout << "Parsing gt:\n";
-	get_gt(massQA, massQ, qsize, vecdim, answers, k);
+	get_gt(massQA, qsize, answers, k);
 	cout << "Loaded gt\n";
     test_vs_recall(massQ, qsize, *appr_alg, vecdim, answers, k);
 	cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
