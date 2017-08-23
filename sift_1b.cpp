@@ -152,7 +152,6 @@ static void get_gt(unsigned int *massQA, unsigned char *massQ, unsigned char *ma
                    L2SpaceI &l2space, size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
 {
 	(vector<std::priority_queue< std::pair< int, labeltype >>>(qsize)).swap(answers);
-	DISTFUNC<int> fstdistfunc_ = l2space.get_dist_func();
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
@@ -175,9 +174,8 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 		unordered_set <labeltype> g;
 		total += gt.size();
 
-        float dist2gt = appr_alg.fstdistfunc_(appr_alg.getDataByInternalId(gt.top().second),
-                                              appr_alg.getDataByInternalId(appr_alg.enterpoint0),
-                                              appr_alg.dist_func_param_);
+        float dist2gt = appr_alg.space->fstdistfunc(appr_alg.getDataByInternalId(gt.top().second),
+                                              appr_alg.getDataByInternalId(appr_alg.enterpoint0));
         appr_alg.nev9zka += dist2gt / 10000;
 
 		while (gt.size()) {
@@ -409,8 +407,7 @@ void sift_test1B()
 	cout << "Parsing gt:\n";
 	get_gt(massQA, massQ, mass, vecsize, qsize, l2space, vecdim, answers, k);
 	cout << "Loaded gt\n";
-	for (int i = 0; i < 1; i++)
-		test_vs_recall(massQ, vecsize, qsize, *appr_alg, vecdim, answers, k);
+    test_vs_recall(massQ, vecsize, qsize, *appr_alg, vecdim, answers, k);
 	cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 	return;
 }
