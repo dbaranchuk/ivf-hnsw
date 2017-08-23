@@ -328,22 +328,12 @@ void sift_test1B()
     } else {
 		cout << "Building index:\n";
 		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
-
-		input.read((char *)&in, 4);
-		if (in != vecdim)
-		{
-			cout << "file error";
-			exit(1);
-		}
-		input.read((char *)massb, in);
-
-		appr_alg->addPoint((void *)(massb), (size_t)0, 5); // не было третьего параметра
 		int j1 = 0;
 		StopW stopw = StopW();
 		StopW stopw_full = StopW();
 		size_t report_every = 1000000;
 #pragma omp parallel for
-		for (int i = 1; i < vecsize + clustersize; i++) {
+		for (int i = 0; i < vecsize + clustersize; i++) {
 			unsigned char mass[128];
 #pragma omp critical
 			{
