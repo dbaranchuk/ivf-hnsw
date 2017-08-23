@@ -274,7 +274,7 @@ void sift_test1B()
 {
 	int subset_size_milllions = 100;
 	int efConstruction = 60;
-	int M = 2;
+	int M = 4;
     int M_cluster = 16;
 
     size_t clustersize = 5263157;
@@ -292,7 +292,7 @@ void sift_test1B()
     sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_cM_%d.bin", efConstruction, M, M_cluster);
     sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M.ivecs");
 
-	unsigned char *massb = new unsigned char[vecdim];
+	//unsigned char *massb = new unsigned char[vecdim];
 
 	cout << "Loading GT:\n";
 	ifstream inputGT(path_gt, ios::binary);
