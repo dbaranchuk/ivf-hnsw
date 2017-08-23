@@ -147,22 +147,20 @@ size_t getCurrentRSS()
 }
 
 
-
 static void get_gt(unsigned int *massQA, unsigned char *massQ, unsigned char *mass, size_t vecsize, size_t qsize,
-                   L2SpaceI &l2space, size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
+                   L2SpaceI &l2space, size_t vecdim, vector<std::priority_queue< std::pair< float, labeltype >>> &answers, size_t k)
 {
-	(vector<std::priority_queue< std::pair< int, labeltype >>>(qsize)).swap(answers);
-	DISTFUNC<int> fstdistfunc_ = l2space.get_dist_func();
+	(vector<std::priority_queue< std::pair<float, labeltype >>>(qsize)).swap(answers);
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
-			answers[i].emplace(0.0f, massQA[1000*i + j]); // 1000 *
+			answers[i].emplace(0.0f, massQA[1000*i + j]);
 		}
 	}
 }
 
-static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<int> &appr_alg,
-                         size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
+static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<float> &appr_alg,
+                         size_t vecdim, vector<std::priority_queue< std::pair<float, labeltype >>> &answers, size_t k)
 {
 	size_t correct = 0;
 	size_t total = 0;
@@ -170,15 +168,15 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 	//uncomment to test in parallel mode:
 	//#pragma omp parallel for
 	for (int i = 0; i < qsize; i++) {
-		std::priority_queue< std::pair< int, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k);
-		std::priority_queue< std::pair< int, labeltype >> gt(answers[i]);
+		std::priority_queue< std::pair<float, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k);
+		std::priority_queue< std::pair<float, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 		total += gt.size();
 
         float dist2gt = appr_alg.fstdistfunc_(appr_alg.getDataByInternalId(gt.top().second),
                                               appr_alg.getDataByInternalId(appr_alg.enterpoint0),
                                               appr_alg.dist_func_param_);
-        appr_alg.nev9zka += dist2gt / 10000;
+        appr_alg.nev9zka += dist2gt / qsize;
 
 		while (gt.size()) {
 			g.insert(gt.top().second);
@@ -199,8 +197,8 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 	return 1.0f*correct / total;
 }
 
-static void test_vs_recall(unsigned char *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<int> &appr_alg,
-                           size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
+static void test_vs_recall(unsigned char *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<float> &appr_alg,
+                           size_t vecdim, vector<std::priority_queue< std::pair<float, labeltype >>> &answers, size_t k)
 {
 	vector<size_t> efs; //= {30, 100, 460};
     for (int i = k; i < 30; i++) {
@@ -257,7 +255,7 @@ void printNumElementsPerLayer(vector<int> elementLevels)
     }
 }
 
-void printInfo(HierarchicalNSW<int> *hnsw)
+void printInfo(HierarchicalNSW<float> *hnsw)
 {
     if (hnsw == NULL){
         throw "Empty HNSW";
@@ -275,13 +273,10 @@ void printInfo(HierarchicalNSW<int> *hnsw)
 */
 void sift_test1B()
 {
-	int subset_size_milllions = 100;
+	int subset_size_milllions = 1000;
 	int efConstruction = 60;
-	int M = 2;
-    int M_cluster = 16;
-
-    size_t clustersize = 5263157;
-    const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
+	int M = 16;
+	int M_PQ = 16;
 
 	size_t vecsize = subset_size_milllions * 1000000;
 	size_t qsize = 10000;
@@ -289,22 +284,23 @@ void sift_test1B()
 
 	char path_index[1024];
 	char path_gt[1024];
-    char *path_q = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_query.bvecs";
-    char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m.bvecs";
+    char *path_q = "/sata2/dbaranchuk/base1B/bigann_query.bvecs";
+    char *path_data = "/sata2/dbaranchuk/base1B/bigann_base_pq.bvecs";
+	char *path_codebooks = "/sata2/dbaranchuk/base1B/codebooks.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_cM_%d.bin", efConstruction, M, M_cluster);
-    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/base1B/sift1b_ef_%d_M_%d.bin", efConstruction, M);
+    sprintf(path_gt,"/sata2/dbaranchuk/base1B/idx_1000M.ivecs");
 
 	unsigned char *massb = new unsigned char[vecdim];
 
 	cout << "Loading GT:\n";
 	ifstream inputGT(path_gt, ios::binary);
-	unsigned int *massQA = new unsigned int[qsize*1000]; // *1000
+	unsigned int *massQA = new unsigned int[qsize*1000];
 	for (int i = 0; i < qsize; i++) {
 		int t;
 		inputGT.read((char *)&t, 4);
-		inputGT.read((char *)(massQA + 1000*i), t * 4); // * 1000
-		if (t != 1000) { // 1000
+		inputGT.read((char *)(massQA + 1000*i), t * 4);
+		if (t != 1000) {
 			cout << "err";
 			return;
 		}
@@ -317,7 +313,7 @@ void sift_test1B()
 	for (int i = 0; i < qsize; i++) {
 		int in = 0;
 		inputQ.read((char *)&in, 4);
-		if (in != 128)
+		if (in != vecdim)
 		{
 			cout << "file error";
 			exit(1);
@@ -333,15 +329,15 @@ void sift_test1B()
 	unsigned char *mass = new unsigned char[vecdim];
 	ifstream input(path_data, ios::binary);
 	int in = 0;
-	L2SpaceI l2space(vecdim);
+	L2SpacePQ l2space(vecdim);
 
-	HierarchicalNSW<int> *appr_alg;
+	HierarchicalNSW<float> *appr_alg;
 	if (exists_test(path_index)) {
-        appr_alg = new HierarchicalNSW<int>(&l2space, path_index, false);
+        appr_alg = new HierarchicalNSW<float>(&l2space, path_index, false);
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
 		cout << "Building index:\n";
-		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
+		appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M, efConstruction);
 
 		input.read((char *)&in, 4);
 		if (in != 128)
@@ -355,13 +351,13 @@ void sift_test1B()
 			mass[j] = massb[j] * (1.0f);
 		}
 
-		appr_alg->addPoint((void *)(massb), (size_t)0, 5); // не было третьего параметра
+		appr_alg->addPoint((void *)(massb), (size_t)0);
 		int j1 = 0;
 		StopW stopw = StopW();
 		StopW stopw_full = StopW();
 		size_t report_every = 1000000;
 #pragma omp parallel for
-		for (int i = 1; i < vecsize + clustersize; i++) {
+		for (int i = 1; i < vecsize; i++) {
 			unsigned char mass[128];
 #pragma omp critical
 			{
@@ -383,20 +379,7 @@ void sift_test1B()
                     stopw.reset();
                 }
 			}
-            int level = 0;
-            // Reversed
-            if (j1 < elements_per_layer[5])
-                level = 5;
-            else if (j1 < elements_per_layer[5]+elements_per_layer[4])
-                level = 4;
-            else if (j1 < elements_per_layer[5]+elements_per_layer[4]+elements_per_layer[3])
-                level = 3;
-            else if (j1 < elements_per_layer[5]+elements_per_layer[4]+elements_per_layer[3]+elements_per_layer[2])
-                level = 2;
-            else if (j1 < clustersize)
-                level = 1;
-
-            appr_alg->addPoint((void *)(mass), (size_t)j1, level);
+            appr_alg->addPoint((void *)(mass), (size_t)j1);
 		}
 		input.close();
 		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
@@ -404,13 +387,12 @@ void sift_test1B()
 	}
 	printInfo(appr_alg);
 
-	vector<std::priority_queue< std::pair< int, labeltype >>> answers;
+	vector<std::priority_queue< std::pair<float, labeltype >>> answers;
 	size_t k = 1;
 	cout << "Parsing gt:\n";
 	get_gt(massQA, massQ, mass, vecsize, qsize, l2space, vecdim, answers, k);
 	cout << "Loaded gt\n";
-	for (int i = 0; i < 1; i++)
-		test_vs_recall(massQ, vecsize, qsize, *appr_alg, vecdim, answers, k);
+	test_vs_recall(massQ, vecsize, qsize, *appr_alg, vecdim, answers, k);
 	cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 	return;
 }

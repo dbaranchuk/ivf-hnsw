@@ -36,18 +36,15 @@ namespace hnswlib {
         }
 
         HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxElements, size_t M = 16, size_t efConstruction = 200,
-                        size_t maxClusters = 0, size_t M_cluster = 0, isPQ = false) :
+                        size_t maxClusters = 0, size_t M_cluster = 0) :
                 ll_locks(maxElements + maxClusters), elementLevels(maxElements + maxClusters)
         {
             maxelements_ = maxElements;
             maxclusters_ = maxClusters;
 
-            space = s;
             data_size_ = s->get_data_size();
-            //if (!isPQ) {
-            //    fstdistfunc_ = s->get_dist_func();
-            //    dist_func_param_ = s->get_dist_func_param();
-            //}
+            s_ = s;
+
             M_ = M;
             maxM_ = M_;
             maxM0_ = M_ * 2;
@@ -67,7 +64,7 @@ namespace hnswlib {
             size_data_per_element_ = size_links_level0_ + data_size_ + sizeof(labeltype);
             offsetData_ = size_links_level0_;
             label_offset_ = size_links_level0_ + data_size_;
-            offsetLevel0_ = 0;//(maxclusters_ == 0) ? 0 : maxclusters_ * size_data_per_cluster_;
+            offsetLevel0_ = 0;
 
             cout << offsetData_ << "\t" << label_offset_ << "\n";
             cout << size_links_level0_ << "\t" << data_size_ << "\t" << sizeof(labeltype) << "\n";
@@ -104,7 +101,7 @@ namespace hnswlib {
             delete visitedlistpool;
         }
         // Fields
-        SpaceInterface<dist_t> *space;
+        SpaceInterface<dist_t> *s_;
 
         size_t maxclusters_;
         size_t size_data_per_cluster_;
@@ -116,6 +113,7 @@ namespace hnswlib {
 
         size_t size_links_level0_cluster_;
         size_t offsetData_cluster_;
+        //size_t offsetLevel0_cluster_;
         size_t label_offset_cluster_;
 
         size_t maxelements_;
@@ -150,8 +148,6 @@ namespace hnswlib {
 
         size_t data_size_;
         size_t label_offset_;
-        //DISTFUNC<dist_t> fstdistfunc_;
-        //void *dist_func_param_;
         std::default_random_engine generator = std::default_random_engine(100);
 
         inline labeltype getExternalLabel(tableint internal_id)
@@ -222,7 +218,7 @@ namespace hnswlib {
 
             std::priority_queue<std::pair<dist_t, tableint  >> topResults;
             std::priority_queue<std::pair<dist_t, tableint >> candidateSet;
-            dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(ep));
+            dist_t dist = s_->fstdistfunc(datapoint, getDataByInternalId(ep));
 
             topResults.emplace(dist, ep);
             candidateSet.emplace(-dist, ep);
@@ -260,9 +256,10 @@ namespace hnswlib {
                     _mm_prefetch((char *) (massVisited + *(datal + j + 1)), _MM_HINT_T0);
                     _mm_prefetch(getDataByInternalId(*(datal + j + 1)), _MM_HINT_T0);
                     if (!(massVisited[tnum] == currentV)) {
-
                         massVisited[tnum] = currentV;
-                        dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
+                        char *currObj1 = getDataByInternalId(tnum);
+
+                        dist_t dist = fstdistfunc_(datapoint, currObj1, dist_func_param_);
                         if (topResults.top().first > dist || topResults.size() < efConstruction_) {
                             candidateSet.emplace(-dist, tnum);
                             _mm_prefetch(getDataByInternalId(candidateSet.top().second), _MM_HINT_T0);
@@ -406,8 +403,10 @@ namespace hnswlib {
                 }
             }
 
-            for (std::pair<dist_t, tableint> curen2 : returnlist)
+            for (std::pair<dist_t, tableint> curen2 : returnlist) {
+
                 topResults.emplace(-curen2.first, curen2.second);
+            }
         }
 
         void mutuallyConnectNewElement(void *datapoint, tableint cur_c,
@@ -489,7 +488,7 @@ namespace hnswlib {
                 } else {
                     // finding the "weakest" element to replace it with the new one
                     tableint *data = (tableint *) (ll_other + 1);
-                    dist_t d_max = space->fstdistfunc(getDataByInternalId(cur_c), getDataByInternalId(rez[idx]));
+                    dist_t d_max = space_>fstdistfunc(getDataByInternalId(cur_c), getDataByInternalId(rez[idx]));
                     // Heuristic:
                     std::priority_queue<std::pair<dist_t, tableint>> candidates;
                     candidates.emplace(d_max, cur_c);
@@ -635,7 +634,7 @@ namespace hnswlib {
                         tableint cand = datal[i];
                         if (cand < 0 || cand > (maxelements_ + maxclusters_))
                             throw runtime_error("cand error");
-                        dist_t d = space->fstdistfunc(query_data, getDataByInternalId(cand));
+                        dist_t d = space->fstdistfunc(query_data, getDataByInternalId(cand), dist_func_param_);
                         dist_calc++;
                         if (d < curdist) {
                             curdist = d;
@@ -751,10 +750,9 @@ namespace hnswlib {
             readBinaryPOD(input, maxM0_cluster_);
             readBinaryPOD(input, M_cluster_);
 
-            space = s;
             data_size_ = s->get_data_size();
-            //fstdistfunc_ = s->get_dist_func();
-            //dist_func_param_ = s->get_dist_func_param();
+            fstdistfunc_ = s->get_dist_func();
+            dist_func_param_ = s->get_dist_func_param();
 
             data_level0_memory_ = (char *) malloc(maxclusters_ * size_data_per_cluster_ +
                                                   maxelements_ * size_data_per_element_);

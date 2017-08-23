@@ -27,15 +27,21 @@ namespace hnswlib {
 		//virtual void addPoint(void *, labeltype) = 0;
 		virtual std::priority_queue< std::pair< dist_t, labeltype >> searchKnn(void *,int) = 0;
 	};
-	template<typename MTYPE>
-	class SpaceInterface {
-	public:
-		//virtual void search(void *);
-		virtual size_t get_data_size() = 0;
-		virtual DISTFUNC<MTYPE> get_dist_func() = 0;
-		virtual void *get_dist_func_param() = 0;
-
-	};
+//	template<typename MTYPE>
+//	class SpaceInterface {
+//	public:
+//		//virtual void search(void *);
+//		virtual size_t get_data_size() = 0;
+//		virtual DISTFUNC<MTYPE> get_dist_func() = 0;
+//		virtual void *get_dist_func_param() = 0;
+//
+//	};
+    template<typename MTYPE>
+    class SpaceInterface {
+    public:
+        virtual size_t get_data_size() = 0;
+        virtual MTYPE fstdistfunc(const MTYPE *, const MTYPE *) = 0;
+    };
 }
 #include "L2space.h"
 #include "brutoforce.h"
