@@ -183,15 +183,10 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<int
 		}
 
 		while (result.size()) {
-			if (g.find(result.top().second) != g.end()) {
-				
+			if (g.find(result.top().second) != g.end())
 				correct++;
-			}
-			else {				
-			}
 			result.pop();
 		}
-		
 	}
 	return 1.0f*correct / total;
 }
@@ -292,8 +287,6 @@ void sift_test1B()
     sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_cM_%d.bin", efConstruction, M, M_cluster);
     sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M.ivecs");
 
-	//unsigned char *massb = new unsigned char[vecdim];
-
 	cout << "Loading GT:\n";
 	ifstream inputGT(path_gt, ios::binary);
 	unsigned int *massQA = new unsigned int[qsize*1000]; // *1000
@@ -320,14 +313,10 @@ void sift_test1B()
 			exit(1);
 		}
 		inputQ.read((char *)(massQ + i*vecdim), in);
-		//for (int j = 0; j < vecdim; j++) {
-		//	massQ[i*vecdim + j] = massb[j];
-		//}
-
 	}
 	inputQ.close();
 
-	unsigned char *mass = new unsigned char[vecdim];
+	unsigned char *massb = new unsigned char[vecdim];
 	ifstream input(path_data, ios::binary);
 	int in = 0;
 	L2SpaceI l2space(vecdim);
@@ -346,13 +335,9 @@ void sift_test1B()
 			cout << "file error";
 			exit(1);
 		}
-		input.read((char *)mass, in);
+		input.read((char *)massb, in);
 
-		//for (int j = 0; j < vecdim; j++) {
-		//	mass[j] = massb[j] * (1.0f);
-		//}
-
-		appr_alg->addPoint((void *)(mass), (size_t)0, 5); // не было третьего параметра
+		appr_alg->addPoint((void *)(massb), (size_t)0, 5); // не было третьего параметра
 		int j1 = 0;
 		StopW stopw = StopW();
 		StopW stopw_full = StopW();
@@ -369,9 +354,6 @@ void sift_test1B()
 					exit(1);
 				}
 				input.read((char *)mass, in);
-				//for (int j = 0; j < vecdim; j++) {
-				//	mass[j] = massb[j];
-				//}
 				j1++;
 				if (j1 % report_every == 0) {
                     cout << j1 / (0.01 * (vecsize + clustersize)) << " %, "
@@ -393,7 +375,7 @@ void sift_test1B()
             else if (j1 < clustersize)
                 level = 1;
 
-            appr_alg->addPoint((void *)(mass), (size_t)j1, level);
+            appr_alg->addPoint((void *)(massb), (size_t)j1, level);
 		}
 		input.close();
 		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
@@ -401,7 +383,7 @@ void sift_test1B()
 	}
 	printInfo(appr_alg);
 
-	vector<std::priority_queue< std::pair< int, labeltype >>> answers;
+	vector<std::priority_queue< std::pair<int, labeltype >>> answers;
 	size_t k = 1;
 	cout << "Parsing gt:\n";
 	get_gt(massQA, qsize, answers, k);
