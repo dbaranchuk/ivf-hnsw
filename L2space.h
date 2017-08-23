@@ -180,7 +180,7 @@ namespace hnswlib {
         {
             float res = 0;
             for (int i = 0; i < dim_; i++) {
-                float t = (float *)(x)[i] - (float *)(y)[i];
+                float t = ((float *)x)[i] - ((float *)y)[i];
                 res += t*t;
             }
             return res;
