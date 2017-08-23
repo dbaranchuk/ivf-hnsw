@@ -148,19 +148,19 @@ size_t getCurrentRSS()
 
 
 
-static void get_gt(unsigned int *massQA, unsigned char *massQ, unsigned char *mass, size_t vecsize, size_t qsize,
-                   L2SpaceI &l2space, size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
+static void get_gt(unsigned int *massQA, unsigned char *massQ, size_t vecsize, size_t qsize,
+                   vector<std::priority_queue< std::pair<int, labeltype >>> &answers, size_t k)
 {
 	(vector<std::priority_queue< std::pair< int, labeltype >>>(qsize)).swap(answers);
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
-			answers[i].emplace(0.0f, massQA[1000*i + j]); // 1000 *
+			answers[i].emplace(0.0f, massQA[1000*i + j]);
 		}
 	}
 }
 
-static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<int> &appr_alg,
+static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<int> &appr_alg,
                          size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
 {
 	size_t correct = 0;
@@ -197,7 +197,7 @@ static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, Hie
 	return 1.0f*correct / total;
 }
 
-static void test_vs_recall(unsigned char *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<int> &appr_alg,
+static void test_vs_recall(unsigned char *massQ, size_t qsize, HierarchicalNSW<int> &appr_alg,
                            size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k)
 {
 	vector<size_t> efs; //= {30, 100, 460};
@@ -218,7 +218,7 @@ static void test_vs_recall(unsigned char *massQ, size_t vecsize, size_t qsize, H
         appr_alg.hops = 0.0;
         appr_alg.hops0 = 0.0;
 		StopW stopw = StopW();
-		float recall = test_approx(massQ, vecsize, qsize, appr_alg, vecdim, answers, k);
+		float recall = test_approx(massQ, qsize, appr_alg, vecdim, answers, k);
 		float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
 		float avr_dist_count = appr_alg.dist_calc*1.f / qsize;
 		cout << ef << "\t" << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\t" << appr_alg.hops0 + appr_alg.hops << " hps\n";
@@ -275,7 +275,7 @@ void sift_test1B()
 {
 	int subset_size_milllions = 100;
 	int efConstruction = 60;
-	int M = 4;
+	int M = 2;
     int M_cluster = 16;
 
     size_t clustersize = 5263157;
@@ -328,7 +328,7 @@ void sift_test1B()
 	}
 	inputQ.close();
 
-	unsigned char *mass = new unsigned char[vecdim];
+	//unsigned char *mass = new unsigned char[vecdim];
 	ifstream input(path_data, ios::binary);
 	int in = 0;
 	L2SpaceI l2space(vecdim);
@@ -342,16 +342,16 @@ void sift_test1B()
 		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
 
 		input.read((char *)&in, 4);
-		if (in != 128)
+		if (in != vecdim)
 		{
 			cout << "file error";
 			exit(1);
 		}
 		input.read((char *)massb, in);
 
-		for (int j = 0; j < vecdim; j++) {
-			mass[j] = massb[j] * (1.0f);
-		}
+		//for (int j = 0; j < vecdim; j++) {
+		//	mass[j] = massb[j] * (1.0f);
+		//}
 
 		appr_alg->addPoint((void *)(massb), (size_t)0, 5); // не было третьего параметра
 		int j1 = 0;
@@ -360,19 +360,19 @@ void sift_test1B()
 		size_t report_every = 1000000;
 #pragma omp parallel for
 		for (int i = 1; i < vecsize + clustersize; i++) {
-			unsigned char mass[128];
+			//unsigned char mass[128];
 #pragma omp critical
 			{
 				input.read((char *)&in, 4);
-				if (in != 128)
+				if (in != vecdim)
 				{
 					cout << "file error";
 					exit(1);
 				}
 				input.read((char *)massb, in);
-				for (int j = 0; j < vecdim; j++) {
-					mass[j] = massb[j];
-				}
+				//for (int j = 0; j < vecdim; j++) {
+				//	mass[j] = massb[j];
+				//}
 				j1++;
 				if (j1 % report_every == 0) {
                     cout << j1 / (0.01 * (vecsize + clustersize)) << " %, "
@@ -394,7 +394,7 @@ void sift_test1B()
             else if (j1 < clustersize)
                 level = 1;
 
-            appr_alg->addPoint((void *)(mass), (size_t)j1, level);
+            appr_alg->addPoint((void *)(massb), (size_t)j1, level);
 		}
 		input.close();
 		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
@@ -405,9 +405,9 @@ void sift_test1B()
 	vector<std::priority_queue< std::pair< int, labeltype >>> answers;
 	size_t k = 1;
 	cout << "Parsing gt:\n";
-	get_gt(massQA, massQ, mass, vecsize, qsize, l2space, vecdim, answers, k);
+	get_gt(massQA, massQ, qsize, vecdim, answers, k);
 	cout << "Loaded gt\n";
-    test_vs_recall(massQ, vecsize, qsize, *appr_alg, vecdim, answers, k);
+    test_vs_recall(massQ, qsize, *appr_alg, vecdim, answers, k);
 	cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 	return;
 }

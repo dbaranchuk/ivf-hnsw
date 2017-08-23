@@ -20,6 +20,21 @@
 namespace hnswlib {
 	using namespace std;
 
+	static float
+		L2Sqr(const void *pVect1, const void *pVect2, const void *qty_ptr)
+	{
+		//return *((float *)pVect2);
+		size_t qty = *((size_t *)qty_ptr);
+		float res = 0;
+		for (int i = 0; i < qty; i++) {
+			float t = ((float*)pVect1)[i] - ((float*)pVect2)[i];
+			res += t*t;
+		}
+		return (res);
+
+	};
+
+
 		static float
 			L2SqrSIMD16Ext(const void *pVect1v, const void *pVect2v, const void *qty_ptr)
 		{
@@ -135,6 +150,7 @@ namespace hnswlib {
 	
 	class L2Space : public SpaceInterface<float>
     {
+		//DISTFUNC<float> fstdistfunc_;
 		size_t data_size_;
 		size_t dim_;
 	public:
@@ -154,7 +170,12 @@ namespace hnswlib {
 		size_t get_data_size() {
 			return data_size_;
 		}
-
+		//DISTFUNC<float> get_dist_func() {
+		//	return fstdistfunc_;
+		//}
+		//void *get_dist_func_param() {
+		//	return &dim_;
+		//}
         float fstdistfunc(const void *x, const void *y)
         {
             float res = 0;
@@ -166,12 +187,36 @@ namespace hnswlib {
         };
 	};
 
-	class L2SpaceI : public SpaceInterface<int>
-    {
+	static int
+		L2SqrI(const void  * __restrict pVect1, const void  * __restrict pVect2, const void * __restrict qty_ptr)
+	{
+		
+		size_t qty = *((size_t *)qty_ptr);
+		int res = 0;
+		unsigned char *a = (unsigned char*)pVect1;
+		unsigned char *b = (unsigned char*)pVect2;
+		/*for (int i = 0; i < qty; i++) {
+			int t = int((a)[i]) - int((b)[i]);
+			res += t*t;
+		}*/
+
+		qty = qty >> 2;
+		for (int i = 0; i < qty; i++) {
+			res += ((*a) - (*b))*((*a) - (*b)); a++; b++;
+			res += ((*a) - (*b))*((*a) - (*b)); a++; b++;
+			res += ((*a) - (*b))*((*a) - (*b)); a++; b++;
+			res += ((*a) - (*b))*((*a) - (*b)); a++; b++;
+		}
+		return res;
+	};
+
+	class L2SpaceI : public SpaceInterface<int> {
+		//DISTFUNC<int> fstdistfunc_;
 		size_t data_size_;
 		size_t dim_;
 	public:
 		L2SpaceI(size_t dim) {
+			//fstdistfunc_ = L2SqrI;
 			dim_ = dim;
 			data_size_ = dim * sizeof(unsigned char);
 		}
@@ -179,12 +224,23 @@ namespace hnswlib {
 		size_t get_data_size() {
 			return data_size_;
 		}
+		//DISTFUNC<int> get_dist_func() {
+		//	return fstdistfunc_;
+		//}
+		//void *get_dist_func_param() {
+		//	return &dim_;
+		//}
+
         int fstdistfunc(const void *x, const void *y)
         {
             size_t dim = dim_ >> 2;
             int res = 0;
             unsigned char *a = (unsigned char *)x;
             unsigned char *b = (unsigned char *)y;
+            /*for (int i = 0; i < qty; i++) {
+                int t = int((a)[i]) - int((b)[i]);
+                res += t*t;
+            }*/
 
             for (int i = 0; i < dim; i++) {
                 res += ((*a) - (*b))*((*a) - (*b)); a++; b++;
@@ -201,74 +257,74 @@ namespace hnswlib {
      * PQ Space
      * */
 
-    class L2SpacePQ: public SpaceInterface<float>
-    {
-        size_t data_size_;
-        size_t dim_;
-        size_t m_;
-        size_t k_;
-        size_t vocab_dim_;
-
-        float **codebooks;
-
-    public:
-        L2SpacePQ(const char *codebooksFilename, size_t dim, size_t m, size_t k)
-        {
-            dim_ = dim;
-            m_ = m;
-            k_ = k;
-            vocab_dim_ = (dim % m == 0) ? dim / m : -1;
-            data_size_ = m * sizeof(unsigned char);
-
-            if (vocab_dim_ == -1){
-                std::cerr << "M is not multiply of D" << std::endl;
-                exit(1);
-            }
-
-            codebooks = (float **) calloc(sizeof(float *), m);
-            for (int i = 0; i < m_; i++)
-                codebooks[i] = (float *) calloc(sizeof(float), vocab_dim_ * k);
-
-            FILE *fin = fopen(codebooksFilename, "rb");
-            for (int i = 0; i < m_; i++)
-                for (int j = 0; j < k_; j++){
-                    fread((int *)&vocab_dim_, sizeof(int), 1, fin);
-                    if (vocab_dim_ != dim_ / m_){
-                        std::cerr << "Wrong codebook dim" << std::endl;
-                        exit(1);
-                    }
-                    fread((float *)(codebooks[i] + vocab_dim_ * j), sizeof(float), vocab_dim_, fin);
-            }
-            fclose(fin);
-        }
-
-        ~L2SpacePQ(){
-            for (int i = 0; i < m_; i++)
-                free(codebooks[i]);
-            free(codebooks);
-        }
-
-        size_t get_data_size() {
-            return data_size_;
-        }
-
-        float fstdistfunc(const void *x_code, const void *y_code)
-        {
-            float res = 0;
-            const float *x, *y;
-
-            for (size_t i = 0; i < m_; i++) {
-                x = codebooks[i] + ((unsigned char *)x_code)[i] * vocab_dim_;
-                y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
-
-                for (int j = 0; j < vocab_dim_; j++) {
-                    float t = x[j] - y[j];
-                    res += t * t;
-                }
-            }
-            return res;
-        };
-
-    };
+//    class L2SpacePQ: public SpaceInterface<float>
+//    {
+//        size_t data_size_;
+//        size_t dim_;
+//        size_t m_;
+//        size_t k_;
+//        size_t vocab_dim_;
+//
+//        float **codebooks;
+//
+//    public:
+//        L2SpacePQ(const char *codebooksFilename, size_t dim, size_t m, size_t k):
+//        {
+//            dim_ = dim;
+//            m_ = m;
+//            k_ = k;
+//            vocab_dim_ = (dim % m == 0) ? dim / m : -1;
+//            data_size_ = m * sizeof(unsigned char);
+//
+//            if (vocab_dim_ == -1){
+//                std::cerr << "M is not multiply of D" << std::endl;
+//                exit(1);
+//            }
+//
+//            codebooks = (float **) calloc(sizeof(float *), m);
+//            for (int i = 0; i < m_; i++)
+//                codebooks[i] = (float *) calloc(sizeof(float), vocab_dim_ * k);
+//
+//            FILE *fin = fopen(codebooksFilename, "rb");
+//            for (int i = 0; i < m_; i++)
+//                for (int j = 0; j < k_; j++){
+//                    fread((int *)&vocab_dim_, sizeof(int), 1, fin);
+//                    if (vocab_dim_ != dim_ / m_){
+//                        std::cerr << "Wrong codebook dim" << std::endl;
+//                        exit(1);
+//                    }
+//                    fread((float *)(codebooks[i] + vocab_dim_ * j), sizeof(float), vocab_dim_, fin);
+//            }
+//            fclose(fin);
+//        }
+//
+//        ~L2SpacePQ(){
+//            for (int i = 0; i < m_; i++)
+//                free(codebooks[i]);
+//            free(codebooks);
+//        }
+//
+//        size_t get_data_size() {
+//            return data_size_;
+//        }
+//
+//        float fstdistfunc(const void *x_code, const void *y_code, const void *m)
+//        {
+//            float res = 0;
+//            const float *x, *y;
+//
+//            for (size_t i = 0; i < m_; i++) {
+//                x = codebooks[i] + x_code[i] * vocab_dim_;
+//                y = codebooks[i] + y_code[i] * vocab_dim_;
+//
+//                for (int j = 0; j < vocab_dim_; j++) {
+//                    float t = x[j] - y[j];
+//                    res += t * t;
+//                }
+//            }
+//            return res;
+//        };
+//
+//    };
 
 };
