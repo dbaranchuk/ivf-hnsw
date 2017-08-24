@@ -465,7 +465,7 @@ void sift_test1B_PQ()
             exit(1);
         }
         input.read((char *)massb, in);
-
+        cout << "#Element: " << endl;
         appr_alg->addPoint((void *)(massb), (size_t)0);
         int j1 = 0;
         StopW stopw = StopW();
