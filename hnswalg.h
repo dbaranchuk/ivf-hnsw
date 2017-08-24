@@ -567,9 +567,10 @@ namespace hnswlib {
                     memset(linkLists_[cur_c], 0, size_links_per_element_ * curlevel);
                 }
             }
+            std::cout << "HUI1" << std::endl;
             if (currObj != -1) {
                 if (curlevel < maxlevelcopy) {
-
+                    std::cout << "HUI2" << std::endl;
                     dist_t curdist = space->fstdistfunc(datapoint, getDataByInternalId(currObj));
                     for (int level = maxlevelcopy; level > curlevel; level--) {
 
@@ -585,6 +586,7 @@ namespace hnswlib {
                                 tableint cand = datal[i];
                                 if (cand < 0 || cand > (maxelements_ + maxclusters_))
                                     throw runtime_error("cand error");
+                                std::cout << "HUI3" << std::endl;
                                 dist_t d = space->fstdistfunc(datapoint, getDataByInternalId(cand));
                                 if (d < curdist) {
                                     curdist = d;
@@ -595,13 +597,15 @@ namespace hnswlib {
                         }
                     }
                 }
+                std::cout << "HUI4" << std::endl;
 
                 for (int level = min(curlevel, maxlevelcopy); level >= 0; level--) {
                     if (level > maxlevelcopy || level < 0)
                         throw runtime_error("Level error");
-
+                    std::cout << "HUI5" << std::endl;
                     std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
                                                                                                     level);
+                    std::cout << "HUI6" << std::endl;
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
                 }
 
