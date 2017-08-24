@@ -476,6 +476,7 @@ void sift_test1B_PQ()
             unsigned char massb[M_PQ];
 #pragma omp critical
             {
+                cout << "#Element: " << j1 << endl;
                 input.read((char *)&in, 4);
                 if (in != M_PQ)
                 {
