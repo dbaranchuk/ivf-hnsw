@@ -177,7 +177,7 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 
         float dist2gt = appr_alg.space->fstdistfunc(appr_alg.getDataByInternalId(gt.top().second),
                                                     appr_alg.getDataByInternalId(appr_alg.enterpoint0));
-        appr_alg.nev9zka += dist2gt / 10000;
+        appr_alg.nev9zka += dist2gt / qsize;
 
 		while (gt.size()) {
 			g.insert(gt.top().second);
