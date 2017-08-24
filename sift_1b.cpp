@@ -457,7 +457,7 @@ void sift_test1B_PQ()
         cout << "Building index:\n";
         appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M, efConstruction);
 
-        unsigned char *massb[M_PQ];
+        unsigned char massb[M_PQ];
         input.read((char *)&in, 4);
         if (in != M_PQ)
         {
@@ -466,7 +466,7 @@ void sift_test1B_PQ()
         }
         input.read((char *)massb, in);
 
-        appr_alg->addPoint((void *)(massb), (size_t)0); // не было третьего параметра
+        appr_alg->addPoint((void *)(massb), (size_t)0);
         int j1 = 0;
         StopW stopw = StopW();
         StopW stopw_full = StopW();

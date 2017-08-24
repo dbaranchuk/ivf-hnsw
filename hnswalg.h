@@ -102,6 +102,7 @@ namespace hnswlib {
             }
             free(linkLists_);
             delete visitedlistpool;
+            delete space;
         }
         // Fields
         SpaceInterface<dist_t> *space;
@@ -150,8 +151,6 @@ namespace hnswlib {
 
         size_t data_size_;
         size_t label_offset_;
-        //DISTFUNC<dist_t> fstdistfunc_;
-        //void *dist_func_param_;
         std::default_random_engine generator = std::default_random_engine(100);
 
         inline labeltype getExternalLabel(tableint internal_id)
