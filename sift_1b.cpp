@@ -272,7 +272,7 @@ void sift_test1B()
 {
 	const int subset_size_milllions = 100;
 	const int efConstruction = 60;
-	const int M = 128;
+	const int M = 64;
     const int M_cluster = 16;
 
     const size_t clustersize = 5263157;
