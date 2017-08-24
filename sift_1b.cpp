@@ -400,7 +400,7 @@ void sift_test1B()
 void sift_test1B_PQ()
 {
     const int efConstruction = 60;
-    const int M = 2;
+    const int M = 1;
     const int M_PQ = 16;
 
     const size_t vecsize = 1000 * 1000000;

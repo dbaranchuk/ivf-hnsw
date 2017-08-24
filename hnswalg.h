@@ -44,7 +44,7 @@ namespace hnswlib {
 
             space = s;
             data_size_ = s->get_data_size();
-            
+
             M_ = M;
             maxM_ = M_;
             maxM0_ = M_ * 2;
