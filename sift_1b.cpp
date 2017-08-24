@@ -270,7 +270,7 @@ void sift_test1B()
 	const int subset_size_milllions = 100;
 	const int efConstruction = 60;
 	const int M = 16;
-    const int M_cluster = 0;
+    const int M_cluster = 2;
 
     const size_t clustersize = 5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
@@ -282,10 +282,10 @@ void sift_test1B()
 	char path_index[1024];
 	char path_gt[1024];
     const char *path_q = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_query.bvecs";
-    const char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m_shuffled.bvecs";
+    const char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_hnsw.bin", efConstruction, M);//, M_cluster);
-    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M_shuffled.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_cM_%d.bin", efConstruction, M, M_cluster);
+    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M.ivecs");
 
 	cout << "Loading GT:\n";
 	ifstream inputGT(path_gt, ios::binary);
@@ -327,7 +327,7 @@ void sift_test1B()
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
 		cout << "Building index:\n";
-		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction);//, clustersize, M_cluster);
+		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction), clustersize, M_cluster);
 
 		input.read((char *)&in, 4);
 		if (in != vecdim)
@@ -337,7 +337,7 @@ void sift_test1B()
 		}
 		input.read((char *)massb, in);
 
-		appr_alg->addPoint((void *)(massb), (size_t)0); // не было третьего параметра
+		appr_alg->addPoint((void *)(massb), (size_t)0, 5); // не было третьего параметра
 		int j1 = 0;
 		StopW stopw = StopW();
 		StopW stopw_full = StopW();
@@ -374,7 +374,7 @@ void sift_test1B()
             else if (j1 < clustersize)
                 level = 1;
 
-            appr_alg->addPoint((void *)(massb), (size_t)j1);
+            appr_alg->addPoint((void *)(massb), (size_t)j1, level);
 		}
 		input.close();
 		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
@@ -383,14 +383,15 @@ void sift_test1B()
 	printInfo(appr_alg);
 
     //
-    FILE *fin = fopen("/sata2/dbaranchuk/synthetic_100m_5m/new_cluster_idx.dat", "rb");
-    int *cluster_idx_table = new int[clustersize];
-    fread(cluster_idx_table, sizeof(int), clustersize, fin);
+    //FILE *fin = fopen("/sata2/dbaranchuk/synthetic_100m_5m/new_cluster_idx.dat", "rb");
+    //int *cluster_idx_table = new int[clustersize];
+    //fread(cluster_idx_table, sizeof(int), clustersize, fin);
     unordered_set<int> cluster_idx_set;
     for (int i = 0; i < clustersize; i++)
-        cluster_idx_set.insert(cluster_idx_table[i]);
-    delete cluster_idx_table;
-    fclose(fin);
+        //cluster_idx_set.insert(cluster_idx_table[i]);
+        cluster_idx_set.insert(i);
+    //delete cluster_idx_table;
+    //fclose(fin);
     //
 
 	vector<std::priority_queue< std::pair<int, labeltype >>> answers;
