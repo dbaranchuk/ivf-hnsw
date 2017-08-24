@@ -269,6 +269,23 @@ namespace hnswlib {
             return res;
         };
 
+        float fstdistfunc(const float *x_vec, const void *y_code)
+        {
+            float res = 0;
+            const float *x, *y;
+
+            for (size_t i = 0; i < m_; i++) {
+                x = x_vec + i * vocab_dim_;
+                y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
+
+                for (int j = 0; j < vocab_dim_; j++) {
+                    float t = x[j] - y[j];
+                    res += t * t;
+                }
+            }
+            return res;
+        };
+
     };
 
 };

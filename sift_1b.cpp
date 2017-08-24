@@ -400,7 +400,7 @@ void sift_test1B()
 void sift_test1B_PQ()
 {
     const int efConstruction = 60;
-    const int M = 0;
+    const int M = 2;
     const int M_PQ = 16;
 
     const size_t vecsize = 1000 * 1000000;
@@ -409,12 +409,12 @@ void sift_test1B_PQ()
 
     char path_index[1024];
     char path_gt[1024];
-    const char *path_q = "/sata2/dbaranchuk/bigann/base1B/bigann_query.bvecs";
-    const char *path_data = "/sata2/dbaranchuk/bigann/base1B/bigann_base_pq.bvecs";
-    const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B/codebooks.fvecs";
+    const char *path_q = "/sata2/dbaranchuk/bigann/base1B_M8/bigann_query.bvecs";
+    const char *path_data = "/sata2/dbaranchuk/bigann/base1B_M8/bigann_base_pq.bvecs";
+    const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M8/codebooks.fvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B/sift1b_ef_%d_M_%d.bin", efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B/idx_1000M.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M8/sift1b_ef_%d_M_%d.bin", efConstruction, M);
+    sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M8/idx_1000M.ivecs");
 
     cout << "Loading GT:\n";
     ifstream inputGT(path_gt, ios::binary);
@@ -475,7 +475,6 @@ void sift_test1B_PQ()
             unsigned char massb[M_PQ];
 #pragma omp critical
             {
-                cout << "#Element: " << j1 << endl;
                 input.read((char *)&in, 4);
                 if (in != M_PQ)
                 {
