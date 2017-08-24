@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unordered_set>
 
 template<typename T>
 void writeBinaryPOD(std::ostream &out, const T &podRef) {
