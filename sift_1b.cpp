@@ -272,10 +272,10 @@ void sift_test1B()
 	const int M = 16;
     const int M_cluster = 0;
 
-    const size_t clustersize = 0;//5263157;
+    const size_t clustersize = 5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
 
-	const size_t vecsize = subset_size_milllions * 1000000 + 5263157;
+	const size_t vecsize = subset_size_milllions * 1000000;// + 5263157;
 	const size_t qsize = 10000;
 	const size_t vecdim = 128;
 
@@ -327,7 +327,7 @@ void sift_test1B()
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
 		cout << "Building index:\n";
-		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
+		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction);//, clustersize, M_cluster);
 
 		input.read((char *)&in, 4);
 		if (in != vecdim)
