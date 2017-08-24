@@ -272,7 +272,7 @@ void sift_test1B()
 {
 	const int subset_size_milllions = 100;
 	const int efConstruction = 60;
-	const int M = 64;
+	const int M = 16;
     const int M_cluster = 16;
 
     const size_t clustersize = 5263157;
@@ -400,7 +400,7 @@ void sift_test1B()
 void sift_test1B_PQ()
 {
     const int efConstruction = 60;
-    const int M = 1;
+    const int M = 0;
     const int M_PQ = 16;
 
     const size_t vecsize = 1000 * 1000000;

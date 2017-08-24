@@ -47,7 +47,7 @@ namespace hnswlib {
 
             M_ = M;
             maxM_ = M_;
-            maxM0_ = M_;// * 2;
+            maxM0_ = M_ * 2;
             efConstruction_ = efConstruction;
             ef_ = 7;
 
