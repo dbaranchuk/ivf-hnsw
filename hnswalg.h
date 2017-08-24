@@ -69,8 +69,9 @@ namespace hnswlib {
             cout << offsetData_ << "\t" << label_offset_ << "\n";
             cout << size_links_level0_ << "\t" << data_size_ << "\t" << sizeof(labeltype) << "\n";
 
+            std::cout << (data_level0_memory_) ? 1 : 0<< std::endl;
             data_level0_memory_ = (char *) malloc(maxclusters_ * size_data_per_cluster_ + maxelements_ * size_data_per_element_);
-            std::cout << data_level0_memory_<< std::endl;
+            std::cout << (data_level0_memory_) ? 1 : 0<< std::endl;
 
             size_t predicted_size_per_element = size_data_per_element_ + sizeof(void *) + 8 + 8 + 2 * 8;
             size_t predicted_size_per_cluster = size_data_per_cluster_ + sizeof(void *) + 8 + 8 + 2 * 8;
