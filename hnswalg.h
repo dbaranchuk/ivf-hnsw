@@ -44,10 +44,7 @@ namespace hnswlib {
 
             space = s;
             data_size_ = s->get_data_size();
-            //if (!isPQ) {
-            //    fstdistfunc_ = s->get_dist_func();
-            //    dist_func_param_ = s->get_dist_func_param();
-            //}
+            
             M_ = M;
             maxM_ = M_;
             maxM0_ = M_ * 2;
@@ -67,7 +64,7 @@ namespace hnswlib {
             size_data_per_element_ = size_links_level0_ + data_size_ + sizeof(labeltype);
             offsetData_ = size_links_level0_;
             label_offset_ = size_links_level0_ + data_size_;
-            offsetLevel0_ = 0;//(maxclusters_ == 0) ? 0 : maxclusters_ * size_data_per_cluster_;
+            offsetLevel0_ = 0;
 
             cout << offsetData_ << "\t" << label_offset_ << "\n";
             cout << size_links_level0_ << "\t" << data_size_ << "\t" << sizeof(labeltype) << "\n";
