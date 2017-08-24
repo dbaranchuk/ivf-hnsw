@@ -547,6 +547,7 @@ namespace hnswlib {
             if (cur_c < maxclusters_) {
                 memset(data_level0_memory_ + cur_c * size_data_per_cluster_ + offsetLevel0_, 0, size_data_per_cluster_);
             } else {
+                std::cout << "HUI0" << std::endl;
                 tableint cur_c_element = cur_c - maxclusters_;
                 memset(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
                        cur_c_element * size_data_per_element_ + offsetLevel0_, 0, size_data_per_element_);
@@ -555,7 +556,7 @@ namespace hnswlib {
             memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
             memcpy(getDataByInternalId(cur_c), datapoint, data_size_);
 
-
+            std::cout << "HUI1" << std::endl;
             if (curlevel) {
                 // Above levels contain only clusters
                 if (cur_c < maxclusters_) {
