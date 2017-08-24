@@ -162,7 +162,7 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
 template <typename dist_t>
 static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dist_t> &appr_alg,
                          size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
-                         size_t k, int *cluster_idx_table = NULL)
+                         size_t k, unordered_set<int> &cluster_idx_set)
 {
 	size_t correct = 0;
 	size_t total = 0;
@@ -170,7 +170,7 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 	//uncomment to test in parallel mode:
 	//#pragma omp parallel for
 	for (int i = 0; i < qsize; i++) {
-		std::priority_queue< std::pair<dist_t, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k, cluster_idx_table);
+		std::priority_queue< std::pair<dist_t, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k, cluster_idx_set);
 		std::priority_queue< std::pair<dist_t, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 		total += gt.size();
