@@ -418,7 +418,7 @@ void sift_test1B_PQ()
 
     cout << "Loading GT:\n";
     ifstream inputGT(path_gt, ios::binary);
-    unsigned int massQA[qsize*1000];
+    unsigned int *massQA = new unsigned int[qsize * 1000];
     for (int i = 0; i < qsize; i++) {
         int t;
         inputGT.read((char *)&t, 4);
@@ -430,7 +430,7 @@ void sift_test1B_PQ()
     }
 
     cout << "Loading queries:\n";
-    unsigned char massQ[qsize * vecdim];
+    unsigned char *massQ = new unsigned char[qsize * vecdim];
     ifstream inputQ(path_q, ios::binary);
 
     for (int i = 0; i < qsize; i++) {
@@ -507,5 +507,6 @@ void sift_test1B_PQ()
     //test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k);
     //cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
+    delete massQ;
     delete massQA;
 }
