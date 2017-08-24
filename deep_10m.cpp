@@ -163,12 +163,13 @@ static void get_gt(unsigned int *massQA, float *massQ, float *mass, size_t vecsi
 static float test_approx(float *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<float> &appr_alg,
                          size_t vecdim, vector<std::priority_queue< std::pair< float, labeltype >>> &answers, size_t k)
 {
+    unordered_set<int> batafor;
 	size_t correct = 0;
 	size_t total = 0;
 	//uncomment to test in parallel mode:
 	//#pragma omp parallel for
 	for (int i = 0; i < qsize; i++) {
-		std::priority_queue< std::pair< float, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k);
+		std::priority_queue< std::pair< float, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k, batafor);
 		std::priority_queue< std::pair< float, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 		total += gt.size();
@@ -376,8 +377,7 @@ void deep_test10M()
 	cout << "Parsing gt:\n";
 	get_gt(massQA, massQ, mass, vecsize, qsize, l2space, vecdim, answers, k);
 	cout << "Loaded gt\n";
-	for (int i = 0; i < 1; i++)
-		test_vs_recall(massQ, vecsize, qsize, *appr_alg, vecdim, answers, k);
+    //test_vs_recall(massQ, vecsize, qsize, *appr_alg, vecdim, answers, k);
 	cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 	return;
 }
