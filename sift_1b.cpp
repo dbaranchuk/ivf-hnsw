@@ -409,12 +409,12 @@ void sift_test1B_PQ()
 
     char path_index[1024];
     char path_gt[1024];
-    const char *path_q = "/sata2/dbaranchuk/base1B/bigann_query.bvecs";
-    const char *path_data = "/sata2/dbaranchuk/base1B/bigann_base_pq.bvecs";
-    const char *path_codebooks = "/sata2/dbaranchuk/base1B/codebooks.fvecs";
+    const char *path_q = "/sata2/dbaranchuk/bigann/base1B/bigann_query.bvecs";
+    const char *path_data = "/sata2/dbaranchuk/bigann/base1B/bigann_base_pq.bvecs";
+    const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B/codebooks.fvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/base1B/sift1b_ef_%d_M_%d.bin", efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/base1B/idx_1000M.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B/sift1b_ef_%d_M_%d.bin", efConstruction, M);
+    sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B/idx_1000M.ivecs");
 
     cout << "Loading GT:\n";
     ifstream inputGT(path_gt, ios::binary);
