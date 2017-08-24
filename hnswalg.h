@@ -71,6 +71,7 @@ namespace hnswlib {
 
             data_level0_memory_ = (char *) malloc(maxclusters_ * size_data_per_cluster_ + maxelements_ * size_data_per_element_);
             std::cout << data_level0_memory_<< std::endl;
+
             size_t predicted_size_per_element = size_data_per_element_ + sizeof(void *) + 8 + 8 + 2 * 8;
             size_t predicted_size_per_cluster = size_data_per_cluster_ + sizeof(void *) + 8 + 8 + 2 * 8;
             size_t total_size = maxclusters_ * predicted_size_per_cluster + maxelements_ * predicted_size_per_element;
@@ -78,7 +79,7 @@ namespace hnswlib {
             cur_element_count = 0;
 
             visitedlistpool = new VisitedListPool(1, maxelements_ + maxclusters_);
-
+            exit(1);
             //initializations for special treatment of the first node
             enterpoint_node = -1;
             maxlevel_ = -1;
