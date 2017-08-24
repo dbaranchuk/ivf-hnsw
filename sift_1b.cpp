@@ -161,7 +161,8 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
 
 template <typename dist_t>
 static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dist_t> &appr_alg,
-                         size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers, size_t k)
+                         size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
+                         size_t k, int *cluster_idx_table = NULL)
 {
 	size_t correct = 0;
 	size_t total = 0;
@@ -169,7 +170,7 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 	//uncomment to test in parallel mode:
 	//#pragma omp parallel for
 	for (int i = 0; i < qsize; i++) {
-		std::priority_queue< std::pair<dist_t, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k);
+		std::priority_queue< std::pair<dist_t, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k, cluster_idx_table);
 		std::priority_queue< std::pair<dist_t, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 		total += gt.size();
@@ -194,7 +195,8 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 
 template <typename dist_t>
 static void test_vs_recall(unsigned char *massQ, size_t qsize, HierarchicalNSW<dist_t> &appr_alg,
-                           size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers, size_t k)
+                           size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
+                           size_t k, unordered_set<int> &cluster_idx_set)
 {
 	vector<size_t> efs; //= {30, 100, 460};
     for (int i = k; i < 30; i++) {
@@ -214,7 +216,7 @@ static void test_vs_recall(unsigned char *massQ, size_t qsize, HierarchicalNSW<d
         appr_alg.hops = 0.0;
         appr_alg.hops0 = 0.0;
 		StopW stopw = StopW();
-		float recall = test_approx<dist_t>(massQ, qsize, appr_alg, vecdim, answers, k);
+		float recall = test_approx<dist_t>(massQ, qsize, appr_alg, vecdim, answers, k, cluster_idx_set);
 		float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
 		float avr_dist_count = appr_alg.dist_calc*1.f / qsize;
 		cout << ef << "\t" << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\t" << appr_alg.hops0 + appr_alg.hops << " hps\n";
@@ -235,10 +237,19 @@ inline bool exists_test(const std::string& name) {
 /**
  * Print Configuration
  **/
-static void printNumElementsPerLayer(vector<int> elementLevels)
+template <typename dist_t>
+static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 {
-    map<int, int> table = map<int, int>();
+    if (hnsw == NULL)
+        throw "Empty HNSW";
 
+    cout << "Information about constructed HNSW" << endl;
+    cout << "M: " << hnsw->M_ << endl;
+    cout << "Test K: " << 1 << endl;
+    cout << "efConstruction: " << hnsw->efConstruction_<< endl;
+
+    map<int, int> table = map<int, int>();
+    vector<int> elementLevels = hnsw->elementLevels;
     for (int layerNum : elementLevels) {
         if (table.count(layerNum) == 0) {
             table[layerNum] = 1;
@@ -250,20 +261,6 @@ static void printNumElementsPerLayer(vector<int> elementLevels)
         cout << "Number of elements on the " << elementsPerLayer.first << "layer: " << elementsPerLayer.second << endl;
     }
 }
-
-template <typename dist_t>
-static void printInfo(HierarchicalNSW<dist_t> *hnsw)
-{
-    if (hnsw == NULL){
-        throw "Empty HNSW";
-    }
-    cout << "Information about constructed HNSW" << endl;
-    cout << "M: " << hnsw->M_ << endl;
-    cout << "Test K: " << 1 << endl;
-    cout << "efConstruction: " << hnsw->efConstruction_<< endl;
-    printNumElementsPerLayer(hnsw->elementLevels);
-}
-
 
 /**
  * Main SIFT Test Function
@@ -285,10 +282,10 @@ void sift_test1B()
 	char path_index[1024];
 	char path_gt[1024];
     const char *path_q = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_query.bvecs";
-    const char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m.bvecs";
+    const char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m_shuffled.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_cM_%d.bin", efConstruction, M, M_cluster);
-    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_hnsw.bin", efConstruction, M);//, M_cluster);
+    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M_shuffled.ivecs");
 
 	cout << "Loading GT:\n";
 	ifstream inputGT(path_gt, ios::binary);
@@ -330,7 +327,7 @@ void sift_test1B()
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
 		cout << "Building index:\n";
-		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
+		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction);//, clustersize, M_cluster);
 
 		input.read((char *)&in, 4);
 		if (in != vecdim)
@@ -340,7 +337,7 @@ void sift_test1B()
 		}
 		input.read((char *)massb, in);
 
-		appr_alg->addPoint((void *)(massb), (size_t)0, 5); // не было третьего параметра
+		appr_alg->addPoint((void *)(massb), (size_t)0); // не было третьего параметра
 		int j1 = 0;
 		StopW stopw = StopW();
 		StopW stopw_full = StopW();
@@ -377,7 +374,7 @@ void sift_test1B()
             else if (j1 < clustersize)
                 level = 1;
 
-            appr_alg->addPoint((void *)(massb), (size_t)j1, level);
+            appr_alg->addPoint((void *)(massb), (size_t)j1);
 		}
 		input.close();
 		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
@@ -385,12 +382,23 @@ void sift_test1B()
 	}
 	printInfo(appr_alg);
 
+    //
+    FILE *fin = fopen("/sata2/dbaranchuk/synthetic_100m_5m/new_cluster_idx.dat", "rb");
+    int *cluster_idx_table = new int[clustersize];
+    fread(cluster_idx_table, sizeof(int), clustersize, fin);
+    unordered_set<int> cluster_idx_set;
+    for (int i = 0; i < clustersize; i++)
+        cluster_idx_set.insert(cluster_idx_table[i]);
+    delete cluster_idx_table;
+    fclose(fin);
+    //
+
 	vector<std::priority_queue< std::pair<int, labeltype >>> answers;
 	size_t k = 1;
 	cout << "Parsing gt:\n";
 	get_gt<int>(massQA, qsize, answers, k);
 	cout << "Loaded gt\n";
-    test_vs_recall<int>(massQ, qsize, *appr_alg, vecdim, answers, k);
+    test_vs_recall<int>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set);
 	cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQA;
@@ -498,13 +506,19 @@ void sift_test1B_PQ()
     }
     printInfo(appr_alg);
 
+    //
+    //unordered_set<int> cluster_idx_set;
+    //for (int i = 0; i < clustersize; i++)
+    //    cluster_idx_set.insert(i);
+    //
+
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
     size_t k = 1;
     cout << "Parsing gt:\n";
     get_gt<float>(massQA, qsize, answers, k);
     cout << "Loaded gt\n";
     //test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k);
-    //cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
+    cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQ;
     delete massQA;

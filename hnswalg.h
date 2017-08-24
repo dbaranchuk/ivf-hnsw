@@ -621,7 +621,7 @@ namespace hnswlib {
             }
         };
 
-        std::priority_queue<std::pair<dist_t, labeltype >> searchKnn(void *query_data, int k)
+        std::priority_queue<std::pair<dist_t, labeltype >> searchKnn(void *query_data, int k, unordered_set<int> &cluster_idx_table)
         {
             tableint currObj = enterpoint_node;
             dist_t curdist = space->fstdistfunc(query_data, getDataByInternalId(enterpoint_node));
@@ -658,7 +658,9 @@ namespace hnswlib {
             std::priority_queue<std::pair<dist_t, tableint >> topResults;
             while (tmpTopResults.size() > 0) {
                 std::pair<dist_t, tableint> rez = tmpTopResults.top();
-                if (getExternalLabel(rez.second) >= maxclusters_)
+                //if (getExternalLabel(rez.second) >= maxclusters_)
+                int obj = getExternalLabel(rez.second);
+                if (cluster_idx_table.count(obj) == 0)
                     topResults.push(rez);
                 tmpTopResults.pop();
             }
