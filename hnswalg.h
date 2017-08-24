@@ -47,7 +47,7 @@ namespace hnswlib {
 
             M_ = M;
             maxM_ = M_;
-            maxM0_ = M_ * 2;
+            maxM0_ = M_;// * 2;
             efConstruction_ = efConstruction;
             ef_ = 7;
 
@@ -79,7 +79,6 @@ namespace hnswlib {
             cur_element_count = 0;
 
             visitedlistpool = new VisitedListPool(1, maxelements_ + maxclusters_);
-            exit(1);
             //initializations for special treatment of the first node
             enterpoint_node = -1;
             maxlevel_ = -1;
