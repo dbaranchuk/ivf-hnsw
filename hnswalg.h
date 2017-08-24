@@ -621,7 +621,7 @@ namespace hnswlib {
             }
         };
 
-        std::priority_queue<std::pair<dist_t, labeltype >> searchKnn(void *query_data, int k, unordered_set<int> &cluster_idx_table)
+        std::priority_queue<std::pair<dist_t, labeltype >> searchKnn(void *query_data, int k, std::unordered_set<int> &cluster_idx_table)
         {
             tableint currObj = enterpoint_node;
             dist_t curdist = space->fstdistfunc(query_data, getDataByInternalId(enterpoint_node));
