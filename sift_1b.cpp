@@ -274,18 +274,18 @@ void sift_test1B() {
     const size_t clustersize = 5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
 
-    const size_t vecsize = subset_size_milllions * 1000000 + 5263157;
+    const size_t vecsize = subset_size_milllions * 1000000;
     const size_t qsize = 10000;
     const size_t vecdim = 128;
 
     char path_index[1024];
     char path_gt[1024];
     const char *path_q = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_query.bvecs";
-    const char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m_shuffled.bvecs";
+    const char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_cM_%d.bin", efConstruction, M,
+    sprintf(path_index, "/sata2/dbaranchuk/bigann/sift100m_ef_%d_M_%d_cM_%d_hnsw.bin", efConstruction, M,
             M_cluster);
-    sprintf(path_gt, "/sata2/dbaranchuk/synthetic_100m_5m/idx_100M_shuffled.ivecs");
+    sprintf(path_gt, "/sata2/dbaranchuk/bigann/gnd/idx_100M.ivecs");
 
     cout << "Loading GT:\n";
     ifstream inputGT(path_gt, ios::binary);
@@ -380,16 +380,16 @@ void sift_test1B() {
     printInfo(appr_alg);
 
     //
-    FILE *fin = fopen("/sata2/dbaranchuk/synthetic_100m_5m/new_cluster_idx.dat", "rb");
-    int *cluster_idx_table = new int[clustersize];
-    int ret = fread(cluster_idx_table, sizeof(int), clustersize, fin);
+    //FILE *fin = fopen("/sata2/dbaranchuk/synthetic_100m_5m/new_cluster_idx.dat", "rb");
+    //int *cluster_idx_table = new int[clustersize];
+    //int ret = fread(cluster_idx_table, sizeof(int), clustersize, fin);
     unordered_set<int> cluster_idx_set;
-    for (int i = 0; i < clustersize; i++) {
-        cluster_idx_set.insert(cluster_idx_table[i]);
+    //for (int i = 0; i < clustersize; i++) {
+    //    cluster_idx_set.insert(cluster_idx_table[i]);
         //cluster_idx_set.insert(i);
-    }
-    delete cluster_idx_table;
-    fclose(fin);
+    //}
+    //delete cluster_idx_table;
+    //fclose(fin);
     //
 
 	vector<std::priority_queue< std::pair<int, labeltype >>> answers;
