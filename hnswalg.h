@@ -302,7 +302,7 @@ namespace hnswlib {
             dist_t lowerBound = dist;
 
             while (!candidateSet.empty()) {
-
+                hops0 += 1.0 / 10000;
                 std::pair<dist_t, tableint> curr_el_pair = candidateSet.top();
 
                 if ((-curr_el_pair.first) > lowerBound)
@@ -359,7 +359,6 @@ namespace hnswlib {
 
                             topResults.emplace(dist, tnum);
 
-                            hops0 += 1.0 / 10000;
                             if (topResults.size() > ef) {
                                 topResults.pop();
                             }
