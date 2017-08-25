@@ -265,131 +265,131 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 /**
  * Main SIFT Test Function
 */
-void sift_test1B()
-{
-	const int subset_size_milllions = 100;
-	const int efConstruction = 60;
-	const int M = 16;
+void sift_test1B() {
+    const int subset_size_milllions = 100;
+    const int efConstruction = 60;
+    const int M = 16;
     const int M_cluster = 0;
 
     const size_t clustersize = 5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
 
-	const size_t vecsize = subset_size_milllions * 1000000 + 5263157;
-	const size_t qsize = 10000;
-	const size_t vecdim = 128;
+    const size_t vecsize = subset_size_milllions * 1000000 + 5263157;
+    const size_t qsize = 10000;
+    const size_t vecdim = 128;
 
-	char path_index[1024];
-	char path_gt[1024];
+    char path_index[1024];
+    char path_gt[1024];
     const char *path_q = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_query.bvecs";
     const char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m_shuffled.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_cM_%d.bin", efConstruction, M, M_cluster);
-    sprintf(path_gt,"/sata2/dbaranchuk/synthetic_100m_5m/idx_100M_shuffled.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_cM_%d.bin", efConstruction, M,
+            M_cluster);
+    sprintf(path_gt, "/sata2/dbaranchuk/synthetic_100m_5m/idx_100M_shuffled.ivecs");
 
-	cout << "Loading GT:\n";
-	ifstream inputGT(path_gt, ios::binary);
-	unsigned int *massQA = new unsigned int[qsize * 1000];
-	for (int i = 0; i < qsize; i++) {
-		int t;
-		inputGT.read((char *)&t, 4);
-		inputGT.read((char *)(massQA + 1000*i), t * 4);
-		if (t != 1000) {
-			cout << "err";
-			exit(1);
-		}
-	}
+    cout << "Loading GT:\n";
+    ifstream inputGT(path_gt, ios::binary);
+    unsigned int *massQA = new unsigned int[qsize * 1000];
+    for (int i = 0; i < qsize; i++) {
+        int t;
+        inputGT.read((char *) &t, 4);
+        inputGT.read((char *) (massQA + 1000 * i), t * 4);
+        if (t != 1000) {
+            cout << "err";
+            exit(1);
+        }
+    }
 
-	cout << "Loading queries:\n";
-	unsigned char massQ[qsize * vecdim];
-	ifstream inputQ(path_q, ios::binary);
+    cout << "Loading queries:\n";
+    unsigned char massQ[qsize * vecdim];
+    ifstream inputQ(path_q, ios::binary);
 
-	for (int i = 0; i < qsize; i++) {
-		int in = 0;
-		inputQ.read((char *)&in, 4);
-		if (in != vecdim)
-		{
-			cout << "file error";
-			exit(1);
-		}
-		inputQ.read((char *)(massQ + i*vecdim), in);
-	}
-	inputQ.close();
+    for (int i = 0; i < qsize; i++) {
+        int in = 0;
+        inputQ.read((char *) &in, 4);
+        if (in != vecdim) {
+            cout << "file error";
+            exit(1);
+        }
+        inputQ.read((char *) (massQ + i * vecdim), in);
+    }
+    inputQ.close();
 
-	unsigned char massb[vecdim];
-	ifstream input(path_data, ios::binary);
-	int in = 0;
-	L2SpaceI l2space(vecdim);
+    unsigned char massb[vecdim];
+    ifstream input(path_data, ios::binary);
+    int in = 0;
+    L2SpaceI l2space(vecdim);
 
-	HierarchicalNSW<int> *appr_alg;
-	if (exists_test(path_index)) {
+    HierarchicalNSW<int> *appr_alg;
+    if (exists_test(path_index)) {
         appr_alg = new HierarchicalNSW<int>(&l2space, path_index, false);
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
-		cout << "Building index:\n";
-		appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction);//, clustersize, M_cluster);
+        cout << "Building index:\n";
+        appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction);//, clustersize, M_cluster);
 
-		input.read((char *)&in, 4);
-		if (in != vecdim)
-		{
-			cout << "file error";
-			exit(1);
-		}
-		input.read((char *)massb, in);
+        input.read((char *) &in, 4);
+        if (in != vecdim) {
+            cout << "file error";
+            exit(1);
+        }
+        input.read((char *) massb, in);
 
-		appr_alg->addPoint((void *)(massb), (size_t)0); // не было третьего параметра
-		int j1 = 0;
-		StopW stopw = StopW();
-		StopW stopw_full = StopW();
-		size_t report_every = 1000000;
+        appr_alg->addPoint((void *) (massb), (size_t) 0); // не было третьего параметра
+        int j1 = 0;
+        StopW stopw = StopW();
+        StopW stopw_full = StopW();
+        size_t report_every = 1000000;
 #pragma omp parallel for
-		for (int i = 1; i < vecsize /*+ clustersize*/; i++) {
-			unsigned char massb[vecdim];
+        for (int i = 1; i < vecsize /*+ clustersize*/; i++) {
+            unsigned char massb[vecdim];
 #pragma omp critical
-			{
-				input.read((char *)&in, 4);
-				if (in != vecdim)
-				{
-					cout << "file error";
-					exit(1);
-				}
-				input.read((char *)massb, in);
-				j1++;
-				if (j1 % report_every == 0) {
+            {
+                input.read((char *) &in, 4);
+                if (in != vecdim) {
+                    cout << "file error";
+                    exit(1);
+                }
+                input.read((char *) massb, in);
+                j1++;
+                if (j1 % report_every == 0) {
                     cout << j1 / (0.01 * (vecsize /*+ clustersize*/)) << " %, "
                          << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
                          << getCurrentRSS() / 1000000 << " Mb \n";
                     stopw.reset();
                 }
-			}
+            }
             int level = 0;
             if (j1 < elements_per_layer[5])
                 level = 5;
-            else if (j1 < elements_per_layer[5]+elements_per_layer[4])
+            else if (j1 < elements_per_layer[5] + elements_per_layer[4])
                 level = 4;
-            else if (j1 < elements_per_layer[5]+elements_per_layer[4]+elements_per_layer[3])
+            else if (j1 < elements_per_layer[5] + elements_per_layer[4] + elements_per_layer[3])
                 level = 3;
-            else if (j1 < elements_per_layer[5]+elements_per_layer[4]+elements_per_layer[3]+elements_per_layer[2])
+            else if (j1 < elements_per_layer[5] + elements_per_layer[4] + elements_per_layer[3] + elements_per_layer[2])
                 level = 2;
             else if (j1 < clustersize)
                 level = 1;
 
-            appr_alg->addPoint((void *)(massb), (size_t)j1);
-		}
-		input.close();
-		cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
-		appr_alg->SaveIndex(path_index);
-	}
-	printInfo(appr_alg);
+            appr_alg->addPoint((void *) (massb), (size_t) j1);
+        }
+        input.close();
+        cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
+        appr_alg->SaveIndex(path_index);
+    }
+    printInfo(appr_alg);
 
     //
     FILE *fin = fopen("/sata2/dbaranchuk/synthetic_100m_5m/new_cluster_idx.dat", "rb");
     int *cluster_idx_table = new int[clustersize];
-    fread(cluster_idx_table, sizeof(int), clustersize, fin);
+    int ret = fread(cluster_idx_table, sizeof(int), clustersize, fin);
+    cout << "Ret: " << ret << endl;
     unordered_set<int> cluster_idx_set;
-    for (int i = 0; i < clustersize; i++)
+    for (int i = 0; i < clustersize; i++) {
+        cout << cluster_idx_table[i] << endl;
         cluster_idx_set.insert(cluster_idx_table[i]);
         //cluster_idx_set.insert(i);
+    }
     delete cluster_idx_table;
     fclose(fin);
     //
