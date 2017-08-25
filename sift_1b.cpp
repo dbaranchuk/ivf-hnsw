@@ -383,10 +383,8 @@ void sift_test1B() {
     FILE *fin = fopen("/sata2/dbaranchuk/synthetic_100m_5m/new_cluster_idx.dat", "rb");
     int *cluster_idx_table = new int[clustersize];
     int ret = fread(cluster_idx_table, sizeof(int), clustersize, fin);
-    cout << "Ret: " << ret << endl;
     unordered_set<int> cluster_idx_set;
     for (int i = 0; i < clustersize; i++) {
-        cout << cluster_idx_table[i] << endl;
         cluster_idx_set.insert(cluster_idx_table[i]);
         //cluster_idx_set.insert(i);
     }
