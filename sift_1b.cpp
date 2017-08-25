@@ -343,7 +343,7 @@ void sift_test1B()
 		StopW stopw_full = StopW();
 		size_t report_every = 1000000;
 #pragma omp parallel for
-		for (int i = 1; i < vecsize + clustersize; i++) {
+		for (int i = 1; i < vecsize /*+ clustersize*/; i++) {
 			unsigned char massb[vecdim];
 #pragma omp critical
 			{
@@ -356,7 +356,7 @@ void sift_test1B()
 				input.read((char *)massb, in);
 				j1++;
 				if (j1 % report_every == 0) {
-                    cout << j1 / (0.01 * (vecsize + clustersize)) << " %, "
+                    cout << j1 / (0.01 * (vecsize /*+ clustersize*/)) << " %, "
                          << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
                          << getCurrentRSS() / 1000000 << " Mb \n";
                     stopw.reset();
