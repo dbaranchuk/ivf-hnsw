@@ -384,10 +384,10 @@ void sift_test1B() {
     //int *cluster_idx_table = new int[clustersize];
     //int ret = fread(cluster_idx_table, sizeof(int), clustersize, fin);
     unordered_set<int> cluster_idx_set;
-    //for (int i = 0; i < clustersize; i++) {
+    for (int i = 0; i < clustersize; i++) {
     //    cluster_idx_set.insert(cluster_idx_table[i]);
-        //cluster_idx_set.insert(i);
-    //}
+        cluster_idx_set.insert(i);
+    }
     //delete cluster_idx_table;
     //fclose(fin);
     //
