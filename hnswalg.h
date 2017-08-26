@@ -303,22 +303,25 @@ namespace hnswlib {
 
             while (!candidateSet.empty()) {
                 hops0 += 1.0 / 10000;
-                std::pair<dist_t, tableint> curr_el_pair[2];
+                std::pair<dist_t, tableint> curr_el_pair[4];
                 curr_el_pair[0] = candidateSet.top();
                 if ((-curr_el_pair[0].first) > lowerBound)
                     break;
 
                 candidateSet.pop();
 
-                int k = 2;
-                if (!candidateSet.empty()) {
-                    curr_el_pair[1] = candidateSet.top();
-                    if ((-curr_el_pair[1].first) > lowerBound)
+                int k = 4;
+                for (int i = 1; i < k; i++) {
+                    if (!candidateSet.empty()) {
+                        curr_el_pair[i] = candidateSet.top();
+                        if ((-curr_el_pair[1].first) > lowerBound) {
+                            k = i;
+                            break;
+                        } else
+                            candidateSet.pop();
+                    } else {
                         k = 1;
-                    else
-                        candidateSet.pop();
-                } else {
-                    k = 1;
+                    }
                 }
                 for (int i = 0; i < k; i++) {
                     tableint curNodeNum = curr_el_pair[i].second;
