@@ -310,7 +310,7 @@ namespace hnswlib {
 
                 candidateSet.pop();
 
-                int k = 1;
+                int k = 2;
                 if (!candidateSet.empty()) {
                     curr_el_pair[1] = candidateSet.top();
                     if ((-curr_el_pair[1].first) > lowerBound)
