@@ -305,7 +305,7 @@ namespace hnswlib {
                 hops0 += 1.0 / 10000;
                 std::pair<dist_t, tableint> curr_el_pair[2];
                 curr_el_pair[0] = candidateSet.top();
-                if ((-curr_el_pair.first) > lowerBound)
+                if ((-curr_el_pair[0].first) > lowerBound)
                     break;
 
                 candidateSet.pop();
