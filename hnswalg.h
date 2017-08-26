@@ -303,66 +303,75 @@ namespace hnswlib {
 
             while (!candidateSet.empty()) {
                 hops0 += 1.0 / 10000;
-                std::pair<dist_t, tableint> curr_el_pair = candidateSet.top();
-
+                std::pair<dist_t, tableint> curr_el_pair[2];
+                curr_el_pair[0] = candidateSet.top();
                 if ((-curr_el_pair.first) > lowerBound)
                     break;
 
                 candidateSet.pop();
 
-                tableint curNodeNum = curr_el_pair.second;
-                linklistsizeint *data = get_linklist0(curNodeNum);
-                linklistsizeint size = *data;
-                tableint nextNum = *(data + 1); /////!!!!!
+                int k = 1;
+                //if (!candidateSet.empty()) {
+                //    curr_el_pair[1] = candidateSet.top();
+                //    candidateSet.pop();
+                //} else {
+                //    k = 1;
+                //}
+                for (int i = 0; i < k; i++) {
+                    tableint curNodeNum = curr_el_pair[i].second;
+                    linklistsizeint *data = get_linklist0(curNodeNum);
+                    linklistsizeint size = *data;
+                    tableint nextNum = *(data + 1); /////!!!!!
 
-                _mm_prefetch((char *) (massVisited + nextNum), _MM_HINT_T0);
-                _mm_prefetch((char *) (massVisited + nextNum + 64), _MM_HINT_T0);
-                if (nextNum < maxclusters_)
-                    _mm_prefetch(data_level0_memory_ + nextNum * size_data_per_cluster_ + offsetData_, _MM_HINT_T0);
-                else {
-                    tableint nextElementNum = nextNum - maxclusters_;
-                    _mm_prefetch(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-                                 nextElementNum * size_data_per_element_ + offsetData_, _MM_HINT_T0);
-                }//////!!!!!!
-                _mm_prefetch((char *) (data + 2), _MM_HINT_T0);
-
-                for (linklistsizeint j = 1; j <= size; j++) {
-                    int tnum = *(data + j);
-                    int next_tnum = *(data + j + 1); ///////!!!!!!!!
-                    ///////////////////
-                    _mm_prefetch((char *) (massVisited + next_tnum), _MM_HINT_T0);
-                    if (next_tnum < maxclusters_)
-                        _mm_prefetch(data_level0_memory_ + next_tnum * size_data_per_cluster_ + offsetData_cluster_,
-                                 _MM_HINT_T0);
+                    _mm_prefetch((char *) (massVisited + nextNum), _MM_HINT_T0);
+                    _mm_prefetch((char *) (massVisited + nextNum + 64), _MM_HINT_T0);
+                    if (nextNum < maxclusters_)
+                        _mm_prefetch(data_level0_memory_ + nextNum * size_data_per_cluster_ + offsetData_, _MM_HINT_T0);
                     else {
-                        tableint next_tnum_element = next_tnum - maxclusters_;
+                        tableint nextElementNum = nextNum - maxclusters_;
                         _mm_prefetch(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-                                     next_tnum_element * size_data_per_element_ + offsetData_, _MM_HINT_T0);
-                    }
-                    if (!(massVisited[tnum] == currentV)) {
+                                     nextElementNum * size_data_per_element_ + offsetData_, _MM_HINT_T0);
+                    }//////!!!!!!
+                    _mm_prefetch((char *) (data + 2), _MM_HINT_T0);
 
-                        massVisited[tnum] = currentV;
-                        dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
-                        dist_calc++;
-                        if (topResults.top().first > dist || topResults.size() < ef) {
-                            candidateSet.emplace(-dist, tnum);
+                    for (linklistsizeint j = 1; j <= size; j++) {
+                        int tnum = *(data + j);
+                        int next_tnum = *(data + j + 1); ///////!!!!!!!!
+                        ///////////////////
+                        _mm_prefetch((char *) (massVisited + next_tnum), _MM_HINT_T0);
+                        if (next_tnum < maxclusters_)
+                            _mm_prefetch(data_level0_memory_ + next_tnum * size_data_per_cluster_ + offsetData_cluster_,
+                                         _MM_HINT_T0);
+                        else {
+                            tableint next_tnum_element = next_tnum - maxclusters_;
+                            _mm_prefetch(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
+                                         next_tnum_element * size_data_per_element_ + offsetData_, _MM_HINT_T0);
+                        }
+                        if (!(massVisited[tnum] == currentV)) {
 
-                            tableint candNum = candidateSet.top().second;
-                            if (candNum < maxclusters_)
-                                _mm_prefetch(data_level0_memory_ + candNum * size_data_per_cluster_ + offsetLevel0_,
-                                             _MM_HINT_T0);
-                            else {
-                                tableint candElementNum = candNum - maxclusters_;
-                                _mm_prefetch(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-                                             candNum * size_data_per_element_ + offsetLevel0_, _MM_HINT_T0);
+                            massVisited[tnum] = currentV;
+                            dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
+                            dist_calc++;
+                            if (topResults.top().first > dist || topResults.size() < ef) {
+                                candidateSet.emplace(-dist, tnum);
+
+                                tableint candNum = candidateSet.top().second;
+                                if (candNum < maxclusters_)
+                                    _mm_prefetch(data_level0_memory_ + candNum * size_data_per_cluster_ + offsetLevel0_,
+                                                 _MM_HINT_T0);
+                                else {
+                                    tableint candElementNum = candNum - maxclusters_;
+                                    _mm_prefetch(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
+                                                 candNum * size_data_per_element_ + offsetLevel0_, _MM_HINT_T0);
+                                }
+
+                                topResults.emplace(dist, tnum);
+
+                                if (topResults.size() > ef) {
+                                    topResults.pop();
+                                }
+                                lowerBound = topResults.top().first;
                             }
-
-                            topResults.emplace(dist, tnum);
-
-                            if (topResults.size() > ef) {
-                                topResults.pop();
-                            }
-                            lowerBound = topResults.top().first;
                         }
                     }
                 }

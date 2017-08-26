@@ -268,8 +268,8 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 void sift_test1B() {
     const int subset_size_milllions = 100;
     const int efConstruction = 60;
-    const int M = 2;
-    const int M_cluster = 0;
+    const int M = 16;
+    const int M_cluster = 16;
 
     const size_t clustersize = 5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
@@ -281,11 +281,11 @@ void sift_test1B() {
     char path_index[1024];
     char path_gt[1024];
     const char *path_q = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_query.bvecs";
-    const char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
+    const char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/bigann/sift100m_ef_%d_M_%d_cM_%d_hnsw.bin", efConstruction, M,
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_cM_%d.bin", efConstruction, M,
             M_cluster);
-    sprintf(path_gt, "/sata2/dbaranchuk/bigann/gnd/idx_100M.ivecs");
+    sprintf(path_gt, "/sata2/dbaranchuk/synthetic_100m_5m/idx_100M.ivecs");
 
     cout << "Loading GT:\n";
     ifstream inputGT(path_gt, ios::binary);
@@ -326,7 +326,7 @@ void sift_test1B() {
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
-        appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction);//, clustersize, M_cluster);
+        appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
 
         input.read((char *) &in, 4);
         if (in != vecdim) {
@@ -341,7 +341,7 @@ void sift_test1B() {
         StopW stopw_full = StopW();
         size_t report_every = 1000000;
 #pragma omp parallel for
-        for (int i = 1; i < vecsize /*+ clustersize*/; i++) {
+        for (int i = 1; i < vecsize + clustersize; i++) {
             unsigned char massb[vecdim];
 #pragma omp critical
             {
@@ -353,7 +353,7 @@ void sift_test1B() {
                 input.read((char *) massb, in);
                 j1++;
                 if (j1 % report_every == 0) {
-                    cout << j1 / (0.01 * (vecsize /*+ clustersize*/)) << " %, "
+                    cout << j1 / (0.01 * (vecsize + clustersize)) << " %, "
                          << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
                          << getCurrentRSS() / 1000000 << " Mb \n";
                     stopw.reset();
