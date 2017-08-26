@@ -269,7 +269,7 @@ void sift_test1B() {
     const int subset_size_milllions = 100;
     const int efConstruction = 60;
     const int M = 16;
-    const int M_cluster = 16;
+    const int M_cluster = 0;
 
     const size_t clustersize = 5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
@@ -281,9 +281,9 @@ void sift_test1B() {
     char path_index[1024];
     char path_gt[1024];
     const char *path_q = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_query.bvecs";
-    const char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m.bvecs";
+    const char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_cM_%d.bin", efConstruction, M,
+    sprintf(path_index, "/sata2/dbaranchuk/bigann/sift100m_ef_%d_M_%d_cM_%d_hnsw.bin", efConstruction, M,
             M_cluster);
     sprintf(path_gt, "/sata2/dbaranchuk/synthetic_100m_5m/idx_100M.ivecs");
 
