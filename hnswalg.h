@@ -320,7 +320,7 @@ namespace hnswlib {
                         } else
                             candidateSet.pop();
                     } else {
-                        k = 1;
+                        k = i;
                     }
                 }
                 for (int i = 0; i < k; i++) {
