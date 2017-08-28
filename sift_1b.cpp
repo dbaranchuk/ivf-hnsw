@@ -420,7 +420,7 @@ void sift_test1B_PQ()
     const char *path_data = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base_pq.bvecs";
 
     const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
-    const char *path_table = "/sata2/dbaranchuk/bigann/base1B_M16/distance_table.dat";
+    const char *path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
 
     sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M16/sift1b_ef_%d_M_%d.bin", efConstruction, M);
     sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_100M.ivecs");
@@ -456,11 +456,10 @@ void sift_test1B_PQ()
 
     ifstream input(path_data, ios::binary);
     int in = 0;
-    cout << "HHUUUUUUI" << "\n";
     L2SpacePQ l2space(vecdim, M_PQ, 256);
 
     l2space.set_codebooks(path_codebooks);
-    l2space.set_tables(path_table);
+    l2space.set_tables(path_tables);
 
     HierarchicalNSW<float> *appr_alg;
     if (exists_test(path_index)) {
