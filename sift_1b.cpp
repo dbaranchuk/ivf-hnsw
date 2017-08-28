@@ -456,6 +456,7 @@ void sift_test1B_PQ()
 
     ifstream input(path_data, ios::binary);
     int in = 0;
+    cout << "HHUUUUUUI" << "\n";
     L2SpacePQ l2space(vecdim, M_PQ, 256);
 
     l2space.set_codebooks(path_codebooks);
