@@ -421,7 +421,7 @@ void sift_test1B_PQ()
     const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
 
     sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M16/sift1b_ef_%d_M_%d.bin", efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M16/idx_100M.ivecs");
+    sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_100M.ivecs");
 
     cout << "Loading GT:\n";
     ifstream inputGT(path_gt, ios::binary);
