@@ -259,12 +259,12 @@ namespace hnswlib {
                 tables[i] = (float *) calloc(sizeof(float), k_ * k_);
                 fread((float *) tables[i], sizeof(float), k_ * k_, fin);
             }
-            for (int i = 0; i < k_; i++) {
+            //for (int i = 0; i < k_; i++) {
 
                 //for (int j = 0; i < k_; j++)
                 //    std::cout << tables[0][k_ * i + j] << " ";
                 //std::cout << std::endl;
-            }
+            //}
 
             fclose(fin);
         }
@@ -275,7 +275,7 @@ namespace hnswlib {
 
         float fstdistfunc(const void *x_code, const void *y_code)
         {
-            double res = 0.0;
+            float res = 0.0;
             unsigned char x, y;
 
             for (size_t i = 0; i < m_; i++) {
@@ -289,7 +289,7 @@ namespace hnswlib {
                 //    res += t * t;
                 //}
             }
-            std::cout << res << std::endl;
+            //std::cout << res << std::endl;
             return res;
         };
 
