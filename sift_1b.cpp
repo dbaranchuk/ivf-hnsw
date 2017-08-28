@@ -506,7 +506,7 @@ void sift_test1B_PQ()
     printInfo(appr_alg);
 
     //
-    //unordered_set<int> cluster_idx_set;
+    unordered_set<int> cluster_idx_set;
     //for (int i = 0; i < clustersize; i++)
     //    cluster_idx_set.insert(i);
     //
@@ -516,7 +516,7 @@ void sift_test1B_PQ()
     cout << "Parsing gt:\n";
     get_gt<float>(massQA, qsize, answers, k);
     cout << "Loaded gt\n";
-    //test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k);
+    test_vs_recall<int>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQ;

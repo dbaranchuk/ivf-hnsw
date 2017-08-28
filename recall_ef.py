@@ -168,7 +168,7 @@ plt.xlabel('Ef', fontsize=14)
 plt.ylabel('Recall@R', fontsize=14)
 plt.text(ef[-1]+1, cM16_M16[-1], 'cM16_M16', fontsize=11, color=(1,0,0))
 plt.text(ef[-1]+1, cM16_M2[-1], 'cM16_M2', fontsize=11, color=(0,0,1))
-plt.text(ef[-1]+1, cM2_M2[-1], 'cM2_M2', fontsize=11, color=(0,1,0))
+plt.text(ef[-1]+1, cM2_M2[-1], 'cM2_M2', fontsize=11, color=(0,0.7,0))
 
 plt.title('efConstruction 240 Recall/Ef')
 plt.savefig('recall_ef_smart.png')
