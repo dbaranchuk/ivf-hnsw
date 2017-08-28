@@ -459,7 +459,7 @@ void sift_test1B_PQ()
     L2SpacePQ l2space(vecdim, M_PQ, 256);
 
     l2space.set_codebooks(path_codebooks);
-    l2space.set_table(path_table);
+    l2space.set_tables(path_table);
 
     HierarchicalNSW<float> *appr_alg;
     if (exists_test(path_index)) {
