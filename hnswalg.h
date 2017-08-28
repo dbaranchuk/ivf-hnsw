@@ -560,7 +560,7 @@ namespace hnswlib {
             if (cur_c < maxclusters_) {
                 memset(data_level0_memory_ + cur_c * size_data_per_cluster_ + offsetLevel0_, 0, size_data_per_cluster_);
             } else {
-                std::cout << "HUI0" << std::endl;
+                //std::cout << "HUI0" << std::endl;
                 tableint cur_c_element = cur_c - maxclusters_;
                 memset(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
                        cur_c_element * size_data_per_element_ + offsetLevel0_, 0, size_data_per_element_);
@@ -569,7 +569,7 @@ namespace hnswlib {
             memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
             memcpy(getDataByInternalId(cur_c), datapoint, data_size_);
 
-            std::cout << "HUI1" << std::endl;
+            //std::cout << "HUI1" << std::endl;
             if (curlevel) {
                 // Above levels contain only clusters
                 if (cur_c < maxclusters_) {
@@ -581,10 +581,10 @@ namespace hnswlib {
                     memset(linkLists_[cur_c], 0, size_links_per_element_ * curlevel);
                 }
             }
-            std::cout << "HUI1" << std::endl;
+            //std::cout << "HUI1" << std::endl;
             if (currObj != -1) {
                 if (curlevel < maxlevelcopy) {
-                    std::cout << "HUI2" << std::endl;
+                    //std::cout << "HUI2" << std::endl;
                     dist_t curdist = space->fstdistfunc(datapoint, getDataByInternalId(currObj));
                     for (int level = maxlevelcopy; level > curlevel; level--) {
 
@@ -611,15 +611,15 @@ namespace hnswlib {
                         }
                     }
                 }
-                std::cout << "HUI4" << std::endl;
+                //std::cout << "HUI4" << std::endl;
 
                 for (int level = min(curlevel, maxlevelcopy); level >= 0; level--) {
                     if (level > maxlevelcopy || level < 0)
                         throw runtime_error("Level error");
-                    std::cout << "HUI5" << std::endl;
+                    //std::cout << "HUI5" << std::endl;
                     std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
                                                                                                     level);
-                    std::cout << "HUI6" << std::endl;
+                    //std::cout << "HUI6" << std::endl;
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
                 }
 
