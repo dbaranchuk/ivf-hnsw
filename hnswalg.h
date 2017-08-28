@@ -601,7 +601,7 @@ namespace hnswlib {
                                 if (cand < 0 || cand > (maxelements_ + maxclusters_))
                                     throw runtime_error("cand error");
                                 dist_t d = space->fstdistfunc(datapoint, getDataByInternalId(cand));
-                                std::cout << d << std::endl;
+                                //std::cout << d << std::endl;
                                 if (d < curdist) {
                                     curdist = d;
                                     currObj = cand;

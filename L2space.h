@@ -230,14 +230,17 @@ namespace hnswlib {
                 codebooks[i] = (float *) calloc(sizeof(float), vocab_dim_ * k);
 
             FILE *fin = fopen(codebooksFilename, "rb");
-            for (int i = 0; i < m_; i++)
-                for (int j = 0; j < k_; j++){
-                    fread((int *)&vocab_dim_, sizeof(int), 1, fin);
-                    if (vocab_dim_ != dim_ / m_){
+            for (int i = 0; i < m_; i++){
+                for (int j = 0; j < k_; j++) {
+                    fread((int *) &vocab_dim_, sizeof(int), 1, fin);
+                    if (vocab_dim_ != dim_ / m_) {
                         std::cerr << "Wrong codebook dim" << std::endl;
                         exit(1);
                     }
-                    fread((float *)(codebooks[i] + vocab_dim_ * j), sizeof(float), vocab_dim_, fin);
+                    fread((float *) (codebooks[i] + vocab_dim_ * j), sizeof(float), vocab_dim_, fin);
+                    std::cout << codebooks[i][vocab_dim_ * j] << std::endl;
+                } 
+                std::cout << "+++++++++++++++++" << std::endl;
             }
             fclose(fin);
         }
@@ -263,28 +266,29 @@ namespace hnswlib {
 
                 for (int j = 0; j < vocab_dim_; j++) {
                     float t = x[j] - y[j];
+                    std::cout << t << std::endl;
                     res += t * t;
                 }
             }
             return res;
         };
 
-        float fstdistfunc(const float *x_vec, const void *y_code)
-        {
-            float res = 0;
-            const float *x, *y;
-
-            for (size_t i = 0; i < m_; i++) {
-                x = x_vec + i * vocab_dim_;
-                y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
-
-                for (int j = 0; j < vocab_dim_; j++) {
-                    float t = x[j] - y[j];
-                    res += t * t;
-                }
-            }
-            return res;
-        };
+//        float fstdistfunc(const float *x_vec, const void *y_code)
+//        {
+//            float res = 0;
+//            const float *x, *y;
+//
+//            for (size_t i = 0; i < m_; i++) {
+//                x = x_vec + i * vocab_dim_;
+//                y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
+//
+//                for (int j = 0; j < vocab_dim_; j++) {
+//                    float t = x[j] - y[j];
+//                    res += t * t;
+//                }
+//            }
+//            return res;
+//        };
 
     };
 
