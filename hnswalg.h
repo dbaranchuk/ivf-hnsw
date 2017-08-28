@@ -600,8 +600,8 @@ namespace hnswlib {
                                 tableint cand = datal[i];
                                 if (cand < 0 || cand > (maxelements_ + maxclusters_))
                                     throw runtime_error("cand error");
-                                std::cout << "HUI3" << std::endl;
                                 dist_t d = space->fstdistfunc(datapoint, getDataByInternalId(cand));
+                                std::cout << d << std::endl;
                                 if (d < curdist) {
                                     curdist = d;
                                     currObj = cand;
