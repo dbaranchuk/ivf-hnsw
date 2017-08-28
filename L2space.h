@@ -293,7 +293,7 @@ namespace hnswlib {
             return res;
         };
 
-        float fstdistfunc(const float *x_vec, const void *y_code)
+        float fstdistfunc(const float *x_vec, const void *y_code, const bool state)
         {
             float res = 0.0;
             const float *x, *y;
