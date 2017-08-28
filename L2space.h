@@ -271,7 +271,6 @@ namespace hnswlib {
 
                 for (int j = 0; j < vocab_dim_; j++) {
                     float t = x[j] - y[j];
-                    std::cout << t << std::endl;
                     res += t * t;
                 }
             }
