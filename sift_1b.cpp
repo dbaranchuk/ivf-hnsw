@@ -482,7 +482,7 @@ void sift_test1B_PQ()
         int j1 = 0;
         StopW stopw = StopW();
         StopW stopw_full = StopW();
-        size_t report_every = 1000000;
+        size_t report_every = 100000;
 #pragma omp parallel for
         for (int i = 1; i < vecsize; i++) {
             unsigned char massb[M_PQ];
