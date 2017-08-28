@@ -273,17 +273,17 @@ namespace hnswlib {
             unsigned char x, y;
 
             for (size_t i = 0; i < m_; i++) {
-                //x = codebooks[i] + ((unsigned char *)x_code)[i] * vocab_dim_;
-                //y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
-                x = ((unsigned char *)x_code)[i];
-                y = ((unsigned char *)y_code)[i];
-                res += tables[i][k_*x + y];
-                //for (int j = 0; j < vocab_dim_; j++) {
-                //    float t = x[j] - y[j];
-                //    res += t * t;
-                //}
+                float x = codebooks[i] + ((unsigned char *)x_code)[i] * vocab_dim_;
+                float y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
+                //x = ((unsigned char *)x_code)[i];
+                //y = ((unsigned char *)y_code)[i];
+                //res += tables[i][k_*x + y];
+                for (int j = 0; j < vocab_dim_; j++) {
+                    float t = x[j] - y[j];
+                    res += t * t;
+                }
             }
-            //std::cout << res << std::endl;
+            std::cout << res << std::endl;
             return res;
         };
 
