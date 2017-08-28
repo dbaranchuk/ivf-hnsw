@@ -270,7 +270,7 @@ namespace hnswlib {
         float fstdistfunc(const void *x_code, const void *y_code)
         {
             float res = 0;
-            unsigned char x, y;
+            //unsigned char x, y;
 
             for (size_t i = 0; i < m_; i++) {
                 float x = codebooks[i] + ((unsigned char *)x_code)[i] * vocab_dim_;
