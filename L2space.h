@@ -258,7 +258,7 @@ namespace hnswlib {
             FILE *fin = fopen(tablesFilename, "rb");
             for (int i = 0; i < m_; i++) {
                 tables[i] = (float *) calloc(sizeof(float), k_ * k_);
-                fread((float *) tables[m], sizeof(float), k_ * k_, fin);
+                fread((float *) tables[i], sizeof(float), k_ * k_, fin);
             }
             fclose(fin);
         }
@@ -269,7 +269,7 @@ namespace hnswlib {
 
         float fstdistfunc(const void *x_code, const void *y_code)
         {
-            float res = 0.0;
+            float res = 0;
             unsigned char x, y;
 
             for (size_t i = 0; i < m_; i++) {
