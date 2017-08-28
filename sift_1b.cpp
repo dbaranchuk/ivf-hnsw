@@ -268,7 +268,7 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 void sift_test1B() {
     const int subset_size_milllions = 100;
     const int efConstruction = 240;
-    const int M = 2;
+    const int M = 16;
     const int M_cluster = 2;
 
     const size_t clustersize = 5263157;
@@ -410,18 +410,18 @@ void sift_test1B_PQ()
     const int M = 2;
     const int M_PQ = 16;
 
-    const size_t vecsize = 1000 * 1000000;
+    const size_t vecsize = 100 * 1000000;
     const size_t qsize = 10000;
     const size_t vecdim = 128;
 
     char path_index[1024];
     char path_gt[1024];
-    const char *path_q = "/sata2/dbaranchuk/bigann/base1B_M8/bigann_query.bvecs";
-    const char *path_data = "/sata2/dbaranchuk/bigann/base1B_M8/bigann_base_pq.bvecs";
-    const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M8/codebooks.fvecs";
+    const char *path_q = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_query.bvecs";
+    const char *path_data = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base_pq.bvecs";
+    const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M8/sift1b_ef_%d_M_%d.bin", efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M8/idx_1000M.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M16/sift1b_ef_%d_M_%d.bin", efConstruction, M);
+    sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M16/idx_100M.ivecs");
 
     cout << "Loading GT:\n";
     ifstream inputGT(path_gt, ios::binary);
