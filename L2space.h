@@ -238,7 +238,7 @@ namespace hnswlib {
                         exit(1);
                     }
                     fread((float *) (codebooks[i] + vocab_dim_ * j), sizeof(float), vocab_dim_, fin);
-                    std::cout << codebooks[i][vocab_dim_ * j+5] << std::endl;
+                    std::cout << codebooks[i][vocab_dim_ * j] << std::endl;
                 }
                 std::cout << "+++++++++++++++++" << std::endl;
             }
@@ -266,7 +266,7 @@ namespace hnswlib {
 
                 for (int j = 0; j < vocab_dim_; j++) {
                     float t = x[j] - y[j];
-                    std::cout << t << std::endl;
+                    //std::cout << t << std::endl;
                     res += t * t;
                 }
             }
