@@ -410,7 +410,7 @@ void sift_test1B_PQ()
     const int M = 16;
     const int M_PQ = 16;
 
-    const size_t vecsize = 1 * 1000000;
+    const size_t vecsize = 10 * 1000000;
     const size_t qsize = 10000;
     const size_t vecdim = 128;
 
@@ -423,7 +423,7 @@ void sift_test1B_PQ()
     const char *path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
 
     sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M16/sift1b_ef_%d_M_%d.bin", efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_1M.ivecs");
+    sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_10M.ivecs");
 
     cout << "Loading GT:\n";
     ifstream inputGT(path_gt, ios::binary);
