@@ -164,6 +164,8 @@ namespace hnswlib {
             }
             return res;
         };
+
+        float fstdistfuncST(const void *x, const void *y) { return 0; }
 	};
 
 	class L2SpaceI : public SpaceInterface<int>
@@ -194,6 +196,7 @@ namespace hnswlib {
             }
             return res;
         }
+        int fstdistfuncST(const void *x, const void *y) { return 0; }
 	};
 
 

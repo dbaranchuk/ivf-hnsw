@@ -41,7 +41,7 @@ namespace hnswlib {
     public:
         virtual size_t get_data_size() = 0;
         virtual MTYPE fstdistfunc(const void *, const void *) = 0;
-        virtual MTYPE fstdistfuncST(const void *, const void *);
+        virtual MTYPE fstdistfuncST(const void *, const void *) = 0;
     };
 }
 #include "L2space.h"
