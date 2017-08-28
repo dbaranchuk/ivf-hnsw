@@ -213,13 +213,12 @@ namespace hnswlib {
 
     public:
         L2SpacePQ(const char *codebooksFilename, const size_t dim, const size_t m, const size_t k):
-                dim_(dim), m_(m), codebooks(m), k_(k)
-        {
+                dim_(dim), m_(m), codebooks(m), k_(k) {
             vocab_dim_ = (dim_ % m_ == 0) ? dim_ / m_ : -1;
             data_size_ = m_ * sizeof(unsigned char);
 
             std::cout << dim_ << m_ << vocab_dim_ << data_size_ << std::endl;
-            if (vocab_dim_ == -1){
+            if (vocab_dim_ == -1) {
                 std::cerr << "M is not multiply of D" << std::endl;
                 exit(1);
             }
@@ -228,7 +227,7 @@ namespace hnswlib {
                 codebooks[i] = (float *) calloc(sizeof(float), vocab_dim_ * k_);
 
             FILE *fin = fopen(codebooksFilename, "rb");
-            for (int i = 0; i < m_; i++){
+            for (int i = 0; i < m_; i++) {
                 for (int j = 0; j < k_; j++) {
                     fread((int *) &vocab_dim_, sizeof(int), 1, fin);
                     if (vocab_dim_ != dim_ / m_) {
@@ -236,9 +235,17 @@ namespace hnswlib {
                         exit(1);
                     }
                     fread((float *) (codebooks[i] + vocab_dim_ * j), sizeof(float), vocab_dim_, fin);
-                    std::cout << codebooks[i][vocab_dim_ * j] << std::endl;
                 }
-                std::cout << "+++++++++++++++++" << std::endl;
+            }
+            for (int i = 0; i < k_; i++){
+                for (int j = 0; j < vocab_dim_; j++) {
+                    std::cout << codebooks[0][i * vocab_dim_ + j] << " ";
+                }
+                std::cout << std::endl;
+                for(int j = 0; j < vocab_dim_; j++) {
+                    std::cout << codebooks[1][i * vocab_dim_ + j] << " ";
+                }
+                std::cout << "===================" << std::endl;
             }
             fclose(fin);
         }
