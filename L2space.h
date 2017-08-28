@@ -210,19 +210,32 @@ namespace hnswlib {
         size_t vocab_dim_;
 
         std::vector<float *> codebooks;
+        std::vector<float *> tables;
 
     public:
-        L2SpacePQ(const char *codebooksFilename, const size_t dim, const size_t m, const size_t k):
-                dim_(dim), m_(m), codebooks(m), k_(k) {
+        L2SpacePQ(const size_t dim, const size_t m, const size_t k):
+                dim_(dim), m_(m), codebooks(m), k_(k), table(k)
+        {
             vocab_dim_ = (dim_ % m_ == 0) ? dim_ / m_ : -1;
             data_size_ = m_ * sizeof(unsigned char);
 
-            std::cout << dim_ << m_ << vocab_dim_ << data_size_ << std::endl;
             if (vocab_dim_ == -1) {
                 std::cerr << "M is not multiply of D" << std::endl;
                 exit(1);
             }
+        }
 
+        ~L2SpacePQ(){
+            for (int i = 0; i < k_; i++)
+                if (tables[i])
+                    free(tables[i]);
+            for (int i = 0; i < m_; i++)
+                if (codebooks[i])
+                    free(codebooks[i]);
+        }
+
+        void set_codebooks(const char *codebooksFilename)
+        {
             for (int i = 0; i < m_; i++)
                 codebooks[i] = (float *) calloc(sizeof(float), vocab_dim_ * k_);
 
@@ -237,23 +250,18 @@ namespace hnswlib {
                     fread((float *) (codebooks[i] + vocab_dim_ * j), sizeof(float), vocab_dim_, fin);
                 }
             }
-            for (int i = 0; i < k_; i++){
-                for (int j = 0; j < vocab_dim_; j++) {
-                    std::cout << codebooks[0][i * vocab_dim_ + j] << " ";
-                }
-                std::cout << std::endl;
-                for(int j = 0; j < vocab_dim_; j++) {
-                    std::cout << codebooks[1][i * vocab_dim_ + j] << " ";
-                }
-                std::cout << "===================" << std::endl;
-            }
             fclose(fin);
         }
 
-        ~L2SpacePQ(){
-            for (int i = 0; i < m_; i++)
-                free(codebooks[i]);
-            //free(codebooks);
+        void set_tables(const char *tablesFilename)
+        {
+            for (int m = 0; m < m_; m++)
+                tables[i] = (float *) calloc(sizeof(float), k_*k_);
+
+            FILE *fin = fopen(tablesFilename, "rb");
+            for (int m = 0; m < m_; m++)
+                fread((float *) tables[i], sizeof(float), k_*k_, fin);
+            fclose(fin);
         }
 
         size_t get_data_size() {
@@ -262,11 +270,31 @@ namespace hnswlib {
 
         float fstdistfunc(const void *x_code, const void *y_code)
         {
+            float res = 0.0;
+            unsigned char x, y;
+
+            for (size_t i = 0; i < m_; i++) {
+                //x = codebooks[i] + ((unsigned char *)x_code)[i] * vocab_dim_;
+                //y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
+                x = ((unsigned char *)x_code)[i];
+                y = ((unsigned char *)y_code)[i];
+                res += tables[k_*x + y];
+                //for (int j = 0; j < vocab_dim_; j++) {
+                //    float t = x[j] - y[j];
+                //    res += t * t;
+                //}
+            }
+            std::cout << res << std::endl;
+            return res;
+        };
+
+        float fstdistfunc(const float *x_vec, const void *y_code)
+        {
             float res = 0;
             const float *x, *y;
 
             for (size_t i = 0; i < m_; i++) {
-                x = codebooks[i] + ((unsigned char *)x_code)[i] * vocab_dim_;
+                x = x_vec + i * vocab_dim_;
                 y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
 
                 for (int j = 0; j < vocab_dim_; j++) {
@@ -274,26 +302,8 @@ namespace hnswlib {
                     res += t * t;
                 }
             }
-            std::cout << res << std::endl;
             return res;
         };
-
-//        float fstdistfunc(const float *x_vec, const void *y_code)
-//        {
-//            float res = 0;
-//            const float *x, *y;
-//
-//            for (size_t i = 0; i < m_; i++) {
-//                x = x_vec + i * vocab_dim_;
-//                y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
-//
-//                for (int j = 0; j < vocab_dim_; j++) {
-//                    float t = x[j] - y[j];
-//                    res += t * t;
-//                }
-//            }
-//            return res;
-//        };
 
     };
 

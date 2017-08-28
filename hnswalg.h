@@ -294,7 +294,7 @@ namespace hnswlib {
 
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> topResults;
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> candidateSet;
-            dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(ep));
+            dist_t dist = space->fstdistfunc((float *)datapoint, getDataByInternalId(ep));
             dist_calc++;
             topResults.emplace(dist, ep);
             candidateSet.emplace(-dist, ep);
@@ -356,7 +356,7 @@ namespace hnswlib {
                         if (!(massVisited[tnum] == currentV)) {
 
                             massVisited[tnum] = currentV;
-                            dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
+                            dist_t dist = space->fstdistfunc((float *)datapoint, getDataByInternalId(tnum));
                             dist_calc++;
                             if (topResults.top().first > dist || topResults.size() < ef) {
                                 candidateSet.emplace(-dist, tnum);
@@ -639,7 +639,7 @@ namespace hnswlib {
         std::priority_queue<std::pair<dist_t, labeltype >> searchKnn(void *query_data, int k, std::unordered_set<int> &cluster_idx_set)
         {
             tableint currObj = enterpoint_node;
-            dist_t curdist = space->fstdistfunc(query_data, getDataByInternalId(enterpoint_node));
+            dist_t curdist = space->fstdistfunc((float *)query_data, getDataByInternalId(enterpoint_node));
             dist_calc++;
             for (int level = maxlevel_; level > 0; level--) {
                 bool changed = true;
@@ -652,7 +652,7 @@ namespace hnswlib {
                         tableint cand = datal[i];
                         if (cand < 0 || cand > (maxelements_ + maxclusters_))
                             throw runtime_error("cand error");
-                        dist_t d = space->fstdistfunc(query_data, getDataByInternalId(cand));
+                        dist_t d = space->fstdistfunc((float *) query_data, getDataByInternalId(cand));
                         dist_calc++;
                         if (d < curdist) {
                             curdist = d;
