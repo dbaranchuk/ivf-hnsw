@@ -406,11 +406,12 @@ void sift_test1B() {
 
 void sift_test1B_PQ()
 {
+    const int subset_size_milllions = 1;
     const int efConstruction = 60;
     const int M = 16;
     const int M_PQ = 16;
 
-    const size_t vecsize = 10 * 1000000;
+    const size_t vecsize = subset_size_milllions * 1000000;
     const size_t qsize = 10000;
     const size_t vecdim = 128;
 
@@ -422,8 +423,8 @@ void sift_test1B_PQ()
     const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
     const char *path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
 
-    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M16/sift1b_ef_%d_M_%d.bin", efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_10M.ivecs");
+    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M16/sift%dm_ef_%d_M_%d.bin", subset_size_milllions, efConstruction, M);
+    sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
 
     cout << "Loading GT:\n";
     ifstream inputGT(path_gt, ios::binary);

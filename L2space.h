@@ -300,7 +300,7 @@ namespace hnswlib {
         {
             float res = 0.0;
             const float *x, *y;
-            
+
             for (size_t i = 0; i < m_; i++) {
                 x = (float *)(x_vec) + i * vocab_dim_;
                 y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
