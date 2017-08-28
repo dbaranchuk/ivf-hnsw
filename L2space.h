@@ -277,7 +277,7 @@ namespace hnswlib {
                 //y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
                 x = ((unsigned char *)x_code)[i];
                 y = ((unsigned char *)y_code)[i];
-                res += tables[k_*x + y];
+                res = res + tables[k_*x + y];
                 //for (int j = 0; j < vocab_dim_; j++) {
                 //    float t = x[j] - y[j];
                 //    res += t * t;
