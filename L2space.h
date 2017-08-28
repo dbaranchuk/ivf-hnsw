@@ -209,25 +209,23 @@ namespace hnswlib {
         size_t k_;
         size_t vocab_dim_;
 
-        float **codebooks;
+        std::vector<float *> codebooks;
 
     public:
-        L2SpacePQ(const char *codebooksFilename, size_t dim, size_t m, size_t k)
+        L2SpacePQ(const char *codebooksFilename, const size_t dim, const size_t m, const size_t k):
+                dim_(dim), m_(m), codebooks(m), k_(k)
         {
-            dim_ = dim;
-            m_ = m;
-            k_ = k;
-            vocab_dim_ = (dim % m == 0) ? dim / m : -1;
-            data_size_ = m * sizeof(unsigned char);
+            vocab_dim_ = (dim_ % m_ == 0) ? dim_ / m_ : -1;
+            data_size_ = m_ * sizeof(unsigned char);
 
+            std::cout << dim_ << m_ << vocab_dim_ << data_size_ << std::endl;
             if (vocab_dim_ == -1){
                 std::cerr << "M is not multiply of D" << std::endl;
                 exit(1);
             }
 
-            codebooks = (float **) calloc(sizeof(float *), m);
             for (int i = 0; i < m_; i++)
-                codebooks[i] = (float *) calloc(sizeof(float), vocab_dim_ * k);
+                codebooks[i] = (float *) calloc(sizeof(float), vocab_dim_ * k_);
 
             FILE *fin = fopen(codebooksFilename, "rb");
             for (int i = 0; i < m_; i++){
@@ -248,7 +246,7 @@ namespace hnswlib {
         ~L2SpacePQ(){
             for (int i = 0; i < m_; i++)
                 free(codebooks[i]);
-            free(codebooks);
+            //free(codebooks);
         }
 
         size_t get_data_size() {

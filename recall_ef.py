@@ -311,26 +311,29 @@ cM16_M2_ef_60 = splitted_cM16_M2_ef_60[1::5]
 cM2_M2_ef_60 = splitted_cM2_M2_ef_60[1::5]
 
 
-plt.plot(ef, cM16_M16, 'r')
-plt.plot(ef, cM16_M2, 'b')
-plt.plot(ef, cM2_M2, 'g')
+plt.plot(ef, cM16_M16, 'r', label = 'cM16_M16_ef_240')
+plt.plot(ef, cM16_M16_ef_60, 'r--', label='cM16_M16_ef_60')
 
-plt.plot(ef, cM16_M16_ef_60, 'r--')
-plt.plot(ef, cM16_M2_ef_60, 'b--')
-plt.plot(ef, cM2_M2_ef_60, 'g--')
+plt.plot(ef, cM2_M2, 'g', label = 'cM2_M2_ef_240')
+plt.plot(ef, cM2_M2_ef_60, 'g--', label = 'cM2_M2_ef_60')
+
+plt.plot(ef, cM16_M2, 'b', label = 'cM16_M2_ef_240')
+plt.plot(ef, cM16_M2_ef_60, 'b--', label = 'cM16_M2_ef_60')
 
 plt.axis([1, 460, 0, 1])
 plt.xlabel('Ef', fontsize=14)
 plt.ylabel('Recall@R', fontsize=14)
-plt.text(ef[-1]+1, cM16_M16[-1], 'cM16_M16_ef_240', fontsize=9, color=(1,0,0))
-plt.text(ef[-1]+1, cM16_M2[-1], 'cM16_M2_ef_240', fontsize=9, color=(0,0,1))
-plt.text(ef[-1]+1, cM2_M2[-1], 'cM2_M2_ef_240', fontsize=9, color=(0,0.7,0))
-
-plt.text(ef[-1]+1, cM16_M16_ef_60[-1], 'cM16_M16_ef_60', fontsize=9, color=(1,0,0))
-plt.text(ef[-1]+1, cM16_M2_ef_60[-1], 'cM16_M2_ef_60', fontsize=9, color=(0,0,1))
-plt.text(ef[-1]+1, cM2_M2_ef_60[-1], 'cM2_M2_ef_60', fontsize=9, color=(0,0.7,0))
+# plt.text(ef[-1]+1, cM16_M16[-1], 'cM16_M16_ef_240', fontsize=9, color=(1,0,0))
+# plt.text(ef[-1]+1, float(cM16_M2[-1])-0.1, 'cM16_M2_ef_240', fontsize=9, color=(0,0,1))
+# plt.text(ef[-1]+1, cM2_M2[-1], 'cM2_M2_ef_240', fontsize=9, color=(0,0.7,0))
+#
+# plt.text(ef[-1]+1, cM16_M16_ef_60[-1], 'cM16_M16_ef_60', fontsize=9, color=(1,0,0))
+# plt.text(ef[-1]+1, cM16_M2_ef_60[-1], 'cM16_M2_ef_60', fontsize=9, color=(0,0,1))
+# plt.text(ef[-1]+1, cM2_M2_ef_60[-1], 'cM2_M2_ef_60', fontsize=9, color=(0,0.7,0))
 
 
 plt.title('Recall/Ef')
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=3, mode="expand", borderaxespad=0., prop={'size': 11})
 plt.savefig('recall_ef_smart.png')
 #plt.s:ow()
