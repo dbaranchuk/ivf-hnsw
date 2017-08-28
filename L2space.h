@@ -214,7 +214,7 @@ namespace hnswlib {
 
     public:
         L2SpacePQ(const size_t dim, const size_t m, const size_t k):
-                dim_(dim), m_(m), codebooks(m), k_(k), table(k)
+                dim_(dim), m_(m), codebooks(m), k_(k), tables(k)
         {
             vocab_dim_ = (dim_ % m_ == 0) ? dim_ / m_ : -1;
             data_size_ = m_ * sizeof(unsigned char);
@@ -255,12 +255,11 @@ namespace hnswlib {
 
         void set_tables(const char *tablesFilename)
         {
-            for (int m = 0; m < m_; m++)
-                tables[i] = (float *) calloc(sizeof(float), k_*k_);
-
             FILE *fin = fopen(tablesFilename, "rb");
-            for (int m = 0; m < m_; m++)
-                fread((float *) tables[i], sizeof(float), k_*k_, fin);
+            for (int i = 0; i < m_; i++) {
+                tables[i] = (float *) calloc(sizeof(float), k_ * k_);
+                fread((float *) tables[m], sizeof(float), k_ * k_, fin);
+            }
             fclose(fin);
         }
 
