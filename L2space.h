@@ -282,6 +282,16 @@ namespace hnswlib {
             unsigned char x, y;
 
             for (size_t i = 0; i < m_; i++) {
+                std::cout << x_code[i] << " ";
+            }
+            std::cout << std::endl;
+            for (size_t i = 0; i < m_; i++) {
+                std::cout << y_code[i] << " ";
+            }
+            std::cout << std::endl;
+
+
+            for (size_t i = 0; i < m_; i++) {
                 //float *x = codebooks[i] + ((unsigned char *)x_code)[i] * vocab_dim_;
                 //float *y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
                 x = ((unsigned char *)x_code)[i];
