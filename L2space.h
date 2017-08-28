@@ -273,8 +273,8 @@ namespace hnswlib {
             //unsigned char x, y;
 
             for (size_t i = 0; i < m_; i++) {
-                float x = codebooks[i] + ((unsigned char *)x_code)[i] * vocab_dim_;
-                float y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
+                float *x = codebooks[i] + ((unsigned char *)x_code)[i] * vocab_dim_;
+                float *y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
                 //x = ((unsigned char *)x_code)[i];
                 //y = ((unsigned char *)y_code)[i];
                 //res += tables[i][k_*x + y];
