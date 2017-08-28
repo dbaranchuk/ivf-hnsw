@@ -299,7 +299,7 @@ namespace hnswlib {
             const float *x, *y;
             std::cout << "hui";
             for (size_t i = 0; i < m_; i++) {
-                x = x_vec + i * vocab_dim_;
+                x = (float *)(x_vec) + i * vocab_dim_;
                 y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
 
                 for (int j = 0; j < vocab_dim_; j++) {
