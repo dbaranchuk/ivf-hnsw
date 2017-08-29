@@ -433,6 +433,7 @@ void sift_test1B_PQ()
     for (int i = 0; i < qsize; i++) {
         int t;
         inputGT.read((char *)&t, 4);
+        cout << t;
         inputGT.read((char *)(massQA + 1000*i), t * 4);
         if (t != 1000) {
             cout << "err";
