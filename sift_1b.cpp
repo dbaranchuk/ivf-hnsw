@@ -281,11 +281,12 @@ void sift_test1B() {
     char path_index[1024];
     char path_gt[1024];
     const char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
-    const char *path_data = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_synthetic_100m.bvecs";
+    const char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
+    const char *path_clusters = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_base_100m_clusters.fvecs";
 
     sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_cM_%d.bin", efConstruction, M,
             M_cluster);
-    sprintf(path_gt, "/sata2/dbaranchuk/synthetic_100m_5m/idx_100M.ivecs");
+    sprintf(path_gt, "/sata2/dbaranchuk/bigann/gnd/idx_100M.ivecs");
 
     cout << "Loading GT:\n";
     ifstream inputGT(path_gt, ios::binary);
@@ -299,6 +300,7 @@ void sift_test1B() {
             exit(1);
         }
     }
+    inputGT.close();
 
     cout << "Loading queries:\n";
     unsigned char massQ[qsize * vecdim];
@@ -315,9 +317,6 @@ void sift_test1B() {
     }
     inputQ.close();
 
-    unsigned char massb[vecdim];
-    ifstream input(path_data, ios::binary);
-    int in = 0;
     L2SpaceI l2space(vecdim);
 
     HierarchicalNSW<int> *appr_alg;
@@ -326,38 +325,49 @@ void sift_test1B() {
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
+        unsigned char massb[vecdim];
+        float massf[vecdim];
+
+        int j1 = 0, in = 0;
+        int level = 5;
         appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
 
-        input.read((char *) &in, 4);
-        if (in != vecdim) {
-            cout << "file error";
-            exit(1);
-        }
-        input.read((char *) massb, in);
-
-        appr_alg->addPoint((void *) (massb), (size_t) 0, 5); // не было третьего параметра
-        int j1 = 0;
         StopW stopw = StopW();
         StopW stopw_full = StopW();
-        size_t report_every = 1000000;
+
+        cout << "Adding clustets:\n";
+        ifstream inputC(path_clusters, ios::binary);
+        inputC.read((char *) &in, 4);
+        if (in != vecdim) {
+            cout << "file error\n";
+            exit(1);
+        }
+        inputC.read((char *) massf, in * 4);
+
+        for (int i = 0; i < vecdim; i++){
+            massb[i] = (unsigned char) massf[i];
+            cout << massf[i] << " " << massb[i] << endl;
+        }
+        appr_alg->addPoint((void *) (massb), (size_t) j1++, level);
+
 #pragma omp parallel for
-        for (int i = 1; i < vecsize + clustersize; i++) {
+        for (int i = 1; i < clustersize; i++) {
             unsigned char massb[vecdim];
+            float massf[vecdim];
 #pragma omp critical
             {
-                input.read((char *) &in, 4);
+                inputC.read((char *) &in, 4);
                 if (in != vecdim) {
                     cout << "file error";
                     exit(1);
                 }
-                input.read((char *) massb, in);
-                j1++;
-                if (j1 % report_every == 0) {
-                    cout << j1 / (0.01 * (vecsize + clustersize)) << " %, "
-                         << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
-                         << getCurrentRSS() / 1000000 << " Mb \n";
-                    stopw.reset();
+                inputC.read((char *) massf, in * 4);
+
+                for (int i = 0; i < vecdim; i++){
+                    massb[i] = (unsigned char) massf[i];
+                    cout << massf[i] << " " << massb[i] << endl;
                 }
+                j1++;
             }
             int level = 0;
             if (j1 < elements_per_layer[5])
@@ -371,6 +381,35 @@ void sift_test1B() {
             else if (j1 < clustersize)
                 level = 1;
 
+            appr_alg->addPoint((void *) (massb), (size_t) j1, level);
+        }
+        inputC.close();
+        cout << "Clusters have been added" << endl;
+
+        cout << "Adding elements\n";
+        ifstream input(path_data, ios::binary);
+
+        size_t report_every = 1000000;
+#pragma omp parallel for
+        for (int i = 0; i < vecsize; i++) {
+            unsigned char massb[vecdim];
+#pragma omp critical
+            {
+                input.read((char *) &in, 4);
+                if (in != vecdim) {
+                    cout << "file error";
+                    exit(1);
+                }
+                input.read((char *) massb, in);
+                j1++;
+                if ((j1 - clustersize) % report_every == 0) {
+                    cout << (j1 - clustersize) / (0.01 * vecsize) << " %, "
+                         << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
+                         << getCurrentRSS() / 1000000 << " Mb \n";
+                    stopw.reset();
+                }
+            }
+            level = 0;
             appr_alg->addPoint((void *) (massb), (size_t) j1, level);
         }
         input.close();
