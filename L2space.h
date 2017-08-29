@@ -331,7 +331,8 @@ namespace hnswlib {
         float fstdistfuncST(const void *x_vec, const void *y_code)
         {
             float res = 0.0;
-            const float *x, *y;
+            const unsigned char *x;
+            const float *y;
             //for (size_t i = 0; i < k_; i++) {
                 //std::cout << (int)((unsigned char *)y_code)[i] << " ";
             //    std::cout << codebooks[0][i*vocab_dim_] << " ";
