@@ -170,7 +170,7 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 	//uncomment to test in parallel mode:
 	//#pragma omp parallel for
 	for (int i = 0; i < qsize; i++) {
-		std::priority_queue< std::pair<dist_t, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k, cluster_idx_set, i);
+		std::priority_queue< std::pair<dist_t, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k, cluster_idx_set);//, i);
 		std::priority_queue< std::pair<dist_t, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 		total += gt.size();
