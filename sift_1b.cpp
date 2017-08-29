@@ -406,7 +406,7 @@ void sift_test1B() {
 
 void sift_test1B_PQ()
 {
-    const int subset_size_milllions = 100;
+    const int subset_size_milllions = 200;
     const int efConstruction = 200;
     const int M = 16;
     const int M_PQ = 16;
