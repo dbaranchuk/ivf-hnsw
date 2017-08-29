@@ -345,7 +345,7 @@ void sift_test1B() {
         inputC.read((char *) massf, in * 4);
 
         for (int i = 0; i < vecdim; i++){
-            massb[i] = (unsigned char massf[i];
+            massb[i] = (unsigned char) massf[i];
             cout << massf[i] << " " << massb[i] << endl;
         }
         appr_alg->addPoint((void *) (massb), (size_t) j1, level);
