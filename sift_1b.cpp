@@ -499,7 +499,7 @@ void sift_test1B_PQ()
                 }
                 input.read((char *)massb, in);
                 for (int j = 0; j < in; j++)
-                    cout << massb[j] << endl;
+                    cout << (int) massb[j] << " ";
                 cout << endl;
 
                 j1++;
