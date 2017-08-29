@@ -175,9 +175,12 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 		unordered_set <labeltype> g;
 		total += gt.size();
 
-        //float dist2gt = appr_alg.space->fstdistfunc((void*)(massQ + vecdim*i),//appr_alg.getDataByInternalId(gt.top().second),
+        //float dist2gt = appr_alg.space->fstdistfuncST((void*)(massQ + vecdim*i),//appr_alg.getDataByInternalId(gt.top().second),
                                                     // appr_alg.getDataByInternalId(appr_alg.enterpoint0));
-        //appr_alg.nev9zka += dist2gt / qsize;
+
+        float dist2gt = appr_alg.space->fstdistfuncST(i,//appr_alg.getDataByInternalId(gt.top().second)
+                                                      appr_alg.getDataByInternalId(appr_alg.enterpoint0));
+        appr_alg.nev9zka += dist2gt / qsize;
 
 		while (gt.size()) {
 			g.insert(gt.top().second);
@@ -428,7 +431,7 @@ void sift_test1B_PQ()
     sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1M_M%d/idx_%dM_pq.ivecs", M_PQ, subset_size_milllions);
     cout << "Loading GT:\n";
     ifstream inputGT(path_gt, ios::binary);
-    unsigned int *massQA = new unsigned int[qsize * 1000]; 
+    unsigned int *massQA = new unsigned int[qsize * 1000];
     for (int i = 0; i < qsize; i++) {
         int t;
         inputGT.read((char *)&t, 4);
