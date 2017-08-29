@@ -299,10 +299,10 @@ namespace hnswlib {
                             //std::cout << (int)(x[j]) << " " << y[j] << " " << t * t << "\n";
                             res += t * t;
                         }
-                        std::cout << res << " ";
+                        //std::cout << res << " ";
                         queryTables[m][q_idx*k_ + k] = res;
                     }
-                    std::cout << std::endl;
+                    //std::cout << std::endl;
                 }
             }
         }
