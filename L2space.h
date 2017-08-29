@@ -242,7 +242,8 @@ namespace hnswlib {
             for (int i = 0; i < m_; i++) {
                 if (codebooks[i])
                     free(codebooks[i]);
-                free(queryTables[i]);
+                if (queryTables[i])
+                    free(queryTables[i]);
             }
         }
 
@@ -268,8 +269,8 @@ namespace hnswlib {
         void set_construction_tables(const char *tablesFilename) {
             FILE *fin = fopen(tablesFilename, "rb");
             for (int i = 0; i < m_; i++) {
-                tables[i] = (float *) calloc(sizeof(float), k_ * k_);
-                fread((float *) tables[i], sizeof(float), k_ * k_, fin);
+                constructionTables[i] = (float *) calloc(sizeof(float), k_ * k_);
+                fread((float *) constructionTables[i], sizeof(float), k_ * k_, fin);
             }
             //for (int i = 0; i < k_; i++) {
                 //for (int j = 0; i < k_; j++)
@@ -291,7 +292,7 @@ namespace hnswlib {
                     x = q + m * vocab_dim_;
                     for (size_t k = 0; k < k_; k++){
                         float res = 0;
-                        y = codebooks[i] + k * vocab_dim_;
+                        y = codebooks[m] + k * vocab_dim_;
                         for (int j = 0; j < vocab_dim_; j++) {
                             float t = x[j] - y[j];
                             //std::cout << (int)(x[j]) << " " << y[j] << " " << t * t << "\n";
@@ -340,7 +341,7 @@ namespace hnswlib {
             return res;
         };
 
-        float fstdistfuncST(size_t q_idx, const void *y_code)
+        float fstdistfuncST(const size_t q_idx, const void *y_code)
         {
             float res = 0.0;
             for (size_t i = 0; i < m_; i++) {
