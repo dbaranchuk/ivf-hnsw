@@ -330,7 +330,7 @@ namespace hnswlib {
 
         float fstdistfuncST(const void *x_vec, const void *y_code)
         {
-            float res = 0.0;
+            double res = 0.0;
             const float *x, *y;
             //for (size_t i = 0; i < k_; i++) {
                 //std::cout << (int)((unsigned char *)y_code)[i] << " ";
@@ -342,7 +342,7 @@ namespace hnswlib {
                 y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
 
                 for (int j = 0; j < vocab_dim_; j++) {
-                    float t = x[j] - y[j];
+                    double t = x[j] - y[j];
                     std::cout << t << " ";
                     res += t * t;
                 }
