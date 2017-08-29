@@ -175,9 +175,9 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 		unordered_set <labeltype> g;
 		total += gt.size();
 
-        //float dist2gt = appr_alg.space->fstdistfunc((void*)(massQ + vecdim*i),//appr_alg.getDataByInternalId(gt.top().second),
-                                                    // appr_alg.getDataByInternalId(appr_alg.enterpoint0));
-        //appr_alg.nev9zka += dist2gt / qsize;
+        float dist2gt = appr_alg.space->fstdistfuncST(i,//(void*)(massQ + vecdim*i),//appr_alg.getDataByInternalId(gt.top().second),
+                                                     appr_alg.getDataByInternalId(appr_alg.enterpoint0));
+        appr_alg.nev9zka += dist2gt / qsize;
 
 		while (gt.size()) {
 			g.insert(gt.top().second);
@@ -406,10 +406,14 @@ void sift_test1B() {
 
 void sift_test1B_PQ()
 {
-    const int subset_size_milllions = 200;
-    const int efConstruction = 60;
+    const int subset_size_milllions = 100;
+    const int efConstruction = 200;
     const int M = 16;
     const int M_PQ = 16;
+    const int M_cluster = 0;
+
+    const size_t clustersize = 0;//5263157;
+    const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
 
     const size_t vecsize = subset_size_milllions * 1000000;
     const size_t qsize = 10000;
@@ -470,7 +474,7 @@ void sift_test1B_PQ()
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
-        appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M, efConstruction);
+        appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
 
         unsigned char massb[M_PQ];
         input.read((char *)&in, 4);
@@ -486,7 +490,7 @@ void sift_test1B_PQ()
         StopW stopw_full = StopW();
         size_t report_every = 100000;
 #pragma omp parallel for
-        for (int i = 1; i < vecsize; i++) {
+        for (int i = 1; i < vecsize + clustersize; i++) {
             unsigned char massb[M_PQ];
 #pragma omp critical
             {
@@ -506,6 +510,19 @@ void sift_test1B_PQ()
                     stopw.reset();
                 }
             }
+
+            int level = 0;
+            if (j1 < elements_per_layer[5])
+                level = 5;
+            else if (j1 < elements_per_layer[5] + elements_per_layer[4])
+                level = 4;
+            else if (j1 < elements_per_layer[5] + elements_per_layer[4] + elements_per_layer[3])
+                level = 3;
+            else if (j1 < elements_per_layer[5] + elements_per_layer[4] + elements_per_layer[3] + elements_per_layer[2])
+                level = 2;
+            else if (j1 < clustersize)
+                level = 1;
+
             appr_alg->addPoint((void *)(massb), (size_t)j1);
         }
         input.close();
@@ -516,9 +533,9 @@ void sift_test1B_PQ()
 
     //
     unordered_set<int> cluster_idx_set;
-    //for (int i = 0; i < clustersize; i++)
-    //    cluster_idx_set.insert(i);
-    //
+    for (int i = 0; i < clustersize; i++)
+        cluster_idx_set.insert(i);
+
 
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
     size_t k = 1;
