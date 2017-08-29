@@ -473,7 +473,7 @@ void sift_test1B_PQ()
         cout << "Building index:\n";
         appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction);
 
-        unsigned char massb[M_PQ];
+        unsigned char massb[vecdim];//[M_PQ];
         input.read((char *)&in, 4);
         if (in != vecdim)//M_PQ)
         {
@@ -488,7 +488,7 @@ void sift_test1B_PQ()
         size_t report_every = 100000;
 #pragma omp parallel for
         for (int i = 1; i < vecsize; i++) {
-            unsigned char massb[M_PQ];
+            unsigned char massb[vecdim];//[M_PQ];
 #pragma omp critical
             {
                 input.read((char *)&in, 4);
