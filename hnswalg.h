@@ -310,19 +310,19 @@ namespace hnswlib {
 
                 candidateSet.pop();
 
-                int k = 4;
-                for (int i = 1; i < k; i++) {
-                    if (!candidateSet.empty()) {
-                        curr_el_pair[i] = candidateSet.top();
-                        if ((-curr_el_pair[1].first) > lowerBound) {
-                            k = i;
-                            break;
-                        } else
-                            candidateSet.pop();
-                    } else {
-                        k = i;
-                    }
-                }
+//                int k = 4;
+//                for (int i = 1; i < k; i++) {
+//                    if (!candidateSet.empty()) {
+//                        curr_el_pair[i] = candidateSet.top();
+//                        if ((-curr_el_pair[1].first) > lowerBound) {
+//                            k = i;
+//                            break;
+//                        } else
+//                            candidateSet.pop();
+//                    } else {
+//                        k = i;
+//                    }
+//                }
                 for (int i = 0; i < k; i++) {
                     tableint curNodeNum = curr_el_pair[i].second;
                     linklistsizeint *data = get_linklist0(curNodeNum);
