@@ -417,8 +417,8 @@ void sift_test1B_PQ()
 
     char path_index[1024];
     char path_gt[1024];
-    const char *path_q = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_query.bvecs";
-    const char *path_data = "/sata2/dbaranchuk/bigann/base1M_M16/bigann_base_pq.bvecs";
+    const char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
+    const char *path_data = "/sata2/dbaranchuk/bigann/base1M_M16/bigann_base_1m_pq.bvecs";
 
     const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
     const char *path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
