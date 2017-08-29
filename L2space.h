@@ -285,7 +285,7 @@ namespace hnswlib {
 
             queryTables = std::vector<float *> (m_);
             for (int i = 0; i < m_; i++)
-                queryTables = (float *) calloc(sizeof(float), k_ * qsize);
+                queryTables[i] = (float *) calloc(sizeof(float), k_ * qsize);
 
             for (size_t q_idx = 0; q_idx < qsize; q_idx++) {
                 q = massQ + q_idx * dim_;
@@ -332,7 +332,7 @@ namespace hnswlib {
                 //float *y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
                 x = ((unsigned char *)x_code)[i];
                 y = ((unsigned char *)y_code)[i];
-                res += tables[i][k_*x + y];
+                res += constructionTables[i][k_*x + y];
                 //for (int j = 0; j < vocab_dim_; j++) {
                 //    float t = x[j] - y[j];
                 //    res += t * t;
