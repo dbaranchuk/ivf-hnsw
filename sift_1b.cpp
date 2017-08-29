@@ -369,7 +369,6 @@ void sift_test1B() {
                 }
                 j1++;
             }
-            int level = 0;
             if (j1 < elements_per_layer[5])
                 level = 5;
             else if (j1 < elements_per_layer[5] + elements_per_layer[4])
