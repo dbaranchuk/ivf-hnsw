@@ -303,14 +303,14 @@ namespace hnswlib {
             float res = 0.0;
             unsigned char x, y;
 
-//            for (size_t i = 0; i < m_; i++) {
-//                std::cout << (int)((unsigned char *)x_code)[i] << " ";
-//            }
-//            std::cout << std::endl;
-//            for (size_t i = 0; i < m_; i++) {
-//                std::cout << (int)((unsigned char *)y_code)[i] << " ";
-//            }
-//            std::cout << std::endl;
+            for (size_t i = 0; i < m_; i++) {
+                std::cout << (int)((unsigned char *)x_code)[i] << " ";
+            }
+            std::cout << std::endl;
+            for (size_t i = 0; i < m_; i++) {
+                std::cout << (int)((unsigned char *)y_code)[i] << " ";
+            }
+            std::cout << std::endl;
 
 
             for (size_t i = 0; i < m_; i++) {

@@ -495,10 +495,7 @@ void sift_test1B_PQ()
                     exit(1);
                 }
                 input.read((char *)massb, in);
-
-                for (int j = 0; j < in; j++)
-                    cout << (int)massb[j] << " ";
-                cout << endl;
+                ;
                 j1++;
                 if (j1 % report_every == 0) {
                     cout << j1 / (0.01 * vecsize) << " %, "
