@@ -165,7 +165,15 @@ namespace hnswlib {
             return res;
         };
 
-        float fstdistfuncST(const void *x, const void *y) { return 0; }
+        float fstdistfuncST(const void *x, const void *y)
+        {
+            float res = 0;
+            for (int i = 0; i < dim_; i++) {
+                float t = ((float *)x)[i] - ((float *)y)[i];
+                res += t*t;
+            }
+            return res;
+        }
 	};
 
 	class L2SpaceI : public SpaceInterface<int>
@@ -196,7 +204,21 @@ namespace hnswlib {
             }
             return res;
         }
-        int fstdistfuncST(const void *x, const void *y) { return 0; }
+        int fstdistfuncST(const void *x, const void *y)
+        {
+            size_t dim = dim_ >> 2;
+            int res = 0;
+            unsigned char *a = (unsigned char *)x;
+            unsigned char *b = (unsigned char *)y;
+
+            for (int i = 0; i < dim; i++) {
+                res += ((*a) - (*b))*((*a) - (*b)); a++; b++;
+                res += ((*a) - (*b))*((*a) - (*b)); a++; b++;
+                res += ((*a) - (*b))*((*a) - (*b)); a++; b++;
+                res += ((*a) - (*b))*((*a) - (*b)); a++; b++;
+            }
+            return res;
+        }
 	};
 
 
