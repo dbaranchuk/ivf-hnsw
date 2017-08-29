@@ -420,8 +420,8 @@ void sift_test1B_PQ()
     const char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
     const char *path_data = "/sata2/dbaranchuk/bigann/base1M_M16/bigann_base_1m_pq.bvecs";
 
-    const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1M_M16/codebooks.fvecs";
-    const char *path_tables = "/sata2/dbaranchuk/bigann/base1M_M16/distance_tables.dat";
+    const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
+    const char *path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
 
     sprintf(path_index, "/sata2/dbaranchuk/bigann/base1M_M%d/sift%dm_ef_%d_M_%d.bin", M_PQ, subset_size_milllions, efConstruction, M);
     //sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
