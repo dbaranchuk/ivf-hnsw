@@ -475,7 +475,7 @@ void sift_test1B_PQ()
 
         unsigned char massb[M_PQ];
         input.read((char *)&in, 4);
-        if (in != M_PQ)
+        if (in != vecdim)//M_PQ)
         {
             cout << "file error";
             exit(1);
@@ -492,7 +492,7 @@ void sift_test1B_PQ()
 #pragma omp critical
             {
                 input.read((char *)&in, 4);
-                if (in != M_PQ)
+                if (in != vecdim)//M_PQ)
                 {
                     cout << "file error";
                     exit(1);
