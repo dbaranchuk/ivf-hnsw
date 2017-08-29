@@ -345,7 +345,7 @@ namespace hnswlib {
                     res += t * t;
                 }
             }
-            std::cout << res << std::endl;
+            //std::cout << res << std::endl;
             return res;
         };
 
