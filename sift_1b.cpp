@@ -365,7 +365,7 @@ void sift_test1B() {
 
                 for (int i = 0; i < vecdim; i++){
                     massb[i] = (unsigned char) massf[i];
-                    cout << massf[i] << " " << massb[i] << endl;
+                    cout << massf[i] << " " << (int) massb[i] << endl;
                 }
                 j1++;
             }
