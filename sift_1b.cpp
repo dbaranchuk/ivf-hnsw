@@ -457,7 +457,7 @@ void sift_test1B_PQ()
 
     ifstream input(path_data, ios::binary);
     int in = 0;
-    L2SpacePQ l2space(vecdim, M_PQ, 256, qsize);
+    L2SpacePQ l2space(vecdim, M_PQ, 256);
 
     l2space.set_codebooks(path_codebooks);
     l2space.set_construction_tables(path_tables);

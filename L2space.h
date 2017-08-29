@@ -217,9 +217,8 @@ namespace hnswlib {
         std::vector<float *> queryTables;
 
     public:
-        L2SpacePQ(const size_t dim, const size_t m, const size_t k, const size_t qsize):
-                dim_(dim), m_(m), codebooks(m), k_(k),
-                constructionTables(k), queryTables(m)
+        L2SpacePQ(const size_t dim, const size_t m, const size_t k):
+                dim_(dim), m_(m), k_(k)
         {
             vocab_dim_ = (dim_ % m_ == 0) ? dim_ / m_ : -1;
             data_size_ = m_ * sizeof(unsigned char);
@@ -228,27 +227,23 @@ namespace hnswlib {
                 std::cerr << "M is not multiply of D" << std::endl;
                 exit(1);
             }
-
-            for (int i = 0; i < m_; i++){
-                queryTables = (float *) calloc(sizeof(float), k_ * qsize);
-            }
         }
 
         ~L2SpacePQ()
         {
-            for (int i = 0; i < k_; i++)
-                if (tables[i])
-                    free(tables[i]);
-            for (int i = 0; i < m_; i++) {
-                if (codebooks[i])
-                    free(codebooks[i]);
-                if (queryTables[i])
-                    free(queryTables[i]);
-            }
+            for (int i = 0; i < constructionTables.size(); i++)
+                free(constructionTables[i]);
+
+            for (int i = 0; i < queryTables.size(); i++)
+                free(queryTables[i]);
+
+            for (int i = 0; i < codebooks.size(); i++)
+                free(codebooks[i]);
         }
 
         void set_codebooks(const char *codebooksFilename)
         {
+            codebooks = std::vector<float *>(m_);
             for (int i = 0; i < m_; i++)
                 codebooks[i] = (float *) calloc(sizeof(float), vocab_dim_ * k_);
 
@@ -267,6 +262,8 @@ namespace hnswlib {
         }
 
         void set_construction_tables(const char *tablesFilename) {
+            constructionTables = std::vector<float *>(k_);
+
             FILE *fin = fopen(tablesFilename, "rb");
             for (int i = 0; i < m_; i++) {
                 constructionTables[i] = (float *) calloc(sizeof(float), k_ * k_);
@@ -285,6 +282,10 @@ namespace hnswlib {
         {
             unsigned char *q, *x;
             float *y;
+
+            queryTables = std::vector<float *> (m_);
+            for (int i = 0; i < m_; i++)
+                queryTables = (float *) calloc(sizeof(float), k_ * qsize);
 
             for (size_t q_idx = 0; q_idx < qsize; q_idx++) {
                 q = massQ + q_idx * dim_;
