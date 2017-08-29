@@ -418,12 +418,12 @@ void sift_test1B_PQ()
     char path_index[1024];
     char path_gt[1024];
     const char *path_q = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_query.bvecs";
-    const char *path_data = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base_pq.bvecs";
+    const char *path_data = "/sata2/dbaranchuk/bigann/base1M_M16/bigann_base_pq.bvecs";
 
     const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
     const char *path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
 
-    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M16/sift%dm_ef_%d_M_%d.bin", subset_size_milllions, efConstruction, M);
+    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1M_M16/sift%dm_ef_%d_M_%d.bin", subset_size_milllions, efConstruction, M);
     sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
 
     cout << "Loading GT:\n";
