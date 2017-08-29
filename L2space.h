@@ -338,11 +338,11 @@ namespace hnswlib {
             //}
             std::cout << std::endl;
             for (size_t i = 0; i < m_; i++) {
-                x = (float *)(x_vec) + i * vocab_dim_;
+                x = (unsigned char *)(x_vec) + i * vocab_dim_;
                 y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
 
                 for (int j = 0; j < vocab_dim_; j++) {
-                    double t = x[j] - y[j];
+                    float t = x[j] - y[j];
                     std::cout << x[j] << " " << y[j] << " " << t * t << "\n";
                     res += t * t;
                 }
