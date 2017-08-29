@@ -344,7 +344,7 @@ namespace hnswlib {
 
                 for (int j = 0; j < vocab_dim_; j++) {
                     float t = x[j] - y[j];
-                    std::cout << (float)(x[j]) << " " << y[j] << " " << t * t << "\n";
+                    std::cout << (int)(x[j]) << " " << y[j] << " " << t * t << "\n";
                     res += t * t;
                 }
             }
