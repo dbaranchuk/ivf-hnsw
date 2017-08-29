@@ -343,7 +343,7 @@ namespace hnswlib {
 
                 for (int j = 0; j < vocab_dim_; j++) {
                     double t = x[j] - y[j];
-                    std::cout << t * t << " ";
+                    std::cout << t << " " << t * t << "\n";
                     res += t * t;
                 }
             }
