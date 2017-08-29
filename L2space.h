@@ -348,7 +348,7 @@ namespace hnswlib {
             for (size_t i = 0; i < m_; i++) {
                 res += queryTables[i][k_*q_idx + ((unsigned char *)y_code)[i]];
             }
-            std::cout << res << std::endl;
+            //std::cout << res << std::endl;
             return res;
         };
 
