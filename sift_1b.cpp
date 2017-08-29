@@ -271,7 +271,7 @@ void sift_test1B() {
     const int M = 16;
     const int M_cluster = 3;
 
-    const size_t clustersize = 0;//5263157;
+    const size_t clustersize = 5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
 
     const size_t vecsize = subset_size_milllions * 1000000;
