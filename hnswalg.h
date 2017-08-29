@@ -310,7 +310,7 @@ namespace hnswlib {
 
                 candidateSet.pop();
 
-//                int k = 4;
+                int k = 1;
 //                for (int i = 1; i < k; i++) {
 //                    if (!candidateSet.empty()) {
 //                        curr_el_pair[i] = candidateSet.top();
