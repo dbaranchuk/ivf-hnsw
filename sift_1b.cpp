@@ -418,16 +418,16 @@ void sift_test1B_PQ()
     char path_index[1024];
     char path_gt[1024];
     const char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
-    //const char *path_data = "/sata2/dbaranchuk/bigann/base1M_M16/bigann_base_1m_pq.bvecs";
-    const char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
+    const char *path_data = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base_pq.bvecs";
 
     const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
     const char *path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
 
-    //sprintf(path_index, "/sata2/dbaranchuk/bigann/base1M_M%d/sift%dm_ef_%d_M_%d.bin", M_PQ, subset_size_milllions, efConstruction, M);
-    sprintf(path_index, "/sata2/dbaranchuk/bigann/sift%dm_ef_%d_M_%d.bin", subset_size_milllions, efConstruction, M);
+    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_M_%d.bin", M_PQ, subset_size_milllions, efConstruction, M);
+    //sprintf(path_index, "/sata2/dbaranchuk/bigann/sift%dm_ef_%d_M_%d.bin", subset_size_milllions, efConstruction, M);
     sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
     //sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1M_M%d/idx_%dM_pq.ivecs", M_PQ, subset_size_milllions);
+
     cout << "Loading GT:\n";
     ifstream inputGT(path_gt, ios::binary);
     unsigned int *massQA = new unsigned int[qsize * 1000];
@@ -459,23 +459,23 @@ void sift_test1B_PQ()
 
     ifstream input(path_data, ios::binary);
     int in = 0;
-    L2SpaceI l2space(vecdim);//, M_PQ, 256);
+    L2SpacePQ l2space(vecdim, M_PQ, 256);
 
-    //l2space.set_codebooks(path_codebooks);
-    //l2space.set_construction_tables(path_tables);
-    //l2space.compute_query_tables(massQ, qsize);
+    l2space.set_codebooks(path_codebooks);
+    l2space.set_construction_tables(path_tables);
+    l2space.compute_query_tables(massQ, qsize);
 
-    HierarchicalNSW<int> *appr_alg;
+    HierarchicalNSW<float> *appr_alg;
     if (exists_test(path_index)) {
-        appr_alg = new HierarchicalNSW<int>(&l2space, path_index, false);
+        appr_alg = new HierarchicalNSW<float>(&l2space, path_index, false);
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
-        appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction);
+        appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M, efConstruction);
 
-        unsigned char massb[vecdim];//[M_PQ];
+        unsigned char massb[M_PQ];
         input.read((char *)&in, 4);
-        if (in != vecdim)//M_PQ)
+        if (in != M_PQ)
         {
             cout << "file error";
             exit(1);
@@ -488,11 +488,11 @@ void sift_test1B_PQ()
         size_t report_every = 100000;
 #pragma omp parallel for
         for (int i = 1; i < vecsize; i++) {
-            unsigned char massb[vecdim];//[M_PQ];
+            unsigned char massb[M_PQ];
 #pragma omp critical
             {
                 input.read((char *)&in, 4);
-                if (in != vecdim)//M_PQ)
+                if (in != M_PQ)
                 {
                     cout << "file error";
                     exit(1);
@@ -521,12 +521,12 @@ void sift_test1B_PQ()
     //    cluster_idx_set.insert(i);
     //
 
-    vector<std::priority_queue< std::pair<int, labeltype >>> answers;
+    vector<std::priority_queue< std::pair<float, labeltype >>> answers;
     size_t k = 1;
     cout << "Parsing gt:\n";
-    get_gt<int>(massQA, qsize, answers, k);
+    get_gt<float>(massQA, qsize, answers, k);
     cout << "Loaded gt\n";
-    test_vs_recall<int>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set);
+    test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQ;
