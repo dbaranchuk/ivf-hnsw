@@ -483,10 +483,10 @@ void sift_test1B_PQ()
         StopW stopw = StopW();
         StopW stopw_full = StopW();
         size_t report_every = 100000;
-#pragma omp parallel for
+//#pragma omp parallel for
         for (int i = 1; i < vecsize; i++) {
             unsigned char massb[M_PQ];
-#pragma omp critical
+//#pragma omp critical
             {
                 input.read((char *)&in, 4);
                 if (in != M_PQ)
@@ -495,6 +495,10 @@ void sift_test1B_PQ()
                     exit(1);
                 }
                 input.read((char *)massb, in);
+
+                for (int j = 0; j < in; j++)
+                    cout << massb[i] << " ";
+                cout << endl;
                 j1++;
                 if (j1 % report_every == 0) {
                     cout << j1 / (0.01 * vecsize) << " %, "
