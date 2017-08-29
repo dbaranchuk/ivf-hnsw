@@ -170,14 +170,14 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 	//uncomment to test in parallel mode:
 	//#pragma omp parallel for
 	for (int i = 0; i < qsize; i++) {
-		std::priority_queue< std::pair<dist_t, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k, cluster_idx_set);
+		std::priority_queue< std::pair<dist_t, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k, cluster_idx_set, i);
 		std::priority_queue< std::pair<dist_t, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 		total += gt.size();
 
-        float dist2gt = appr_alg.space->fstdistfunc((void*)(massQ + vecdim*i),//appr_alg.getDataByInternalId(gt.top().second),
-                                                    appr_alg.getDataByInternalId(appr_alg.enterpoint0));
-        appr_alg.nev9zka += dist2gt / qsize;
+        //float dist2gt = appr_alg.space->fstdistfunc((void*)(massQ + vecdim*i),//appr_alg.getDataByInternalId(gt.top().second),
+                                                    // appr_alg.getDataByInternalId(appr_alg.enterpoint0));
+        //appr_alg.nev9zka += dist2gt / qsize;
 
 		while (gt.size()) {
 			g.insert(gt.top().second);
@@ -457,10 +457,11 @@ void sift_test1B_PQ()
 
     ifstream input(path_data, ios::binary);
     int in = 0;
-    L2SpacePQ l2space(vecdim, M_PQ, 256);
+    L2SpacePQ l2space(vecdim, M_PQ, 256, qsize);
 
     l2space.set_codebooks(path_codebooks);
-    l2space.set_tables(path_tables);
+    l2space.set_construction_tables(path_tables);
+    l2space.compute_query_tables(massQ, qsize);
 
     HierarchicalNSW<float> *appr_alg;
     if (exists_test(path_index)) {

@@ -165,15 +165,7 @@ namespace hnswlib {
             return res;
         };
 
-        float fstdistfuncST(const void *x, const void *y)
-        {
-            float res = 0;
-            for (int i = 0; i < dim_; i++) {
-                float t = ((float *)x)[i] - ((float *)y)[i];
-                res += t*t;
-            }
-            return res;
-        }
+        float fstdistfuncST(const size_t q_idx, const void *y) { return 0; }
 	};
 
 	class L2SpaceI : public SpaceInterface<int>
@@ -204,21 +196,7 @@ namespace hnswlib {
             }
             return res;
         }
-        int fstdistfuncST(const void *x, const void *y)
-        {
-            size_t dim = dim_ >> 2;
-            int res = 0;
-            unsigned char *a = (unsigned char *)x;
-            unsigned char *b = (unsigned char *)y;
-
-            for (int i = 0; i < dim; i++) {
-                res += ((*a) - (*b))*((*a) - (*b)); a++; b++;
-                res += ((*a) - (*b))*((*a) - (*b)); a++; b++;
-                res += ((*a) - (*b))*((*a) - (*b)); a++; b++;
-                res += ((*a) - (*b))*((*a) - (*b)); a++; b++;
-            }
-            return res;
-        }
+        int fstdistfuncST(const size_t q_idx, const void *y) { return 0; }
 	};
 
 
@@ -235,11 +213,13 @@ namespace hnswlib {
         size_t vocab_dim_;
 
         std::vector<float *> codebooks;
-        std::vector<float *> tables;
+        std::vector<float *> constructionTables;
+        std::vector<float *> queryTables;
 
     public:
-        L2SpacePQ(const size_t dim, const size_t m, const size_t k):
-                dim_(dim), m_(m), codebooks(m), k_(k), tables(k)
+        L2SpacePQ(const size_t dim, const size_t m, const size_t k, const size_t qsize):
+                dim_(dim), m_(m), codebooks(m), k_(k),
+                constructionTables(k), queryTables(m)
         {
             vocab_dim_ = (dim_ % m_ == 0) ? dim_ / m_ : -1;
             data_size_ = m_ * sizeof(unsigned char);
@@ -248,15 +228,22 @@ namespace hnswlib {
                 std::cerr << "M is not multiply of D" << std::endl;
                 exit(1);
             }
+
+            for (int i = 0; i < m_; i++){
+                queryTables = (float *) calloc(sizeof(float), k_ * qsize);
+            }
         }
 
-        ~L2SpacePQ(){
+        ~L2SpacePQ()
+        {
             for (int i = 0; i < k_; i++)
                 if (tables[i])
                     free(tables[i]);
-            for (int i = 0; i < m_; i++)
+            for (int i = 0; i < m_; i++) {
                 if (codebooks[i])
                     free(codebooks[i]);
+                free(queryTables[i]);
+            }
         }
 
         void set_codebooks(const char *codebooksFilename)
@@ -278,14 +265,13 @@ namespace hnswlib {
             fclose(fin);
         }
 
-        void set_tables(const char *tablesFilename) {
+        void set_construction_tables(const char *tablesFilename) {
             FILE *fin = fopen(tablesFilename, "rb");
             for (int i = 0; i < m_; i++) {
                 tables[i] = (float *) calloc(sizeof(float), k_ * k_);
                 fread((float *) tables[i], sizeof(float), k_ * k_, fin);
             }
             //for (int i = 0; i < k_; i++) {
-
                 //for (int j = 0; i < k_; j++)
                 //    std::cout << tables[0][k_ * i + j] << " ";
                 //std::cout << std::endl;
@@ -294,9 +280,35 @@ namespace hnswlib {
             fclose(fin);
         }
 
+        void compute_query_tables(unsigned char *massQ, size_t qsize)
+        {
+            unsigned char *q, *x;
+            float *y;
+
+            for (size_t q_idx = 0; q_idx < qsize; q_idx++) {
+                q = massQ + q_idx * dim_;
+                for (size_t m = 0; m < m_; m++) {
+                    x = q + m * vocab_dim_;
+                    for (size_t k = 0; k < k_; k++){
+                        float res = 0;
+                        y = codebooks[i] + k * vocab_dim_;
+                        for (int j = 0; j < vocab_dim_; j++) {
+                            float t = x[j] - y[j];
+                            //std::cout << (int)(x[j]) << " " << y[j] << " " << t * t << "\n";
+                            res += t * t;
+                        }
+                        std::cout << res << " ";
+                        queryTables[m][q_idx*k_ + k] = res;
+                    }
+                    std::cout << std::endl;
+                }
+            }
+        }
+
         size_t get_data_size() {
             return data_size_;
         }
+
 
         float fstdistfunc(const void *x_code, const void *y_code)
         {
@@ -328,26 +340,36 @@ namespace hnswlib {
             return res;
         };
 
-        float fstdistfuncST(const void *x_vec, const void *y_code)
+        float fstdistfuncST(size_t q_idx, const void *y_code)
         {
             float res = 0.0;
-            const unsigned char *x;
-            const float *y;
-
-            //std::cout << std::endl;
             for (size_t i = 0; i < m_; i++) {
-                x = (unsigned char *)(x_vec) + i * vocab_dim_;
-                y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
-
-                for (int j = 0; j < vocab_dim_; j++) {
-                    float t = x[j] - y[j];
-                    //std::cout << (int)(x[j]) << " " << y[j] << " " << t * t << "\n";
-                    res += t * t;
-                }
+                res += queryTables[i][k_*q_idx + ((unsigned char *)y_code)[i]];
             }
             //std::cout << res << std::endl;
             return res;
         };
+
+//        float fstdistfuncST(const void *x_vec, const void *y_code)
+//        {
+//            float res = 0.0;
+//            const unsigned char *x;
+//            const float *y;
+//
+//            //std::cout << std::endl;
+//            for (size_t i = 0; i < m_; i++) {
+//                x = (unsigned char *)(x_vec) + i * vocab_dim_;
+//                y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
+//
+//                for (int j = 0; j < vocab_dim_; j++) {
+//                    float t = x[j] - y[j];
+//                    //std::cout << (int)(x[j]) << " " << y[j] << " " << t * t << "\n";
+//                    res += t * t;
+//                }
+//            }
+//            //std::cout << res << std::endl;
+//            return res;
+//        };
 
     };
 

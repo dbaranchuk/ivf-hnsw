@@ -286,7 +286,7 @@ namespace hnswlib {
         };
 
         std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst>
-        searchBaseLayerST(tableint ep, void *datapoint, size_t ef)
+        searchBaseLayerST(tableint ep, void *datapoint, size_t ef, int q_idx = -1)
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
             vl_type *massVisited = vl->mass;
@@ -294,7 +294,13 @@ namespace hnswlib {
 
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> topResults;
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> candidateSet;
-            dist_t dist = space->fstdistfuncST(datapoint, getDataByInternalId(ep));
+
+            dist_t dist;
+            if (q_idx != -1)
+                dist = space->fstdistfuncST(q_idx, getDataByInternalId(ep));
+            else
+                dist = space->fstdistfunc(datapoint, getDataByInternalId(ep));
+
             dist_calc++;
             topResults.emplace(dist, ep);
             candidateSet.emplace(-dist, ep);
@@ -356,7 +362,13 @@ namespace hnswlib {
                         if (!(massVisited[tnum] == currentV)) {
 
                             massVisited[tnum] = currentV;
-                            dist_t dist = space->fstdistfuncST(datapoint, getDataByInternalId(tnum));
+
+                            dist_t dist;
+                            if (q_idx != -1)
+                                dist = space->fstdistfuncST(q_idx, getDataByInternalId(tnum));
+                            else
+                                dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
+
                             dist_calc++;
                             if (topResults.top().first > dist || topResults.size() < ef) {
                                 candidateSet.emplace(-dist, tnum);
@@ -636,10 +648,16 @@ namespace hnswlib {
             }
         };
 
-        std::priority_queue<std::pair<dist_t, labeltype >> searchKnn(void *query_data, int k, std::unordered_set<int> &cluster_idx_set)
+        std::priority_queue<std::pair<dist_t, labeltype >> searchKnn(void *query_data, int k, std::unordered_set<int> &cluster_idx_set, int q_idx = -1)
         {
             tableint currObj = enterpoint_node;
-            dist_t curdist = space->fstdistfuncST(query_data, getDataByInternalId(enterpoint_node));
+            dist_t curdist;
+
+            if (q_idx != -1)
+                curdist = space->fstdistfuncST(q_idx, getDataByInternalId(enterpoint_node));
+            else
+                curdist = space->fstdistfunc(query_data, getDataByInternalId(enterpoint_node));
+
             dist_calc++;
             for (int level = maxlevel_; level > 0; level--) {
                 bool changed = true;
@@ -652,7 +670,13 @@ namespace hnswlib {
                         tableint cand = datal[i];
                         if (cand < 0 || cand > (maxelements_ + maxclusters_))
                             throw runtime_error("cand error");
-                        dist_t d = space->fstdistfuncST(query_data, getDataByInternalId(cand));
+
+                        dist_t d;
+                        if (q_idx != -1)
+                            d = space->fstdistfuncST(q_idx, getDataByInternalId(cand));
+                        else
+                            d = space->fstdistfunc(query_data, getDataByInternalId(cand));
+
                         dist_calc++;
                         if (d < curdist) {
                             curdist = d;
@@ -666,7 +690,7 @@ namespace hnswlib {
             enterpoint0 = currObj;
 
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> tmpTopResults = searchBaseLayerST(
-                    currObj, query_data, ef_);
+                    currObj, query_data, ef_, q_idx);
             std::priority_queue<std::pair<dist_t, labeltype >> results;
 
             // Remove clusters as answers
