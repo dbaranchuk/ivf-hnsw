@@ -270,12 +270,12 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
  * Main SIFT Test Function
 */
 void sift_test1B() {
-    const int subset_size_milllions = 100;
-    const int efConstruction = 10;
-    const int M = 8;
-    const int M_cluster = 8;
+    const int subset_size_milllions = 10;
+    const int efConstruction = 60;
+    const int M = 16;
+    const int M_cluster = 0;
 
-    const size_t clustersize = 5263157;
+    const size_t clustersize = 0;//5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
 
     const size_t vecsize = subset_size_milllions * 1000000;
@@ -288,9 +288,9 @@ void sift_test1B() {
     const char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
     const char *path_clusters = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_base_100m_clusters.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_cM_%d.bin", efConstruction, M,
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift%dm_ef_%d_M_%d_cM_%d.bin", subset_size_milllions, efConstruction, M,
             M_cluster);
-    sprintf(path_gt, "/sata2/dbaranchuk/bigann/gnd/idx_100M.ivecs");
+    sprintf(path_gt, "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
 
     cout << "Loading GT:\n";
     ifstream inputGT(path_gt, ios::binary);
