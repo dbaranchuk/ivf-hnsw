@@ -618,7 +618,7 @@ namespace hnswlib {
                 if (i == 1000000)
                     i = 0;
                 lock_el = unique_lock <mutex>(ll_locks[i++]);
-            } while (lock_el.try_lock());
+            } while (lock_el.lock());
             mutex_table.emplace(cur_c, i);
             cout << cur_c << endl;
             //unique_lock <mutex> lock_el(ll_locks[cur_c]);
