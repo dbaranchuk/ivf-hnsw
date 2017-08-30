@@ -601,8 +601,8 @@ void sift_test1B_PQ()
     printInfo(appr_alg);
 
     unordered_set<int> cluster_idx_set;
-    for (int i = 0; i < clustersize; i++)
-        cluster_idx_set.insert(i);
+    //for (int i = 0; i < clustersize; i++)
+    //    cluster_idx_set.insert(i);
 
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
     size_t k = 1;
