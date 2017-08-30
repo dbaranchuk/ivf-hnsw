@@ -451,7 +451,7 @@ void sift_test1B_PQ()
     const int M_cluster = 0;
 
     const size_t clustersize = 0;//5263157;
-    const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
+    const vector<size_t> elements_per_level = {100000000, 5000000, 250000, 12500, 625, 32};
 
     const size_t vecsize = subset_size_milllions * 1000000;
     const size_t qsize = 10000;
@@ -514,8 +514,8 @@ void sift_test1B_PQ()
         unsigned char massb[M_PQ];
 
         int j1 = 0, in = 0;
-        int level = 5;
         appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
+        appr_alg->buildDistribution(elements_per_level);
 
         StopW stopw = StopW();
         StopW stopw_full = StopW();
@@ -528,7 +528,7 @@ void sift_test1B_PQ()
 //            exit(1);
 //        }
 //        inputC.read((char *) massb, in);
-//        appr_alg->addPoint((void *) (massb), (size_t) j1, level);
+//        appr_alg->addPoint((void *) (massb), (size_t) j1);
 //
 //#pragma omp parallel for
 //        for (int i = 1; i < clustersize; i++) {
@@ -543,24 +543,12 @@ void sift_test1B_PQ()
 //                inputC.read((char *) massb, in);
 //                j1++;
 //            }
-//            if (j1 < elements_per_layer[5])
-//                level = 5;
-//            else if (j1 < elements_per_layer[5] + elements_per_layer[4])
-//                level = 4;
-//            else if (j1 < elements_per_layer[5] + elements_per_layer[4] + elements_per_layer[3])
-//                level = 3;
-//            else if (j1 < elements_per_layer[5] + elements_per_layer[4] + elements_per_layer[3] + elements_per_layer[2])
-//                level = 2;
-//            else if (j1 < clustersize)
-//                level = 1;
-//
-//            appr_alg->addPoint((void *) (massb), (size_t) j1, level);
+//            appr_alg->addPoint((void *) (massb), (size_t) j1);
 //        }
 //        inputC.close();
 //        cout << "Clusters have been added" << endl;
 
         cout << "Adding elements\n";
-        level = 0;
         ifstream input(path_data, ios::binary);
         //
         input.read((char *) &in, 4);
@@ -592,7 +580,7 @@ void sift_test1B_PQ()
                     stopw.reset();
                 }
             }
-            appr_alg->addPoint((void *) (massb), (size_t) j1, level);
+            appr_alg->addPoint((void *) (massb), (size_t) j1);
         }
         input.close();
         cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";

@@ -221,12 +221,6 @@ namespace hnswlib {
                 return (linklistsizeint *) (linkLists_[cur_c] + (level - 1) * size_links_per_element_);
         };
 
-        int getRandomLevel(double revSize)
-        {
-            std::uniform_real_distribution<double> distribution(0.0, 1.0);
-            double r = -log(distribution(generator)) * revSize;
-            return (int) r;
-        }
 
         std::priority_queue<std::pair<dist_t, tableint  >> searchBaseLayer(tableint ep, void *datapoint, int layer)
         {
@@ -560,7 +554,32 @@ namespace hnswlib {
         float hops = 0.0;
         float hops0 = 0.0;
 
-        void addPoint(void *datapoint, labeltype label, int level = -1)
+        void buildDistribution(const vector<size_t> &elements_per_level) {
+            if (maxclusters_ == 0 || elements_per_level.size() == 0) {
+                std::uniform_real_distribution<double> distribution(0.0, 1.0);
+                for (size_t i = 0; i < maxelements_; ++i)
+                    elementLevels[i] = (int) (-log(distribution(generator)) * mult_);
+            }
+            else{
+                for (size_t i = 0; i < maxclusters_ + maxelements_; ++i){
+                    if (i < elements_per_level[5]) elementLevels[i] = 5;
+                    else if (i < elements_per_level[5] + elements_per_level[4])
+                        elementLevels[i] = 4;
+                    else if (i < elements_per_level[5] + elements_per_level[4] + elements_per_level[3])
+                        elementLevels[i] = 3;
+                    else if (i < elements_per_level[5] + elements_per_level[4] + elements_per_level[3] +
+                                 elements_per_level[2])
+                        elementLevels[i] = 2;
+                    else if (i < elements_per_level[5] + elements_per_level[4] + elements_per_level[3] +
+                                 elements_per_level[2] + elements_per_level[1])
+                        elementLevels[i] = 1;
+                    else
+                        elements_per_level[i] = 0;
+                }
+            }
+        }
+
+        void addPoint(void *datapoint, labeltype label)
         {
             tableint cur_c = 0;
             {
@@ -574,10 +593,10 @@ namespace hnswlib {
             }
             unique_lock <mutex> lock_el(ll_locks[cur_c]);
 
-            int curlevel = getRandomLevel(mult_);
-            if (level >= 0) //
-                curlevel = level;
-            elementLevels[cur_c] = curlevel;
+            int curlevel = elementLevels[cur_c];
+//            if (level >= 0) //
+//                curlevel = level;
+//            elementLevels[cur_c] = curlevel;
 
             unique_lock <mutex> templock(global);
             int maxlevelcopy = maxlevel_;
@@ -616,8 +635,15 @@ namespace hnswlib {
                         while (changed) {
                             changed = false;
                             linklistsizeint *data;
-                            unique_lock <mutex> lock(ll_locks[currObj]);
+
+                            unique_lock <mutex> lock;
+                        //    if (elementLevels[currObj] > 0)
+                            lock(ll_locks[currObj]);
                             data = get_linklist(currObj, level);
+
+                            if (currObj > maxclusters_)
+                                std::cout << *data << " " << *(data+1) << std::endl;
+
                             linklistsizeint size = *data;
                             tableint *datal = (tableint *) (data + 1);
                             for (linklistsizeint i = 0; i < size; i++) {
