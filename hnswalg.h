@@ -496,7 +496,7 @@ namespace hnswlib {
             }
             for (int idx = 0; idx < rez.size(); idx++) {
                 if (elementLevels[rez[idx]] > 0)
-                    unique_lock <mutex> lock(ll_locks[rez[idx]]);
+                    unique_lock <mutex> lock(*(ll_locks[rez[idx]]));
 
                 if (rez[idx] == cur_c)
                     throw runtime_error("Connection to the same element");
@@ -601,7 +601,7 @@ namespace hnswlib {
                 cur_c = cur_element_count;
                 cur_element_count++;
             }
-            unique_lock <mutex> lock_el(ll_locks[cur_c]);
+            //unique_lock <mutex> lock_el(*(ll_locks[cur_c]));
 
             int curlevel = elementLevels[cur_c];
 //            if (level >= 0) //
@@ -647,7 +647,7 @@ namespace hnswlib {
                             changed = false;
                             linklistsizeint *data;
 
-                            unique_lock <mutex> lock(ll_locks[currObj]);
+                            unique_lock <mutex> lock(*(ll_locks[currObj]));
                             data = get_linklist(currObj, level);
 
                             //if (elementLevels[currObj] == 0)
