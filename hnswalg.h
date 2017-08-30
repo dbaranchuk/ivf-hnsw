@@ -254,8 +254,10 @@ namespace hnswlib {
                 tableint curNodeNum = curr_el_pair.second;
 
                 unique_lock <mutex> lock;
-                if (mutex_table.count(curNodeNum) > 0)
-                    lock.lock(ll_locks[mutex_table[curNodeNum]]);
+                if (mutex_table.count(curNodeNum) > 0) {
+                    lock = ll_locks[mutex_table[curNodeNum]];
+                    lock.lock();
+                }
                 //if (elementLevels[curNodeNum] > 0)
                 //    unique_lock <mutex> lock(ll_locks[curNodeNum]);
 
@@ -499,9 +501,10 @@ namespace hnswlib {
             }
             for (int idx = 0; idx < rez.size(); idx++) {
                 unique_lock <mutex> lock;
-                if (mutex_table.count(rez[idx]) > 0)
-                    lock.lock(ll_locks[mutex_table[rez[idx]]]);
-
+                if (mutex_table.count(rez[idx]) > 0) {
+                    lock = ll_locks[mutex_table[rez[idx]]];
+                    lock.lock();
+                }
                 //if (elementLevels[rez[idx]] > 0)
                 //    unique_lock <mutex> lock(ll_locks[rez[idx]]);
 
@@ -665,8 +668,10 @@ namespace hnswlib {
                             linklistsizeint *data;
 
                             unique_lock <mutex> lock;
-                            if (mutex_table.count(currObj) > 0)
-                                lock.lock(ll_locks[mutex_table[currObj]]);
+                            if (mutex_table.count(currObj) > 0) {
+                                lock = ll_locks[mutex_table[currObj]];
+                                lock.lock();
+                            }
 
                             data = get_linklist(currObj, level);
 
