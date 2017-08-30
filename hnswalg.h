@@ -619,9 +619,8 @@ namespace hnswlib {
                     i = 0;
                 lock_el = unique_lock <mutex>(ll_locks[i++]);
             } while (lock_el.try_lock());
-
             mutex_table.emplace(cur_c, i);
-
+            cout << cur_c << endl;
             //unique_lock <mutex> lock_el(ll_locks[cur_c]);
 
             int curlevel = elementLevels[cur_c];
@@ -667,13 +666,13 @@ namespace hnswlib {
                         while (changed) {
                             changed = false;
                             linklistsizeint *data;
-
+                            cout << cur_c << " " << currObj << endl;
                             unique_lock <mutex> lock;
                             if (mutex_table.count(currObj) > 0) {
                                 lock = unique_lock<mutex>(ll_locks[mutex_table[currObj]]);
                                 lock.lock();
                             }
-
+                            cout << cur_c << " " << currObj << endl;
                             data = get_linklist(currObj, level);
 
                             //if (elementLevels[currObj] == 0)
