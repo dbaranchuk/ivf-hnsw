@@ -601,7 +601,8 @@ namespace hnswlib {
                 cur_c = cur_element_count;
                 cur_element_count++;
             }
-            unique_lock <mutex> lock_el(ll_locks[cur_c]);
+            if (elementLevels[cur_c] > 0)
+                unique_lock <mutex> lock_el(ll_locks[cur_c]);
 
             int curlevel = elementLevels[cur_c];
 //            if (level >= 0) //
