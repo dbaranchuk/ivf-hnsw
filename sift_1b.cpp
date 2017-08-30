@@ -162,7 +162,7 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
 template <typename dist_t>
 static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dist_t> &appr_alg,
                          size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
-                         size_t k, unordered_set<int> &cluster_idx_set)
+                         size_t k, unordered_set<int> &cluster_idx_set, bool pq = false)
 {
 	size_t correct = 0;
 	size_t total = 0;
@@ -170,7 +170,12 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 	//uncomment to test in parallel mode:
 	//#pragma omp parallel for
 	for (int i = 0; i < qsize; i++) {
-		std::priority_queue< std::pair<dist_t, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k, cluster_idx_set, i);
+		std::priority_queue< std::pair<dist_t, labeltype >> result;
+        if (pq)
+            result = appr_alg.searchKnn(massQ + vecdim*i, k, cluster_idx_set, i);
+        else
+            result = appr_alg.searchKnn(massQ + vecdim*i, k, cluster_idx_set);
+
 		std::priority_queue< std::pair<dist_t, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 		total += gt.size();
@@ -196,7 +201,7 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 template <typename dist_t>
 static void test_vs_recall(unsigned char *massQ, size_t qsize, HierarchicalNSW<dist_t> &appr_alg,
                            size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
-                           size_t k, unordered_set<int> &cluster_idx_set)
+                           size_t k, unordered_set<int> &cluster_idx_set, bool pq = false)
 {
 	vector<size_t> efs; //= {30, 100, 460};
     for (int i = k; i < 30; i++) {
@@ -216,7 +221,7 @@ static void test_vs_recall(unsigned char *massQ, size_t qsize, HierarchicalNSW<d
         appr_alg.hops = 0.0;
         appr_alg.hops0 = 0.0;
 		StopW stopw = StopW();
-		float recall = test_approx<dist_t>(massQ, qsize, appr_alg, vecdim, answers, k, cluster_idx_set);
+		float recall = test_approx<dist_t>(massQ, qsize, appr_alg, vecdim, answers, k, cluster_idx_set, pq);
 		float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
 		float avr_dist_count = appr_alg.dist_calc*1.f / qsize;
 		cout << ef << "\t" << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\t" << appr_alg.hops0 + appr_alg.hops << " hps\n";
@@ -282,7 +287,7 @@ void sift_test1B() {
     char path_gt[1024];
     const char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
     const char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
-    const char *path_clusters = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_base_100m_clusters.fvecs";
+    const char *path_clusters = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_base_100m_clusters.bvecs";
 
     sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift100m_ef_%d_M_%d_cM_%d.bin", efConstruction, M,
             M_cluster);
@@ -326,7 +331,6 @@ void sift_test1B() {
     } else {
         cout << "Building index:\n";
         unsigned char massb[vecdim];
-        float massf[vecdim];
 
         int j1 = 0, in = 0;
         int level = 5;
@@ -342,18 +346,12 @@ void sift_test1B() {
             cout << "file error\n";
             exit(1);
         }
-        inputC.read((char *) massf, in * 4);
-
-        for (int i = 0; i < vecdim; i++){
-            massb[i] = (unsigned char) massf[i];
-            cout << massf[i] << " " << massb[i] << endl;
-        }
+        inputC.read((char *) massb, in);
         appr_alg->addPoint((void *) (massb), (size_t) j1, level);
 
 #pragma omp parallel for
         for (int i = 1; i < clustersize; i++) {
             unsigned char massb[vecdim];
-            float massf[vecdim];
 #pragma omp critical
             {
                 inputC.read((char *) &in, 4);
@@ -361,12 +359,7 @@ void sift_test1B() {
                     cout << "file error";
                     exit(1);
                 }
-                inputC.read((char *) massf, in * 4);
-
-                for (int i = 0; i < vecdim; i++){
-                    massb[i] = massf[i];
-                    cout << massf[i] << " " << (int) massb[i] << endl;
-                }
+                inputC.read((char *) massb, in);
                 j1++;
             }
             if (j1 < elements_per_layer[5])
@@ -446,6 +439,7 @@ void sift_test1B() {
     test_vs_recall<int>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set);
 	cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
+    delete massQ;
     delete massQA;
 }
 
@@ -507,8 +501,6 @@ void sift_test1B_PQ()
     }
     inputQ.close();
 
-    ifstream input(path_data, ios::binary);
-    int in = 0;
     L2SpacePQ l2space(vecdim, M_PQ, 256);
 
     l2space.set_codebooks(path_codebooks);
@@ -521,75 +513,105 @@ void sift_test1B_PQ()
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
+        unsigned char massb[M_PQ];
+
+        int j1 = 0, in = 0;
+        int level = 5;
         appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
 
-        unsigned char massb[M_PQ];
-        input.read((char *)&in, 4);
-        if (in != M_PQ)
-        {
-            cout << "file error";
-            exit(1);
-        }
-        input.read((char *)massb, in);
-        appr_alg->addPoint((void *)(massb), (size_t)0);
-        int j1 = 0;
         StopW stopw = StopW();
         StopW stopw_full = StopW();
+
+//        cout << "Adding clustets:\n";
+//        ifstream inputC(path_clusters, ios::binary);
+//        inputC.read((char *) &in, 4);
+//        if (in != M_PQ) {
+//            cout << "file error\n";
+//            exit(1);
+//        }
+//        inputC.read((char *) massb, in);
+//        appr_alg->addPoint((void *) (massb), (size_t) j1, level);
+//
+//#pragma omp parallel for
+//        for (int i = 1; i < clustersize; i++) {
+//            unsigned char massb[M_PQ];
+//#pragma omp critical
+//            {
+//                inputC.read((char *) &in, 4);
+//                if (in != M_PQ) {
+//                    cout << "file error";
+//                    exit(1);
+//                }
+//                inputC.read((char *) massb, in);
+//                j1++;
+//            }
+//            if (j1 < elements_per_layer[5])
+//                level = 5;
+//            else if (j1 < elements_per_layer[5] + elements_per_layer[4])
+//                level = 4;
+//            else if (j1 < elements_per_layer[5] + elements_per_layer[4] + elements_per_layer[3])
+//                level = 3;
+//            else if (j1 < elements_per_layer[5] + elements_per_layer[4] + elements_per_layer[3] + elements_per_layer[2])
+//                level = 2;
+//            else if (j1 < clustersize)
+//                level = 1;
+//
+//            appr_alg->addPoint((void *) (massb), (size_t) j1, level);
+//        }
+//        inputC.close();
+//        cout << "Clusters have been added" << endl;
+
+        cout << "Adding elements\n";
+        level = 0;
+        ifstream input(path_data, ios::binary);
+        //
+        input.read((char *) &in, 4);
+        if (in != M_PQ) {
+            cout << "file error\n";
+            exit(1);
+        }
+        input.read((char *) massb, in);
+
+        appr_alg->addPoint((void *) (massb), (size_t) j1);
+        //
         size_t report_every = 1000000;
 #pragma omp parallel for
-        for (int i = 1; i < vecsize + clustersize; i++) {
+        for (int i = 0; i < vecsize; i++) {
             unsigned char massb[M_PQ];
 #pragma omp critical
             {
-                input.read((char *)&in, 4);
-                if (in != M_PQ)
-                {
+                input.read((char *) &in, 4);
+                if (in != M_PQ) {
                     cout << "file error";
                     exit(1);
                 }
-                input.read((char *)massb, in);
-
+                input.read((char *) massb, in);
                 j1++;
-                if (j1 % report_every == 0) {
-                    cout << j1 / (0.01 * vecsize) << " %, "
+                if ((j1 - clustersize) % report_every == 0) {
+                    cout << (j1 - clustersize) / (0.01 * vecsize) << " %, "
                          << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
                          << getCurrentRSS() / 1000000 << " Mb \n";
                     stopw.reset();
                 }
             }
-
-            int level = 0;
-            if (j1 < elements_per_layer[5])
-                level = 5;
-            else if (j1 < elements_per_layer[5] + elements_per_layer[4])
-                level = 4;
-            else if (j1 < elements_per_layer[5] + elements_per_layer[4] + elements_per_layer[3])
-                level = 3;
-            else if (j1 < elements_per_layer[5] + elements_per_layer[4] + elements_per_layer[3] + elements_per_layer[2])
-                level = 2;
-            else if (j1 < clustersize)
-                level = 1;
-
-            appr_alg->addPoint((void *)(massb), (size_t)j1);
+            appr_alg->addPoint((void *) (massb), (size_t) j1, level);
         }
         input.close();
-        cout << "Build time:" << 1e-6*stopw_full.getElapsedTimeMicro() << "  seconds\n";
+        cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
         appr_alg->SaveIndex(path_index);
     }
     printInfo(appr_alg);
 
-    //
     unordered_set<int> cluster_idx_set;
     for (int i = 0; i < clustersize; i++)
         cluster_idx_set.insert(i);
-
 
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
     size_t k = 1;
     cout << "Parsing gt:\n";
     get_gt<float>(massQA, qsize, answers, k);
     cout << "Loaded gt\n";
-    test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set);
+    test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, true);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQ;
