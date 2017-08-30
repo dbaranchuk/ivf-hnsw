@@ -715,7 +715,7 @@ namespace hnswlib {
                 enterpoint_node = cur_c;
                 maxlevel_ = curlevel;
             }
-            mutex_table.erase(cur_c);
+            //mutex_table.erase(cur_c);
         };
 
         std::priority_queue<std::pair<dist_t, labeltype >> searchKnn(void *query_data, int k, std::unordered_set<int> &cluster_idx_set, int q_idx = -1)
