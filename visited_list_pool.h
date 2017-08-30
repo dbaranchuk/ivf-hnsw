@@ -8,15 +8,15 @@ class VisitedList {
 public:
 	vl_type curV;
 	vl_type *mass;
-	unsigned int numelements;
+	//unsigned int numelements;
 
-	VisitedList(int numelements1)
+	VisitedList(unsigned int numelements)
 	{
 		curV = -1;
-		numelements = numelements1;
+		//numelements = numelements1;
 		mass = new vl_type[numelements];
 	}
-	void reset()
+	void reset(unsigned int numelements)
 	{
 		curV++;
 		if (curV == 0) {
@@ -58,7 +58,7 @@ public:
 				rez = new VisitedList(numelements);
 			}
 		}
-		rez->reset();
+		rez->reset(numelements);
 		return rez;
 	};
 	void releaseVisitedList(VisitedList *vl)
