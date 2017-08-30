@@ -38,7 +38,7 @@ namespace hnswlib {
 
         HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxElements, size_t M = 16, size_t efConstruction = 200,
                         size_t maxClusters = 0, size_t M_cluster = 0) :
-                ll_locks(maxElements + maxClusters), elementLevels(maxElements + maxClusters)
+                ll_locks((maxElements + maxClusters)/10), elementLevels(maxElements + maxClusters)
         {
             maxelements_ = maxElements;
             maxclusters_ = maxClusters;
@@ -572,7 +572,6 @@ namespace hnswlib {
             if (cur_c < maxclusters_) {
                 memset(data_level0_memory_ + cur_c * size_data_per_cluster_ + offsetLevel0_, 0, size_data_per_cluster_);
             } else {
-                //std::cout << "HUI0" << std::endl;
                 tableint cur_c_element = cur_c - maxclusters_;
                 memset(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
                        cur_c_element * size_data_per_element_ + offsetLevel0_, 0, size_data_per_element_);
@@ -581,7 +580,6 @@ namespace hnswlib {
             memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
             memcpy(getDataByInternalId(cur_c), datapoint, data_size_);
 
-            //std::cout << "HUI1" << std::endl;
             if (curlevel) {
                 // Above levels contain only clusters
                 if (cur_c < maxclusters_) {
@@ -593,10 +591,8 @@ namespace hnswlib {
                     memset(linkLists_[cur_c], 0, size_links_per_element_ * curlevel);
                 }
             }
-            //std::cout << "HUI1" << std::endl;
             if (currObj != -1) {
                 if (curlevel < maxlevelcopy) {
-                    //std::cout << "HUI2" << std::endl;
                     dist_t curdist = space->fstdistfunc(datapoint, getDataByInternalId(currObj));
                     for (int level = maxlevelcopy; level > curlevel; level--) {
 
@@ -613,7 +609,6 @@ namespace hnswlib {
                                 if (cand < 0 || cand > (maxelements_ + maxclusters_))
                                     throw runtime_error("cand error");
                                 dist_t d = space->fstdistfunc(datapoint, getDataByInternalId(cand));
-                                //std::cout << d << std::endl;
                                 if (d < curdist) {
                                     curdist = d;
                                     currObj = cand;
@@ -623,15 +618,12 @@ namespace hnswlib {
                         }
                     }
                 }
-                //std::cout << "HUI4" << std::endl;
 
                 for (int level = min(curlevel, maxlevelcopy); level >= 0; level--) {
                     if (level > maxlevelcopy || level < 0)
                         throw runtime_error("Level error");
-                    //std::cout << "HUI5" << std::endl;
                     std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
                                                                                                     level);
-                    //std::cout << "HUI6" << std::endl;
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
                 }
 
