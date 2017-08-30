@@ -612,7 +612,7 @@ namespace hnswlib {
             unique_lock <mutex> lock_el;
             int i = 0;
 
-            while (lock_el.try_lock(ll_lock[i++])){
+            while (lock_el.try_lock(ll_locks[i++])){
                 if (i == 1000000)
                     i = 0;
             }
