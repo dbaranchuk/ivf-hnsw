@@ -10,6 +10,7 @@
 #include <string.h>
 #include <unordered_set>
 #include <unordered_map>
+#include <memory>
 
 //class SpinLock
 //{
@@ -106,7 +107,7 @@ namespace hnswlib {
             size_links_per_cluster_ = maxM_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_links_per_element_ = maxM_ * sizeof(tableint) + sizeof(linklistsizeint);
             mult_ = 1 / log(1.0 * M_);
-            revSize_ = 1.0 / mult_;
+            //revSize_ = 1.0 / mult_;
         }
 
         ~HierarchicalNSW()
@@ -116,6 +117,7 @@ namespace hnswlib {
                 if (elementLevels[i] > 0)
                     free(linkLists_[i]);
             }
+
             free(linkLists_);
             delete visitedlistpool;
             delete space;
@@ -145,7 +147,7 @@ namespace hnswlib {
         size_t maxM0_;
         size_t efConstruction_;
         int delaunay_type_;
-        double mult_, revSize_;
+        double mult_;//, revSize_;
         int maxlevel_;
 
 
@@ -153,7 +155,7 @@ namespace hnswlib {
         mutex cur_element_count_guard_;
         mutex MaxLevelGuard_;
         //vector<mutex> ll_locks;
-        unordered_map<size_t, mutex> ll_locks;
+        unordered_map<size_t, unique_ptr<mutex>> ll_locks;
 
         tableint enterpoint_node;
 
@@ -251,7 +253,7 @@ namespace hnswlib {
 
                 tableint curNodeNum = curr_el_pair.second;
                 if (elementLevels[curNodeNum] > 0)
-                    unique_lock <mutex> lock(ll_locks[curNodeNum]);
+                    unique_lock <mutex> lock(*(ll_locks[curNodeNum]));
 
                 linklistsizeint *data;
                 if (level == 0)
@@ -584,7 +586,7 @@ namespace hnswlib {
             // Init mutex map
             for(size_t i = 0; i < maxclusters_ + maxelements_; i++)
                 if (elementLevels[i] > 0)
-                    ll_locks.emplace(i, mutex());
+                    ll_locks.emplace(i, new mutex);
         }
 
         void addPoint(void *datapoint, labeltype label)
