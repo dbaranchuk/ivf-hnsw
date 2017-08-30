@@ -9,23 +9,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unordered_set>
-#include <atomic>
 
-class SpinLock
-{
-    std::atomic_bool latch;
-
-public:
-    void lock() {
-        bool unlatched = false;
-        while(!latch.compare_exchange_weak(unlatched, true, std::memory_order_acquire)){
-            unlatched = false;
-        }
-    }
-    void unlock() {
-        latch.store(false , std::memory_order_release);
-    }
-};
+//class SpinLock
+//{
+//    std::atomic_bool latch;
+//
+//public:
+//    void lock() {
+//        bool unlatched = false;
+//        while(!latch.compare_exchange_weak(unlatched, true, std::memory_order_acquire)){
+//            unlatched = false;
+//        }
+//    }
+//    void unlock() {
+//        latch.store(false , std::memory_order_release);
+//    }
+//};
 
 template<typename T>
 void writeBinaryPOD(std::ostream &out, const T &podRef) {
@@ -152,8 +151,7 @@ namespace hnswlib {
         VisitedListPool *visitedlistpool;
         mutex cur_element_count_guard_;
         mutex MaxLevelGuard_;
-        //vector<mutex> ll_locks;
-        vector<SpinLock> ll_locks;
+        vector<mutex> ll_locks;
         tableint enterpoint_node;
 
         size_t dist_calc;
@@ -256,8 +254,7 @@ namespace hnswlib {
 
                 tableint curNodeNum = curr_el_pair.second;
 
-                //unique_lock <mutex> lock(ll_locks[curNodeNum]);
-                ll_locks[curNodeNum].lock();
+                unique_lock <mutex> lock(ll_locks[curNodeNum]);
 
                 linklistsizeint *data;
                 if (layer == 0)
@@ -291,7 +288,6 @@ namespace hnswlib {
                         }
                     }
                 }
-                ll_locks[curNodeNum].unlock();
             }
             visitedlistpool->releaseVisitedList(vl);
 
@@ -501,8 +497,7 @@ namespace hnswlib {
             }
             for (int idx = 0; idx < rez.size(); idx++) {
 
-                //unique_lock <mutex> lock(ll_locks[rez[idx]]);
-                ll_locks[rez[idx]].lock();
+                unique_lock <mutex> lock(ll_locks[rez[idx]]);
 
                 if (rez[idx] == cur_c)
                     throw runtime_error("Connection to the same element");
@@ -553,7 +548,7 @@ namespace hnswlib {
                     }
                     *ll_other = indx;
                 }
-                ll_locks[rez[idx]].lock();
+
             }
         }
 
@@ -577,8 +572,7 @@ namespace hnswlib {
                 cur_c = cur_element_count;
                 cur_element_count++;
             }
-            //unique_lock <mutex> lock_el(ll_locks[cur_c]);
-            ll_locks[cur_c].lock();
+            unique_lock <mutex> lock_el(ll_locks[cur_c]);
 
             int curlevel = getRandomLevel(mult_);
             if (level >= 0) //
@@ -622,9 +616,7 @@ namespace hnswlib {
                         while (changed) {
                             changed = false;
                             linklistsizeint *data;
-                            //unique_lock <mutex> lock(ll_locks[currObj]);
-                            ll_locks[currObj].lock();
-
+                            unique_lock <mutex> lock(ll_locks[currObj]);
                             data = get_linklist(currObj, level);
                             linklistsizeint size = *data;
                             tableint *datal = (tableint *) (data + 1);
@@ -639,7 +631,6 @@ namespace hnswlib {
                                     changed = true;
                                 }
                             }
-                            ll_locks[currObj].unlock();
                         }
                     }
                 }
@@ -663,7 +654,6 @@ namespace hnswlib {
                 enterpoint_node = cur_c;
                 maxlevel_ = curlevel;
             }
-            ll_locks[cur_c].unlock();
         };
 
         std::priority_queue<std::pair<dist_t, labeltype >> searchKnn(void *query_data, int k, std::unordered_set<int> &cluster_idx_set, int q_idx = -1)
