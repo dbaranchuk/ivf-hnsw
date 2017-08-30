@@ -334,7 +334,7 @@ void sift_test1B() {
         int j1 = 0, in = 0;
         int level = 5;
         appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
-        appr_alg->buildDistribution(elements_per_layer);
+        appr_alg->setElementLevels(elements_per_layer);
 
         StopW stopw = StopW();
         StopW stopw_full = StopW();
@@ -516,7 +516,7 @@ void sift_test1B_PQ()
 
         int j1 = 0, in = 0;
         appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
-        appr_alg->buildDistribution(elements_per_level);
+        appr_alg->setElementLevels(elements_per_level);
 
         StopW stopw = StopW();
         StopW stopw_full = StopW();
