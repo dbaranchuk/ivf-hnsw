@@ -716,7 +716,7 @@ namespace hnswlib {
                 maxlevel_ = curlevel;
             }
             cout << cur_c << std::endl;
-            lock.unlock();
+            lock_el.unlock();
             mutex_table.erase(cur_c);
         };
 
