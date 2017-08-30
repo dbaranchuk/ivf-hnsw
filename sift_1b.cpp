@@ -254,8 +254,7 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
     cout << "efConstruction: " << hnsw->efConstruction_<< endl;
 
     map<int, int> table = map<int, int>();
-    vector<int> elementLevels = hnsw->elementLevels;
-    for (int layerNum : elementLevels) {
+    for (char layerNum : hnsw->elementLevels) {
         if (table.count(layerNum) == 0) {
             table[layerNum] = 1;
         } else {
