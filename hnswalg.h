@@ -253,7 +253,7 @@ namespace hnswlib {
 
                 tableint curNodeNum = curr_el_pair.second;
                 if (elementLevels[curNodeNum] > 0)
-                    unique_lock <mutex> lock(*(ll_locks[curNodeNum]));
+                    unique_lock <mutex> lock(ll_locks[curNodeNum]);
 
                 linklistsizeint *data;
                 if (level == 0)
@@ -496,7 +496,7 @@ namespace hnswlib {
             }
             for (int idx = 0; idx < rez.size(); idx++) {
                 if (elementLevels[rez[idx]] > 0)
-                    unique_lock <mutex> lock(*(ll_locks[rez[idx]]));
+                    unique_lock <mutex> lock(ll_locks[rez[idx]]);
 
                 if (rez[idx] == cur_c)
                     throw runtime_error("Connection to the same element");
@@ -584,9 +584,9 @@ namespace hnswlib {
                 }
             }
             // Init mutex map
-            for(size_t i = 0; i < maxclusters_ + maxelements_; i++)
-                if (elementLevels[i] > 0)
-                    ll_locks.emplace(i, std::make_unique<std::mutex>());
+            //for(size_t i = 0; i < maxclusters_ + maxelements_; i++)
+            //    if (elementLevels[i] > 0)
+            //        ll_locks.emplace(i, std::make_unique<std::mutex>());
         }
 
         void addPoint(void *datapoint, labeltype label)
@@ -647,7 +647,7 @@ namespace hnswlib {
                             changed = false;
                             linklistsizeint *data;
 
-                            unique_lock <mutex> lock(*(ll_locks[currObj]));
+                            unique_lock <mutex> lock(ll_locks[currObj]);
                             data = get_linklist(currObj, level);
 
                             //if (elementLevels[currObj] == 0)
