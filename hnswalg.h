@@ -151,7 +151,9 @@ namespace hnswlib {
         VisitedListPool *visitedlistpool;
         mutex cur_element_count_guard_;
         mutex MaxLevelGuard_;
-        vector<mutex> ll_locks;
+        //vector<mutex> ll_locks;
+        unordered_map<size_t, mutex> ll_locks;
+
         tableint enterpoint_node;
 
         size_t dist_calc;
@@ -554,7 +556,8 @@ namespace hnswlib {
         float hops = 0.0;
         float hops0 = 0.0;
 
-        void buildDistribution(const vector<size_t> &elements_per_level) {
+        void setElementLevels(const vector<size_t> &elements_per_level)
+        {
             if (maxclusters_ == 0 || elements_per_level.size() == 0) {
                 std::uniform_real_distribution<double> distribution(0.0, 1.0);
                 for (size_t i = 0; i < maxelements_; ++i)
@@ -577,6 +580,10 @@ namespace hnswlib {
                         elementLevels[i] = 0;
                 }
             }
+            // Init mutex map
+            for(size_t i = 0; i < maxclusters_ + maxelements_; i++)
+                if (elementLevels[i] > 0)
+                    ll_locks[i] = mutex();
         }
 
         void addPoint(void *datapoint, labeltype label)
@@ -843,7 +850,6 @@ namespace hnswlib {
 
 
             linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ + maxelements_));
-            cout << maxelements_ + maxclusters_ << "\n";
             elementLevels = vector<char>(maxclusters_ + maxelements_);
             revSize_ = 1.0 / mult_;
             ef_ = 10;
