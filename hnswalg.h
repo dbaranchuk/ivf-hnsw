@@ -254,7 +254,7 @@ namespace hnswlib {
                 if (level == 0)
                     data = get_linklist0(curNodeNum);
                 else
-                    data = get_linklist(curNodeNum, layer);
+                    data = get_linklist(curNodeNum, level);
 
                 linklistsizeint size = *data;
                 tableint *datal = (tableint *) (data + 1);
