@@ -335,7 +335,7 @@ void sift_test1B() {
         int level = 5;
         appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
         appr_alg->buildDistribution(elements_per_layer);
-        
+
         StopW stopw = StopW();
         StopW stopw_full = StopW();
 
