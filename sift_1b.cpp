@@ -272,8 +272,8 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 void sift_test1B() {
     const int subset_size_milllions = 100;
     const int efConstruction = 10;
-    const int M = 16;
-    const int M_cluster = 16;
+    const int M = 8;
+    const int M_cluster = 8;
 
     const size_t clustersize = 5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
