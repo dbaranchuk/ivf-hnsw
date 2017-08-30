@@ -252,8 +252,8 @@ namespace hnswlib {
                 candidateSet.pop();
 
                 tableint curNodeNum = curr_el_pair.second;
-                if (elementLevels[curNodeNum] > 0)
-                    unique_lock <mutex> lock(ll_locks[curNodeNum]);
+                //if (elementLevels[curNodeNum] > 0)
+                //    unique_lock <mutex> lock(ll_locks[curNodeNum]);
 
                 linklistsizeint *data;
                 if (level == 0)
@@ -495,8 +495,8 @@ namespace hnswlib {
                 }
             }
             for (int idx = 0; idx < rez.size(); idx++) {
-                if (elementLevels[rez[idx]] > 0)
-                    unique_lock <mutex> lock(ll_locks[rez[idx]]);
+                //if (elementLevels[rez[idx]] > 0)
+                //    unique_lock <mutex> lock(ll_locks[rez[idx]]);
 
                 if (rez[idx] == cur_c)
                     throw runtime_error("Connection to the same element");
@@ -601,8 +601,8 @@ namespace hnswlib {
                 cur_c = cur_element_count;
                 cur_element_count++;
             }
-            if (elementLevels[cur_c] > 0)
-                unique_lock <mutex> lock_el(ll_locks[cur_c]);
+
+            unique_lock <mutex> lock_el(ll_locks[cur_c]);
 
             int curlevel = elementLevels[cur_c];
 //            if (level >= 0) //
