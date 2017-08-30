@@ -326,8 +326,8 @@ namespace hnswlib {
 //            }
 //            std::cout << std::endl;
 
-
-            for (size_t i = 0; i < m_; i++) {
+            for (size_t i = 0; i < m_; ++i) {
+                //_mm_prefetch((float *) constructionTables[i], _MM_HINT_T0);
                 //float *x = codebooks[i] + ((unsigned char *)x_code)[i] * vocab_dim_;
                 //float *y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
                 x = ((unsigned char *)x_code)[i];
@@ -345,7 +345,8 @@ namespace hnswlib {
         float fstdistfuncST(const size_t q_idx, const void *y_code)
         {
             float res = 0.0;
-            for (size_t i = 0; i < m_; i++) {
+            for (size_t i = 0; i < m_; ++i) {
+                //_mm_prefetch((float *) queryTables[i], _MM_HINT_T0);
                 res += queryTables[i][k_*q_idx + ((unsigned char *)y_code)[i]];
             }
             //std::cout << res << std::endl;
