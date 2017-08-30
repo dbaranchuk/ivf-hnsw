@@ -255,7 +255,7 @@ namespace hnswlib {
 
                 unique_lock <mutex> lock;
                 if (mutex_table.count(curNodeNum) > 0) {
-                    lock = ll_locks[mutex_table[curNodeNum]];
+                    lock = unique_lock<mutex>(ll_locks[mutex_table[curNodeNum]]);
                     lock.lock();
                 }
                 //if (elementLevels[curNodeNum] > 0)
@@ -502,7 +502,7 @@ namespace hnswlib {
             for (int idx = 0; idx < rez.size(); idx++) {
                 unique_lock <mutex> lock;
                 if (mutex_table.count(rez[idx]) > 0) {
-                    lock = ll_locks[mutex_table[rez[idx]]];
+                    lock = unique_lock<mutex>(ll_locks[mutex_table[rez[idx]]]);
                     lock.lock();
                 }
                 //if (elementLevels[rez[idx]] > 0)
@@ -614,11 +614,12 @@ namespace hnswlib {
 
             unique_lock <mutex> lock_el;
             int i = 0;
-
-            while (lock_el.try_lock(ll_locks[i++])){
+            do {
                 if (i == 1000000)
                     i = 0;
-            }
+                lock_el = unique_lock <mutex>(ll_locks[i++]);
+            } while (lock_el.try_lock());
+
             mutex_table.emplace(cur_c, i);
 
             //unique_lock <mutex> lock_el(ll_locks[cur_c]);
@@ -669,7 +670,7 @@ namespace hnswlib {
 
                             unique_lock <mutex> lock;
                             if (mutex_table.count(currObj) > 0) {
-                                lock = ll_locks[mutex_table[currObj]];
+                                lock = unique_lock<mutex>(ll_locks[mutex_table[currObj]]);
                                 lock.lock();
                             }
 
