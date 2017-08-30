@@ -74,8 +74,8 @@ namespace hnswlib {
             data_level0_memory_ = (char *) malloc(maxclusters_ * size_data_per_cluster_ + maxelements_ * size_data_per_element_);
             std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
 
-            size_t predicted_size_per_element = size_data_per_element_ + sizeof(void *) + 4 + 8 + 2 * 8;
-            size_t predicted_size_per_cluster = size_data_per_cluster_ + sizeof(void *) + 4 + 8 + 2 * 8;
+            size_t predicted_size_per_element = size_data_per_element_ + sizeof(void *) + 1 + 8 + 2 * 8;
+            size_t predicted_size_per_cluster = size_data_per_cluster_ + sizeof(void *) + 1 + 8 + 2 * 8;
             size_t total_size = maxclusters_ * predicted_size_per_cluster + maxelements_ * predicted_size_per_element;
             cout << "Size Mb: " << total_size / (1000 * 1000) << "\n";
             cur_element_count = 0;
@@ -145,7 +145,7 @@ namespace hnswlib {
 
         char *data_level0_memory_;
         char **linkLists_;
-        vector<int> elementLevels;
+        vector<char> elementLevels;
 
 
         size_t data_size_;
@@ -835,8 +835,8 @@ namespace hnswlib {
             }
 
             input.close();
-            size_t predicted_size_per_element = size_data_per_element_ + sizeof(void *) + 4 + 8 + 2 * 8;
-            size_t predicted_size_per_cluster = size_data_per_cluster_ + sizeof(void *) + 4 + 8 + 2 * 8;
+            size_t predicted_size_per_element = size_data_per_element_ + sizeof(void *) + 1 + 8 + 2 * 8;
+            size_t predicted_size_per_cluster = size_data_per_cluster_ + sizeof(void *) + 1 + 8 + 2 * 8;
             size_t total_size = maxclusters_ * predicted_size_per_cluster + maxelements_ * predicted_size_per_element;
             cout << "Loaded index, predicted size=" << total_size / (1000 * 1000) << "\n";
             return;
