@@ -828,7 +828,7 @@ namespace hnswlib {
                     linkLists_[i] = nullptr;
                 } else {
                     elementLevels[i] = linkListSize / size_links_per_element_;
-                    std::cout << linkListSize / size_links_per_element_ << elementLevels[i] << std::endl;
+                    std::cout << linkListSize / size_links_per_element_ << " " << (int)elementLevels[i] << std::endl;
                     linkLists_[i] = (char *) malloc(linkListSize);
                     input.read(linkLists_[i], linkListSize);
                 }
