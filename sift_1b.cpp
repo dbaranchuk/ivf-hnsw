@@ -391,10 +391,10 @@ void sift_test1B() {
         appr_alg->addPoint((void *) (massb), (size_t) j1);
         //
         size_t report_every = 1000000;
-//#pragma omp parallel for
+#pragma omp parallel for
         for (int i = 1; i < vecsize; i++) {
             unsigned char massb[vecdim];
-//#pragma omp critical
+#pragma omp critical
             {
                 input.read((char *) &in, 4);
                 if (in != vecdim) {
