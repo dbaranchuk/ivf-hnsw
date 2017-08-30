@@ -584,7 +584,7 @@ namespace hnswlib {
             // Init mutex map
             for(size_t i = 0; i < maxclusters_ + maxelements_; i++)
                 if (elementLevels[i] > 0)
-                    ll_locks[i] = mutex();
+                    ll_locks.emplace(i, mutex);
         }
 
         void addPoint(void *datapoint, labeltype label)
