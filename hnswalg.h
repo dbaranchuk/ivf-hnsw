@@ -636,9 +636,8 @@ namespace hnswlib {
                             changed = false;
                             linklistsizeint *data;
 
-                            unique_lock <mutex> lock;
+                            unique_lock <mutex> lock(ll_locks[currObj]);
                         //    if (elementLevels[currObj] > 0)
-                            lock(ll_locks[currObj]);
                             data = get_linklist(currObj, level);
 
                             if (currObj > maxclusters_)
