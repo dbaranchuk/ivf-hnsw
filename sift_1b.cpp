@@ -444,13 +444,13 @@ void sift_test1B() {
 
 void sift_test1B_PQ()
 {
-    const int subset_size_milllions = 1000;
-    const int efConstruction = 240;
-    const int M = 2;
+    const int subset_size_milllions = 500;
+    const int efConstruction = 40;
+    const int M = 4;
     const int M_PQ = 16;
-    const int M_cluster = 16;
+    const int M_cluster = 0;
 
-    const size_t clustersize = 5263157;
+    const size_t clustersize = 0;//5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
 
     const size_t vecsize = subset_size_milllions * 1000000;
