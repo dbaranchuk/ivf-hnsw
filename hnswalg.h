@@ -626,6 +626,8 @@ namespace hnswlib {
                     memset(linkLists_[cur_c], 0, size_links_per_element_ * curlevel);
                 }
             }
+            if (currObj > maxclusters_)
+                std::cout << maxlevelcopy << " " << curlevel << std::endl;
             if (currObj != -1) {
                 if (curlevel < maxlevelcopy) {
                     dist_t curdist = space->fstdistfunc(datapoint, getDataByInternalId(currObj));
@@ -640,8 +642,6 @@ namespace hnswlib {
                         //    if (elementLevels[currObj] > 0)
                             data = get_linklist(currObj, level);
 
-                            if (currObj > maxclusters_)
-                                std::cout << *data << " " << *(data+1) << std::endl;
 
                             linklistsizeint size = *data;
                             tableint *datal = (tableint *) (data + 1);
