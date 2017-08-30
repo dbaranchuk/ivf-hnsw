@@ -346,7 +346,7 @@ namespace hnswlib {
         {
             float res = 0.0;
             for (size_t i = 0; i < m_; ++i) {
-                //_mm_prefetch((float *) queryTables[i], _MM_HINT_T0);
+                _mm_prefetch((float *) queryTables[i], _MM_HINT_T0);
                 res += queryTables[i][k_*q_idx + ((unsigned char *)y_code)[i]];
             }
             //std::cout << res << std::endl;
