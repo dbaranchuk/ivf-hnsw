@@ -640,7 +640,7 @@ namespace hnswlib {
                             unique_lock <mutex> lock(ll_locks[currObj]);
                             data = get_linklist(currObj, level);
 
-                            if (elementLevels[currObj] == 0)
+                            //if (elementLevels[currObj] == 0)
                                 std::cout <<*data << " " << enterpoint_node << std::endl;
 
                             linklistsizeint size = *data;
