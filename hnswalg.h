@@ -804,7 +804,6 @@ namespace hnswlib {
 
 
             linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ + maxelements_));
-            cout << maxelements_ + maxclusters_ << "\n";
             elementLevels = vector<char>(maxclusters_ + maxelements_);
             revSize_ = 1.0 / mult_;
             ef_ = 10;
@@ -829,6 +828,7 @@ namespace hnswlib {
                     linkLists_[i] = nullptr;
                 } else {
                     elementLevels[i] = linkListSize / size_links_per_element_;
+                    std::cout << linkListSize / size_links_per_element_ << elementLevels[i] << std::endl;
                     linkLists_[i] = (char *) malloc(linkListSize);
                     input.read(linkLists_[i], linkListSize);
                 }
