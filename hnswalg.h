@@ -574,7 +574,7 @@ namespace hnswlib {
                                  elements_per_level[2] + elements_per_level[1])
                         elementLevels[i] = 1;
                     else
-                        elements_per_level[i] = 0;
+                        elementLevels[i] = 0;
                 }
             }
         }
