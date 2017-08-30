@@ -626,7 +626,7 @@ namespace hnswlib {
                     memset(linkLists_[cur_c], 0, size_links_per_element_ * curlevel);
                 }
             }
-            if (currObj > maxclusters_)
+            if (curlevel == 0)
                 std::cout << maxlevelcopy << " " << curlevel << std::endl;
             if (currObj != -1) {
                 if (curlevel < maxlevelcopy) {
