@@ -273,9 +273,9 @@ void sift_test1B() {
     const int subset_size_milllions = 100;
     const int efConstruction = 240;
     const int M = 16;
-    const int M_cluster = 0;
+    const int M_cluster = 16;
 
-    const size_t clustersize = 0;//5263157;
+    const size_t clustersize = 5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
 
     const size_t vecsize = subset_size_milllions * 1000000;
@@ -410,7 +410,7 @@ void sift_test1B() {
                     stopw.reset();
                 }
             }
-            appr_alg->addPoint((void *) (massb), (size_t) j1, level);
+            appr_alg->addPoint((void *) (massb), (size_t) j1);
         }
         input.close();
         cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
