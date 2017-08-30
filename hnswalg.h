@@ -854,7 +854,7 @@ namespace hnswlib {
 
             linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ + maxelements_));
             elementLevels = vector<char>(maxclusters_ + maxelements_);
-            revSize_ = 1.0 / mult_;
+            //revSize_ = 1.0 / mult_;
             ef_ = 10;
 
             for (size_t i = 0; i < maxclusters_; i++) {
