@@ -446,13 +446,13 @@ void sift_test1B() {
 
 void sift_test1B_PQ()
 {
-    const int subset_size_milllions = 10;
+    const int subset_size_milllions = 100;
     const int efConstruction = 60;
-    const int M = 16;
+    const int M = 2;
     const int M_PQ = 16;
-    const int M_cluster = 0;
+    const int M_cluster = 16;
 
-    const size_t clustersize = 0;//5263157;
+    const size_t clustersize = 5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
 
     const size_t vecsize = subset_size_milllions * 1000000;
@@ -522,57 +522,57 @@ void sift_test1B_PQ()
         StopW stopw = StopW();
         StopW stopw_full = StopW();
 
-//        cout << "Adding clustets:\n";
-//        ifstream inputC(path_clusters, ios::binary);
-//        inputC.read((char *) &in, 4);
-//        if (in != M_PQ) {
-//            cout << "file error\n";
-//            exit(1);
-//        }
-//        inputC.read((char *) massb, in);
-//        appr_alg->addPoint((void *) (massb), (size_t) j1, level);
-//
-//#pragma omp parallel for
-//        for (int i = 1; i < clustersize; i++) {
-//            unsigned char massb[M_PQ];
-//#pragma omp critical
-//            {
-//                inputC.read((char *) &in, 4);
-//                if (in != M_PQ) {
-//                    cout << "file error";
-//                    exit(1);
-//                }
-//                inputC.read((char *) massb, in);
-//                j1++;
-//            }
-//            if (j1 < elements_per_layer[5])
-//                level = 5;
-//            else if (j1 < elements_per_layer[5] + elements_per_layer[4])
-//                level = 4;
-//            else if (j1 < elements_per_layer[5] + elements_per_layer[4] + elements_per_layer[3])
-//                level = 3;
-//            else if (j1 < elements_per_layer[5] + elements_per_layer[4] + elements_per_layer[3] + elements_per_layer[2])
-//                level = 2;
-//            else if (j1 < clustersize)
-//                level = 1;
-//
-//            appr_alg->addPoint((void *) (massb), (size_t) j1, level);
-//        }
-//        inputC.close();
-//        cout << "Clusters have been added" << endl;
+        cout << "Adding clustets:\n";
+        ifstream inputC(path_clusters, ios::binary);
+        inputC.read((char *) &in, 4);
+        if (in != M_PQ) {
+            cout << "file error\n";
+            exit(1);
+        }
+        inputC.read((char *) massb, in);
+        appr_alg->addPoint((void *) (massb), (size_t) j1, level);
+
+#pragma omp parallel for
+        for (int i = 1; i < clustersize; i++) {
+            unsigned char massb[M_PQ];
+#pragma omp critical
+            {
+                inputC.read((char *) &in, 4);
+                if (in != M_PQ) {
+                    cout << "file error";
+                    exit(1);
+                }
+                inputC.read((char *) massb, in);
+                j1++;
+            }
+            if (j1 < elements_per_layer[5])
+                level = 5;
+            else if (j1 < elements_per_layer[5] + elements_per_layer[4])
+                level = 4;
+            else if (j1 < elements_per_layer[5] + elements_per_layer[4] + elements_per_layer[3])
+                level = 3;
+            else if (j1 < elements_per_layer[5] + elements_per_layer[4] + elements_per_layer[3] + elements_per_layer[2])
+                level = 2;
+            else if (j1 < clustersize)
+                level = 1;
+
+            appr_alg->addPoint((void *) (massb), (size_t) j1, level);
+        }
+        inputC.close();
+        cout << "Clusters have been added" << endl;
 
         cout << "Adding elements\n";
         level = 0;
         ifstream input(path_data, ios::binary);
         //
-        input.read((char *) &in, 4);
-        if (in != M_PQ) {
-            cout << "file error\n";
-            exit(1);
-        }
-        input.read((char *) massb, in);
-
-        appr_alg->addPoint((void *) (massb), (size_t) j1);
+//        input.read((char *) &in, 4);
+//        if (in != M_PQ) {
+//            cout << "file error\n";
+//            exit(1);
+//        }
+//        input.read((char *) massb, in);
+//
+//        appr_alg->addPoint((void *) (massb), (size_t) j1);
         //
         size_t report_every = 1000000;
 #pragma omp parallel for
