@@ -247,7 +247,7 @@ namespace hnswlib {
                 candidateSet.pop();
 
                 tableint curNodeNum = curr_el_pair.second;
-                if (elementLevels[ll_locks[curNodeNum]] > 0)
+                if (elementLevels[curNodeNum] > 0)
                     unique_lock <mutex> lock(ll_locks[curNodeNum]);
 
                 linklistsizeint *data;
