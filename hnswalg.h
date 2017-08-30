@@ -155,7 +155,7 @@ namespace hnswlib {
         mutex cur_element_count_guard_;
         mutex MaxLevelGuard_;
         //vector<mutex> ll_locks;
-        unordered_map<size_t, unique_ptr<mutex>> ll_locks;
+        unordered_map<size_t, mutex> ll_locks;
 
         tableint enterpoint_node;
 
