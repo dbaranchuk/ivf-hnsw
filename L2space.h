@@ -350,7 +350,6 @@ namespace hnswlib {
                 y = ((unsigned char *)y_code)[i];
                 res += queryTables[i][k_*q_idx + y];
             }
-            //std::cout << res << std::endl;
             return res;
         };
 
