@@ -255,7 +255,6 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 
     map<int, int> table = map<int, int>();
     for (char layerNum : hnsw->elementLevels) {
-        cout << (int)layerNum << " ";
         if (table.count(layerNum) == 0) {
             table[layerNum] = 1;
         } else {
