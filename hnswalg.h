@@ -56,7 +56,7 @@ namespace hnswlib {
 
         HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxElements, size_t M = 16, size_t efConstruction = 200,
                         size_t maxClusters = 0, size_t M_cluster = 0) :
-                /*ll_locks(maxElements + maxClusters),*/ elementLevels(maxElements + maxClusters)
+                ll_locks(maxElements + maxClusters), elementLevels(maxElements + maxClusters)
         {
             maxelements_ = maxElements;
             maxclusters_ = maxClusters;
@@ -154,8 +154,8 @@ namespace hnswlib {
         VisitedListPool *visitedlistpool;
         mutex cur_element_count_guard_;
         mutex MaxLevelGuard_;
-        //vector<mutex> ll_locks;
-        unordered_map<size_t, mutex> ll_locks;
+        vector<mutex> ll_locks;
+        //unordered_map<size_t, mutex> ll_locks;
 
         tableint enterpoint_node;
 
