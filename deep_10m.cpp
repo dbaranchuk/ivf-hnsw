@@ -229,11 +229,18 @@ inline bool exists_test(const std::string& name) {
 /**
  * Print Configuration
  **/
-void printNumElementsPerLayer(vector<int> elementLevels)
+static void printInfo(HierarchicalNSW<float> *hnsw)
 {
-    map<int, int> table = map<int, int>();
+    if (hnsw == NULL)
+        throw "Empty HNSW";
 
-    for (int layerNum : elementLevels) {
+    cout << "Information about constructed HNSW" << endl;
+    cout << "M: " << hnsw->M_ << endl;
+    cout << "Test K: " << 1 << endl;
+    cout << "efConstruction: " << hnsw->efConstruction_<< endl;
+
+    map<char, int> table = map<char, int>();
+    for (char layerNum : hnsw->elementLevels) {
         if (table.count(layerNum) == 0) {
             table[layerNum] = 1;
         } else {
@@ -243,18 +250,6 @@ void printNumElementsPerLayer(vector<int> elementLevels)
     for (auto elementsPerLayer : table){
         cout << "Number of elements on the " << elementsPerLayer.first << "layer: " << elementsPerLayer.second << endl;
     }
-}
-
-void printInfo(HierarchicalNSW<float> *hnsw)
-{
-    if (hnsw == NULL){
-        throw "Empty HNSW";
-    }
-    cout << "Information about constructed HNSW" << endl;
-    cout << "M: " << hnsw->M_ << endl;
-    cout << "Test K: " << 1 << endl;
-    cout << "efConstruction: " << hnsw->efConstruction_<< endl;
-    printNumElementsPerLayer(hnsw->elementLevels);
 }
 
 /**
