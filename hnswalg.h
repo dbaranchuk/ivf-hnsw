@@ -38,7 +38,7 @@ namespace hnswlib {
 
         HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxElements, size_t M = 16, size_t efConstruction = 200,
                         size_t maxClusters = 0, size_t M_cluster = 0) :
-                ll_locks((maxElements + maxClusters)/10), elementLevels(maxElements + maxClusters)
+                ll_locks(maxElements + maxClusters), elementLevels(maxElements + maxClusters)
         {
             maxelements_ = maxElements;
             maxclusters_ = maxClusters;
@@ -74,8 +74,8 @@ namespace hnswlib {
             data_level0_memory_ = (char *) malloc(maxclusters_ * size_data_per_cluster_ + maxelements_ * size_data_per_element_);
             std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
 
-            size_t predicted_size_per_element = size_data_per_element_ + sizeof(void *) + 1 + 8 + 2 * 8;
-            size_t predicted_size_per_cluster = size_data_per_cluster_ + sizeof(void *) + 1 + 8 + 2 * 8;
+            size_t predicted_size_per_element = size_data_per_element_ + sizeof(void *) + 8 + 8 + 2 * 8;
+            size_t predicted_size_per_cluster = size_data_per_cluster_ + sizeof(void *) + 8 + 8 + 2 * 8;
             size_t total_size = maxclusters_ * predicted_size_per_cluster + maxelements_ * predicted_size_per_element;
             cout << "Size Mb: " << total_size / (1000 * 1000) << "\n";
             cur_element_count = 0;
@@ -788,8 +788,6 @@ namespace hnswlib {
 
             space = s;
             data_size_ = s->get_data_size();
-            //fstdistfunc_ = s->get_dist_func();
-            //dist_func_param_ = s->get_dist_func_param();
 
             data_level0_memory_ = (char *) malloc(maxclusters_ * size_data_per_cluster_ +
                                                   maxelements_ * size_data_per_element_);
@@ -804,6 +802,7 @@ namespace hnswlib {
 
 
             linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ + maxelements_));
+            cout << maxelements_ + maxclusters_ << "\n";
             elementLevels = vector<char>(maxclusters_ + maxelements_);
             revSize_ = 1.0 / mult_;
             ef_ = 10;
