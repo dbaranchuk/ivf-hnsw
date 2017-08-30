@@ -222,7 +222,7 @@ namespace hnswlib {
         };
 
 
-        std::priority_queue<std::pair<dist_t, tableint  >> searchBaseLayer(tableint ep, void *datapoint, int layer)
+        std::priority_queue<std::pair<dist_t, tableint  >> searchBaseLayer(tableint ep, void *datapoint, int level)
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
             vl_type *massVisited = vl->mass;
@@ -247,11 +247,11 @@ namespace hnswlib {
                 candidateSet.pop();
 
                 tableint curNodeNum = curr_el_pair.second;
-
-                unique_lock <mutex> lock(ll_locks[curNodeNum]);
+                if (elementLevels[ll_locks[curNodeNum]] > 0)
+                    unique_lock <mutex> lock(ll_locks[curNodeNum]);
 
                 linklistsizeint *data;
-                if (layer == 0)
+                if (level == 0)
                     data = get_linklist0(curNodeNum);
                 else
                     data = get_linklist(curNodeNum, layer);
@@ -490,8 +490,8 @@ namespace hnswlib {
                 }
             }
             for (int idx = 0; idx < rez.size(); idx++) {
-
-                unique_lock <mutex> lock(ll_locks[rez[idx]]);
+                if (elementLevels[rez[idx]] > 0)
+                    unique_lock <mutex> lock(ll_locks[rez[idx]]);
 
                 if (rez[idx] == cur_c)
                     throw runtime_error("Connection to the same element");
@@ -641,7 +641,7 @@ namespace hnswlib {
                             data = get_linklist(currObj, level);
 
                             //if (elementLevels[currObj] == 0)
-                                std::cout <<*data << " " << enterpoint_node << std::endl;
+                            //    std::cout <<*data << " " << enterpoint_node << std::endl;
 
                             linklistsizeint size = *data;
                             tableint *datal = (tableint *) (data + 1);
