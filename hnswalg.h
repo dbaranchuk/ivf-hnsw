@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unordered_set>
+#include <unordered_map>
 
 //class SpinLock
 //{
