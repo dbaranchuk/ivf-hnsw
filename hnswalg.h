@@ -575,8 +575,8 @@ namespace hnswlib {
                     elementLevels[i] = (int) (-log(distribution(generator)) * mult_);
                     if (elementLevels[i] > 0) {
                         numElementsLevels++;
-                        linkListsTable[i] = (char *) malloc(size_links_per_element_ * elementLevels[i]);
-                        memset(linkListsTable[i], 0, size_links_per_element_ * elementLevels[i]);
+                    //    linkListsTable[i] = (char *) malloc(size_links_per_element_ * elementLevels[i]);
+                    //    memset(linkListsTable[i], 0, size_links_per_element_ * elementLevels[i]);
                     }
                 }
             } else{
@@ -596,8 +596,8 @@ namespace hnswlib {
                         elementLevels[i] = 0;
                     if (elementLevels[i] > 0) {
                         numElementsLevels++;
-                        linkListsTable[i] = (char *) malloc(size_links_per_cluster_ * elementLevels[i]);
-                        memset(linkListsTable[i], 0, size_links_per_cluster_ * elementLevels[i]);
+                    //    linkListsTable[i] = (char *) malloc(size_links_per_cluster_ * elementLevels[i]);
+                    //    memset(linkListsTable[i], 0, size_links_per_cluster_ * elementLevels[i]);
                     }
                 }
             }
@@ -647,17 +647,17 @@ namespace hnswlib {
             memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
             memcpy(getDataByInternalId(cur_c), datapoint, data_size_);
 
-//            if (curlevel) {
-//                // Above levels contain only clusters
-//                if (cur_c < maxclusters_) {
-//                    linkLists_[cur_c] = (char *) malloc(size_links_per_cluster_ * curlevel);
-//                    memset(linkLists_[cur_c], 0, size_links_per_cluster_ * curlevel);
-//                }
-//                else {
-//                    linkLists_[cur_c] = (char *) malloc(size_links_per_element_ * curlevel);
-//                    memset(linkLists_[cur_c], 0, size_links_per_element_ * curlevel);
-//                }
-//            }
+            if (curlevel) {
+                // Above levels contain only clusters
+                if (cur_c < maxclusters_) {
+                    linkListsTable[cur_c] = (char *) malloc(size_links_per_cluster_ * curlevel);
+                    memset(linkListsTable[cur_c], 0, size_links_per_cluster_ * curlevel);
+                }
+                else {
+                    linkListsTable[cur_c] = (char *) malloc(size_links_per_element_ * curlevel);
+                    memset(linkListsTable[cur_c], 0, size_links_per_element_ * curlevel);
+                }
+            }
             if (currObj != -1) {
                 if (curlevel < maxlevelcopy) {
                     dist_t curdist = space->fstdistfunc(datapoint, getDataByInternalId(currObj));
