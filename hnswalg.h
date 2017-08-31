@@ -680,6 +680,7 @@ namespace hnswlib {
                                     j = j % 1000000;
                                     lock = unique_lock <mutex>(ll_locks[j++], defer_lock);
                                 } while (!lock.try_lock());
+                                mutex_table.emplace(currObj, j);
                             }
                             //unique_lock <mutex> lock(ll_locks[currObj % 1000000]);
                             //unique_lock <mutex> lock;
