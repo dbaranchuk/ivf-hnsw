@@ -607,7 +607,13 @@ namespace hnswlib {
                 cur_c = cur_element_count;
                 cur_element_count++;
             }
-
+            if (cur_c == 1000000){
+                for (int i = 0 ; i < 1000000; i++) {
+                    unique_lock <mutex> lock;
+                    lock = unique_lock<mutex>(ll_locks[cur_c % 1000000]);
+                    cout << lock.try_lock() << " ";
+                }
+            }
             unique_lock <mutex> lock_el(ll_locks[cur_c % 1000000]);
             //int i = 0;
             //do {
