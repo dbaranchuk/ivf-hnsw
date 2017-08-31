@@ -893,19 +893,19 @@ namespace hnswlib {
             ef_ = 10;
 
             numElementsLevels = 0;
-            for (size_t i = 0; i < maxclusters_; i++) {
-                unsigned int linkListSize;
-                readBinaryPOD(input, linkListSize);
-                if (linkListSize == 0) {
-                    elementLevels[i] = 0;
-                    linkLists_[i] = nullptr;
-                } else {
-                    elementLevels[i] = linkListSize / size_links_per_cluster_;
-                    linkLists_[i] = (char *) malloc(linkListSize);
-                    input.read((char *)linkLists_[i], linkListSize);
-                    //numElementsLevels++;
-                }
-            }
+//            for (size_t i = 0; i < maxclusters_; i++) {
+//                unsigned int linkListSize;
+//                readBinaryPOD(input, linkListSize);
+//                if (linkListSize == 0) {
+//                    elementLevels[i] = 0;
+//                    //linkLists_[i] = nullptr;
+//                } else {
+//                    elementLevels[i] = linkListSize / size_links_per_cluster_;
+//                    linkLists_[i] = (char *) malloc(linkListSize);
+//                    input.read((char *)linkLists_[i], linkListSize);
+//                    //numElementsLevels++;
+//                }
+            //}
             for (size_t i = maxclusters_; i < maxelements_; i++) {
                 unsigned int linkListSize;
                 readBinaryPOD(input, linkListSize);
