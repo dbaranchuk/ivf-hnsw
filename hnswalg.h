@@ -836,7 +836,7 @@ namespace hnswlib {
                 unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_element_ * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
-                    output.write((char *)linkListsTable[i], linkListSize);
+                    output.write(linkListsTable[i], linkListSize);
             }
             output.close();
         }
@@ -914,7 +914,7 @@ namespace hnswlib {
                 } else {
                     elementLevels[i] = linkListSize / size_links_per_cluster_;
                     linkListsTable[i] = (char *) malloc(linkListSize);
-                    input.read((char *)linkLists_[i], linkListSize);
+                    input.read(linkListsTable[i], linkListSize);
                     numElementsLevels++;
 //                    elementLevels[i] = linkListSize / size_links_per_element_;
 //                    linkLists_[i] = (char *) malloc(linkListSize);
