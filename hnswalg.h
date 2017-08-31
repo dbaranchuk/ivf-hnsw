@@ -593,10 +593,6 @@ namespace hnswlib {
                         elementLevels[i] = 0;
                 }
             }
-            // Init mutex map
-            //for(size_t i = 0; i < maxclusters_ + maxelements_; i++)
-            //    if (elementLevels[i] > 0)
-            //        ll_locks.emplace(i, std::make_unique<std::mutex>());
         }
 
         void addPoint(void *datapoint, labeltype label)
@@ -613,14 +609,14 @@ namespace hnswlib {
             }
 
             unique_lock <mutex> lock_el(ll_locks[cur_c]);
-            int i = 0;
+            //int i = 0;
             //do {
                // if (i == 1000000)
                //     i = 0;
                 //lock_el = unique_lock <mutex>(ll_locks[cur_c]);
             //} while (lock_el.lock());
             //lock_el.lock();
-            mutex_table.emplace(cur_c, i);
+            //mutex_table.emplace(cur_c, i);
             //unique_lock <mutex> lock_el(ll_locks[cur_c]);
 
             int curlevel = elementLevels[cur_c];
