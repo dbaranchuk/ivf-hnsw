@@ -113,8 +113,8 @@ namespace hnswlib {
         ~HierarchicalNSW()
         {
             free(data_level0_memory_);
-            for (tableint i = 0; i < cur_element_count; i++) {
-                if (elementLevels[i] > 0)
+            for (tableint i = 0; i < numElementsLevels; i++) {//cur_element_count; i++) {
+                //if (elementLevels[i] > 0)
                     free(linkLists_[i]);
             }
 
@@ -581,8 +581,7 @@ namespace hnswlib {
                         linkListsTable.emplace(i, linkListIdx++);
                     }
                 }
-            }
-            else{
+            } else{
                 for (size_t i = 0; i < maxclusters_ + maxelements_; ++i){
                     if (i < elements_per_level[5]) elementLevels[i] = 5;
                     else if (i < elements_per_level[5] + elements_per_level[4])
@@ -603,6 +602,7 @@ namespace hnswlib {
                     }
                 }
             }
+            cout << numElementsLevels << endl;
             linkLists_ = (char **) malloc(sizeof(void *) * numElementsLevels);
         }
 
