@@ -613,7 +613,7 @@ namespace hnswlib {
             }
 
             unique_lock <mutex> lock_el(ll_locks[cur_c]);
-            int i = 0;
+            //int i = 0;
             //do {
                // if (i == 1000000)
                //     i = 0;
@@ -621,7 +621,6 @@ namespace hnswlib {
             //} while (lock_el.lock());
             //lock_el.lock();
             mutex_table.emplace(cur_c, i);
-            cout << cur_c << endl;
             //unique_lock <mutex> lock_el(ll_locks[cur_c]);
 
             int curlevel = elementLevels[cur_c];
@@ -715,7 +714,7 @@ namespace hnswlib {
                 enterpoint_node = cur_c;
                 maxlevel_ = curlevel;
             }
-            //mutex_table.erase(cur_c);
+            mutex_table.erase(cur_c);
         };
 
         std::priority_queue<std::pair<dist_t, labeltype >> searchKnn(void *query_data, int k, std::unordered_set<int> &cluster_idx_set, int q_idx = -1)
