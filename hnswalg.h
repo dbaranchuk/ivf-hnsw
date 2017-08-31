@@ -801,7 +801,7 @@ namespace hnswlib {
             std::ofstream output(location, std::ios::binary);
             streampos position;
 
-            writeBinaryPOD(output, elementsNumLevels);
+            writeBinaryPOD(output, numElementsLevels);
 
             writeBinaryPOD(output, offsetLevel0_);
             writeBinaryPOD(output, maxelements_);
@@ -851,7 +851,7 @@ namespace hnswlib {
             std::ifstream input(location, std::ios::binary);
             streampos position;
 
-            readBinaryPOD(input, elementsNumLevels);
+            readBinaryPOD(input, numElementsLevels);
 
             readBinaryPOD(input, offsetLevel0_);
             readBinaryPOD(input, maxelements_);
