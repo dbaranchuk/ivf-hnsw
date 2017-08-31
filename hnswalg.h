@@ -668,10 +668,11 @@ namespace hnswlib {
                             changed = false;
                             linklistsizeint *data;
                             //cout << cur_c << " " << currObj << endl;
-                            unique_lock <mutex> lock;
+                            //unique_lock <mutex> lock;
                             if (mutex_table.count(currObj) > 0) {
-                                lock = unique_lock<mutex>(ll_locks[mutex_table[currObj]], defer_lock);
-                                lock.lock();
+                                //lock = unique_lock<mutex>(ll_locks[mutex_table[currObj]], defer_lock);
+                                //lock.lock();
+                                unique_lock <mutex> lock(ll_locks[mutex_table[currObj]]);
                             } else {
                                 int j = 0;
                                 do {
