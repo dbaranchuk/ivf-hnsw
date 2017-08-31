@@ -155,7 +155,6 @@ namespace hnswlib {
         mutex cur_element_count_guard_;
         mutex MaxLevelGuard_;
         //vector<mutex> ll_locks;
-        //unordered_map<tableint, size_t> mutex_table;
 
         tableint enterpoint_node;
 
@@ -358,6 +357,9 @@ namespace hnswlib {
                     tableint curNodeNum = curr_el_pair[i].second;
                     linklistsizeint *data = get_linklist0(curNodeNum);
                     linklistsizeint size = *data;
+
+                    cout << size << endl;
+
                     tableint nextNum = *(data + 1); /////!!!!!
 
                     _mm_prefetch((char *) (massVisited + nextNum), _MM_HINT_T0);
@@ -834,13 +836,13 @@ namespace hnswlib {
                 unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_cluster_ * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
-                    output.write(linkLists_[i], linkListSize);
+                    output.write(linkLists_[linkListsTable[i]], linkListSize);
             }
             for (size_t i = maxclusters_; i < maxelements_; i++) {
                 unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_element_ * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
-                    output.write(linkLists_[i], linkListSize);
+                    output.write(linkLists_[linkListsTable[i]], linkListSize);
             }
             output.close();
         }
