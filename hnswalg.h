@@ -652,12 +652,12 @@ namespace hnswlib {
             if (curlevel) {
                 // Above levels contain only clusters
                 if (cur_c < maxclusters_) {
-                    linkLists_[cur_c] = (char *) malloc(size_links_per_cluster_ * curlevel);
-                    memset(linkLists_[cur_c], 0, size_links_per_cluster_ * curlevel);
+                    linkLists_[linkListsTable[cur_c]] = (char *) malloc(size_links_per_cluster_ * curlevel);
+                    memset(linkLists_[linkListsTable[cur_c]], 0, size_links_per_cluster_ * curlevel);
                 }
                 else {
-                    linkLists_[cur_c] = (char *) malloc(size_links_per_element_ * curlevel);
-                    memset(linkLists_[cur_c], 0, size_links_per_element_ * curlevel);
+                    linkLists_[linkListsTable[cur_c]] = (char *) malloc(size_links_per_element_ * curlevel);
+                    memset(linkLists_[linkListsTable[cur_c]], 0, size_links_per_element_ * curlevel);
                 }
             }
 
