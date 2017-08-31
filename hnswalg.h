@@ -660,7 +660,7 @@ namespace hnswlib {
                             //if (mutex_table.count(currObj) > 0)
                                 //lock = unique_lock<mutex>(ll_locks[mutex_table[currObj]], defer_lock);
                                 //lock.lock();
-                            unique_lock <mutex> lock(ll_locks[currObj]);
+                            //unique_lock <mutex> lock(ll_locks[currObj]);
                             //else {
                             //    unique_lock <mutex> lock(ll_locks[0], defer_lock);
                             //    int j = 0;
