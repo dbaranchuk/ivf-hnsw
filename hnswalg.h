@@ -166,7 +166,7 @@ namespace hnswlib {
 
         char *data_level0_memory_;
         //char **linkLists_;
-        unordered_map<tableint, char *> linkListsTable;
+        unordered_map<tableint, void *> linkListsTable;
         //dense_hash_map<tableint, char *> linkListsTable;
 
         vector<char> elementLevels;
@@ -832,13 +832,13 @@ namespace hnswlib {
                 unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_cluster_ * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
-                    output.write(linkListsTable[i], linkListSize);
+                    output.write((char *)linkListsTable[i], linkListSize);
             }
             for (size_t i = maxclusters_; i < maxelements_; i++) {
                 unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_element_ * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
-                    output.write(linkListsTable[i], linkListSize);
+                    output.write((char *)linkListsTable[i], linkListSize);
             }
             output.close();
         }
@@ -904,7 +904,7 @@ namespace hnswlib {
                 } else {
                     elementLevels[i] = linkListSize / size_links_per_cluster_;
                     linkListsTable[i] = (char *) malloc(linkListSize);
-                    input.read(linkListsTable[i], linkListSize);
+                    input.read((char *)linkListsTable[i], linkListSize);
                     numElementsLevels++;
                 }
             }
@@ -916,7 +916,7 @@ namespace hnswlib {
                 } else {
                     elementLevels[i] = linkListSize / size_links_per_cluster_;
                     linkListsTable[i] = (char *) malloc(linkListSize);
-                    input.read(linkListsTable[i], linkListSize);
+                    input.read((char *)linkListsTable[i], linkListSize);
                     numElementsLevels++;
                     //elementLevels[i] = linkListSize / size_links_per_element_;
                     //linkLists_[i] = (char *) malloc(linkListSize);
