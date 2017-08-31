@@ -30,7 +30,7 @@
 //    }
 //};
 
-using google::dense_hash_map;
+using google::sparse_hash_map;
 
 template<typename T>
 void writeBinaryPOD(std::ostream &out, const T &podRef) {
@@ -227,7 +227,6 @@ namespace hnswlib {
         inline linklistsizeint *get_linklist(tableint cur_c, int level)
         {
             //In Smart hnsw only clusters on the above levels
-
             if (cur_c < maxclusters_)
                 return (linklistsizeint *) (linkListsTable[cur_c] + (level - 1) * size_links_per_cluster_);
             else
@@ -840,13 +839,13 @@ namespace hnswlib {
                 unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_cluster_ * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
-                    output.write(linkLists_[linkListsTable[i]], linkListSize);
+                    output.write(linkListsTable[i], linkListSize);
             }
             for (size_t i = maxclusters_; i < maxelements_; i++) {
                 unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_element_ * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
-                    output.write(linkLists_[linkListsTable[i]], linkListSize);
+                    output.write(linkListsTable[i], linkListSize);
             }
             output.close();
         }
