@@ -443,8 +443,6 @@ namespace hnswlib {
                 throw exception();
                 topResults.pop();
             }
-            linklistsizeint *ll_size;
-            tableint *data;
             vector<tableint> rez;
             rez.reserve(curM);
             while (topResults.size() > 0) {
@@ -452,6 +450,8 @@ namespace hnswlib {
                 topResults.pop();
             }
             {
+                linklistsizeint *ll_size;
+                tableint *data;
                 if (level == 0)
                     tie(ll_size, data) = get_linklist0(cur_c);
                 else
@@ -483,6 +483,8 @@ namespace hnswlib {
                 else
                     Mrezmax = level ? maxM_ : maxM0_;
 
+                linklistsizeint *ll_size;
+                tableint *data;
                 if (level == 0)
                     tie(ll_size, data) = get_linklist0(rez[idx]);
                 else
