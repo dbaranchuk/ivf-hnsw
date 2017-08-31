@@ -835,13 +835,13 @@ namespace hnswlib {
                 unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_cluster_ * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
-                    output.write((char *)linkLists_[i], linkListSize);
+                    output.write(linkLists_[i], linkListSize);
             }
             for (size_t i = maxclusters_; i < maxelements_; i++) {
                 unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_element_ * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
-                    output.write((char *)linkLists_[i], linkListSize);
+                    output.write(linkListsTable[i], linkListSize);
             }
             output.close();
         }
@@ -891,7 +891,7 @@ namespace hnswlib {
             visitedlistpool = new VisitedListPool(1, maxclusters_ + maxelements_);
 
 
-            linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ + maxelements_));
+            //linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ + maxelements_));
             //linkLists_ = (char **) malloc(sizeof(void *) * numElementsLevels);
 
             elementLevels = vector<char>(maxclusters_ + maxelements_);
@@ -917,13 +917,13 @@ namespace hnswlib {
                 if (linkListSize == 0) {
                     elementLevels[i] = 0;
                 } else {
-                    //elementLevels[i] = linkListSize / size_links_per_cluster_;
-                    //linkListsTable[i] = (char *) malloc(linkListSize);
-                    //input.read((char *)linkLists_[i], linkListSize);
-                    //numElementsLevels++;
-                    elementLevels[i] = linkListSize / size_links_per_element_;
-                    linkLists_[i] = (char *) malloc(linkListSize);
-                    input.read(linkLists_[i], linkListSize);
+                    elementLevels[i] = linkListSize / size_links_per_cluster_;
+                    linkListsTable[i] = (char *) malloc(linkListSize);
+                    input.read((char *)linkLists_[i], linkListSize);
+                    numElementsLevels++;
+//                    elementLevels[i] = linkListSize / size_links_per_element_;
+//                    linkLists_[i] = (char *) malloc(linkListSize);
+//                    input.read(linkLists_[i], linkListSize);
                 }
             }
 
