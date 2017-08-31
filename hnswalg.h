@@ -668,7 +668,7 @@ namespace hnswlib {
                             //    lock = unique_lock<mutex>(ll_locks[mutex_table[currObj]]);
                             //    lock.lock();
                             //}
-                            unique_lock <mutex> lock(ll_locks[currObj]);
+                            unique_lock <mutex> lock(ll_locks[currObj % 1000000]);
                             data = get_linklist(currObj, level);
 
                             //if (elementLevels[currObj] == 0)
