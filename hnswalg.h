@@ -165,7 +165,7 @@ namespace hnswlib {
 
 
         char *data_level0_memory_;
-        char **linkLists_;
+        //char **linkLists_;
         unordered_map<tableint, char *> linkListsTable;
         //dense_hash_map<tableint, char *> linkListsTable;
 
