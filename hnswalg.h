@@ -708,9 +708,13 @@ namespace hnswlib {
                 for (int level = 0; level <= min(curlevel, maxlevelcopy); level++) {
                     if (level > maxlevelcopy || level < 0)
                         throw runtime_error("Level error");
+
+                    cout << "HUI" << endl;
                     std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
                                                                                                     level);
+                    cout << "HUI1" << endl;
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
+                    cout << "HUI2" << endl;
                 }
 
             } else {
