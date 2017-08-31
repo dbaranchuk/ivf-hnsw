@@ -165,9 +165,9 @@ namespace hnswlib {
 
 
         char *data_level0_memory_;
-        char **linkLists_;
+        //char **linkLists_;
         //unordered_map<tableint, char *> linkListsTable;
-        dense_hash_map<tableint, void *> linkListsTable;
+        dense_hash_map<tableint, char *> linkListsTable;
 
         vector<char> elementLevels;
         size_t numElementsLevels = 0;
@@ -569,7 +569,6 @@ namespace hnswlib {
 
         void setElementLevels(const vector<size_t> &elements_per_level)
         {
-            int linkListIdx = 0;
             if (maxclusters_ == 0 || elements_per_level.size() == 0) {
                 std::uniform_real_distribution<double> distribution(0.0, 1.0);
                 for (size_t i = 0; i < maxelements_; ++i) {
@@ -578,8 +577,6 @@ namespace hnswlib {
                         numElementsLevels++;
                         linkListsTable[i] = (char *) malloc(size_links_per_element_ * elementLevels[i]);
                         memset(linkListsTable[i], 0, size_links_per_element_ * elementLevels[i]);
-                        //linkListsTable[i] = linkListIdx++;
-                        //linkListsTable.emplace(i, linkListIdx++);
                     }
                 }
             } else{
@@ -597,13 +594,11 @@ namespace hnswlib {
                         elementLevels[i] = 1;
                     else
                         elementLevels[i] = 0;
-                    //if (elementLevels[i] > 0) {
-                    //    numElementsLevels++;
-                        //linkListsTable[i] = (char *) malloc(size_links_per_cluster_ * elementLevels[i]);
-                        //memset(linkListsTable[i], 0, size_links_per_cluster_ * elementLevels[i]);
-                        //linkListsTable[i] = linkListIdx++;
-                        //linkListsTable.emplace(i, linkListIdx++);
-                    //}
+                    if (elementLevels[i] > 0) {
+                        numElementsLevels++;
+                        linkListsTable[i] = (char *) malloc(size_links_per_cluster_ * elementLevels[i]);
+                        memset(linkListsTable[i], 0, size_links_per_cluster_ * elementLevels[i]);
+                    }
                 }
             }
             //linkLists_ = (char **) malloc(sizeof(void *) * numElementsLevels);
