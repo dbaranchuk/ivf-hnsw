@@ -618,7 +618,7 @@ namespace hnswlib {
             int i = 0;
             do {
                 i = i % 1000000;
-                lock_el = unique_lock <mutex>(ll_locks[i++]);
+                lock_el = unique_lock <mutex>(ll_locks[i++], defer_lock);
             } while (!lock_el.try_lock());
             //lock_el.lock();
             //mutex_table.emplace(cur_c, i);
@@ -678,9 +678,9 @@ namespace hnswlib {
                             int j = 0;
                             do {
                                 j = j % 1000000;
-                                lock_el = unique_lock <mutex>(ll_locks[j++]);
+                                lock_el = unique_lock <mutex>(ll_locks[j++], defer_lock);
                             } while (!lock.try_lock());
-                            
+
                             data = get_linklist(currObj, level);
 
                             //if (elementLevels[currObj] == 0)
