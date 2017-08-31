@@ -580,7 +580,7 @@ namespace hnswlib {
                         memset(linkListsTable[i], 0, size_links_per_element_ * elementLevels[i]);
                         //linkListsTable[i] = linkListIdx++;
                         //linkListsTable.emplace(i, linkListIdx++);
-                    //}
+                    }
                 }
             } else{
                 for (size_t i = 0; i < maxclusters_ + maxelements_; ++i){
