@@ -262,7 +262,7 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
         }
     }
     for (auto elementsPerLayer : table){
-        cout << "Number of elements on the " << elementsPerLayer.first << "layer: " << elementsPerLayer.second << endl;
+        cout << "Number of elements on the " << (int) elementsPerLayer.first << "level: " << elementsPerLayer.second << endl;
     }
 }
 

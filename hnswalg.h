@@ -167,7 +167,7 @@ namespace hnswlib {
         char *data_level0_memory_;
         char **linkLists_;
         unordered_map<tableint, char *> linkListsTable;
-        //dense_hash_map<tableint, size_t> linkListsTable;
+        //dense_hash_map<tableint, char *> linkListsTable;
 
         vector<char> elementLevels;
         size_t numElementsLevels = 0;
@@ -525,7 +525,7 @@ namespace hnswlib {
                 if (level > elementLevels[rez[idx]])
                     throw runtime_error("Bad level");
 
-                int sz_link_list_other = *ll_other;
+                linklistsizeint sz_link_list_other = *ll_other;
 
                 if (sz_link_list_other > Mrezmax || sz_link_list_other < 0)
                     throw runtime_error("Bad sz_link_list_other");
@@ -669,7 +669,7 @@ namespace hnswlib {
                         bool changed = true;
                         while (changed) {
                             changed = false;
-                            linklistsizeint *data;
+                            //linklistsizeint *data;
                             //cout << cur_c << " " << currObj << endl;
                             //unique_lock <mutex> lock;
                             //if (mutex_table.count(currObj) > 0)
@@ -686,7 +686,7 @@ namespace hnswlib {
                             //    mutex_table.emplace(currObj, j);
                             //}
 
-                            data = get_linklist(currObj, level);
+                            linklistsizeint *data = get_linklist(currObj, level);
 
                             linklistsizeint size = *data;
                             tableint *datal = (tableint *) (data + 1);
@@ -905,7 +905,7 @@ namespace hnswlib {
                     elementLevels[i] = linkListSize / size_links_per_cluster_;
                     linkListsTable[i] = (char *) malloc(linkListSize);
                     input.read(linkListsTable[i], linkListSize);
-                    numElementLevels++;
+                    numElementsLevels++;
                 }
             }
             for (size_t i = maxclusters_; i < maxelements_; i++) {
@@ -917,7 +917,7 @@ namespace hnswlib {
                     elementLevels[i] = linkListSize / size_links_per_cluster_;
                     linkListsTable[i] = (char *) malloc(linkListSize);
                     input.read(linkListsTable[i], linkListSize);
-                    numElementLevels++;
+                    numElementsLevels++;
                     //elementLevels[i] = linkListSize / size_links_per_element_;
                     //linkLists_[i] = (char *) malloc(linkListSize);
                     //input.read(linkLists_[i], linkListSize);
