@@ -576,7 +576,7 @@ namespace hnswlib {
                     if (elementLevels[i] > 0) {
                         numElementsLevels++;
                         linkListsTable[i] = (char *) malloc(size_links_per_cluster_ * elementLevels[i]);
-                        memset(linkListsTable[cur_c], 0, size_links_per_cluster_ * elementLevels[i]);
+                        memset(linkListsTable[i], 0, size_links_per_cluster_ * elementLevels[i]);
                         //linkListsTable[i] = linkListIdx++;
                         //linkListsTable.emplace(i, linkListIdx++);
                     }
@@ -599,7 +599,7 @@ namespace hnswlib {
                     if (elementLevels[i] > 0) {
                         numElementsLevels++;
                         linkListsTable[i] = (char *) malloc(size_links_per_element_ * elementLevels[i]);
-                        memset(linkListsTable[cur_c], 0, size_links_per_element_ * elementLevels[i]);
+                        memset(linkListsTable[i], 0, size_links_per_element_ * elementLevels[i]);
                         //linkListsTable[i] = linkListIdx++;
                         //linkListsTable.emplace(i, linkListIdx++);
                     }
