@@ -463,7 +463,7 @@ namespace hnswlib {
                     cout << level << "\n";
                     throw runtime_error("Should be blank");
                 }
-                *size = rez.size();
+                *ll_size = rez.size();
 
                 for (int idx = 0; idx < rez.size(); idx++) {
                     if (data[idx])
@@ -607,10 +607,9 @@ namespace hnswlib {
                         bool changed = true;
                         while (changed) {
                             changed = false;
-                            tableint *data
+                            tableint *data;
                             linklistsizeint *ll_size;
                             tie(ll_size, data) = get_linklist(currObj, level);
-                            //tableint *datal = (tableint *) (data + 1);
                             for (linklistsizeint i = 0; i < *ll_size; i++) {
                                 tableint cand = data[i];
                                 if (cand < 0 || cand > (maxelements_ + maxclusters_))
