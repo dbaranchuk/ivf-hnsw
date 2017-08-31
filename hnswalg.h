@@ -613,7 +613,7 @@ namespace hnswlib {
             }
 
             unique_lock <mutex> lock_el(ll_locks[cur_c]);
-            //int i = 0;
+            int i = 0;
             //do {
                // if (i == 1000000)
                //     i = 0;
