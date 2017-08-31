@@ -253,11 +253,11 @@ namespace hnswlib {
 
                 tableint curNodeNum = curr_el_pair.second;
 
-                unique_lock <mutex> lock;
-                if (mutex_table.count(curNodeNum) > 0) {
-                    lock = unique_lock<mutex>(ll_locks[mutex_table[curNodeNum]]);
-                    lock.lock();
-                }
+//                unique_lock <mutex> lock;
+//                if (mutex_table.count(curNodeNum) > 0) {
+//                    lock = unique_lock<mutex>(ll_locks[mutex_table[curNodeNum]]);
+//                    lock.lock();
+//                }
                 //if (elementLevels[curNodeNum] > 0)
                 //    unique_lock <mutex> lock(ll_locks[curNodeNum]);
 
@@ -500,11 +500,11 @@ namespace hnswlib {
                 }
             }
             for (int idx = 0; idx < rez.size(); idx++) {
-                unique_lock <mutex> lock;
-                if (mutex_table.count(rez[idx]) > 0) {
-                    lock = unique_lock<mutex>(ll_locks[mutex_table[rez[idx]]]);
-                    lock.lock();
-                }
+//                unique_lock <mutex> lock;
+//                if (mutex_table.count(rez[idx]) > 0) {
+//                    lock = unique_lock<mutex>(ll_locks[mutex_table[rez[idx]]]);
+//                    lock.lock();
+//                }
                 //if (elementLevels[rez[idx]] > 0)
                 //    unique_lock <mutex> lock(ll_locks[rez[idx]]);
 
@@ -666,13 +666,13 @@ namespace hnswlib {
                         while (changed) {
                             changed = false;
                             linklistsizeint *data;
-                            cout << cur_c << " " << currObj << endl;
-                            unique_lock <mutex> lock;
-                            if (mutex_table.count(currObj) > 0) {
-                                lock = unique_lock<mutex>(ll_locks[mutex_table[currObj]]);
-                                lock.lock();
-                            }
-                            cout << cur_c << " " << currObj << endl;
+                            //cout << cur_c << " " << currObj << endl;
+                            //unique_lock <mutex> lock;
+                            //if (mutex_table.count(currObj) > 0) {
+                            //    lock = unique_lock<mutex>(ll_locks[mutex_table[currObj]]);
+                            //    lock.lock();
+                            //}
+                            unique_lock <mutex> lock(ll_locks[currObj]);
                             data = get_linklist(currObj, level);
 
                             //if (elementLevels[currObj] == 0)
