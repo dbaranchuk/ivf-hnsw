@@ -169,7 +169,7 @@ namespace hnswlib {
         unordered_map<tableint, size_t> linkListsTable;
 
         vector<char> elementLevels;
-        size_t elementsNumLevels = 0;
+        size_t numElementsLevels = 0;
 
 
         size_t data_size_;
