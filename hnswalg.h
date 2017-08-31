@@ -661,7 +661,7 @@ namespace hnswlib {
                     memset(linkListsTable[cur_c], 0, size_links_per_element_ * curlevel);
                 }
             }
-            cout << "HUI" << endl;
+            cout << "HUI2" << endl;
             if (currObj != -1) {
                 if (curlevel < maxlevelcopy) {
                     dist_t curdist = space->fstdistfunc(datapoint, getDataByInternalId(currObj));
