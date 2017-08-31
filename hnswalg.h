@@ -45,7 +45,7 @@ static void readBinaryPOD(std::istream &in, T &podRef) {
 #define DEBUG_LIB 1
 namespace hnswlib {
     typedef unsigned int tableint;
-    typedef unsigned int linklistsizeint;
+    typedef unsigned char linklistsizeint;
 
     template<typename dist_t>
     class HierarchicalNSW : public AlgorithmInterface<dist_t>
