@@ -649,7 +649,6 @@ namespace hnswlib {
             memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
             memcpy(getDataByInternalId(cur_c), datapoint, data_size_);
 
-            cout << "HUI" << endl;
             if (curlevel) {
                 // Above levels contain only clusters
                 if (cur_c < maxclusters_) {
@@ -661,7 +660,6 @@ namespace hnswlib {
                     memset(linkListsTable[cur_c], 0, size_links_per_element_ * curlevel);
                 }
             }
-            cout << "HUI2" << endl;
             if (currObj != -1) {
                 if (curlevel < maxlevelcopy) {
                     dist_t curdist = space->fstdistfunc(datapoint, getDataByInternalId(currObj));
@@ -688,6 +686,7 @@ namespace hnswlib {
                             //}
 
                             linklistsizeint *data = get_linklist(currObj, level);
+                            if (data == NULL) cout << "HUI" << endl;
 
                             linklistsizeint size = *data;
                             tableint *datal = (tableint *) (data + 1);
