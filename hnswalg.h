@@ -358,7 +358,7 @@ namespace hnswlib {
                     linklistsizeint *data = get_linklist0(curNodeNum);
                     linklistsizeint size = *data;
 
-                    cout << size << endl;
+                    //cout << size << endl;
 
                     tableint nextNum = *(data + 1); /////!!!!!
 
