@@ -180,7 +180,7 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 		unordered_set <labeltype> g;
 		total += gt.size();
 
-        float dist2gt = appr_alg.space->fstdistfuncST(i,//(void*)(massQ + vecdim*i),//appr_alg.getDataByInternalId(gt.top().second),
+        float dist2gt = appr_alg.space->fstdistfunc((void*)(massQ + vecdim*i),//appr_alg.getDataByInternalId(gt.top().second),
                                                      appr_alg.getDataByInternalId(appr_alg.enterpoint0));
         appr_alg.nev9zka += dist2gt / qsize;
 
@@ -253,7 +253,7 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
     cout << "Test K: " << 1 << endl;
     cout << "efConstruction: " << hnsw->efConstruction_<< endl;
 
-    map<int, int> table = map<int, int>();
+    map<char, int> table = map<char, int>();
     for (char layerNum : hnsw->elementLevels) {
         if (table.count(layerNum) == 0) {
             table[layerNum] = 1;
@@ -270,7 +270,7 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
  * Main SIFT Test Function
 */
 void sift_test1B() {
-    const int subset_size_milllions = 10;
+    const int subset_size_milllions = 100;
     const int efConstruction = 240;
     const int M = 16;
     const int M_cluster = 0;
