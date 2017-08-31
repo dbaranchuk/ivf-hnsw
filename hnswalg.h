@@ -1,5 +1,7 @@
 #pragma once
 
+#include "sparsepp/spp.h"
+
 #include "visited_list_pool.h"
 #include "hnswlib.h"
 #include <random>
@@ -27,6 +29,8 @@
 //        latch.store(false , std::memory_order_release);
 //    }
 //};
+
+using spp::dense_hash_map;
 
 template<typename T>
 void writeBinaryPOD(std::ostream &out, const T &podRef) {
@@ -165,7 +169,8 @@ namespace hnswlib {
 
         char *data_level0_memory_;
         char **linkLists_;
-        unordered_map<tableint, size_t> linkListsTable;
+        //unordered_map<tableint, size_t> linkListsTable;
+        dense_hash_table<tableint, size_t> linkListsTable;
 
         vector<char> elementLevels;
         size_t numElementsLevels = 0;
@@ -580,7 +585,8 @@ namespace hnswlib {
                     elementLevels[i] = (int) (-log(distribution(generator)) * mult_);
                     if (elementLevels[i] > 0) {
                         numElementsLevels++;
-                        linkListsTable.emplace(i, linkListIdx++);
+                        linkListsTable[i] = linkListIdx++;
+                        //linkListsTable.emplace(i, linkListIdx++);
                     }
                 }
             } else{
@@ -600,7 +606,8 @@ namespace hnswlib {
                         elementLevels[i] = 0;
                     if (elementLevels[i] > 0) {
                         numElementsLevels++;
-                        linkListsTable.emplace(i, linkListIdx++);
+                        linkListsTable[i] = linkListIdx++;
+                        //linkListsTable.emplace(i, linkListIdx++);
                     }
                 }
             }
@@ -910,7 +917,7 @@ namespace hnswlib {
                     //linkLists_[i] = nullptr;
                 } else {
                     elementLevels[i] = linkListSize / size_links_per_cluster_;
-                    linkListsTable.emplace(i, linkListIdx);
+                    linkListsTable[i] = linkListIdx;
                     linkLists_[linkListIdx] = (char *) malloc(linkListSize);
                     input.read(linkLists_[linkListIdx], linkListSize);
                     linkListIdx++;
@@ -924,7 +931,7 @@ namespace hnswlib {
                     //linkLists_[i] = nullptr;
                 } else {
                     elementLevels[i] = linkListSize / size_links_per_cluster_;
-                    linkListsTable.emplace(i, linkListIdx);
+                    linkListsTable[i] = linkListIdx;
                     linkLists_[linkListIdx] = (char *) malloc(linkListSize);
                     input.read(linkLists_[linkListIdx], linkListSize);
                     linkListIdx++;
