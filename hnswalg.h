@@ -232,6 +232,7 @@ namespace hnswlib {
                     data = get_linklist(curNodeNum, level);
 
                 linklistsizeint size = *data;
+                cout << size << endl;
                 tableint *datal = (tableint *) (data + 1);
                 _mm_prefetch((char *) (massVisited + *(data + 1)), _MM_HINT_T0);
                 _mm_prefetch((char *) (massVisited + *(data + 1) + 64), _MM_HINT_T0);
