@@ -618,7 +618,7 @@ namespace hnswlib {
             int i = 0;
             do {
                 i = i % 500000;
-                lock_el = unique_lock <mutex>(ll_locks[cur_C], defer_lock);
+                lock_el = unique_lock <mutex>(ll_locks[cur_c], defer_lock);
             } while (!lock_el.try_lock());
             //lock_el.lock();
             //mutex_table.emplace(cur_c, i);
