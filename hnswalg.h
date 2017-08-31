@@ -44,7 +44,7 @@ static void readBinaryPOD(std::istream &in, T &podRef) {
 #define DEBUG_LIB 1
 namespace hnswlib {
     typedef unsigned int tableint;
-    typedef unsigned int linklistsizeint;
+    typedef unsigned char linklistsizeint;
 
     template<typename dist_t>
     class HierarchicalNSW : public AlgorithmInterface<dist_t>
@@ -117,7 +117,7 @@ namespace hnswlib {
             free(data_level0_memory_);
             for (tableint i = 0; i < numElementsLevels; i++) {//cur_element_count; i++) {
                 //if (elementLevels[i] > 0)
-                    free(linkListsTable[i]);
+                    free(linkLists_[i]);
             }
             free(linkLists_);
             delete visitedlistpool;
