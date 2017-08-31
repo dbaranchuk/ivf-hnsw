@@ -893,7 +893,7 @@ namespace hnswlib {
 
 
             //linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ + maxelements_));
-            linkLists_ = (char **) malloc(sizeof(void *) * elementsNumLevels);
+            linkLists_ = (char **) malloc(sizeof(void *) * numElementsLevels);
 
             elementLevels = vector<char>(maxclusters_ + maxelements_);
             ef_ = 10;
