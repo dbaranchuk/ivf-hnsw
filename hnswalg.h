@@ -177,7 +177,7 @@ namespace hnswlib {
             }
         }
 
-        inline pair<linklistsizeint, tableint *>get_linklist0(tableint cur_c)
+        inline pair<linklistsizeint*, tableint *>get_linklist0(tableint cur_c)
         {
             linklistsizeint *ll_size = (linklistsizeint *) (data_level0_memory_);
             tableint *linklist = (tableint *)((linklistsizeint *) (data_level0_memory_) + 1);
@@ -191,7 +191,7 @@ namespace hnswlib {
             }
         };
 
-        inline pair<linklistsizeint, tableint *>get_linklist(tableint cur_c, int level)
+        inline pair<linklistsizeint*, tableint *>get_linklist(tableint cur_c, int level)
         {
             //In Smart hnsw only clusters on the above levels
             linklistsizeint *ll_size = (linklistsizeint *) (linkLists_[cur_c]);
