@@ -617,11 +617,11 @@ namespace hnswlib {
             unique_lock <mutex> lock_el;//(ll_locks[cur_c % 1000000]);
             int i = 0;
             do {
-                //i = i % 500000;
-                lock_el = unique_lock <mutex>(ll_locks[cur_c % 1000000], defer_lock);
+                i = i % 1000000;
+                lock_el = unique_lock <mutex>(ll_locks[i++], defer_lock);
             } while (!lock_el.try_lock());
             //lock_el.lock();
-            //mutex_table.emplace(cur_c, i);
+            mutex_table.emplace(cur_c, i);
             //unique_lock <mutex> lock_el(ll_locks[cur_c]);
 
             int curlevel = elementLevels[cur_c];
@@ -668,18 +668,24 @@ namespace hnswlib {
                             changed = false;
                             linklistsizeint *data;
                             //cout << cur_c << " " << currObj << endl;
-                            //unique_lock <mutex> lock;
-                            //if (mutex_table.count(currObj) > 0) {
-                            //    lock = unique_lock<mutex>(ll_locks[mutex_table[currObj]]);
-                            //    lock.lock();
-                            //}
-                            //unique_lock <mutex> lock(ll_locks[currObj % 1000000]);
                             unique_lock <mutex> lock;
-                            int j = 0;
-                            do {
+                            if (mutex_table.count(currObj) > 0) {
+                                lock = unique_lock<mutex>(ll_locks[mutex_table[currObj]], defer_lock);
+                                lock.lock();
+                            } else {
+                                int j = 999999;
+                                do {
+                                    j = j % 1000000;
+                                    lock = unique_lock <mutex>(ll_locks[j--], defer_lock);
+                                } while (!lock.try_lock());
+                            }
+                            //unique_lock <mutex> lock(ll_locks[currObj % 1000000]);
+                            //unique_lock <mutex> lock;
+                            //int j = 0;
+                            //do {
                                 //j = j % 500000 + 500000;
-                                lock = unique_lock <mutex>(ll_locks[currObj % 1000000], defer_lock);
-                            } while (!lock.try_lock());
+                            //    lock = unique_lock <mutex>(ll_locks[currObj % 1000000], defer_lock);
+                            //} while (!lock.try_lock());
 
                             data = get_linklist(currObj, level);
 
