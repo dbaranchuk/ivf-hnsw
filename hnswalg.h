@@ -134,7 +134,7 @@ namespace hnswlib {
         size_t maxM0_, maxM0_cluster_;
 
         size_t size_links_level0_, size_links_level0_cluster_;
-        size_t offset_data_, offsetData_cluster_;
+        size_t offsetData_, offsetData_cluster_;
         size_t label_offset_cluster_;
 
         size_t cur_element_count;
