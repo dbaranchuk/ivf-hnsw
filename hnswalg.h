@@ -90,7 +90,7 @@ namespace hnswlib {
             linkLists_ = (char **) malloc(sizeof(void *) * (maxelements_ + maxclusters_));
             size_links_per_cluster_ = maxM_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_links_per_element_ = maxM_ * sizeof(tableint) + sizeof(linklistsizeint);
-            mult_ = 1 / log(1.0 * M_);\
+            mult_ = 1 / log(1.0 * M_);
         }
 
         ~HierarchicalNSW()
@@ -140,7 +140,6 @@ namespace hnswlib {
         vector<char> elementLevels;
         size_t numElementsLevels = 0;
 
-
         size_t data_size_;
         size_t label_offset_;
         std::default_random_engine generator = std::default_random_engine(100);
@@ -178,24 +177,29 @@ namespace hnswlib {
             }
         }
 
-        inline linklistsizeint *get_linklist0(tableint cur_c)
+        inline pair<linklistsizeint, tableint *>get_linklist0(tableint cur_c)
         {
+            linklistsizeint *ll_size = (linklistsizeint *) (data_level0_memory_);
+            tableint *linklist = (tableint *)((linklistsizeint *) (data_level0_memory_) + 1);
+
             if (cur_c < maxclusters_)
-                return (linklistsizeint *) (data_level0_memory_ + cur_c * size_data_per_cluster_ + offsetLevel0_);
+                return make_pair(ll_size, linklist + cur_c * size_data_per_cluster_ + offsetLevel0_);
             else {
                 tableint cur_c_element = cur_c - maxclusters_;
-                return (linklistsizeint *) (data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-                                            cur_c_element * size_data_per_element_ + offsetLevel0_);
+                return make_pair(ll_size, linklist + maxclusters_ * size_data_per_cluster_ +
+                                 cur_c_element * size_data_per_element_ + offsetLevel0_);
             }
         };
 
-        inline linklistsizeint *get_linklist(tableint cur_c, int level)
+        inline pair<linklistsizeint, tableint *>get_linklist(tableint cur_c, int level)
         {
             //In Smart hnsw only clusters on the above levels
+            linklistsizeint *ll_size = (linklistsizeint *) (linkLists_[cur_c]);
+            tableint *linklist = (tableint *)((linklistsizeint *) (linkLists_[cur_c]) + 1);
             if (cur_c < maxclusters_)
-                return (linklistsizeint *) (linkLists_[cur_c] + (level - 1) * size_links_per_cluster_);
+                return make_pair(ll_size, linklist + (level - 1) * size_links_per_cluster_);
             else
-                return (linklistsizeint *) (linkLists_[cur_c] + (level - 1) * size_links_per_element_);
+                return make_pair(ll_size, linklist + (level - 1) * size_links_per_element_);
         };
 
 
@@ -225,24 +229,26 @@ namespace hnswlib {
 
                 tableint curNodeNum = curr_el_pair.second;
 
-                linklistsizeint *data;
+                linklistsizeint *ll_size;
+                tableint *data;
+
                 if (level == 0)
-                    data = get_linklist0(curNodeNum);
+                    tie(ll_size, data) = get_linklist0(curNodeNum);
                 else
-                    data = get_linklist(curNodeNum, level);
+                    tie(ll_size, data) = get_linklist(curNodeNum, level);
 
-                linklistsizeint size = *data;
-                cout << size << endl;
-                tableint *datal = (tableint *) (data + 1);
-                _mm_prefetch((char *) (massVisited + *(data + 1)), _MM_HINT_T0);
-                _mm_prefetch((char *) (massVisited + *(data + 1) + 64), _MM_HINT_T0);
-                _mm_prefetch(getDataByInternalId(*datal), _MM_HINT_T0);
-                _mm_prefetch(getDataByInternalId(*(datal + 1)), _MM_HINT_T0);
+                //linklistsizeint size = *data;
+                //cout << size << endl;
+                //tableint *datal = (tableint *) (data + 1);
+                _mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
+                _mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
+                _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
+                _mm_prefetch(getDataByInternalId(*(data + 1)), _MM_HINT_T0);
 
-                for (linklistsizeint j = 0; j < size; j++) {
-                    tableint tnum = *(datal + j);
-                    _mm_prefetch((char *) (massVisited + *(datal + j + 1)), _MM_HINT_T0);
-                    _mm_prefetch(getDataByInternalId(*(datal + j + 1)), _MM_HINT_T0);
+                for (linklistsizeint j = 0; j < *ll_size; j++) {
+                    tableint tnum = *(data + j);
+                    _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
+                    _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
                     if (!(massVisited[tnum] == currentV)) {
 
                         massVisited[tnum] = currentV;
@@ -317,10 +323,13 @@ namespace hnswlib {
 //                }
                 for (int i = 0; i < k; i++) {
                     tableint curNodeNum = curr_el_pair[i].second;
-                    linklistsizeint *data = get_linklist0(curNodeNum);
-                    linklistsizeint size = *data;
-                    cout << size << endl;
-                    tableint nextNum = *(data + 1); /////!!!!!
+
+                    tableint *data;
+                    linklistsizeint *ll_size;
+                    tie(ll_size, data) = get_linklist0(curNodeNum);
+
+                    //cout << *ll_size << endl;
+                    tableint nextNum = *data;
 
                     _mm_prefetch((char *) (massVisited + nextNum), _MM_HINT_T0);
                     _mm_prefetch((char *) (massVisited + nextNum + 64), _MM_HINT_T0);
@@ -331,9 +340,9 @@ namespace hnswlib {
                         _mm_prefetch(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
                                      nextElementNum * size_data_per_element_ + offsetData_, _MM_HINT_T0);
                     }
-                    _mm_prefetch((char *) (data + 2), _MM_HINT_T0);
+                    _mm_prefetch((char *) (data + 1), _MM_HINT_T0);
 
-                    for (linklistsizeint j = 1; j <= size; j++) {
+                    for (linklistsizeint j = 0; j < *ll_size; j++) {
                         int tnum = *(data + j);
                         int next_tnum = *(data + j + 1);
 
@@ -434,6 +443,8 @@ namespace hnswlib {
                 throw exception();
                 topResults.pop();
             }
+            linklistsizeint *ll_size;
+            tableint *data;
             vector<tableint> rez;
             rez.reserve(curM);
             while (topResults.size() > 0) {
@@ -441,19 +452,18 @@ namespace hnswlib {
                 topResults.pop();
             }
             {
-                linklistsizeint *ll_cur;
                 if (level == 0)
-                    ll_cur = get_linklist0(cur_c);
+                    tie(ll_size, data) = get_linklist0(cur_c);
                 else
-                    ll_cur = get_linklist(cur_c, level);
-                if (*ll_cur) {
-                    cout << *ll_cur << "\n";
-                    cout << elementLevels[cur_c] << "\n";
+                    tie(ll_size, data) = get_linklist(cur_c, level);
+
+                if (*ll_size) {
+                    cout << *ll_size << "\n";
+                    cout << (int) elementLevels[cur_c] << "\n";
                     cout << level << "\n";
                     throw runtime_error("Should be blank");
                 }
-                *ll_cur = rez.size();
-                tableint *data = (tableint *) (ll_cur + 1);
+                *size = rez.size();
 
                 for (int idx = 0; idx < rez.size(); idx++) {
                     if (data[idx])
@@ -473,27 +483,25 @@ namespace hnswlib {
                 else
                     Mrezmax = level ? maxM_ : maxM0_;
 
-                linklistsizeint *ll_other;
                 if (level == 0)
-                    ll_other = get_linklist0(rez[idx]);
+                    tie(ll_size, data) = get_linklist0(rez[idx]);
                 else
-                    ll_other = get_linklist(rez[idx], level);
+                    tie(ll_size, data) = get_linklist(rez[idx], level);
 
                 if (level > elementLevels[rez[idx]])
                     throw runtime_error("Bad level");
 
-                linklistsizeint sz_link_list_other = *ll_other;
+                linklistsizeint sz_link_list_other = *ll_size;
 
                 if (sz_link_list_other > Mrezmax || sz_link_list_other < 0)
                     throw runtime_error("Bad sz_link_list_other");
 
                 if (sz_link_list_other < Mrezmax) {
-                    tableint *data = (tableint *) (ll_other + 1);
                     data[sz_link_list_other] = cur_c;
-                    *ll_other = sz_link_list_other + 1;
+                    *ll_size = sz_link_list_other + 1;
                 } else {
                     // finding the "weakest" element to replace it with the new one
-                    tableint *data = (tableint *) (ll_other + 1);
+                    //tableint *data = (tableint *) (ll_other + 1);
                     dist_t d_max = space->fstdistfunc(getDataByInternalId(cur_c), getDataByInternalId(rez[idx]));
                     // Heuristic:
                     std::priority_queue<std::pair<dist_t, tableint>> candidates;
@@ -510,7 +518,7 @@ namespace hnswlib {
                         candidates.pop();
                         indx++;
                     }
-                    *ll_other = indx;
+                    *ll_size = indx;
                 }
 
             }
@@ -599,11 +607,12 @@ namespace hnswlib {
                         bool changed = true;
                         while (changed) {
                             changed = false;
-                            linklistsizeint *data = get_linklist(currObj, level);
-                            linklistsizeint size = *data;
-                            tableint *datal = (tableint *) (data + 1);
-                            for (linklistsizeint i = 0; i < size; i++) {
-                                tableint cand = datal[i];
+                            tableint *data
+                            linklistsizeint *ll_size;
+                            tie(ll_size, data) = get_linklist(currObj, level);
+                            //tableint *datal = (tableint *) (data + 1);
+                            for (linklistsizeint i = 0; i < *ll_size; i++) {
+                                tableint cand = data[i];
                                 if (cand < 0 || cand > (maxelements_ + maxclusters_))
                                     throw runtime_error("cand error");
                                 dist_t d = space->fstdistfunc(datapoint, getDataByInternalId(cand));
@@ -653,11 +662,12 @@ namespace hnswlib {
                 bool changed = true;
                 while (changed) {
                     changed = false;
-                    linklistsizeint *data = get_linklist(currObj, level);
-                    linklistsizeint size = *data;
-                    tableint *datal = (tableint *) (data + 1);
-                    for (linklistsizeint i = 0; i < size; i++) {
-                        tableint cand = datal[i];
+                    tableint *data;
+                    linklistsizeint *ll_size;
+                    tie(ll_size, data) = get_linklist(currObj, level);;
+
+                    for (linklistsizeint i = 0; i < *ll_size; i++) {
+                        tableint cand = data[i];
                         if (cand < 0 || cand > (maxelements_ + maxclusters_))
                             throw runtime_error("cand error");
 
