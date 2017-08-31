@@ -830,7 +830,7 @@ namespace hnswlib {
                 unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_cluster_ * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
-                    output.write(linkLists_[i], linkListSize);
+                    output.write(linkListsTable[i], linkListSize);
             }
             for (size_t i = maxclusters_; i < maxelements_; i++) {
                 unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_element_ * elementLevels[i] : 0;
