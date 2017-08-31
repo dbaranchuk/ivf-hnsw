@@ -13,24 +13,6 @@
 #include <unordered_set>
 #include <unordered_map>
 
-//class SpinLock
-//{
-//    std::atomic_bool latch;
-//
-//public:
-//    void lock() {
-//        bool unlatched = false;
-//        while(!latch.compare_exchange_weak(unlatched, true, std::memory_order_acquire)){
-//            unlatched = false;
-//        }
-//    }
-//    void unlock() {
-//        latch.store(false , std::memory_order_release);
-//    }
-//};
-
-using google::dense_hash_map;
-
 template<typename T>
 void writeBinaryPOD(std::ostream &out, const T &podRef) {
     out.write((char *) &podRef, sizeof(T));
@@ -44,7 +26,7 @@ static void readBinaryPOD(std::istream &in, T &podRef) {
 #define DEBUG_LIB 1
 namespace hnswlib {
     typedef unsigned int tableint;
-    typedef unsigned int linklistsizeint;
+    typedef unsigned short linklistsizeint;
 
     template<typename dist_t>
     class HierarchicalNSW : public AlgorithmInterface<dist_t>
@@ -140,7 +122,6 @@ namespace hnswlib {
         size_t cur_element_count;
 
         size_t efConstruction_;
-        int delaunay_type_;
         double mult_;
         int maxlevel_;
 
