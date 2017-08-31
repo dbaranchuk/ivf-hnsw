@@ -690,7 +690,8 @@ namespace hnswlib {
                     }
                 }
 
-                for (int level = min(curlevel, maxlevelcopy); level >= 0; level--) {
+                //for (int level = min(curlevel, maxlevelcopy); level >= 0; level--) {
+                for (int level = 0; level <= min(curlevel, maxlevelcopy); level++) {
                     if (level > maxlevelcopy || level < 0)
                         throw runtime_error("Level error");
                     std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
