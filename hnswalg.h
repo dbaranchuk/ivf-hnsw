@@ -26,7 +26,7 @@ static void readBinaryPOD(std::istream &in, T &podRef) {
 #define DEBUG_LIB 1
 namespace hnswlib {
     typedef unsigned int tableint;
-    typedef unsigned short linklistsizeint;
+    typedef unsigned int linklistsizeint;
 
     template<typename dist_t>
     class HierarchicalNSW : public AlgorithmInterface<dist_t>
@@ -318,7 +318,7 @@ namespace hnswlib {
                     tableint curNodeNum = curr_el_pair[i].second;
                     linklistsizeint *data = get_linklist0(curNodeNum);
                     linklistsizeint size = *data;
-
+                    cout << size << endl;
                     tableint nextNum = *(data + 1); /////!!!!!
 
                     _mm_prefetch((char *) (massVisited + nextNum), _MM_HINT_T0);
