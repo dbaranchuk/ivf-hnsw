@@ -617,7 +617,7 @@ namespace hnswlib {
             unique_lock <mutex> lock_el;//(ll_locks[cur_c % 1000000]);
             int i = 0;
             do {
-                i = i % 1000000;
+                i = i % 500000;
                 lock_el = unique_lock <mutex>(ll_locks[i++], defer_lock);
             } while (!lock_el.try_lock());
             //lock_el.lock();
@@ -677,7 +677,7 @@ namespace hnswlib {
                             unique_lock <mutex> lock;
                             int j = 0;
                             do {
-                                j = j % 1000000;
+                                j = j % 500000 + 500000;
                                 lock_el = unique_lock <mutex>(ll_locks[j++], defer_lock);
                             } while (!lock.try_lock());
 
