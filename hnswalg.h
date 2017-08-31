@@ -678,7 +678,7 @@ namespace hnswlib {
                             int j = 0;
                             do {
                                 j = j % 500000 + 500000;
-                                lock_el = unique_lock <mutex>(ll_locks[j++], defer_lock);
+                                lock = unique_lock <mutex>(ll_locks[j++], defer_lock);
                             } while (!lock.try_lock());
 
                             data = get_linklist(currObj, level);
