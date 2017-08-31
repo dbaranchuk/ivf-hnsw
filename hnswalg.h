@@ -841,7 +841,7 @@ namespace hnswlib {
                 unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_element_ * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
-                    output.write(linkListsTable[i], linkListSize);
+                    output.write((char *)linkListsTable[i], linkListSize);
             }
             output.close();
         }
