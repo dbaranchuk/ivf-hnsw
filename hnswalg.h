@@ -254,8 +254,8 @@ namespace hnswlib {
                 tableint curNodeNum = curr_el_pair.second;
 
                 //unique_lock <mutex> lock;
-                if (mutex_table.count(curNodeNum) > 0)
-                    unique_lock<mutex>lock(ll_locks[mutex_table[curNodeNum]]);
+                //if (mutex_table.count(curNodeNum) > 0)
+                //    unique_lock<mutex>lock(ll_locks[mutex_table[curNodeNum]]);
                     //lock.lock();
 
                 //if (elementLevels[curNodeNum] > 0)
@@ -501,8 +501,8 @@ namespace hnswlib {
             }
             for (int idx = 0; idx < rez.size(); idx++) {
 //                unique_lock <mutex> lock;
-                if (mutex_table.count(rez[idx]) > 0)
-                    unique_lock <mutex> lock(ll_locks[mutex_table[rez[idx]]]);
+                //if (mutex_table.count(rez[idx]) > 0)
+                //    unique_lock <mutex> lock(ll_locks[mutex_table[rez[idx]]]);
 //
 //
                 //if (elementLevels[rez[idx]] > 0)
@@ -607,15 +607,8 @@ namespace hnswlib {
                 cur_c = cur_element_count;
                 cur_element_count++;
             }
-            if (cur_c == 1000000){
-//                for (int i = 0 ; i < 1000000; i++) {
-//                    unique_lock <mutex> lock;
-//                    lock = unique_lock<mutex>(ll_locks[cur_c % 1000000], defer_lock);
-//                    cout << lock.try_lock() << " ";
-//                }
-            }
 
-            unique_lock <mutex> lock_el(ll_locks[0], defer_lock);//(ll_locks[cur_c % 1000000]);
+            unique_lock <mutex> lock_el(ll_locks[0], defer_lock);
             int i = 0;
             while (!lock_el.try_lock()) {
                 i = ++i % 1000000;
@@ -684,18 +677,8 @@ namespace hnswlib {
                             //    }
                             //    mutex_table.emplace(currObj, j);
                             //}
-                            //unique_lock <mutex> lock(ll_locks[currObj % 1000000]);
-                            //unique_lock <mutex> lock;
-                            //int j = 0;
-                            //do {
-                                //j = j % 500000 + 500000;
-                            //    lock = unique_lock <mutex>(ll_locks[currObj % 1000000], defer_lock);
-                            //} while (!lock.try_lock());
 
                             data = get_linklist(currObj, level);
-
-                            //if (elementLevels[currObj] == 0)
-                            //    std::cout <<*data << " " << enterpoint_node << std::endl;
 
                             linklistsizeint size = *data;
                             tableint *datal = (tableint *) (data + 1);
