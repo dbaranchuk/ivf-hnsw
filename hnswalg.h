@@ -56,7 +56,7 @@ namespace hnswlib {
 
         HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxElements, size_t M = 16, size_t efConstruction = 200,
                         size_t maxClusters = 0, size_t M_cluster = 0) :
-                ll_locks(1000000)/*(maxElements + maxClusters)*/, elementLevels(maxElements + maxClusters)
+                ll_locks(maxElements + maxClusters), elementLevels(maxElements + maxClusters)
         {
             maxelements_ = maxElements;
             maxclusters_ = maxClusters;
@@ -253,11 +253,11 @@ namespace hnswlib {
 
                 tableint curNodeNum = curr_el_pair.second;
 
-//                unique_lock <mutex> lock;
-//                if (mutex_table.count(curNodeNum) > 0) {
-//                    lock = unique_lock<mutex>(ll_locks[mutex_table[curNodeNum]]);
-//                    lock.lock();
-//                }
+                //unique_lock <mutex> lock;
+                if (mutex_table.count(curNodeNum) > 0)
+                    unique_lock<mutex>lock(ll_locks[mutex_table[curNodeNum]]);
+                    //lock.lock();
+
                 //if (elementLevels[curNodeNum] > 0)
                 //    unique_lock <mutex> lock(ll_locks[curNodeNum]);
 
@@ -501,10 +501,10 @@ namespace hnswlib {
             }
             for (int idx = 0; idx < rez.size(); idx++) {
 //                unique_lock <mutex> lock;
-//                if (mutex_table.count(rez[idx]) > 0) {
-//                    lock = unique_lock<mutex>(ll_locks[mutex_table[rez[idx]]]);
-//                    lock.lock();
-//                }
+                if (mutex_table.count(rez[idx]) > 0)
+                    unique_lock <mutex> lock(ll_locks[mutex_table[rez[idx]]]);
+//
+//
                 //if (elementLevels[rez[idx]] > 0)
                 //    unique_lock <mutex> lock(ll_locks[rez[idx]]);
 
@@ -614,15 +614,16 @@ namespace hnswlib {
 //                    cout << lock.try_lock() << " ";
 //                }
             }
-            unique_lock <mutex> lock_el;//(ll_locks[cur_c % 1000000]);
-            int i = 0;
-            do {
-                i = i % 1000000;
-                lock_el = unique_lock <mutex>(ll_locks[i++], defer_lock);
-            } while (!lock_el.try_lock());
+            //unique_lock <mutex> lock_el;//(ll_locks[cur_c % 1000000]);
+            //int i = 0;
+            //do {
+            //    i = i % 1000000;
+            //    lock_el = unique_lock <mutex>(ll_locks[i++], defer_lock);
+            //} while (!lock_el.try_lock());
             //lock_el.lock();
-            mutex_table.emplace(cur_c, i);
-            //unique_lock <mutex> lock_el(ll_locks[cur_c]);
+
+            unique_lock <mutex> lock_el(ll_locks[cur_c]);
+            mutex_table.emplace(cur_c, cur_c);
 
             int curlevel = elementLevels[cur_c];
 //            if (level >= 0) //
@@ -673,16 +674,16 @@ namespace hnswlib {
                                 //lock = unique_lock<mutex>(ll_locks[mutex_table[currObj]], defer_lock);
                                 //lock.lock();
                                 unique_lock <mutex> lock(ll_locks[mutex_table[currObj]]);
-                            } else {
-                                unique_lock <mutex> lock;
-                                int j = 0;
-                                do {
-                                    cout << j << " ";
-                                    j = j % 1000000;
-                                    lock = unique_lock <mutex>(ll_locks[j++], defer_lock);
-                                } while (!lock.try_lock());
-                                mutex_table.emplace(currObj, j);
-                            }
+                            //} else {
+                            //    unique_lock <mutex> lock;
+                            //    int j = 0;
+                            //    do {
+                            //        cout << j << " ";
+                            //        j = j % 1000000;
+                            //        lock = unique_lock <mutex>(ll_locks[j++], defer_lock);
+                            //    } while (!lock.try_lock());
+                            //    mutex_table.emplace(currObj, j);
+                            //}
                             //unique_lock <mutex> lock(ll_locks[currObj % 1000000]);
                             //unique_lock <mutex> lock;
                             //int j = 0;
