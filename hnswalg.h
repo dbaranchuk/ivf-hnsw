@@ -612,7 +612,7 @@ namespace hnswlib {
             //};
             //lock_el.lock();
 
-            unique_lock <mutex> lock_el(ll_locks[cur_c]);
+            //unique_lock <mutex> lock_el(ll_locks[cur_c]);
             //mutex_table.emplace(cur_c, i);
 
             int curlevel = elementLevels[cur_c];
