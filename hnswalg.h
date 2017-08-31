@@ -117,9 +117,9 @@ namespace hnswlib {
             free(data_level0_memory_);
             for (tableint i = 0; i < numElementsLevels; i++) {//cur_element_count; i++) {
                 //if (elementLevels[i] > 0)
-                    free(linkLists_[i]);
+                    free(linkListsTable[i]);
             }
-            free(linkLists_);
+            //free(linkLists_);
             delete visitedlistpool;
             delete space;
         }
@@ -167,7 +167,7 @@ namespace hnswlib {
         char *data_level0_memory_;
         char **linkLists_;
         //unordered_map<tableint, char *> linkListsTable;
-        //dense_hash_map<tableint, void *> linkListsTable;
+        dense_hash_map<tableint, void *> linkListsTable;
 
         vector<char> elementLevels;
         size_t numElementsLevels = 0;
@@ -225,9 +225,9 @@ namespace hnswlib {
         {
             //In Smart hnsw only clusters on the above levels
             if (cur_c < maxclusters_)
-                return (linklistsizeint *) (linkLists_[cur_c] + (level - 1) * size_links_per_cluster_);
+                return (linklistsizeint *) (linkListsTable[cur_c] + (level - 1) * size_links_per_cluster_);
             else
-                return (linklistsizeint *) (linkLists_[cur_c] + (level - 1) * size_links_per_element_);
+                return (linklistsizeint *) (linkListsTable[cur_c] + (level - 1) * size_links_per_element_);
         };
 
 
@@ -574,10 +574,10 @@ namespace hnswlib {
                 std::uniform_real_distribution<double> distribution(0.0, 1.0);
                 for (size_t i = 0; i < maxelements_; ++i) {
                     elementLevels[i] = (int) (-log(distribution(generator)) * mult_);
-                    //if (elementLevels[i] > 0) {
-                    //    numElementsLevels++;
-                        //linkListsTable[i] = (char *) malloc(size_links_per_element_ * elementLevels[i]);
-                        //memset(linkListsTable[i], 0, size_links_per_element_ * elementLevels[i]);
+                    if (elementLevels[i] > 0) {
+                        numElementsLevels++;
+                        linkListsTable[i] = (char *) malloc(size_links_per_element_ * elementLevels[i]);
+                        memset(linkListsTable[i], 0, size_links_per_element_ * elementLevels[i]);
                         //linkListsTable[i] = linkListIdx++;
                         //linkListsTable.emplace(i, linkListIdx++);
                     //}
@@ -652,17 +652,17 @@ namespace hnswlib {
             memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
             memcpy(getDataByInternalId(cur_c), datapoint, data_size_);
 
-            if (curlevel) {
-                // Above levels contain only clusters
-                if (cur_c < maxclusters_) {
-                    linkLists_[cur_c] = (char *) malloc(size_links_per_cluster_ * curlevel);
-                    memset(linkLists_[cur_c], 0, size_links_per_cluster_ * curlevel);
-                }
-                else {
-                    linkLists_[cur_c] = (char *) malloc(size_links_per_element_ * curlevel);
-                    memset(linkLists_[cur_c], 0, size_links_per_element_ * curlevel);
-                }
-            }
+//            if (curlevel) {
+//                // Above levels contain only clusters
+//                if (cur_c < maxclusters_) {
+//                    linkLists_[cur_c] = (char *) malloc(size_links_per_cluster_ * curlevel);
+//                    memset(linkLists_[cur_c], 0, size_links_per_cluster_ * curlevel);
+//                }
+//                else {
+//                    linkLists_[cur_c] = (char *) malloc(size_links_per_element_ * curlevel);
+//                    memset(linkLists_[cur_c], 0, size_links_per_element_ * curlevel);
+//                }
+//            }
             if (currObj != -1) {
                 if (curlevel < maxlevelcopy) {
                     dist_t curdist = space->fstdistfunc(datapoint, getDataByInternalId(currObj));
