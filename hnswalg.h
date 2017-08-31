@@ -677,6 +677,7 @@ namespace hnswlib {
                                 unique_lock <mutex> lock;
                                 int j = 0;
                                 do {
+                                    cout << j << " ";
                                     j = j % 1000000;
                                     lock = unique_lock <mutex>(ll_locks[j++], defer_lock);
                                 } while (!lock.try_lock());
