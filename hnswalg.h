@@ -56,7 +56,7 @@ namespace hnswlib {
 
             M_cluster_ = M_cluster;
             maxM_cluster_ = M_cluster_;
-            maxM0_cluster_ = M_cluster_ * 2;
+            maxM0_cluster_ = M_cluster_ * 4;
 
             size_links_level0_cluster_ = maxM0_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_data_per_cluster_ = size_links_level0_cluster_ + data_size_ + sizeof(labeltype);
