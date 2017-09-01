@@ -298,7 +298,7 @@ namespace hnswlib {
                 hops0 += 1.0 / 10000;
                 std::pair<dist_t, tableint> curr_el_pair = candidateSet.top();
 
-                if ((-curr_el_pair.first) > lowerBound)
+                if (-curr_el_pair.first > lowerBound)
                     break;
 
 //                int k = 1;
@@ -315,6 +315,7 @@ namespace hnswlib {
 //                    }
 //                }
 //                for (int i = 0; i < k; i++) {
+                candidateSet.pop();
                 tableint curNodeNum = curr_el_pair.second;
 
                 linklistsizeint *ll_cur = get_linklist0(curNodeNum);
