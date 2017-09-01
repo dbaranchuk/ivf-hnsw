@@ -317,25 +317,25 @@ namespace hnswlib {
 //                for (int i = 0; i < k; i++) {
                 tableint curNodeNum = curr_el_pair.second;
 
-                linklistsizeint *data = get_linklist0(curNodeNum);
-                linklistsizeint size = *data;
+                linklistsizeint *ll_cur = get_linklist0(curNodeNum);
+                linklistsizeint size = *ll_cur;
 
-                tableint *datal = (tableint *)(data + 1);
+                tableint *data = (tableint *)(ll_cur + 1);
 
-                _mm_prefetch((char *) (massVisited + *datal), _MM_HINT_T0);
-                _mm_prefetch((char *) (massVisited + *datal + 64), _MM_HINT_T0);
-                if (*datal < maxclusters_)
-                    _mm_prefetch(data_level0_memory_ + (*datal) * size_data_per_cluster_ + offsetData_, _MM_HINT_T0);
+                _mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
+                _mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
+                if (*data < maxclusters_)
+                    _mm_prefetch(data_level0_memory_ + (*data) * size_data_per_cluster_ + offsetData_, _MM_HINT_T0);
                 else {
-                    tableint elementNum = *datal - maxclusters_;
+                    tableint elementNum = *data - maxclusters_;
                     _mm_prefetch(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
                                  elementNum * size_data_per_element_ + offsetData_, _MM_HINT_T0);
                 }
-                _mm_prefetch((char *) (datal + 1), _MM_HINT_T0);
+                _mm_prefetch((char *) (data + 1), _MM_HINT_T0);
 
                 for (linklistsizeint j = 0; j < size; j++) {
-                    int tnum = *(datal + j);
-                    int next_tnum = *(datal + j + 1);
+                    int tnum = *(data + j);
+                    int next_tnum = *(data + j + 1);
 
                     _mm_prefetch((char *) (massVisited + next_tnum), _MM_HINT_T0);
                     if (next_tnum < maxclusters_)
