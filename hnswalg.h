@@ -56,10 +56,9 @@ namespace hnswlib {
 
             M_cluster_ = M_cluster;
             maxM_cluster_ = M_cluster_;
-            M0_cluster_ = 1;
-            maxM0_cluster_ = 1;// M_cluster_ * 2;
+            maxM0_cluster_ = M_cluster_;
 
-            size_links_level0_cluster_ = M0_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
+            size_links_level0_cluster_ = maxM0_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_data_per_cluster_ = size_links_level0_cluster_ + data_size_ + sizeof(labeltype);
             offsetData_cluster_ = size_links_level0_cluster_;
             label_offset_cluster_ = size_links_level0_cluster_ + data_size_;
@@ -112,7 +111,6 @@ namespace hnswlib {
         size_t size_data_per_element_, size_data_per_cluster_;
         size_t size_links_per_element_, size_links_per_cluster_;
 
-        size_t M0_cluster_;
         size_t M_, M_cluster_;
         size_t maxM_, maxM_cluster_;
         size_t maxM0_, maxM0_cluster_;
@@ -424,7 +422,7 @@ namespace hnswlib {
         {
             size_t Mcurmax;
             if (cur_c < maxclusters_)
-                Mcurmax = level ? maxM_cluster_ : M0_cluster_;//maxM0_cluster_;
+                Mcurmax = level ? maxM_cluster_ : maxM0_cluster_;
             else
                 Mcurmax = level ? maxM_ : maxM0_;
 
