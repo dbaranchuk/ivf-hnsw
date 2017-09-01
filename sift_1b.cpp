@@ -288,7 +288,7 @@ void sift_test1B() {
     const char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
     const char *path_clusters = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_base_100m_clusters.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift%dm_ef_%d_M_%d_cM_%d_1layer.bin", subset_size_milllions, efConstruction, M,
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift%dm_ef_%d_M_%d_cM_%d_new.bin", subset_size_milllions, efConstruction, M,
             M_cluster);
     sprintf(path_gt, "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
 
