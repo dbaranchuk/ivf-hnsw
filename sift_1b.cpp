@@ -563,7 +563,7 @@ void sift_test1B_PQ()
         //
         size_t report_every = 1000000;
 #pragma omp parallel for
-        for (int i = 0; i < vecsize; i++) {
+        for (int i = 1; i < vecsize; i++) {
             unsigned char massb[M_PQ];
 #pragma omp critical
             {
