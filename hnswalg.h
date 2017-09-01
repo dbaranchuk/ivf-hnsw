@@ -529,7 +529,7 @@ namespace hnswlib {
             if (maxclusters_ == 0 || elements_per_level.size() == 0) {
                 std::uniform_real_distribution<double> distribution(0.0, 1.0);
                 for (size_t i = 0; i < maxelements_; ++i)
-                    elementLevels[i] = (int) (-log(distribution(generator)) * mult_);
+                    elementLevels[i] = 0;//(int) (-log(distribution(generator)) * mult_);
             } else{
                 for (size_t i = 0; i < maxclusters_ + maxelements_; ++i){
                     if (i < elements_per_level[5]) elementLevels[i] = 5;
