@@ -296,12 +296,10 @@ namespace hnswlib {
 
             while (!candidateSet.empty()) {
                 hops0 += 1.0 / 10000;
-                std::pair<dist_t, tableint> curr_el_pair[4];
-                curr_el_pair[0] = candidateSet.top();
-                if ((-curr_el_pair[0].first) > lowerBound)
-                    break;
+                std::pair<dist_t, tableint> curr_el_pair = candidateSet.top();
 
-                candidateSet.pop();
+                if ((-curr_el_pair.first) > lowerBound)
+                    break;
 
 //                int k = 1;
 //                for (int i = 1; i < k; i++) {
@@ -317,7 +315,7 @@ namespace hnswlib {
 //                    }
 //                }
 //                for (int i = 0; i < k; i++) {
-                tableint curNodeNum = curr_el_pair[i].second;
+                tableint curNodeNum = curr_el_pair.second;
 
                 linklistsizeint *data = get_linklist0(curNodeNum);
                 linklistsizeint size = *data;
@@ -326,7 +324,7 @@ namespace hnswlib {
 
                 _mm_prefetch((char *) (massVisited + *datal), _MM_HINT_T0);
                 _mm_prefetch((char *) (massVisited + *datal + 64), _MM_HINT_T0);
-                if (nextNum < maxclusters_)
+                if (*datal < maxclusters_)
                     _mm_prefetch(data_level0_memory_ + (*datal) * size_data_per_cluster_ + offsetData_, _MM_HINT_T0);
                 else {
                     tableint elementNum = *datal - maxclusters_;
