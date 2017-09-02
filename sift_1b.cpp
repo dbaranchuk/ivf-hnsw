@@ -432,9 +432,9 @@ void sift_test1B() {
 
 void sift_test1B_PQ()
 {
-    const int subset_size_milllions = 500;
+    const int subset_size_milllions = 1000;
     const int efConstruction = 200;
-    const int M = 6;
+    const int M = 4;
     const int M_PQ = 16;
     const int M_cluster = 0;
 
@@ -549,7 +549,7 @@ void sift_test1B_PQ()
         appr_alg->addPoint((void *) (massb), (size_t) j1);
         //
         size_t report_every = 1000000;
-#pragma omp parallel for num_threads(16)
+#pragma omp parallel for num_threads(12)
         for (int i = 1; i < vecsize; i++) {
             unsigned char massb[M_PQ];
 #pragma omp critical
