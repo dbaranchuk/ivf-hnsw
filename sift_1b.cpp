@@ -271,7 +271,7 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 */
 void sift_test1B() {
     const int subset_size_milllions = 1;
-    const int efConstruction = 200;
+    const int efConstruction = 240;
     const int M = 16;
     const int M_cluster = 0;//16;
 
@@ -288,7 +288,7 @@ void sift_test1B() {
     const char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
     const char *path_clusters = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_base_100m_clusters.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift%dm_ef_%d_M_%d_cM_%d_large_Mmax.bin", subset_size_milllions, efConstruction, M,
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift%dm_ef_%d_M_%d_cM_%d.bin", subset_size_milllions, efConstruction, M,
             M_cluster);
     sprintf(path_gt, "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
 
