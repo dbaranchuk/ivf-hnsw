@@ -233,9 +233,9 @@ namespace hnswlib {
                 tableint *datal = (tableint *) (data + 1);
 
                 _mm_prefetch((char *) (massVisited + *datal), _MM_HINT_T0);
-                //_mm_prefetch((char *) (massVisited + *datal + 64), _MM_HINT_T0);
+                _mm_prefetch((char *) (massVisited + *datal + 64), _MM_HINT_T0);
                 _mm_prefetch(getDataByInternalId(*datal), _MM_HINT_T0);
-                //_mm_prefetch(getDataByInternalId(*(datal + 1)), _MM_HINT_T0);
+                _mm_prefetch(getDataByInternalId(*(datal + 1)), _MM_HINT_T0);
 
                 for (linklistsizeint j = 0; j < size; j++) {
                     tableint tnum = *(datal + j);
