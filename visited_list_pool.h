@@ -19,7 +19,6 @@ public:
 	void reset()
 	{
 		curV++;
-		std::cout << (int) curV << std::endl;
 		if (curV == 0) {
 			memset(mass, 0, sizeof(vl_type) * numelements);
 			curV++;
