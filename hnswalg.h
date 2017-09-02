@@ -40,7 +40,7 @@ namespace hnswlib {
         }
 
         HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxElements, size_t M = 16, size_t efConstruction = 200,
-                        size_t maxClusters = 0, size_t M_cluster = 0)/* : elementLevels(maxElements + maxClusters)*/
+                        size_t maxClusters = 0, size_t M_cluster = 0): elementLevels(maxElements + maxClusters)
         {
             maxelements_ = maxElements;
             maxclusters_ = maxClusters;
@@ -73,8 +73,8 @@ namespace hnswlib {
             data_level0_memory_ = (char *) malloc(maxclusters_ * size_data_per_cluster_ + maxelements_ * size_data_per_element_);
             std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
 
-            size_t predicted_size_per_element = size_data_per_element_;
-            size_t predicted_size_per_cluster = size_data_per_cluster_;
+            size_t predicted_size_per_element = size_data_per_element_ ;
+            size_t predicted_size_per_cluster = size_data_per_cluster_ ;
             size_t total_size = maxclusters_ * predicted_size_per_cluster + maxelements_ * predicted_size_per_element;
             cout << "Size Mb: " << total_size / (1000 * 1000) << "\n";
             cur_element_count = 0;
@@ -534,7 +534,7 @@ namespace hnswlib {
                 cur_c = cur_element_count;
                 cur_element_count++;
             }
-            int curlevel = 0;//elementLevels[cur_c];
+            int curlevel = elementLevels[cur_c];
 
             unique_lock <mutex> templock(global);
             int maxlevelcopy = maxlevel_;
