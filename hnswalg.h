@@ -233,7 +233,7 @@ namespace hnswlib {
                 tableint *datal = (tableint *) (data + 1);
 
                 _mm_prefetch((char *) (massVisited + *datal), _MM_HINT_T0);
-                _mm_prefetch((char *) (massVisited + *datal + 64), _MM_HINT_T0);
+                _mm_prefetch((char *) (massVisited + *datal + 128), _MM_HINT_T0);
                 _mm_prefetch(getDataByInternalId(*datal), _MM_HINT_T0);
                 _mm_prefetch(getDataByInternalId(*(datal + 1)), _MM_HINT_T0);
 
@@ -321,7 +321,7 @@ namespace hnswlib {
                 tableint *data = (tableint *)(ll_cur + 1);
 
                 _mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
-                _mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
+                _mm_prefetch((char *) (massVisited + *data + 128), _MM_HINT_T0);
                 if (*data < maxclusters_)
                     _mm_prefetch(data_level0_memory_ + (*data) * size_data_per_cluster_ + offsetData_, _MM_HINT_T0);
                 else {
