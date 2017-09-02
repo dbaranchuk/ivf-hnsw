@@ -84,7 +84,7 @@ namespace hnswlib {
             enterpoint_node = -1;
             maxlevel_ = -1;
 
-            //linkLists_ = (char **) malloc(sizeof(void *) * (maxelements_ + maxclusters_));
+            linkLists_ = (char **) malloc(sizeof(void *) * (maxelements_ + maxclusters_));
             size_links_per_cluster_ = maxM_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_links_per_element_ = maxM_ * sizeof(tableint) + sizeof(linklistsizeint);
             mult_ = 1 / log(1.0 * M_);
@@ -97,7 +97,7 @@ namespace hnswlib {
                 if (elementLevels[i] > 0)
                     free(linkLists_[i]);
             }
-            //free(linkLists_);
+            free(linkLists_);
             delete visitedlistpool;
             delete space;
         }
