@@ -222,25 +222,24 @@ namespace hnswlib {
 
                 tableint curNodeNum = curr_el_pair.second;
 
-                linklistsizeint *data;
+                linklistsizeint *ll_cur;
 
                 if (level == 0)
-                    data = get_linklist0(curNodeNum);
+                    ll_cur = get_linklist0(curNodeNum);
                 else
-                    data = get_linklist(curNodeNum, level);
+                    ll_cur = get_linklist(curNodeNum, level);
 
-                linklistsizeint size = *data;
-                tableint *datal = (tableint *) (data + 1);
+                linklistsizeint size = *ll_cur;
+                tableint *data = (tableint *) (ll_cur + 1);
 
-                _mm_prefetch((char *) (massVisited + *datal), _MM_HINT_T0);
-                _mm_prefetch((char *) (massVisited + *datal + 64), _MM_HINT_T0);
-                _mm_prefetch(getDataByInternalId(*datal), _MM_HINT_T0);
-                _mm_prefetch(getDataByInternalId(*(datal + 1)), _MM_HINT_T0);
+                _mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
+                _mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
+                _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
 
                 for (linklistsizeint j = 0; j < size; j++) {
-                    tableint tnum = *(datal + j);
-                    _mm_prefetch((char *) (massVisited + *(datal + j + 1)), _MM_HINT_T0);
-                    _mm_prefetch(getDataByInternalId(*(datal + j + 1)), _MM_HINT_T0);
+                    tableint tnum = *(data + j);
+                    _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
+                    _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
                     if (!(massVisited[tnum] == currentV)) {
 
                         massVisited[tnum] = currentV;
@@ -322,30 +321,16 @@ namespace hnswlib {
 
                 _mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
                 _mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
-                if (*data < maxclusters_)
-                    _mm_prefetch(data_level0_memory_ + (*data) * size_data_per_cluster_ + offsetData_, _MM_HINT_T0);
-                else {
-                    tableint elementNum = *data - maxclusters_;
-                    _mm_prefetch(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-                                 elementNum * size_data_per_element_ + offsetData_, _MM_HINT_T0);
-                }
-                _mm_prefetch((char *) (data + 1), _MM_HINT_T0);
+                _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
 
                 for (linklistsizeint j = 0; j < size; j++) {
                     int tnum = *(data + j);
-                    int next_tnum = *(data + j + 1);
 
-                    _mm_prefetch((char *) (massVisited + next_tnum), _MM_HINT_T0);
-                    if (next_tnum < maxclusters_)
-                        _mm_prefetch(data_level0_memory_ + next_tnum * size_data_per_cluster_ + offsetData_cluster_,
-                                     _MM_HINT_T0);
-                    else {
-                        tableint next_tnum_element = next_tnum - maxclusters_;
-                        _mm_prefetch(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-                                     next_tnum_element * size_data_per_element_ + offsetData_, _MM_HINT_T0);
-                    }
+                    _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
+                    _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
+
                     if (!(massVisited[tnum] == currentV)) {
-                            massVisited[tnum] = currentV;
+                        massVisited[tnum] = currentV;
 
                         dist_t dist;
                         if (q_idx != -1)
@@ -357,16 +342,7 @@ namespace hnswlib {
                         if (topResults.top().first > dist || topResults.size() < ef) {
                             candidateSet.emplace(-dist, tnum);
 
-                            tableint candNum = candidateSet.top().second;
-                            if (candNum < maxclusters_)
-                                _mm_prefetch(data_level0_memory_ + candNum * size_data_per_cluster_ + offsetLevel0_,
-                                             _MM_HINT_T0);
-                            else {
-                                tableint candElementNum = candNum - maxclusters_;
-                                _mm_prefetch(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-                                             candNum * size_data_per_element_ + offsetLevel0_, _MM_HINT_T0);
-                            }
-
+                            _mm_prefetch(get_linklist0(candidateSet.top().second), _MM_HINT_T0);\
                             topResults.emplace(dist, tnum);
 
                             if (topResults.size() > ef)
