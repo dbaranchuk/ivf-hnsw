@@ -40,7 +40,7 @@ namespace hnswlib {
         }
 
         HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxElements, size_t M = 16, size_t efConstruction = 200,
-                        size_t maxClusters = 0, size_t M_cluster = 0)/*: elementLevels(maxElements + maxClusters)*/
+                        size_t maxClusters = 0, size_t M_cluster = 0): elementLevels(maxElements + maxClusters)
         {
             maxelements_ = maxElements;
             maxclusters_ = maxClusters;
@@ -534,7 +534,7 @@ namespace hnswlib {
                 cur_c = cur_element_count;
                 cur_element_count++;
             }
-            int curlevel = 0;//elementLevels[cur_c];
+            int curlevel = elementLevels[cur_c];
 
             unique_lock <mutex> templock(global);
             int maxlevelcopy = maxlevel_;
