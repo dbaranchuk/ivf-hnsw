@@ -561,20 +561,14 @@ void sift_test1B_PQ()
                 }
                 input.read((char *) massb, in);
                 j1++;
-//                if ((j1 - clustersize) % report_every == 0) {
-//                    cout << (j1 - clustersize) / (0.01 * vecsize) << " %, "
-//                         << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
-//                         << getCurrentRSS() / 1000000 << " Mb \n";
-//                    stopw.reset();
-//                }
+                if ((j1 - clustersize) % report_every == 0) {
+                    cout << (j1 - clustersize) / (0.01 * vecsize) << " %, "
+                         << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
+                         << getCurrentRSS() / 1000000 << " Mb \n";
+                    stopw.reset();
+                }
             }
             appr_alg->addPoint((void *) (massb), (size_t) j1);
-            if ((j1 - clustersize) % report_every == 0) {
-                cout << (j1 - clustersize) / (0.01 * vecsize) << " %, "
-                     << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
-                     << getCurrentRSS() / 1000000 << " Mb \n";
-                stopw.reset();
-            }
         }
         input.close();
         cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
