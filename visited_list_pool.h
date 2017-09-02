@@ -50,6 +50,7 @@ public:
 		VisitedList *rez;
 		{
 			unique_lock<mutex> lock(poolguard);
+			cout << pool.size() << endl;
 			if (pool.size() > 0) {
 				rez = pool.front();
 				pool.pop_front();
