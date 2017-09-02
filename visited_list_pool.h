@@ -3,7 +3,7 @@
 #include <string.h>
 
 namespace hnswlib{
-typedef unsigned short int vl_type;
+typedef unsigned char vl_type;
 class VisitedList {
 public:
 	vl_type curV;
@@ -19,7 +19,6 @@ public:
 	void reset()
 	{
 		curV++;
-		std::cout << curV << std::endl;
 		if (curV == 0) {
 			memset(mass, 0, sizeof(vl_type) * numelements);
 			curV++;
