@@ -69,9 +69,6 @@ namespace hnswlib {
             label_offset_ = size_links_level0_ + data_size_;
             offsetLevel0_ = 0;
 
-            cout << offsetData_ << "\t" << label_offset_ << "\n";
-            cout << size_links_level0_ << "\t" << data_size_ << "\t" << sizeof(labeltype) << "\n";
-
             std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
             data_level0_memory_ = (char *) malloc(maxclusters_ * size_data_per_cluster_ + maxelements_ * size_data_per_element_);
             std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
@@ -87,7 +84,7 @@ namespace hnswlib {
             enterpoint_node = -1;
             maxlevel_ = -1;
 
-            linkLists_ = (char **) malloc(sizeof(void *) * (maxelements_ + maxclusters_));
+            //linkLists_ = (char **) malloc(sizeof(void *) * (maxelements_ + maxclusters_));
             size_links_per_cluster_ = maxM_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_links_per_element_ = maxM_ * sizeof(tableint) + sizeof(linklistsizeint);
             mult_ = 1 / log(1.0 * M_);
@@ -100,7 +97,7 @@ namespace hnswlib {
                 if (elementLevels[i] > 0)
                     free(linkLists_[i]);
             }
-            free(linkLists_);
+            //free(linkLists_);
             delete visitedlistpool;
             delete space;
         }
