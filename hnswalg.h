@@ -233,7 +233,7 @@ namespace hnswlib {
                 tableint *datal = (tableint *) (data + 1);
 
                 _mm_prefetch((char *) (massVisited + *datal), _MM_HINT_T0);
-                _mm_prefetch((char *) (massVisited + *datal + 128), _MM_HINT_T0);
+                //_mm_prefetch((char *) (massVisited + *datal + 128), _MM_HINT_T0);
                 _mm_prefetch(getDataByInternalId(*datal), _MM_HINT_T0);
                 _mm_prefetch(getDataByInternalId(*(datal + 1)), _MM_HINT_T0);
 
