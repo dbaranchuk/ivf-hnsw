@@ -3,7 +3,7 @@
 #include <string.h>
 
 namespace hnswlib{
-typedef unsigned short vl_type;
+typedef unsigned char vl_type;
 class VisitedList {
 public:
 	vl_type curV;
