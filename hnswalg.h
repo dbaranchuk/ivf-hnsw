@@ -40,7 +40,7 @@ namespace hnswlib {
         }
 
         HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxElements, size_t M = 16, size_t efConstruction = 200,
-                        size_t maxClusters = 0, size_t M_cluster = 0): elementLevels(maxElements + maxClusters)
+                        size_t maxClusters = 0, size_t M_cluster = 0)/*: elementLevels(maxElements + maxClusters)*/
         {
             maxelements_ = maxElements;
             maxclusters_ = maxClusters;
@@ -452,8 +452,8 @@ namespace hnswlib {
                 else
                     ll_other = get_linklist(rez[idx], level);
 
-                if (level > elementLevels[rez[idx]])
-                    throw runtime_error("Bad level");
+                //if (level > elementLevels[rez[idx]])
+                //    throw runtime_error("Bad level");
 
                 linklistsizeint sz_link_list_other = *ll_other;
 
@@ -502,7 +502,7 @@ namespace hnswlib {
             if (maxclusters_ == 0 || elements_per_level.size() == 0) {
                 std::uniform_real_distribution<double> distribution(0.0, 1.0);
                 for (size_t i = 0; i < maxelements_; ++i)
-                    elementLevels[i] = 0; //(int) (-log(distribution(generator)) * mult_);
+                    elementLevels[i] = 0; (int) (-log(distribution(generator)) * mult_);
             } else{
                 for (size_t i = 0; i < maxclusters_ + maxelements_; ++i){
                     if (i < elements_per_level[5]) elementLevels[i] = 5;
@@ -534,7 +534,7 @@ namespace hnswlib {
                 cur_c = cur_element_count;
                 cur_element_count++;
             }
-            int curlevel = elementLevels[cur_c];
+            int curlevel = 0;//elementLevels[cur_c];
 
             unique_lock <mutex> templock(global);
             int maxlevelcopy = maxlevel_;
