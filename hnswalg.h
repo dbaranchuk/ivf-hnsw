@@ -319,14 +319,14 @@ namespace hnswlib {
 
                 tableint *data = (tableint *)(ll_cur + 1);
 
-                _mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
-                _mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
+                _mm_prefetch((char *) (massVisited + *data), _MM_HINT_T1);
+                _mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T1);
                 _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
 
                 for (linklistsizeint j = 0; j < size; j++) {
                     int tnum = *(data + j);
 
-                    _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
+                    _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T1);
                     _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
 
                     if (!(massVisited[tnum] == currentV)) {
