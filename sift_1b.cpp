@@ -154,7 +154,7 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
-			answers[i].emplace(0.0f, massQA[1000*i + j]);
+			answers[i].emplace(0.0f, massQA[k*i + j]);
 		}
 	}
 }
@@ -437,6 +437,7 @@ void sift_test1B_PQ()
     const int M = 3;
     const int M_PQ = 16;
     const int M_cluster = 0;
+    const int k = 1;
 
     const size_t clustersize = 0;// 5263157;
     const vector<size_t> elements_per_level = {100000000, 5000000, 250000, 12500, 625, 32};
@@ -460,13 +461,13 @@ void sift_test1B_PQ()
 
     cout << "Loading GT:\n";
     ifstream inputGT(path_gt, ios::binary);
-    unsigned int *massQA = new unsigned int[qsize * 1000];
+    unsigned int *massQA = new unsigned int[qsize * k];
     for (int i = 0; i < qsize; i++) {
         int t;
         inputGT.read((char *)&t, 4);
-        inputGT.read((char *)(massQA + 1000*i), t * 4);
-        if (t != 1000) {
-            cout << "err";
+        inputGT.read((char *)(massQA + k*i), t * 4);
+        if (t != k) {
+            cout << "error\n";
             exit(1);
         }
     }
@@ -581,7 +582,7 @@ void sift_test1B_PQ()
     //    cluster_idx_set.insert(i);
 
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
-    size_t k = 1;
+    
     cout << "Parsing gt:\n";
     get_gt<float>(massQA, qsize, answers, k);
     cout << "Loaded gt\n";
