@@ -2,7 +2,10 @@
 #include <mutex>
 #include <string.h>
 
-#include <unordered_set>
+//#include <unordered_set>
+#include <sparsehash/dense_hash_set>
+
+using google::dense_hash_set;
 
 namespace hnswlib{
 typedef unsigned short vl_type;
@@ -10,17 +13,17 @@ class VisitedList {
 public:
 	//vl_type curV;
 	//vl_type *mass;
-    std::unordered_set<unsigned int> *vl_set;
+    dense_hash_set<unsigned int> *vl_set;
 	unsigned int numelements;
 
 	VisitedList(unsigned int numelements1)
 	{
 		//curV = -1;
 		numelements = numelements1;
-        vl_set = new std::unordered_set<unsigned int>();
+        vl_set = new dense_hash_set<unsigned int>();
 		//mass = new vl_type[numelements];
 	}
-    std::unordered_set<unsigned int> *getVisitedSet() {return vl_set;};
+    dense_hash_set<unsigned int> *getVisitedSet() {return vl_set;};
 	void reset()
 	{
 		//curV++;
