@@ -199,7 +199,7 @@ namespace hnswlib {
         std::priority_queue<std::pair<dist_t, tableint  >> searchBaseLayer(tableint ep, void *datapoint, int level)
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
-            std::unordered_set<tableint> setVisited = vl->vl_set;
+            std::unordered_set<tableint> setVisited = std::unordered_set<tableint>(); //vl->vl_set;
             //vl_type *massVisited = vl->mass;
             //vl_type currentV = vl->curV;
 
@@ -211,7 +211,7 @@ namespace hnswlib {
             candidateSet.emplace(-dist, ep);
             //massVisited[ep] = currentV;
             setVisited.insert(ep);
-            
+
             dist_t lowerBound = dist;
 
             while (!candidateSet.empty()) {
@@ -260,7 +260,7 @@ namespace hnswlib {
                     }
                 }
             }
-            visitedlistpool->releaseVisitedList(vl);
+            //visitedlistpool->releaseVisitedList(vl);
 
             return topResults;
         }
@@ -275,7 +275,7 @@ namespace hnswlib {
         std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst>
         searchBaseLayerST(tableint ep, void *datapoint, size_t ef, int q_idx = -1)
         {
-            VisitedList *vl = visitedlistpool->getFreeVisitedList();
+            //VisitedList *vl = visitedlistpool->getFreeVisitedList();
             std::unordered_set<tableint> setVisited = std::unordered_set<tableint>();//vl->vl_set;
             //vl_type *massVisited = vl->mass;
             //vl_type currentV = vl->curV;
