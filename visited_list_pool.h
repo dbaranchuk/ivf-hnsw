@@ -20,7 +20,7 @@ public:
         vl_set = new std::unordered_set<int>();
 		//mass = new vl_type[numelements];
 	}
-    std::unordered_set<int> &getVisitedSet() {return *vl_set};
+    std::unordered_set<int> *getVisitedSet() {return vl_set};
 	void reset()
 	{
 		//curV++;

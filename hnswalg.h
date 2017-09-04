@@ -199,7 +199,7 @@ namespace hnswlib {
         std::priority_queue<std::pair<dist_t, tableint  >> searchBaseLayer(tableint ep, void *datapoint, int level)
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
-            std::unordered_set<tableint> &setVisited = vl->getVisitedSet();
+            std::unordered_set<tableint> *setVisited = vl->getVisitedSet();
             //vl_type *massVisited = vl->mass;
             //vl_type currentV = vl->curV;
 
@@ -210,7 +210,7 @@ namespace hnswlib {
             topResults.emplace(dist, ep);
             candidateSet.emplace(-dist, ep);
             //massVisited[ep] = currentV;
-            setVisited.insert(ep);
+            setVisited->insert(ep);
 
             dist_t lowerBound = dist;
 
@@ -243,9 +243,9 @@ namespace hnswlib {
                     tableint tnum = *(data + j);
                   //  _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
                     _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
-                    if (setVisited.count(tnum) == 0){
+                    if (setVisited->count(tnum) == 0){
                     //if (!(massVisited[tnum] == currentV)) {
-                        setVisited.insert(tnum);
+                        setVisited->insert(tnum);
                         //massVisited[tnum] = currentV;
                         dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
                         if (topResults.top().first > dist || topResults.size() < efConstruction_) {
@@ -260,7 +260,7 @@ namespace hnswlib {
                     }
                 }
             }
-            //visitedlistpool->releaseVisitedList(vl);
+            visitedlistpool->releaseVisitedList(vl);
 
             return topResults;
         }
@@ -276,7 +276,7 @@ namespace hnswlib {
         searchBaseLayerST(tableint ep, void *datapoint, size_t ef, int q_idx = -1)
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
-            std::unordered_set<tableint> &setVisited = vl->getVisitedSet();
+            std::unordered_set<tableint> *setVisited = vl->getVisitedSet();
             //vl_type *massVisited = vl->mass;
             //vl_type currentV = vl->curV;
 
@@ -293,7 +293,7 @@ namespace hnswlib {
             topResults.emplace(dist, ep);
             candidateSet.emplace(-dist, ep);
             //massVisited[ep] = currentV;
-            setVisited.insert(ep);
+            setVisited->insert(ep);
             dist_t lowerBound = dist;
 
             while (!candidateSet.empty()) {
@@ -335,8 +335,8 @@ namespace hnswlib {
                     //_mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
                     _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
 
-                    if (setVisited.count(tnum) == 0){
-                        setVisited.insert(tnum);
+                    if (setVisited->count(tnum) == 0){
+                        setVisited->insert(tnum);
                     //if (!(massVisited[tnum] == currentV)) {
                     //    massVisited[tnum] = currentV;
 
