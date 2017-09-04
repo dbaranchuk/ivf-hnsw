@@ -20,7 +20,7 @@ public:
         vl_set = new std::unordered_set<int>();
 		//mass = new vl_type[numelements];
 	}
-    std::unordered_set<int> *getVisitedSet() {return vl_set};
+    std::unordered_set<int> *getVisitedSet() {return vl_set;};
 	void reset()
 	{
 		//curV++;
@@ -28,7 +28,7 @@ public:
 		//	memset(mass, 0, sizeof(vl_type) * numelements);
 		//	curV++;
 		//}
-        vl_set.clear();
+        vl_set->clear();
 	};
 	~VisitedList() { delete vl_set;/*mass;*/ }
 };
