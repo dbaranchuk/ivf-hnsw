@@ -209,7 +209,9 @@ namespace hnswlib {
 
             topResults.emplace(dist, ep);
             candidateSet.emplace(-dist, ep);
-            massVisited[ep] = currentV;
+            //massVisited[ep] = currentV;
+            setVisited.insert(ep);
+            
             dist_t lowerBound = dist;
 
             while (!candidateSet.empty()) {
@@ -290,7 +292,8 @@ namespace hnswlib {
             dist_calc++;
             topResults.emplace(dist, ep);
             candidateSet.emplace(-dist, ep);
-            massVisited[ep] = currentV;
+            //massVisited[ep] = currentV;
+            setViseted.insert(ep);
             dist_t lowerBound = dist;
 
             while (!candidateSet.empty()) {
