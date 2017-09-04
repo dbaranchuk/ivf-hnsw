@@ -98,7 +98,7 @@ namespace hnswlib {
                     free(linkLists_[i]);
             }
             free(linkLists_);
-            delete visitedlistpool;
+            //delete visitedlistpool;
             delete space;
         }
         // Fields

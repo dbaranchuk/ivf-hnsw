@@ -7,27 +7,27 @@ typedef unsigned short vl_type;
 class VisitedList {
 public:
 	vl_type curV;
-	//vl_type *mass;
-    std::unordered_set<int> vl_set;
+	vl_type *mass;
+//    std::unordered_set<int> vl_set;
 	unsigned int numelements;
 
 	VisitedList(unsigned int numelements1)
 	{
 		curV = -1;
 		numelements = numelements1;
-        std::unordered_set<int> vl_set = std::unordered_set<int>();
-		//mass = new vl_type[numelements];
+//        std::unordered_set<int> vl_set = std::unordered_set<int>();
+		mass = new vl_type[numelements];
 	}
 	void reset()
 	{
-		//curV++;
-		//if (curV == 0) {
-		//	memset(mass, 0, sizeof(vl_type) * numelements);
-		//	curV++;
-		//}
-        vl_set.clear();
+		curV++;
+		if (curV == 0) {
+			memset(mass, 0, sizeof(vl_type) * numelements);
+			curV++;
+		}
+        //vl_set.clear();
 	};
-	~VisitedList() { /*delete mass;*/ }
+	~VisitedList() { delete mass; }
 };
 ///////////////////////////////////////////////////////////
 //
