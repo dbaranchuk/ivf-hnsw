@@ -10,7 +10,7 @@ class VisitedList {
 public:
 	//vl_type curV;
 	//vl_type *mass;
-    std::unordered_set<int> &vl_set;
+    std::unordered_set<int> vl_set;
 	unsigned int numelements;
 
 	VisitedList(unsigned int numelements1)
