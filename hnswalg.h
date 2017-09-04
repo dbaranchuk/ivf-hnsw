@@ -79,7 +79,7 @@ namespace hnswlib {
             cout << "Size Mb: " << total_size / (1000 * 1000) << "\n";
             cur_element_count = 0;
 
-            //visitedlistpool = new VisitedListPool(1, maxelements_ + maxclusters_);
+            visitedlistpool = new VisitedListPool(1, maxelements_ + maxclusters_);
             //initializations for special treatment of the first node
             enterpoint_node = -1;
             maxlevel_ = -1;
@@ -98,7 +98,7 @@ namespace hnswlib {
                     free(linkLists_[i]);
             }
             free(linkLists_);
-            //delete visitedlistpool;
+            delete visitedlistpool;
             delete space;
         }
         // Fields
@@ -122,7 +122,7 @@ namespace hnswlib {
         double mult_;
         int maxlevel_;
 
-        //VisitedListPool *visitedlistpool;
+        VisitedListPool *visitedlistpool;
         mutex cur_element_count_guard_;
         mutex MaxLevelGuard_;
 
@@ -275,8 +275,8 @@ namespace hnswlib {
         std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst>
         searchBaseLayerST(tableint ep, void *datapoint, size_t ef, int q_idx = -1)
         {
-            //VisitedList *vl = visitedlistpool->getFreeVisitedList();
-            std::unordered_set<tableint> setVisited = std::unordered_set<tableint>();//vl->vl_set;
+            VisitedList *vl = visitedlistpool->getFreeVisitedList();
+            //std::unordered_set<tableint> setVisited = std::unordered_set<tableint>();//vl->vl_set;
             //vl_type *massVisited = vl->mass;
             //vl_type currentV = vl->curV;
 
@@ -362,7 +362,7 @@ namespace hnswlib {
                 }
             }
 
-            //visitedlistpool->releaseVisitedList(vl);
+            visitedlistpool->releaseVisitedList(vl);
             return topResults;
         }
 

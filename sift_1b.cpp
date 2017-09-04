@@ -550,7 +550,7 @@ void sift_test1B_PQ()
         appr_alg->addPoint((void *) (massb), (size_t) j1);
         //
         size_t report_every = 1000000;
-#pragma omp parallel for num_threads(28)
+#pragma omp parallel for num_threads(32)
         for (int i = 1; i < vecsize; i++) {
             unsigned char massb[M_PQ];
 #pragma omp critical
