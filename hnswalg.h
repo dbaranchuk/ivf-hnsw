@@ -202,6 +202,7 @@ namespace hnswlib {
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
             dense_hash_set<tableint> *setVisited = vl->getVisitedSet();
+            setVisited->set_empty_key(NULL);
             //vl_type *massVisited = vl->mass;
             //vl_type currentV = vl->curV;
 
@@ -279,6 +280,7 @@ namespace hnswlib {
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
             dense_hash_set<tableint> *setVisited = vl->getVisitedSet();
+            setVisited->set_empty_key(NULL);
             //vl_type *massVisited = vl->mass;
             //vl_type currentV = vl->curV;
 
