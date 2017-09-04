@@ -79,7 +79,7 @@ namespace hnswlib {
             cout << "Size Mb: " << total_size / (1000 * 1000) << "\n";
             cur_element_count = 0;
 
-            visitedlistpool = new VisitedListPool(1, maxelements_ + maxclusters_);
+            //visitedlistpool = new VisitedListPool(1, maxelements_ + maxclusters_);
             //initializations for special treatment of the first node
             enterpoint_node = -1;
             maxlevel_ = -1;
@@ -122,7 +122,7 @@ namespace hnswlib {
         double mult_;
         int maxlevel_;
 
-        VisitedListPool *visitedlistpool;
+        //VisitedListPool *visitedlistpool;
         mutex cur_element_count_guard_;
         mutex MaxLevelGuard_;
 
@@ -199,8 +199,9 @@ namespace hnswlib {
         std::priority_queue<std::pair<dist_t, tableint  >> searchBaseLayer(tableint ep, void *datapoint, int level)
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
-            vl_type *massVisited = vl->mass;
-            vl_type currentV = vl->curV;
+            std::unordered_set<tableint> setVisited = vl->vl_set;
+            //vl_type *massVisited = vl->mass;
+            //vl_type currentV = vl->curV;
 
             std::priority_queue<std::pair<dist_t, tableint  >> topResults;
             std::priority_queue<std::pair<dist_t, tableint >> candidateSet;
@@ -232,17 +233,18 @@ namespace hnswlib {
                 linklistsizeint size = *ll_cur;
                 tableint *data = (tableint *) (ll_cur + 1);
 
-                _mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
-                _mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
+                //_mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
+                //_mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
                 _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
 
                 for (linklistsizeint j = 0; j < size; j++) {
                     tableint tnum = *(data + j);
-                    _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
+                  //  _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
                     _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
-                    if (!(massVisited[tnum] == currentV)) {
-
-                        massVisited[tnum] = currentV;
+                    if (setVisited.count(tnum) == 0){
+                    //if (!(massVisited[tnum] == currentV)) {
+                        setVisited.insert(tnum);
+                        //massVisited[tnum] = currentV;
                         dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
                         if (topResults.top().first > dist || topResults.size() < efConstruction_) {
                             candidateSet.emplace(-dist, tnum);
@@ -272,8 +274,9 @@ namespace hnswlib {
         searchBaseLayerST(tableint ep, void *datapoint, size_t ef, int q_idx = -1)
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
-            vl_type *massVisited = vl->mass;
-            vl_type currentV = vl->curV;
+            std::unordered_set<tableint> setVisited = std::unordered_set<tableint>();//vl->vl_set;
+            //vl_type *massVisited = vl->mass;
+            //vl_type currentV = vl->curV;
 
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> topResults;
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> candidateSet;
@@ -319,18 +322,20 @@ namespace hnswlib {
 
                 tableint *data = (tableint *)(ll_cur + 1);
 
-                _mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
-                _mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
+                //_mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
+                //_mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
                 _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
 
                 for (linklistsizeint j = 0; j < size; j++) {
                     int tnum = *(data + j);
 
-                    _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
+                    //_mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
                     _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
 
-                    if (!(massVisited[tnum] == currentV)) {
-                        massVisited[tnum] = currentV;
+                    if (setVisited.count(tnum) == 0){
+                        setVisited.insert(tnum);
+                    //if (!(massVisited[tnum] == currentV)) {
+                    //    massVisited[tnum] = currentV;
 
                         dist_t dist;
                         if (q_idx != -1)
@@ -354,7 +359,7 @@ namespace hnswlib {
                 }
             }
 
-            visitedlistpool->releaseVisitedList(vl);
+            //visitedlistpool->releaseVisitedList(vl);
             return topResults;
         }
 
