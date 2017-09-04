@@ -199,7 +199,7 @@ namespace hnswlib {
         std::priority_queue<std::pair<dist_t, tableint  >> searchBaseLayer(tableint ep, void *datapoint, int level)
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
-            std::unordered_set<tableint> &setVisited = vl->vl_set;
+            std::unordered_set<tableint> &setVisited = vl->getVisitedSet();
             //vl_type *massVisited = vl->mass;
             //vl_type currentV = vl->curV;
 
@@ -276,7 +276,7 @@ namespace hnswlib {
         searchBaseLayerST(tableint ep, void *datapoint, size_t ef, int q_idx = -1)
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
-            std::unordered_set<tableint> &setVisited = vl->vl_set;
+            std::unordered_set<tableint> &setVisited = vl->getVisitedSet();
             //vl_type *massVisited = vl->mass;
             //vl_type currentV = vl->curV;
 
