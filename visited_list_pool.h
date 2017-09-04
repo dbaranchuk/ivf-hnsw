@@ -10,17 +10,17 @@ class VisitedList {
 public:
 	//vl_type curV;
 	//vl_type *mass;
-    std::unordered_set<int> *vl_set;
+    std::unordered_set<unsigned int> *vl_set;
 	unsigned int numelements;
 
 	VisitedList(unsigned int numelements1)
 	{
 		//curV = -1;
 		numelements = numelements1;
-        vl_set = new std::unordered_set<int>();
+        vl_set = new std::unordered_set<unsigned int>();
 		//mass = new vl_type[numelements];
 	}
-    std::unordered_set<int> *getVisitedSet() {return vl_set;};
+    std::unordered_set<unsigned int> *getVisitedSet() {return vl_set;};
 	void reset()
 	{
 		//curV++;
