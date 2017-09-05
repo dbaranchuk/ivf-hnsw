@@ -162,7 +162,7 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
 template <typename dist_t>
 static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dist_t> &appr_alg,
                          size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
-                         size_t k, unordered_set<int> &cluster_idx_set, bool pq = false)
+                         size_t k, unordered_set<int> &cluster_idx_set)
 {
 	size_t correct = 0;
 	size_t total = 0;
@@ -201,27 +201,28 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 template <typename dist_t>
 static void test_vs_recall(unsigned char *massQ, size_t qsize, HierarchicalNSW<dist_t> &appr_alg,
                            size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
-                           size_t k, unordered_set<int> &cluster_idx_set, bool pq = false)
+                           size_t k, unordered_set<int> &cluster_idx_set)
 {
 	vector<size_t> efs; //= {30, 100, 460};
-    for (int i = k; i < 30; i++) {
-		efs.push_back(i);
-	}
-	for (int i = 30; i < 100; i+=10) {
-		efs.push_back(i);
-	}
-	for (int i = 100; i < 500; i += 40) {
-		efs.push_back(i);
-	}
-	for (size_t ef : efs)
-	{
+    if (k < 30) {
+        for (int i = k; i < 30; i++) efs.push_back(i);
+        for (int i = 30; i < 100; i += 10) efs.push_back(i);
+        for (int i = 100; i < 500; i += 40) efs.push_back(i);
+    }
+	else if (k < 100) {
+        for (int i = k; i < 100; i += 10) efs.push_back(i);
+        for (int i = 100; i < 500; i += 40) efs.push_back(i);
+    } else
+        for (int i = k; i < 500; i += 40) efs.push_back(i);
+
+	for (size_t ef : efs) {
 		appr_alg.ef_ = ef;
         appr_alg.dist_calc = 0;
         appr_alg.nev9zka = 0.0;
         appr_alg.hops = 0.0;
         appr_alg.hops0 = 0.0;
 		StopW stopw = StopW();
-		float recall = test_approx<dist_t>(massQ, qsize, appr_alg, vecdim, answers, k, cluster_idx_set, pq);
+		float recall = test_approx<dist_t>(massQ, qsize, appr_alg, vecdim, answers, k, cluster_idx_set);
 		float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
 		float avr_dist_count = appr_alg.dist_calc*1.f / qsize;
 		cout << ef << "\t" << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\t" << appr_alg.hops0 + appr_alg.hops << " hps\n";
@@ -587,7 +588,7 @@ void sift_test1B_PQ()
     cout << "Parsing gt:\n";
     get_gt<float>(massQA, qsize, answers, k);
     cout << "Loaded gt\n";
-    test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, true);
+    test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQA;
