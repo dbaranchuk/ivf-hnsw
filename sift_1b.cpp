@@ -584,9 +584,9 @@ void sift_test1B_PQ()
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
 
     cout << "Parsing gt:\n";
-    get_gt<float>(massQA, qsize, answers, 1);
+    get_gt<float>(massQA, qsize, answers, 10);
     cout << "Loaded gt\n";
-    test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, 1, cluster_idx_set, true);
+    test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, 10, cluster_idx_set, true);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQA;
