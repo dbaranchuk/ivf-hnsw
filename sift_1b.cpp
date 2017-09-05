@@ -437,7 +437,7 @@ void sift_test1B_PQ()
     const int M = 5;
     const int M_PQ = 16;
     const int M_cluster = 0;
-    const int k = 1000;
+    const int k = 100;
 
     const size_t clustersize = 0;// 5263157;
     const vector<size_t> elements_per_level = {100000000, 5000000, 250000, 12500, 625, 32};
@@ -460,13 +460,14 @@ void sift_test1B_PQ()
     //sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M%d/idx_%dM_pq.ivecs", M_PQ, subset_size_milllions);
 
     cout << "Loading GT:\n";
+    const int gt_size = 1000;
     ifstream inputGT(path_gt, ios::binary);
-    unsigned int *massQA = new unsigned int[qsize * k];
+    unsigned int *massQA = new unsigned int[qsize * gt_size];
     for (int i = 0; i < qsize; i++) {
         int t;
         inputGT.read((char *)&t, 4);
-        inputGT.read((char *)(massQA + k*i), t * 4);
-        if (t != k) {
+        inputGT.read((char *)(massQA + gt_size*i), t * 4);
+        if (t != gt_size) {
             cout << "error\n";
             exit(1);
         }
@@ -584,9 +585,9 @@ void sift_test1B_PQ()
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
 
     cout << "Parsing gt:\n";
-    get_gt<float>(massQA, qsize, answers, 10);
+    get_gt<float>(massQA, qsize, answers, k);
     cout << "Loaded gt\n";
-    test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, 10, cluster_idx_set, true);
+    test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, true);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQA;
