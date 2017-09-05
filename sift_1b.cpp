@@ -162,7 +162,7 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
 template <typename dist_t>
 static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dist_t> &appr_alg,
                          size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
-                         size_t k, unordered_set<int> &cluster_idx_set)
+                         size_t k, unordered_set<int> &cluster_idx_set, bool pq = false)
 {
 	size_t correct = 0;
 	size_t total = 0;
@@ -201,7 +201,7 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 template <typename dist_t>
 static void test_vs_recall(unsigned char *massQ, size_t qsize, HierarchicalNSW<dist_t> &appr_alg,
                            size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
-                           size_t k, unordered_set<int> &cluster_idx_set)
+                           size_t k, unordered_set<int> &cluster_idx_set, bool pq = false)
 {
 	vector<size_t> efs; //= {30, 100, 460};
     if (k < 30) {
@@ -222,7 +222,7 @@ static void test_vs_recall(unsigned char *massQ, size_t qsize, HierarchicalNSW<d
         appr_alg.hops = 0.0;
         appr_alg.hops0 = 0.0;
 		StopW stopw = StopW();
-		float recall = test_approx<dist_t>(massQ, qsize, appr_alg, vecdim, answers, k, cluster_idx_set);
+		float recall = test_approx<dist_t>(massQ, qsize, appr_alg, vecdim, answers, k, cluster_idx_set, pq);
 		float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
 		float avr_dist_count = appr_alg.dist_calc*1.f / qsize;
 		cout << ef << "\t" << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\t" << appr_alg.hops0 + appr_alg.hops << " hps\n";
@@ -588,7 +588,7 @@ void sift_test1B_PQ()
     cout << "Parsing gt:\n";
     get_gt<float>(massQA, qsize, answers, k);
     cout << "Loaded gt\n";
-    test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set);
+    test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, true);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQA;
