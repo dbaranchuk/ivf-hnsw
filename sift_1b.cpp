@@ -154,7 +154,7 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
-			answers[i].emplace(0.0f, massQA[k*i + j]);
+			answers[i].emplace(0.0f, massQA[1000*i + j]);
 		}
 	}
 }
@@ -437,7 +437,7 @@ void sift_test1B_PQ()
     const int M = 5;
     const int M_PQ = 16;
     const int M_cluster = 0;
-    const int k = 1;
+    const int k = 1000;
 
     const size_t clustersize = 0;// 5263157;
     const vector<size_t> elements_per_level = {100000000, 5000000, 250000, 12500, 625, 32};
@@ -584,9 +584,9 @@ void sift_test1B_PQ()
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
 
     cout << "Parsing gt:\n";
-    get_gt<float>(massQA, qsize, answers, k);
+    get_gt<float>(massQA, qsize, answers, 1);
     cout << "Loaded gt\n";
-    test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, true);
+    test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, 1, cluster_idx_set, true);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQA;
