@@ -437,13 +437,13 @@ void sift_test1B_PQ()
     const int efConstruction = 500;
     const int M = 4;
     const int M_PQ = 16;
-    const int M_cluster = 0;
+    const int M_cluster = 16;
     const int k = 1;
 
-    const size_t clustersize = 0;// 5263157;
-    const vector<size_t> elements_per_level = {100000000, 5000000, 250000, 12500, 625, 32};
+    const size_t clustersize = 52631578;
+    const vector<size_t> elements_per_level = {947368422, 50000000, 2500000, 125000, 6250, 312, 16};
 
-    const size_t vecsize = subset_size_milllions * 1000000;
+    const size_t vecsize = 947368422;//subset_size_milllions * 1000000;
     const size_t qsize = 10000;
     const size_t vecdim = 128;
 
@@ -553,7 +553,7 @@ void sift_test1B_PQ()
         //
         size_t report_every = 1000000;
 #pragma omp parallel for num_threads(32)
-        for (int i = 1; i < vecsize; i++) {
+        for (int i = 1; i < clustersize + vecsize; i++) {
             unsigned char massb[M_PQ];
 #pragma omp critical
             {

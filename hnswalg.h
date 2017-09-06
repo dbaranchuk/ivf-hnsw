@@ -86,7 +86,7 @@ namespace hnswlib {
             enterpoint_node = -1;
             maxlevel_ = -1;
 
-            linkLists_ = (char **) malloc(sizeof(void *) * (maxelements_ + maxclusters_));
+            linkLists_ = (char **) malloc(sizeof(void *) * (/*maxelements_ +*/maxclusters_));
             size_links_per_cluster_ = maxM_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_links_per_element_ = maxM_ * sizeof(tableint) + sizeof(linklistsizeint);
             mult_ = 1 / log(1.0 * M_);
@@ -464,8 +464,8 @@ namespace hnswlib {
                 else
                     ll_other = get_linklist(rez[idx], level);
 
-                //if (level > elementLevels[rez[idx]])
-                //    throw runtime_error("Bad level");
+                if (level > elementLevels[rez[idx]])
+                    throw runtime_error("Bad level");
 
                 linklistsizeint sz_link_list_other = *ll_other;
 
@@ -782,7 +782,7 @@ namespace hnswlib {
             size_links_per_cluster_ = maxM_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
 
             visitedlistpool = new VisitedListPool(1, maxclusters_ + maxelements_);
-            linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ + maxelements_));
+            //linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ + maxelements_));
 
             elementLevels = vector<char>(maxclusters_ + maxelements_);
             ef_ = 10;
