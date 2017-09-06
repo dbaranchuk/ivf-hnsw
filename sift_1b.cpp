@@ -438,7 +438,7 @@ void sift_test1B_PQ()
     const int M = 4;
     const int M_PQ = 16;
     const int M_cluster = 0;
-    const int k = 10;
+    const int k = 100;
 
     const size_t clustersize = 0;// 5263157;
     const vector<size_t> elements_per_level = {100000000, 5000000, 250000, 12500, 625, 32};
