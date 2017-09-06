@@ -154,7 +154,7 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
-			answers[i].emplace(0.0f, massQA[1000*i + j]);
+			answers[i].emplace(0.0f, massQA[1*i + j]);
 		}
 	}
 }
@@ -457,11 +457,11 @@ void sift_test1B_PQ()
     const char *path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
 
     sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_M_%d.bin", M_PQ, subset_size_milllions, efConstruction, M);
-    sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
-    //sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M%d/idx_%dM_pq.ivecs", M_PQ, subset_size_milllions);
+    //sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
+    sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M%d/idx_%dM_pq.ivecs", M_PQ, subset_size_milllions);
 
     cout << "Loading GT:\n";
-    const int gt_size = 1000;
+    const int gt_size = 1;
     ifstream inputGT(path_gt, ios::binary);
     unsigned int *massQA = new unsigned int[qsize * gt_size];
     for (int i = 0; i < qsize; i++) {
