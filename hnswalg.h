@@ -86,7 +86,7 @@ namespace hnswlib {
             enterpoint_node = -1;
             maxlevel_ = -1;
 
-            //linkLists_ = (char **) malloc(sizeof(void *) * (maxelements_ + maxclusters_));
+            linkLists_ = (char **) malloc(sizeof(void *) * (maxelements_ + maxclusters_));
             size_links_per_cluster_ = maxM_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_links_per_element_ = maxM_ * sizeof(tableint) + sizeof(linklistsizeint);
             mult_ = 1 / log(1.0 * M_);
@@ -514,7 +514,7 @@ namespace hnswlib {
             if (maxclusters_ == 0 || elements_per_level.size() == 0) {
                 std::uniform_real_distribution<double> distribution(0.0, 1.0);
                 for (size_t i = 0; i < maxelements_; ++i)
-                    elementLevels[i] = 0; (int) (-log(distribution(generator)) * mult_);
+                    elementLevels[i] = (int) (-log(distribution(generator)) * mult_);
             } else{
                 for (size_t i = 0; i < maxclusters_ + maxelements_; ++i){
                     if (i < elements_per_level[5]) elementLevels[i] = 5;
@@ -782,7 +782,7 @@ namespace hnswlib {
             size_links_per_cluster_ = maxM_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
 
             visitedlistpool = new VisitedListPool(1, maxclusters_ + maxelements_);
-            //linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ + maxelements_));
+            linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ + maxelements_));
 
             elementLevels = vector<char>(maxclusters_ + maxelements_);
             ef_ = 10;
@@ -793,7 +793,7 @@ namespace hnswlib {
                 readBinaryPOD(input, linkListSize);
                 if (linkListSize == 0) {
                     elementLevels[i] = 0;
-                    //linkLists_[i] = nullptr;
+                    linkLists_[i] = nullptr;
                 } else {
                     elementLevels[i] = linkListSize / size_links_per_cluster_;
                     linkLists_[i] = (char *) malloc(linkListSize);
@@ -805,7 +805,7 @@ namespace hnswlib {
                 readBinaryPOD(input, linkListSize);
                 if (linkListSize == 0) {
                     elementLevels[i] = 0;
-                    //linkLists_[i] = nullptr;
+                    linkLists_[i] = nullptr;
                 } else {
                     elementLevels[i] = linkListSize / size_links_per_element_;
                     linkLists_[i] = (char *) malloc(linkListSize);
