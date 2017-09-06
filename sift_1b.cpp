@@ -154,7 +154,7 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
 	cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
-			answers[i].emplace(0.0f, massQA[1*i + j]);
+			answers[i].emplace(0.0f, massQA[1000*i + j]);
 		}
 	}
 }
@@ -438,7 +438,7 @@ void sift_test1B_PQ()
     const int M = 4;
     const int M_PQ = 16;
     const int M_cluster = 0;
-    const int k = 1;
+    const int k = 10;
 
     const size_t clustersize = 0;// 5263157;
     const vector<size_t> elements_per_level = {100000000, 5000000, 250000, 12500, 625, 32};
@@ -461,7 +461,7 @@ void sift_test1B_PQ()
     sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M%d/idx_%dM_pq.ivecs", M_PQ, subset_size_milllions);
 
     cout << "Loading GT:\n";
-    const int gt_size = 1;
+    const int gt_size = 1000;
     ifstream inputGT(path_gt, ios::binary);
     unsigned int *massQA = new unsigned int[qsize * gt_size];
     for (int i = 0; i < qsize; i++) {
