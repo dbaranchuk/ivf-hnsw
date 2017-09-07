@@ -86,7 +86,7 @@ namespace hnswlib {
             enterpoint_node = -1;
             maxlevel_ = -1;
 
-            linkLists_ = (char **) malloc(sizeof(void *) * (/*maxelements_ +*/maxclusters_));
+            //linkLists_ = (char **) malloc(sizeof(void *) * (/*maxelements_ +*/maxclusters_));
             size_links_per_cluster_ = maxM_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
             size_links_per_element_ = maxM_ * sizeof(tableint) + sizeof(linklistsizeint);
             mult_ = 1 / log(1.0 * M_);
@@ -517,17 +517,21 @@ namespace hnswlib {
                     elementLevels[i] = (int) (-log(distribution(generator)) * mult_);
             } else{
                 for (size_t i = 0; i < maxclusters_ + maxelements_; ++i){
-                    if (i < elements_per_level[5]) elementLevels[i] = 5;
-                    else if (i < elements_per_level[5] + elements_per_level[4])
-                        elementLevels[i] = 4;
-                    else if (i < elements_per_level[5] + elements_per_level[4] + elements_per_level[3])
-                        elementLevels[i] = 3;
-                    else if (i < elements_per_level[5] + elements_per_level[4] + elements_per_level[3] +
-                                 elements_per_level[2])
-                        elementLevels[i] = 2;
-                    else if (i < elements_per_level[5] + elements_per_level[4] + elements_per_level[3] +
-                                 elements_per_level[2] + elements_per_level[1])
-                        elementLevels[i] = 1;
+                    if (i < elements_per_level[6])
+                        elementLevels[i] = 0;
+                    else if (i < elements_per_level[6] + elements_per_level[5])
+                        elementLevels[i] = 0;
+                    else if (i < elements_per_level[6] + elements_per_level[5] + elements_per_level[4])
+                        elementLevels[i] = 0;
+                    else if (i < elements_per_level[6] + elements_per_level[5] + elements_per_level[4] +
+                                 elements_per_level[3])
+                        elementLevels[i] = 0;
+                    else if (i < elements_per_level[6] + elements_per_level[5] + elements_per_level[4] +
+                                 elements_per_level[3] + elements_per_level[2])
+                        elementLevels[i] = 0;
+                    else if (i < elements_per_level[6] + elements_per_level[5] + elements_per_level[4] +
+                                 elements_per_level[3] + elements_per_level[2] + elements_per_level[1])
+                        elementLevels[i] = 0;
                     else
                         elementLevels[i] = 0;
                 }
@@ -782,7 +786,7 @@ namespace hnswlib {
             size_links_per_cluster_ = maxM_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
 
             visitedlistpool = new VisitedListPool(1, maxclusters_ + maxelements_);
-            linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ /*+ maxelements*/));
+            //linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ /*+ maxelements*/));
 
             elementLevels = vector<char>(maxclusters_ + maxelements_);
             ef_ = 10;
