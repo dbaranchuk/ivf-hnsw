@@ -782,7 +782,7 @@ namespace hnswlib {
             size_links_per_cluster_ = maxM_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
 
             visitedlistpool = new VisitedListPool(1, maxclusters_ + maxelements_);
-            //linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ + maxelements_));
+            linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters/*_ + maxelements*/));
 
             elementLevels = vector<char>(maxclusters_ + maxelements_);
             ef_ = 10;
@@ -793,7 +793,7 @@ namespace hnswlib {
                 readBinaryPOD(input, linkListSize);
                 if (linkListSize == 0) {
                     elementLevels[i] = 0;
-                    linkLists_[i] = nullptr;
+                    //linkLists_[i] = nullptr;
                 } else {
                     elementLevels[i] = linkListSize / size_links_per_cluster_;
                     linkLists_[i] = (char *) malloc(linkListSize);
@@ -805,7 +805,7 @@ namespace hnswlib {
                 readBinaryPOD(input, linkListSize);
                 if (linkListSize == 0) {
                     elementLevels[i] = 0;
-                    linkLists_[i] = nullptr;
+                    //linkLists_[i] = nullptr;
                 } else {
                     elementLevels[i] = linkListSize / size_links_per_element_;
                     linkLists_[i] = (char *) malloc(linkListSize);
@@ -814,8 +814,8 @@ namespace hnswlib {
             }
 
             input.close();
-            size_t predicted_size_per_element = size_data_per_element_ + sizeof(void *) + 5 + 8 + 2 * 8;
-            size_t predicted_size_per_cluster = size_data_per_cluster_ + sizeof(void *) + 5 + 8 + 2 * 8;
+            size_t predicted_size_per_element = size_data_per_element_ + sizeof(void *);
+            size_t predicted_size_per_cluster = size_data_per_cluster_ + sizeof(void *);
             size_t total_size = maxclusters_ * predicted_size_per_cluster + maxelements_ * predicted_size_per_element;
             cout << "Loaded index, predicted size=" << total_size / (1000 * 1000) << "\n";
             return;
