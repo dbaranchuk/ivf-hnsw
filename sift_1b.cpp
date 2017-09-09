@@ -433,7 +433,7 @@ void sift_test1B_PQ()
 {
     const int subset_size_milllions = 1000;
     const int efConstruction = 500;
-    const int M = 4;
+    const int M = 2;
     const int M_PQ = 16;
     const int M_cluster = 20;
     const int k = 1;
