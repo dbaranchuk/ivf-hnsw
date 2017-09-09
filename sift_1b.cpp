@@ -438,11 +438,11 @@ void sift_test1B() {
 void sift_test1B_PQ()
 {
     const int subset_size_milllions = 1000;
-    const int efConstruction = 240;
-    const int M = 2;
+    const int efConstruction = 500;
+    const int M = 4;
     const int M_PQ = 16;
-    const int M_cluster = 20;
-    const int k = 1;
+    const int M_cluster = 0; //20;
+    const int k = 10;
 
     const size_t clustersize = 52631578;
     const vector<size_t> elements_per_level = {947368422, 50000000, 2500000, 125000, 6250, 312, 16};
@@ -460,7 +460,7 @@ void sift_test1B_PQ()
     const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
     const char *path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
 
-    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_M_%d_cM_%d.bin", M_PQ, subset_size_milllions, efConstruction, M, M_cluster);
+    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_M%d_cM%d.bin", M_PQ, subset_size_milllions, efConstruction, M, M_cluster);
     sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
     //sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M%d/idx_%dM_pq.ivecs", M_PQ, subset_size_milllions);
 
