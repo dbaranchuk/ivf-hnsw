@@ -178,7 +178,7 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 
 		std::priority_queue< std::pair<dist_t, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
-		total += gt.size();
+		total += gt.size()/k;
 
         float dist2gt = appr_alg.space->fstdistfunc((void*)(massQ + vecdim*i),//appr_alg.getDataByInternalId(gt.top().second),
                                                      appr_alg.getDataByInternalId(appr_alg.enterpoint0));
@@ -189,11 +189,15 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 			gt.pop();
 		}
 
-		while (result.size()) {
-			if (g.find(result.top().second) != g.end())
-				correct++;
-			result.pop();
-		}
+        while (result.size()){
+            if (gt.top().second == result.top().second)
+                correct++;
+        }
+		//while (result.size()) {
+		//	if (g.find(result.top().second) != g.end())
+		//		correct++;
+		//	result.pop();
+		//}
 	}
 	return 1.0f*correct / total;
 }
@@ -271,12 +275,12 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
  * Main SIFT Test Function
 */
 void sift_test1B() {
-    const int subset_size_milllions = 10;
+    const int subset_size_milllions = 100;
     const int efConstruction = 240;
-    const int M = 16;
-    const int M_cluster = 0;//16;
+    const int M = 4;//16;
+    const int M_cluster = 16;
 
-    const size_t clustersize = 0;//5263157;
+    const size_t clustersize = 5263157;
     const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
 
     const size_t vecsize = subset_size_milllions * 1000000;
@@ -289,7 +293,7 @@ void sift_test1B() {
     const char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
     const char *path_clusters = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_base_100m_clusters.bvecs";
 
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift%dm_ef_%d_M_%d_cM_%d.bin", subset_size_milllions, efConstruction, M,
+    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift%dm_ef_%d_M_%d_cM_%d_1layer.bin", subset_size_milllions, efConstruction, M,
             M_cluster);
     sprintf(path_gt, "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
 
@@ -339,49 +343,49 @@ void sift_test1B() {
         StopW stopw = StopW();
         StopW stopw_full = StopW();
 
-//        cout << "Adding clustets:\n";
-//        ifstream inputC(path_clusters, ios::binary);
-//        inputC.read((char *) &in, 4);
-//        if (in != vecdim) {
-//            cout << "file error\n";
-//            exit(1);
-//        }
-//        inputC.read((char *) massb, in);
-//        appr_alg->addPoint((void *) (massb), (size_t) j1);
-//
-//#pragma omp parallel for
-//        for (int i = 1; i < clustersize; i++) {
-//            unsigned char massb[vecdim];
-//#pragma omp critical
-//            {
-//                inputC.read((char *) &in, 4);
-//                if (in != vecdim) {
-//                    cout << "file error";
-//                    exit(1);
-//                }
-//                inputC.read((char *) massb, in);
-//                j1++;
-//            }
-//            appr_alg->addPoint((void *) (massb), (size_t) j1);
-//        }
-//        inputC.close();
-//        cout << "Clusters have been added" << endl;
-
-        cout << "Adding elements\n";
-        ifstream input(path_data, ios::binary);
-        //
-        input.read((char *) &in, 4);
+        cout << "Adding clustets:\n";
+        ifstream inputC(path_clusters, ios::binary);
+        inputC.read((char *) &in, 4);
         if (in != vecdim) {
             cout << "file error\n";
             exit(1);
         }
-        input.read((char *) massb, in);
-
+        inputC.read((char *) massb, in);
         appr_alg->addPoint((void *) (massb), (size_t) j1);
+
+#pragma omp parallel for
+        for (int i = 1; i < clustersize; i++) {
+            unsigned char massb[vecdim];
+#pragma omp critical
+            {
+                inputC.read((char *) &in, 4);
+                if (in != vecdim) {
+                    cout << "file error";
+                    exit(1);
+                }
+                inputC.read((char *) massb, in);
+                j1++;
+            }
+            appr_alg->addPoint((void *) (massb), (size_t) j1);
+        }
+        inputC.close();
+        cout << "Clusters have been added" << endl;
+
+        cout << "Adding elements\n";
+        ifstream input(path_data, ios::binary);
+        //
+//        input.read((char *) &in, 4);
+//        if (in != vecdim) {
+//            cout << "file error\n";
+//            exit(1);
+//        }
+//        input.read((char *) massb, in);
+//
+//        appr_alg->addPoint((void *) (massb), (size_t) j1);
         //
         size_t report_every = 1000000;
 #pragma omp parallel for num_threads(32)
-        for (int i = 1; i < vecsize; i++) {
+        for (int i = 0; i < vecsize; i++) {
             unsigned char massb[vecdim];
 #pragma omp critical
             {

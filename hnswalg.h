@@ -202,9 +202,6 @@ namespace hnswlib {
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
             dense_hash_set<tableint> *setVisited = vl->getVisitedSet();
-            //setVisited->set_empty_key(NULL);
-            //vl_type *massVisited = vl->mass;
-            //vl_type currentV = vl->curV;
 
             std::priority_queue<std::pair<dist_t, tableint  >> topResults;
             std::priority_queue<std::pair<dist_t, tableint >> candidateSet;
@@ -212,7 +209,6 @@ namespace hnswlib {
 
             topResults.emplace(dist, ep);
             candidateSet.emplace(-dist, ep);
-            //massVisited[ep] = currentV;
             setVisited->insert(ep);
 
             dist_t lowerBound = dist;
@@ -238,18 +234,13 @@ namespace hnswlib {
                 linklistsizeint size = *ll_cur;
                 tableint *data = (tableint *) (ll_cur + 1);
 
-                //_mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
-                //_mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
                 _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
 
                 for (linklistsizeint j = 0; j < size; j++) {
                     tableint tnum = *(data + j);
-                  //  _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
                     _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
                     if (setVisited->count(tnum) == 0){
-                    //if (!(massVisited[tnum] == currentV)) {
                         setVisited->insert(tnum);
-                        //massVisited[tnum] = currentV;
                         dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
                         if (topResults.top().first > dist || topResults.size() < efConstruction_) {
                             candidateSet.emplace(-dist, tnum);
