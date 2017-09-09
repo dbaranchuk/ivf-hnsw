@@ -61,14 +61,14 @@ namespace hnswlib {
             maxM0_cluster_ = M_cluster_ * 2;
 
             size_links_level0_cluster_ = maxM0_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
-            size_data_per_cluster_ = size_links_level0_cluster_ + data_size_ + sizeof(labeltype);
+            size_data_per_cluster_ = size_links_level0_cluster_ + data_size_; //+ sizeof(labeltype);
             offsetData_cluster_ = size_links_level0_cluster_;
             label_offset_cluster_ = size_links_level0_cluster_ + data_size_;
 
             size_links_level0_ = maxM0_ * sizeof(tableint) + sizeof(linklistsizeint);
-            size_data_per_element_ = size_links_level0_ + data_size_ + sizeof(labeltype);
+            size_data_per_element_ = size_links_level0_ + data_size_;// + sizeof(labeltype);
             offsetData_ = size_links_level0_;
-            label_offset_ = size_links_level0_ + data_size_;
+            //label_offset_ = size_links_level0_ + data_size_;
             offsetLevel0_ = 0;
 
             std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
@@ -144,27 +144,27 @@ namespace hnswlib {
         size_t label_offset_;
         std::default_random_engine generator = std::default_random_engine(100);
 
-        inline labeltype getExternalLabel(tableint internal_id)
-        {
-            if (internal_id < maxclusters_)
-                return *((labeltype *) (data_level0_memory_ + internal_id * size_data_per_cluster_ + label_offset_cluster_));
-            else {
-                tableint internal_element_id = internal_id - maxclusters_;
-                return *((labeltype *) (data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-                                      internal_element_id * size_data_per_element_ + label_offset_));
-            }
-        }
-
-        inline labeltype *getExternalLabelPointer(tableint internal_id)
-        {
-            if (internal_id < maxclusters_)
-                return (labeltype *) (data_level0_memory_ + internal_id * size_data_per_cluster_ + label_offset_cluster_);
-            else {
-                tableint internal_element_id = internal_id - maxclusters_;
-                return (labeltype *) (data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-                                      internal_element_id * size_data_per_element_ + label_offset_);
-            }
-        }
+//        inline labeltype getExternalLabel(tableint internal_id)
+//        {
+//            if (internal_id < maxclusters_)
+//                return *((labeltype *) (data_level0_memory_ + internal_id * size_data_per_cluster_ + label_offset_cluster_));
+//            else {
+//                tableint internal_element_id = internal_id - maxclusters_;
+//                return *((labeltype *) (data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
+//                                      internal_element_id * size_data_per_element_ + label_offset_));
+//            }
+//        }
+//
+//        inline labeltype *getExternalLabelPointer(tableint internal_id)
+//        {
+//            if (internal_id < maxclusters_)
+//                return (labeltype *) (data_level0_memory_ + internal_id * size_data_per_cluster_ + label_offset_cluster_);
+//            else {
+//                tableint internal_element_id = internal_id - maxclusters_;
+//                return (labeltype *) (data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
+//                                      internal_element_id * size_data_per_element_ + label_offset_);
+//            }
+//        }
 
         inline char *getDataByInternalId(tableint internal_id)
         {
@@ -356,7 +356,6 @@ namespace hnswlib {
                     }
                 }
             }
-
             visitedlistpool->releaseVisitedList(vl);
             return topResults;
         }
@@ -668,21 +667,21 @@ namespace hnswlib {
             while (tmpTopResults.size() > 0) {
                 std::pair<dist_t, tableint> rez = tmpTopResults.top();
                 //if (getExternalLabel(rez.second) >= maxclusters_)
-                int obj = getExternalLabel(rez.second);
-                if (cluster_idx_set.count(obj) == 0)
+                //int obj = getExternalLabel(rez.second);
+                if (cluster_idx_set.count(rez.second) == 0)
                     topResults.push(rez);
                 tmpTopResults.pop();
             }
 
-            while (topResults.size() > k) {
+            while (topResults.size() > k)
                 topResults.pop();
-            }
-            while (topResults.size() > 0) {
-                std::pair<dist_t, tableint> rez = topResults.top();
-                results.push(std::pair<dist_t, labeltype>(rez.first, getExternalLabel(rez.second)-maxclusters_));
-                topResults.pop();
-            }
-            return results;
+
+            //while (topResults.size() > 0) {
+            //    std::pair<dist_t, tableint> rez = topResults.top();
+            //    results.push(std::pair<dist_t, labeltype>(rez.first, rez.second-maxclusters_));
+            //    topResults.pop();
+            //}
+            return topResults;
         };
 
 
