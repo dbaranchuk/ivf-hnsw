@@ -148,10 +148,10 @@ size_t getCurrentRSS()
 
 
 template <typename dist_t>
-static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers, size_t k)
+static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers, size_t k = 1)
 {
 	(vector<std::priority_queue< std::pair<dist_t, labeltype >>>(qsize)).swap(answers);
-	cout << qsize << "\n";
+    cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
 			answers[i].emplace(0.0f, massQA[1000*i + j]);
@@ -178,29 +178,23 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 
 		std::priority_queue< std::pair<dist_t, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
-		total += 1;//gt.size();
 
         float dist2gt = appr_alg.space->fstdistfunc((void*)(massQ + vecdim*i),//appr_alg.getDataByInternalId(gt.top().second),
                                                      appr_alg.getDataByInternalId(appr_alg.enterpoint0));
         appr_alg.nev9zka += dist2gt / qsize;
 
-		//while (gt.size()) {
-		//	g.insert(gt.top().second);
-		//	gt.pop();
-		//}
+		while (gt.size()) {
+			g.insert(gt.top().second);
+			gt.pop();
+		}
 
-        while (result.size()){
-            if (gt.top().second == result.top().second)
-                correct++;
-            result.pop();
-        }
-		//while (result.size()) {
-		//	if (g.find(result.top().second) != g.end())
-		//		correct++;
-		//	result.pop();
-		//}
+		while (result.size()) {
+			if (g.find(result.top().second) != g.end())
+				correct++;
+			result.pop();
+		}
 	}
-	return 1.0f*correct / total;
+	return 1.0f*correct / qsize;
 }
 
 template <typename dist_t>
@@ -591,7 +585,7 @@ void sift_test1B_PQ()
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
 
     cout << "Parsing gt:\n";
-    get_gt<float>(massQA, qsize, answers, k);
+    get_gt<float>(massQA, qsize, answers);
     cout << "Loaded gt\n";
     test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, true);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
