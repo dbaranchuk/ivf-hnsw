@@ -557,7 +557,7 @@ namespace hnswlib {
                        cur_c_element * size_data_per_element_ + offsetLevel0_, 0, size_data_per_element_);
             }
             // Initialisation of the data and label
-            memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
+            //memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
             memcpy(getDataByInternalId(cur_c), datapoint, data_size_);
 
             if (curlevel) {
