@@ -178,7 +178,7 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 
 		std::priority_queue< std::pair<dist_t, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
-		total += gt.size()/k;
+		total += 1;//gt.size();
 
         float dist2gt = appr_alg.space->fstdistfunc((void*)(massQ + vecdim*i),//appr_alg.getDataByInternalId(gt.top().second),
                                                      appr_alg.getDataByInternalId(appr_alg.enterpoint0));
@@ -192,6 +192,7 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
         while (result.size()){
             if (gt.top().second == result.top().second)
                 correct++;
+            result.pop();
         }
 		//while (result.size()) {
 		//	if (g.find(result.top().second) != g.end())
