@@ -184,10 +184,10 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
                                                      appr_alg.getDataByInternalId(appr_alg.enterpoint0));
         appr_alg.nev9zka += dist2gt / qsize;
 
-		while (gt.size()) {
-			g.insert(gt.top().second);
-			gt.pop();
-		}
+		//while (gt.size()) {
+		//	g.insert(gt.top().second);
+		//	gt.pop();
+		//}
 
         while (result.size()){
             if (gt.top().second == result.top().second)
