@@ -165,7 +165,6 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
                          size_t k, unordered_set<int> &cluster_idx_set, bool pq = false)
 {
 	size_t correct = 0;
-	size_t total = 0;
 
 	//uncomment to test in parallel mode:
 	//#pragma omp parallel for
@@ -206,13 +205,13 @@ static void test_vs_recall(unsigned char *massQ, size_t qsize, HierarchicalNSW<d
     if (k < 30) {
         for (int i = k; i < 30; i++) efs.push_back(i);
         for (int i = 30; i < 100; i += 10) efs.push_back(i);
-        for (int i = 100; i < 500; i += 40) efs.push_back(i);
+        for (int i = 100; i <= 500; i += 40) efs.push_back(i);
     }
 	else if (k < 100) {
         for (int i = k; i < 100; i += 10) efs.push_back(i);
-        for (int i = 100; i < 500; i += 40) efs.push_back(i);
+        for (int i = 100; i <= 500; i += 40) efs.push_back(i);
     } else
-        for (int i = k; i < 500; i += 40) efs.push_back(i);
+        for (int i = k; i <= 500; i += 40) efs.push_back(i);
 
 	for (size_t ef : efs) {
 		appr_alg.ef_ = ef;
@@ -437,7 +436,7 @@ void sift_test1B_PQ()
     const int M = 4;
     const int M_PQ = 16;
     const int M_cluster = 0; //20;
-    const int k = 10;
+    const int k = 100;
 
     const size_t clustersize = 52631578;
     const vector<size_t> elements_per_level = {947368422, 50000000, 2500000, 125000, 6250, 312, 16};
