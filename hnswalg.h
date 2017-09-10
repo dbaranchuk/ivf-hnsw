@@ -12,10 +12,24 @@
 #include <string.h>
 #include <unordered_set>
 #include <unordered_map>
-#include <map>
+#include <array>
 
 using google::dense_hash_map;
 using google::dense_hash_set;
+
+enum class Parameter{
+    threshold = 0,
+    maxelements = 1,
+    M = 2,
+    maxM = 3,
+    maxM0 = 4,
+    size_links_level0 = 5,
+    size_data_per_element = 6,
+    offsetData = 7,
+    size_links_per_element = 8,
+    partOffset = 9
+};
+
 
 template<typename T>
 void writeBinaryPOD(std::ostream &out, const T &podRef) {
@@ -54,23 +68,22 @@ namespace hnswlib {
             efConstruction_ = efConstruction;
 
             total_size = 0;
-            int i = 0;
+
+            std::array<size_t, 10> part;
             for (auto p : M_map){
-                dense_hash_map<const char *, size_t> part;
-                part.set_empty_key(NULL);
-                part["M"] = p.second;
-                part["threshold"] = p.first;
-                part["maxelements"] = (params.size() == 0) ? p.first : p.first - params.back()["threshold"];
-                part["maxM"] = p.second;
-                part["maxM0"] = 2 * p.second;
-                part["size_links_level0"] = part["maxM0"]* sizeof(tableint) + sizeof(linklistsizeint);
-                part["size_data_per_element"] = part["size_links_level0"] + data_size_;
-                part["offsetData"] = part["size_links_level0"];
-                part["size_links_per_element"] = part["maxM"] * sizeof(tableint) + sizeof(linklistsizeint);
-                part["partOffset"] = total_size;
+                part[Parameter::threshold] = p.first;
+                part[Parameter::maxelements] = (params.size() == 0) ? p.first : p.first - params.back()[Parameter::threshold];
+                part[Parameter::M] = p.second;
+                part[Parameter::maxM] = p.second;
+                part[Parameter::maxM0] = 2 * p.second;
+                part[Parameter::size_links_level0] = part[Parameter::maxM0]* sizeof(tableint) + sizeof(linklistsizeint);
+                part[Parameter::size_data_per_element] = part[Parameter::size_links_level0] + data_size_;
+                part[Parameter::offsetData] = part[Parameter::size_links_level0];
+                part[Parameter::size_links_per_element] = part[Parameter::maxM] * sizeof(tableint) + sizeof(linklistsizeint);
+                part[Parameter::partOffset] = total_size;
                 params.push_back(part);
 
-                total_size += part["maxelements"] * part["size_data_per_element"];
+                total_size += part[Parameter::maxelements] * part[Parameter::size_data_per_element];
             }
             offsetLevel0_ = 0;
 
@@ -86,7 +99,7 @@ namespace hnswlib {
             enterpoint_node = -1;
             maxlevel_ = -1;
 
-            linkLists_ = (char **) malloc(sizeof(void *) * params[0]["maxelements"]);
+            linkLists_ = (char **) malloc(sizeof(void *) * params[0][Parameter::maxelements]);
             mult_ = 1 / log(1.0 * params[0]["M"]);//M_);
         }
 
@@ -124,7 +137,7 @@ namespace hnswlib {
         char **linkLists_;
 
         vector<char> elementLevels;
-        vector<dense_hash_map<const char *, size_t>> params;
+        vector<array<size_t, 10>> params;
 
         size_t data_size_;
         size_t total_size;
@@ -146,14 +159,14 @@ namespace hnswlib {
         inline size_t getParamIdxByInternalId(tableint internal_id)
         {
             for (int i = 0; i < params.size(); ++i)
-                if (internal_id < params[i]["threshold"])
+                if (internal_id < params[i][Parameter::threshold])
                     return i;
         };
 
-        inline dense_hash_map<const char *, size_t> &getParamByInternalId(tableint internal_id)
+        inline array<size_t, 10> &getParamByInternalId(tableint internal_id)
         {
             for (int i = 0; i < params.size(); ++i)
-                if (internal_id < params[i]["threshold"])
+                if (internal_id < params[i][Parameter::threshold])
                     return params[i];
         };
 
@@ -161,27 +174,27 @@ namespace hnswlib {
         {
             size_t idx = getParamIdxByInternalId(internal_id);
             auto param = params[idx];
-            tableint ref_internal_id = (idx == 0) ? internal_id : internal_id - params[idx-1]["threshold"];
+            tableint ref_internal_id = (idx == 0) ? internal_id : internal_id - params[idx-1][Parameter::threshold];
 
-            return (data_level0_memory_ + param["partOffset"] +
-                    ref_internal_id * param["size_data_per_element"] + param["offsetData"]);
+            return (data_level0_memory_ + param[Parameter::partOffset] +
+                    ref_internal_id * param[Parameter::size_data_per_element] + param[Parameter::offsetData]);
         }
 
         inline linklistsizeint *get_linklist0(tableint internal_id)
         {
             size_t idx = getParamIdxByInternalId(internal_id);
             auto param = params[idx];
-            tableint ref_internal_id = (idx == 0) ? internal_id : internal_id - params[idx-1]["threshold"];
+            tableint ref_internal_id = (idx == 0) ? internal_id : internal_id - params[idx-1][Parameter::threshold];
 
-            return (linklistsizeint *) (data_level0_memory_ + param["partOffset"] +
-                    ref_internal_id * param["size_data_per_element"] + offsetLevel0_);
+            return (linklistsizeint *) (data_level0_memory_ + param[Parameter::partOffset] +
+                    ref_internal_id * param[Parameter::size_data_per_element] + offsetLevel0_);
         };
 
         inline linklistsizeint* get_linklist(tableint cur_c, int level)
         {
             auto param = getParamByInternalId(cur_c);
             //In Smart hnsw only clusters on the above levels
-            return (linklistsizeint *)(linkLists_[cur_c] + (level - 1) * param["size_links_per_element"]);
+            return (linklistsizeint *)(linkLists_[cur_c] + (level - 1) * param[Parameter::size_links_per_element]);
         };
 
 
@@ -363,8 +376,8 @@ namespace hnswlib {
                                        std::priority_queue<std::pair<dist_t, tableint>> topResults, int level)
         {
             auto param = getParamByInternalId(cur_c);
-            size_t curMmax = level ? param["maxM"] : param["maxM0"];
-            size_t curM = param["M"];
+            size_t curMmax = level ? param[Parameter::maxM] : param[Parameter::maxM0];
+            size_t curM = param[Parameter::M];
 
             getNeighborsByHeuristic(topResults, curM);
 
@@ -404,7 +417,7 @@ namespace hnswlib {
                     throw runtime_error("Connection to the same element");
 
                 auto rezParam = getParamByInternalId(rez[idx]);
-                size_t rezMmax = level ? rezParam["maxM"] : rezParam["maxM0"];
+                size_t rezMmax = level ? rezParam[Parameter::maxM] : rezParam[Parameter::maxM0];
                 linklistsizeint *ll_other = level ? get_linklist(rez[idx], level) : get_linklist0(rez[idx]);
 
                 if (level > elementLevels[rez[idx]])
@@ -502,7 +515,7 @@ namespace hnswlib {
             tableint currObj = enterpoint_node;
 
             auto curParam = getParamByInternalId(cur_c);
-            memset((char *) get_linklist0(cur_c), 0, curParam["size_data_per_element"]);
+            memset((char *) get_linklist0(cur_c), 0, curParam[Parameter::size_data_per_element]);
 
             // Initialisation of the data and label
             //memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
@@ -512,8 +525,8 @@ namespace hnswlib {
                 // Above levels contain only clusters
                 auto param = getParamByInternalId(cur_c);
 
-                linkLists_[cur_c] = (char *) malloc(param["size_links_per_element"] * curlevel);
-                memset(linkLists_[cur_c], 0, param["size_links_per_element"] * curlevel);
+                linkLists_[cur_c] = (char *) malloc(param[Parameter::size_links_per_element] * curlevel);
+                memset(linkLists_[cur_c], 0, param[Parameter::size_links_per_element] * curlevel);
             }
 
             if (currObj != -1) {
@@ -648,14 +661,14 @@ namespace hnswlib {
 
             // Clusters
             size_t threshold, M, maxM, maxM0;
-            std::unordered_map<const char *, size_t> part;
+            std::array<size_t, 10> part;
             size_t params_size = params.size();
 
             for (size_t i = 0; i < params_size; i++) {
-                threshold = params[i]["threshold"];
-                M = params[i]["M"];
-                maxM = params[i]["maxM"];
-                maxM0 = params[i]["maxM0"];
+                threshold = params[i][Parameter::threshold];
+                M = params[i][Parameter::M];
+                maxM = params[i][Parameter::maxM];
+                maxM0 = params[i][Parameter::maxM0];
 
                 writeBinaryPOD(output, threshold);
                 writeBinaryPOD(output, M);
@@ -665,8 +678,8 @@ namespace hnswlib {
 
             output.write(data_level0_memory_, total_size);
 
-            for (size_t i = 0; i < params[0]["threshold"]; i++) {
-                unsigned int linkListSize = elementLevels[i] > 0 ? params[0]["size_links_per_element"] * elementLevels[i] : 0;
+            for (size_t i = 0; i < params[0][Parameter::threshold]; ++i) {
+                unsigned int linkListSize = elementLevels[i] > 0 ? params[0][Parameter::size_links_per_element] * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
                     output.write((char *)linkLists_[i], linkListSize);
@@ -697,6 +710,7 @@ namespace hnswlib {
             size_t params_size;
             readBinaryPOD(input, params_size);
 
+            std::array<size_t, 10> part;
             size_t threshold, M, maxM, maxM0;
             total_size = 0;
 
@@ -706,39 +720,37 @@ namespace hnswlib {
                 readBinaryPOD(input, maxM);
                 readBinaryPOD(input, maxM0);
 
-                dense_hash_map<const char *, size_t> part;
-                part.set_empty_key(NULL);
-                part["M"] = M;
-                part["threshold"] = threshold;
-                part["maxelements"] = (params.size() == 0) ? threshold : params.back()["threshold"] - threshold;
-                part["maxM"] = M;
-                part["maxM0"] = 2 * M;
-                part["size_links_level0"] = part["maxM0"]* sizeof(tableint) + sizeof(linklistsizeint);
-                part["size_data_per_element"] = part["size_links_level0"] + data_size_;
-                part["offsetData"] = part["size_links_level0"];
-                part["size_links_per_element"] = part["maxM"] * sizeof(tableint) + sizeof(linklistsizeint);
+                part[Parameter::M] = M;
+                part[Parameter::threshold] = threshold;
+                part[Parameter::maxelements] = (params.size() == 0) ? threshold : params.back()[Parameter::threshold] - threshold;
+                part[Parameter::maxM] = M;
+                part[Parameter::maxM0] = 2 * M;
+                part[Parameter::size_links_level0] = part[Parameter::maxM0]* sizeof(tableint) + sizeof(linklistsizeint);
+                part[Parameter::size_data_per_element] = part[Parameter::size_links_level0] + data_size_;
+                part[Parameter::offsetData] = part[Parameter::size_links_level0];
+                part[Parameter::size_links_per_element] = part[Parameter::maxM] * sizeof(tableint) + sizeof(linklistsizeint);
                 params.push_back(part);
-                total_size += part["maxelements"] * part["size_data_per_element"];
+                total_size += part[Parameter::maxelements] * part[Parameter::size_data_per_element];
             }
 
             data_level0_memory_ = (char *) malloc(total_size);
             input.read(data_level0_memory_, total_size);
 
             visitedlistpool = new VisitedListPool(1, maxelements_);
-            linkLists_ = (char **) malloc(sizeof(void *) * (params[0]["threshold"]));
+            linkLists_ = (char **) malloc(sizeof(void *) * (params[0][Parameter::threshold]));
 
             elementLevels = vector<char>(maxelements_);
             for (int i = 0; i < maxelements_; i++)
                 elementLevels[i] = 0;
 
-            for (size_t i = 0; i < params[0]["threshold"]; i++) {
+            for (size_t i = 0; i < params[0][Parameter::threshold]; i++) {
                 unsigned int linkListSize;
                 readBinaryPOD(input, linkListSize);
                 if (linkListSize == 0) {
                     elementLevels[i] = 0;
                     linkLists_[i] = nullptr;
                 } else {
-                    elementLevels[i] = linkListSize / params[0]["size_links_per_element"];
+                    elementLevels[i] = linkListSize / params[0][Parameter::size_links_per_element];
                     linkLists_[i] = (char *) malloc(linkListSize);
                     input.read((char *)linkLists_[i], linkListSize);
                 }
