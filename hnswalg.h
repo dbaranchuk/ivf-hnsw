@@ -814,5 +814,13 @@ namespace hnswlib {
             cout << "Loaded index, predicted size=" << total_size / (1000 * 1000) << "\n";
             return;
         }
+
+        void printListsize()
+        {
+            for (int i = 0; i < maxelements_ + maxclusters_; i++){
+                linklistsizeint *ll_cur = getDataByInternalId(i);
+                cout << "Element #" << i << " M:" << *ll_cut << endl;
+            }
+        }
     };
 }

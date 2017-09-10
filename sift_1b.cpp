@@ -436,7 +436,7 @@ void sift_test1B_PQ()
     const int M = 4;
     const int M_PQ = 16;
     const int M_cluster = 20;
-    const int k = 10;
+    const int k = 100;
 
     const size_t clustersize = 52631578;
     const vector<size_t> elements_per_level = {947368422, 50000000, 2500000, 125000, 6250, 312, 16};
@@ -576,6 +576,7 @@ void sift_test1B_PQ()
         appr_alg->SaveIndex(path_index);
     }
     printInfo(appr_alg);
+    appr_alg->printListsize();
 
     unordered_set<int> cluster_idx_set;
     //for (int i = 0; i < clustersize; i++)
