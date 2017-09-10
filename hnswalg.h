@@ -497,8 +497,8 @@ namespace hnswlib {
                 templock.unlock();
             tableint currObj = enterpoint_node;
 
-            cout << "HUIII" << endl;
             auto curParam = getParamByInternalId(cur_c);
+            cout << curParam["threshold"] << endl;
             memset(get_linklist0(cur_c), 0, curParam["size_data_per_element"]);
 
             // Initialisation of the data and label
