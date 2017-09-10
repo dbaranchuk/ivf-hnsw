@@ -575,7 +575,6 @@ namespace hnswlib {
                 enterpoint_node = cur_c;
                 maxlevel_ = curlevel;
             }
-            cout << label << endl;
         };
 
         std::priority_queue<std::pair<dist_t, labeltype >> searchKnn(void *query_data, int k, std::unordered_set<int> &cluster_idx_set, int q_idx = -1)
