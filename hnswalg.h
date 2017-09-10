@@ -82,7 +82,7 @@ namespace hnswlib {
             maxlevel_ = -1;
 
             //linkLists_ = (char **) malloc(sizeof(void *) * (/*maxelements_ +*/maxclusters_));
-            mult_ = 1 / log(1.0 * M_);
+            mult_ = 1 / log(1.0 * params[0]["M"]);//M_);
         }
 
         ~HierarchicalNSW()
@@ -209,7 +209,7 @@ namespace hnswlib {
 
                 _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
 
-                for (linklistsizeint j = 0; j < size; j++) {
+                for (linklistsizeint j = 0; j < size; ++j) {
                     tableint tnum = *(data + j);
                     _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
                     if (setVisited->count(tnum) == 0){
@@ -283,7 +283,7 @@ namespace hnswlib {
                 //_mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
                 _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
 
-                for (linklistsizeint j = 0; j < size; j++) {
+                for (linklistsizeint j = 0; j < size; ++j) {
                     int tnum = *(data + j);
 
                     //_mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
@@ -446,12 +446,12 @@ namespace hnswlib {
 
         void setElementLevels(const vector<size_t> &elements_per_level)
         {
-            if (maxclusters_ == 0 || elements_per_level.size() == 0) {
+            if (elements_per_level.size() == 0) {
                 std::uniform_real_distribution<double> distribution(0.0, 1.0);
                 for (size_t i = 0; i < maxelements_; ++i)
                     elementLevels[i] = 0; // (int) (-log(distribution(generator)) * mult_);
             } else{
-                for (size_t i = 0; i < maxclusters_ + maxelements_; ++i){
+                for (size_t i = 0; i < maxelements_; ++i){
                     if (i < elements_per_level[6])
                         elementLevels[i] = 0;
                     else if (i < elements_per_level[6] + elements_per_level[5])
