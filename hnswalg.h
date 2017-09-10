@@ -729,7 +729,7 @@ namespace hnswlib {
                     elementLevels[i] = 0;
                     linkLists_[i] = nullptr;
                 } else {
-                    elementLevels[i] = linkListSize / size_links_per_cluster_;
+                    elementLevels[i] = linkListSize / params[0]["size_links_per_element"];
                     linkLists_[i] = (char *) malloc(linkListSize);
                     input.read((char *)linkLists_[i], linkListSize);
                 }
