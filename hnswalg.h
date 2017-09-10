@@ -12,7 +12,9 @@
 #include <string.h>
 #include <unordered_set>
 #include <unordered_map>
+#include <map>
 
+using google::dense_hash_map;
 using google::dense_hash_set;
 
 template<typename T>
