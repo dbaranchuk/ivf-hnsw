@@ -13,6 +13,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <array>
+#include <map>
 
 using google::dense_hash_map;
 using google::dense_hash_set;
@@ -177,7 +178,7 @@ namespace hnswlib {
             tableint ref_internal_id = (idx == 0) ? internal_id : internal_id - params[idx-1][i_threshold];
 
             return (data_level0_memory_ + param[i_partOffset] +
-                    ref_internal_id * param[Parameter::size_data_per_element] + param[i_offsetData]);
+                    ref_internal_id * param[i_size_data_per_element] + param[i_offsetData]);
         }
 
         inline linklistsizeint *get_linklist0(tableint internal_id)
