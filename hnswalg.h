@@ -507,8 +507,7 @@ namespace hnswlib {
             tableint currObj = enterpoint_node;
 
             auto curParam = getParamByInternalId(cur_c);
-            cout << curParam["threshold"] << endl;
-            memset(get_linklist0(cur_c), 0, curParam["size_data_per_element"]);
+            memset((char *) get_linklist0(cur_c), 0, curParam["size_data_per_element"]);
 
             // Initialisation of the data and label
             //memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
@@ -551,10 +550,8 @@ namespace hnswlib {
                     if (level > maxlevelcopy || level < 0)
                         throw runtime_error("Level error");
 
-                    cout << "HUIII" << endl;
                     std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
                                                                                                     level);
-                    cout << "HUIII" << endl;
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
                 }
 
