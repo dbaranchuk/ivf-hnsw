@@ -819,7 +819,7 @@ namespace hnswlib {
         {
             for (int i = 0; i < maxelements_ + maxclusters_; i++){
                 linklistsizeint *ll_cur = getDataByInternalId(i);
-                cout << "Element #" << i << " M:" << *ll_cur << endl;
+                cout << "Element #" << i << " M:" << (int) *ll_cur << endl;
             }
         }
     };
