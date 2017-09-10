@@ -268,14 +268,175 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 /**
  * Main SIFT Test Function
 */
-void sift_test1B() {
-    const int subset_size_milllions = 100;
-    const int efConstruction = 240;
-    const int M = 4;//16;
-    const int M_cluster = 16;
+//void sift_test1B() {
+//    const int subset_size_milllions = 100;
+//    const int efConstruction = 240;
+//    const int M = 4;//16;
+//    const int M_cluster = 16;
+//
+//    const size_t clustersize = 5263157;
+//    const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
+//
+//    const size_t vecsize = subset_size_milllions * 1000000;
+//    const size_t qsize = 10000;
+//    const size_t vecdim = 128;
+//
+//    char path_index[1024];
+//    char path_gt[1024];
+//    const char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
+//    const char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
+//    const char *path_clusters = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_base_100m_clusters.bvecs";
+//
+//    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift%dm_ef_%d_M_%d_cM_%d_1layer.bin", subset_size_milllions, efConstruction, M,
+//            M_cluster);
+//    sprintf(path_gt, "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
+//
+//    cout << "Loading GT:\n";
+//    ifstream inputGT(path_gt, ios::binary);
+//    unsigned int *massQA = new unsigned int[qsize * 1000];
+//    for (int i = 0; i < qsize; i++) {
+//        int t;
+//        inputGT.read((char *) &t, 4);
+//        inputGT.read((char *) (massQA + 1000 * i), t * 4);
+//        if (t != 1000) {
+//            cout << "err";
+//            exit(1);
+//        }
+//    }
+//    inputGT.close();
+//
+//    cout << "Loading queries:\n";
+//    unsigned char massQ[qsize * vecdim];
+//    ifstream inputQ(path_q, ios::binary);
+//
+//    for (int i = 0; i < qsize; i++) {
+//        int in = 0;
+//        inputQ.read((char *) &in, 4);
+//        if (in != vecdim) {
+//            cout << "file error";
+//            exit(1);
+//        }
+//        inputQ.read((char *) (massQ + i * vecdim), in);
+//    }
+//    inputQ.close();
+//
+//    L2SpaceI l2space(vecdim);
+//
+//    HierarchicalNSW<int> *appr_alg;
+//    if (exists_test(path_index)) {
+//        appr_alg = new HierarchicalNSW<int>(&l2space, path_index, false);
+//        cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
+//    } else {
+//        cout << "Building index:\n";
+//        unsigned char massb[vecdim];
+//
+//        int j1 = 0, in = 0;
+//        appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
+//        appr_alg->setElementLevels(elements_per_layer);
+//
+//        StopW stopw = StopW();
+//        StopW stopw_full = StopW();
+//
+//        cout << "Adding clustets:\n";
+//        ifstream inputC(path_clusters, ios::binary);
+//        inputC.read((char *) &in, 4);
+//        if (in != vecdim) {
+//            cout << "file error\n";
+//            exit(1);
+//        }
+//        inputC.read((char *) massb, in);
+//        appr_alg->addPoint((void *) (massb), (size_t) j1);
+//
+//#pragma omp parallel for
+//        for (int i = 1; i < clustersize; i++) {
+//            unsigned char massb[vecdim];
+//#pragma omp critical
+//            {
+//                inputC.read((char *) &in, 4);
+//                if (in != vecdim) {
+//                    cout << "file error";
+//                    exit(1);
+//                }
+//                inputC.read((char *) massb, in);
+//                j1++;
+//            }
+//            appr_alg->addPoint((void *) (massb), (size_t) j1);
+//        }
+//        inputC.close();
+//        cout << "Clusters have been added" << endl;
+//
+//        cout << "Adding elements\n";
+//        ifstream input(path_data, ios::binary);
+//        //
+////        input.read((char *) &in, 4);
+////        if (in != vecdim) {
+////            cout << "file error\n";
+////            exit(1);
+////        }
+////        input.read((char *) massb, in);
+////
+////        appr_alg->addPoint((void *) (massb), (size_t) j1);
+//        //
+//        size_t report_every = 1000000;
+//#pragma omp parallel for num_threads(32)
+//        for (int i = 0; i < vecsize; i++) {
+//            unsigned char massb[vecdim];
+//#pragma omp critical
+//            {
+//                input.read((char *) &in, 4);
+//                if (in != vecdim) {
+//                    cout << "file error";
+//                    exit(1);
+//                }
+//                input.read((char *) massb, in);
+//                j1++;
+//                if ((j1 - clustersize) % report_every == 0) {
+//                    cout << (j1 - clustersize) / (0.01 * vecsize) << " %, "
+//                         << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
+//                         << getCurrentRSS() / 1000000 << " Mb \n";
+//                    stopw.reset();
+//                }
+//            }
+//            appr_alg->addPoint((void *) (massb), (size_t) j1);
+//        }
+//        input.close();
+//        cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
+//        appr_alg->SaveIndex(path_index);
+//    }
+//    printInfo(appr_alg);
+//
+//    //FILE *fin = fopen("/sata2/dbaranchuk/synthetic_100m_5m/new_cluster_idx.dat", "rb");
+//    //int *cluster_idx_table = new int[clustersize];
+//    //int ret = fread(cluster_idx_table, sizeof(int), clustersize, fin);
+//    unordered_set<int> cluster_idx_set;
+//    for (int i = 0; i < clustersize; i++) {
+//    //    cluster_idx_set.insert(cluster_idx_table[i]);
+//        cluster_idx_set.insert(i);
+//    }
+//    //delete cluster_idx_table;
+//    //fclose(fin);
+//    //
+//
+//	vector<std::priority_queue< std::pair<int, labeltype >>> answers;
+//	size_t k = 1;
+//	cout << "Parsing gt:\n";
+//	get_gt<int>(massQA, qsize, answers, k);
+//	cout << "Loaded gt\n";
+//    test_vs_recall<int>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set);
+//	cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
+//
+//    delete massQA;
+//}
 
-    const size_t clustersize = 5263157;
-    const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
+void sift_test1B_PQ()
+{
+    const int subset_size_milllions = 1000;
+    const int efConstruction = 500;
+    const int M_PQ = 16;
+    const int k = 1;
+
+    const map<size_t, size_t> M_map = {{50000000, 16}, {100000000, 12}, {150000000, 8}, {800000000, 4}, {900000000, 3}, {1000000000, 2}};
+    const vector<size_t> elements_per_level = {subset_size_milllions * 1000000};//{947368422, 50000000, 2500000, 125000, 6250, 312, 16};
 
     const size_t vecsize = subset_size_milllions * 1000000;
     const size_t qsize = 10000;
@@ -284,177 +445,12 @@ void sift_test1B() {
     char path_index[1024];
     char path_gt[1024];
     const char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
-    const char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
-    const char *path_clusters = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_base_100m_clusters.bvecs";
-
-    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift%dm_ef_%d_M_%d_cM_%d_1layer.bin", subset_size_milllions, efConstruction, M,
-            M_cluster);
-    sprintf(path_gt, "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
-
-    cout << "Loading GT:\n";
-    ifstream inputGT(path_gt, ios::binary);
-    unsigned int *massQA = new unsigned int[qsize * 1000];
-    for (int i = 0; i < qsize; i++) {
-        int t;
-        inputGT.read((char *) &t, 4);
-        inputGT.read((char *) (massQA + 1000 * i), t * 4);
-        if (t != 1000) {
-            cout << "err";
-            exit(1);
-        }
-    }
-    inputGT.close();
-
-    cout << "Loading queries:\n";
-    unsigned char massQ[qsize * vecdim];
-    ifstream inputQ(path_q, ios::binary);
-
-    for (int i = 0; i < qsize; i++) {
-        int in = 0;
-        inputQ.read((char *) &in, 4);
-        if (in != vecdim) {
-            cout << "file error";
-            exit(1);
-        }
-        inputQ.read((char *) (massQ + i * vecdim), in);
-    }
-    inputQ.close();
-
-    L2SpaceI l2space(vecdim);
-
-    HierarchicalNSW<int> *appr_alg;
-    if (exists_test(path_index)) {
-        appr_alg = new HierarchicalNSW<int>(&l2space, path_index, false);
-        cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
-    } else {
-        cout << "Building index:\n";
-        unsigned char massb[vecdim];
-
-        int j1 = 0, in = 0;
-        appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
-        appr_alg->setElementLevels(elements_per_layer);
-
-        StopW stopw = StopW();
-        StopW stopw_full = StopW();
-
-        cout << "Adding clustets:\n";
-        ifstream inputC(path_clusters, ios::binary);
-        inputC.read((char *) &in, 4);
-        if (in != vecdim) {
-            cout << "file error\n";
-            exit(1);
-        }
-        inputC.read((char *) massb, in);
-        appr_alg->addPoint((void *) (massb), (size_t) j1);
-
-#pragma omp parallel for
-        for (int i = 1; i < clustersize; i++) {
-            unsigned char massb[vecdim];
-#pragma omp critical
-            {
-                inputC.read((char *) &in, 4);
-                if (in != vecdim) {
-                    cout << "file error";
-                    exit(1);
-                }
-                inputC.read((char *) massb, in);
-                j1++;
-            }
-            appr_alg->addPoint((void *) (massb), (size_t) j1);
-        }
-        inputC.close();
-        cout << "Clusters have been added" << endl;
-
-        cout << "Adding elements\n";
-        ifstream input(path_data, ios::binary);
-        //
-//        input.read((char *) &in, 4);
-//        if (in != vecdim) {
-//            cout << "file error\n";
-//            exit(1);
-//        }
-//        input.read((char *) massb, in);
-//
-//        appr_alg->addPoint((void *) (massb), (size_t) j1);
-        //
-        size_t report_every = 1000000;
-#pragma omp parallel for num_threads(32)
-        for (int i = 0; i < vecsize; i++) {
-            unsigned char massb[vecdim];
-#pragma omp critical
-            {
-                input.read((char *) &in, 4);
-                if (in != vecdim) {
-                    cout << "file error";
-                    exit(1);
-                }
-                input.read((char *) massb, in);
-                j1++;
-                if ((j1 - clustersize) % report_every == 0) {
-                    cout << (j1 - clustersize) / (0.01 * vecsize) << " %, "
-                         << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
-                         << getCurrentRSS() / 1000000 << " Mb \n";
-                    stopw.reset();
-                }
-            }
-            appr_alg->addPoint((void *) (massb), (size_t) j1);
-        }
-        input.close();
-        cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
-        appr_alg->SaveIndex(path_index);
-    }
-    printInfo(appr_alg);
-
-    //FILE *fin = fopen("/sata2/dbaranchuk/synthetic_100m_5m/new_cluster_idx.dat", "rb");
-    //int *cluster_idx_table = new int[clustersize];
-    //int ret = fread(cluster_idx_table, sizeof(int), clustersize, fin);
-    unordered_set<int> cluster_idx_set;
-    for (int i = 0; i < clustersize; i++) {
-    //    cluster_idx_set.insert(cluster_idx_table[i]);
-        cluster_idx_set.insert(i);
-    }
-    //delete cluster_idx_table;
-    //fclose(fin);
-    //
-
-	vector<std::priority_queue< std::pair<int, labeltype >>> answers;
-	size_t k = 1;
-	cout << "Parsing gt:\n";
-	get_gt<int>(massQA, qsize, answers, k);
-	cout << "Loaded gt\n";
-    test_vs_recall<int>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set);
-	cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
-
-    delete massQA;
-}
-
-
-void sift_test1B_PQ()
-{
-    const int subset_size_milllions = 1000;
-    const int efConstruction = 500;
-    const int M = 4;
-    const int M_PQ = 16;
-    const int M_cluster = 20;
-    const int k = 100;
-
-    const size_t clustersize = 52631578;
-    const vector<size_t> elements_per_level = {947368422, 50000000, 2500000, 125000, 6250, 312, 16};
-
-    const size_t vecsize = 947368422;//subset_size_milllions * 1000000;
-    const size_t qsize = 10000;
-    const size_t vecdim = 128;
-
-    char path_index[1024];
-    char path_gt[1024];
-    const char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
     const char *path_data = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base_pq.bvecs";
-    const char *path_clusters = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base_100m_clusters_pq.bvecs";
 
     const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
     const char *path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
 
-    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_M%d_cM%d.bin", M_PQ, subset_size_milllions, efConstruction, M, M_cluster);
+    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d.bin", M_PQ, subset_size_milllions, efConstruction);
     sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
     //sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M%d/idx_%dM_pq.ivecs", M_PQ, subset_size_milllions);
 
@@ -503,39 +499,11 @@ void sift_test1B_PQ()
         unsigned char massb[M_PQ];
 
         int j1 = 0, in = 0;
-        appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
+        appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M_map, efConstruction);
         appr_alg->setElementLevels(elements_per_level);
 
         StopW stopw = StopW();
         StopW stopw_full = StopW();
-
-//        cout << "Adding clustets:\n";
-//        ifstream inputC(path_clusters, ios::binary);
-//        inputC.read((char *) &in, 4);
-//        if (in != M_PQ) {
-//            cout << "file error\n";
-//            exit(1);
-//        }
-//        inputC.read((char *) massb, in);
-//        appr_alg->addPoint((void *) (massb), (size_t) j1);
-//
-//#pragma omp parallel for
-//        for (int i = 1; i < clustersize; i++) {
-//            unsigned char massb[M_PQ];
-//#pragma omp critical
-//            {
-//                inputC.read((char *) &in, 4);
-//                if (in != M_PQ) {
-//                    cout << "file error";
-//                    exit(1);
-//                }
-//                inputC.read((char *) massb, in);
-//                j1++;
-//            }
-//            appr_alg->addPoint((void *) (massb), (size_t) j1);
-//        }
-//        inputC.close();
-//        cout << "Clusters have been added" << endl;
 
         cout << "Adding elements\n";
         ifstream input(path_data, ios::binary);
@@ -551,7 +519,7 @@ void sift_test1B_PQ()
         //
         size_t report_every = 1000000;
 #pragma omp parallel for num_threads(32)
-        for (int i = 1; i < clustersize + vecsize; i++) {
+        for (int i = 1; i < vecsize; i++) {
             unsigned char massb[M_PQ];
 #pragma omp critical
             {
@@ -563,7 +531,7 @@ void sift_test1B_PQ()
                 input.read((char *) massb, in);
                 j1++;
                 if (j1 % report_every == 0) {
-                    cout << j1 / (0.01 * (clustersize + vecsize)) << " %, "
+                    cout << j1 / (0.01 * vecsize) << " %, "
                          << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
                          << getCurrentRSS() / 1000000 << " Mb \n";
                     stopw.reset();
@@ -579,9 +547,6 @@ void sift_test1B_PQ()
     appr_alg->printListsize();
 
     unordered_set<int> cluster_idx_set;
-    //for (int i = 0; i < clustersize; i++)
-    //    cluster_idx_set.insert(i);
-
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
 
     cout << "Parsing gt:\n";
@@ -592,3 +557,209 @@ void sift_test1B_PQ()
 
     delete massQA;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//void sift_test1B_PQ()
+//{
+//    const int subset_size_milllions = 1000;
+//    const int efConstruction = 500;
+//    const int M = 4;
+//    const int M_PQ = 16;
+//    const int M_cluster = 20;
+//    const int k = 100;
+//
+//    const size_t clustersize = 52631578;
+//    const vector<size_t> elements_per_level = {947368422, 50000000, 2500000, 125000, 6250, 312, 16};
+//
+//    const size_t vecsize = 947368422;//subset_size_milllions * 1000000;
+//    const size_t qsize = 10000;
+//    const size_t vecdim = 128;
+//
+//    char path_index[1024];
+//    char path_gt[1024];
+//    const char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
+//    const char *path_data = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base_pq.bvecs";
+//    const char *path_clusters = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base_100m_clusters_pq.bvecs";
+//
+//    const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
+//    const char *path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
+//
+//    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_M%d_cM%d.bin", M_PQ, subset_size_milllions, efConstruction, M, M_cluster);
+//    sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
+//    //sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M%d/idx_%dM_pq.ivecs", M_PQ, subset_size_milllions);
+//
+//    cout << "Loading GT:\n";
+//    const int gt_size = 1000;
+//    ifstream inputGT(path_gt, ios::binary);
+//    unsigned int *massQA = new unsigned int[qsize * gt_size];
+//    for (int i = 0; i < qsize; i++) {
+//        int t;
+//        inputGT.read((char *)&t, 4);
+//        inputGT.read((char *)(massQA + gt_size*i), t * 4);
+//        if (t != gt_size) {
+//            cout << "error\n";
+//            exit(1);
+//        }
+//    }
+//
+//    cout << "Loading queries:\n";
+//    unsigned char massQ[qsize * vecdim];
+//    ifstream inputQ(path_q, ios::binary);
+//
+//    for (int i = 0; i < qsize; i++) {
+//        int in = 0;
+//        inputQ.read((char *)&in, 4);
+//        if (in != vecdim)
+//        {
+//            cout << "file error";
+//            exit(1);
+//        }
+//        inputQ.read((char *)(massQ + i*vecdim), in);
+//    }
+//    inputQ.close();
+//
+//    L2SpacePQ l2space(vecdim, M_PQ, 256);
+//
+//    l2space.set_codebooks(path_codebooks);
+//    l2space.set_construction_tables(path_tables);
+//    l2space.compute_query_tables(massQ, qsize);
+//
+//    HierarchicalNSW<float> *appr_alg;
+//    if (exists_test(path_index)) {
+//        appr_alg = new HierarchicalNSW<float>(&l2space, path_index, false);
+//        cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
+//    } else {
+//        cout << "Building index:\n";
+//        unsigned char massb[M_PQ];
+//
+//        int j1 = 0, in = 0;
+//        appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
+//        appr_alg->setElementLevels(elements_per_level);
+//
+//        StopW stopw = StopW();
+//        StopW stopw_full = StopW();
+//
+////        cout << "Adding clustets:\n";
+////        ifstream inputC(path_clusters, ios::binary);
+////        inputC.read((char *) &in, 4);
+////        if (in != M_PQ) {
+////            cout << "file error\n";
+////            exit(1);
+////        }
+////        inputC.read((char *) massb, in);
+////        appr_alg->addPoint((void *) (massb), (size_t) j1);
+////
+////#pragma omp parallel for
+////        for (int i = 1; i < clustersize; i++) {
+////            unsigned char massb[M_PQ];
+////#pragma omp critical
+////            {
+////                inputC.read((char *) &in, 4);
+////                if (in != M_PQ) {
+////                    cout << "file error";
+////                    exit(1);
+////                }
+////                inputC.read((char *) massb, in);
+////                j1++;
+////            }
+////            appr_alg->addPoint((void *) (massb), (size_t) j1);
+////        }
+////        inputC.close();
+////        cout << "Clusters have been added" << endl;
+//
+//        cout << "Adding elements\n";
+//        ifstream input(path_data, ios::binary);
+//        //
+//        input.read((char *) &in, 4);
+//        if (in != M_PQ) {
+//            cout << "file error\n";
+//            exit(1);
+//        }
+//        input.read((char *) massb, in);
+//
+//        appr_alg->addPoint((void *) (massb), (size_t) j1);
+//        //
+//        size_t report_every = 1000000;
+//#pragma omp parallel for num_threads(32)
+//        for (int i = 1; i < clustersize + vecsize; i++) {
+//            unsigned char massb[M_PQ];
+//#pragma omp critical
+//            {
+//                input.read((char *) &in, 4);
+//                if (in != M_PQ) {
+//                    cout << "file error";
+//                    exit(1);
+//                }
+//                input.read((char *) massb, in);
+//                j1++;
+//                if (j1 % report_every == 0) {
+//                    cout << j1 / (0.01 * (clustersize + vecsize)) << " %, "
+//                         << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
+//                         << getCurrentRSS() / 1000000 << " Mb \n";
+//                    stopw.reset();
+//                }
+//            }
+//            appr_alg->addPoint((void *) (massb), (size_t) j1);
+//        }
+//        input.close();
+//        cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
+//        appr_alg->SaveIndex(path_index);
+//    }
+//    printInfo(appr_alg);
+//    appr_alg->printListsize();
+//
+//    unordered_set<int> cluster_idx_set;
+//    //for (int i = 0; i < clustersize; i++)
+//    //    cluster_idx_set.insert(i);
+//
+//    vector<std::priority_queue< std::pair<float, labeltype >>> answers;
+//
+//    cout << "Parsing gt:\n";
+//    get_gt<float>(massQA, qsize, answers);
+//    cout << "Loaded gt\n";
+//    test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, true);
+//    cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
+//
+//    delete massQA;
+//}

@@ -41,54 +41,47 @@ namespace hnswlib {
             LoadIndex(location, s);
         }
 
-        HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxElements, size_t M = 16, size_t efConstruction = 200,
-                        size_t maxClusters = 0, size_t M_cluster = 0): elementLevels(maxElements + maxClusters)
+        HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxElements, const std::map<size_t, size_t> &M_map, size_t efConstruction = 200,
+                        size_t maxClusters = 0, size_t M_cluster = 0): elementLevels(maxElements)
         {
             maxelements_ = maxElements;
-            maxclusters_ = maxClusters;
 
             space = s;
             data_size_ = s->get_data_size();
 
-            M_ = M;
-            maxM_ = M_;
-            maxM0_ = M_ * 2;
             efConstruction_ = efConstruction;
-            ef_ = 7;
 
-            M_cluster_ = M_cluster;
-            maxM_cluster_ = M_cluster_;
-            maxM0_cluster_ = M_cluster_ * 2;
+            total_size = 0;
+            for (auto p : M_map){
+                unordered_map<const char *, size_t> part;
+                part["M"] = p.second;
+                part["maxelements"] = p.first;
+                part["maxM"] = p.second;
+                part["maxM0"] = p.second;
+                part["size_links_level0"] = part["maxM0"]* sizeof(tableint) + sizeof(linklistsizeint);
+                part["size_data_per_element"] = part["size_links_level0"] + data_size_;
+                part["offsetData"] = part["size_links_level0"];
+                part["size_links_per_element"] = part["maxM"] * sizeof(tableint) + sizeof(linklistsizeint);
+                part["partOffset"] = total_size;
+                params.push_back(part);
 
-            size_links_level0_cluster_ = maxM0_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
-            size_data_per_cluster_ = size_links_level0_cluster_ + data_size_; //+ sizeof(labeltype);
-            offsetData_cluster_ = size_links_level0_cluster_;
-            label_offset_cluster_ = size_links_level0_cluster_ + data_size_;
-
-            size_links_level0_ = maxM0_ * sizeof(tableint) + sizeof(linklistsizeint);
-            size_data_per_element_ = size_links_level0_ + data_size_;// + sizeof(labeltype);
-            offsetData_ = size_links_level0_;
-            //label_offset_ = size_links_level0_ + data_size_;
+                total_size += part["maxelements"] * part["size_data_per_element"];
+            }
             offsetLevel0_ = 0;
 
             std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
-            data_level0_memory_ = (char *) malloc(maxclusters_ * size_data_per_cluster_ + maxelements_ * size_data_per_element_);
+            data_level0_memory_ = (char *) malloc(total_size);
             std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
 
-            size_t predicted_size_per_element = size_data_per_element_ ;
-            size_t predicted_size_per_cluster = size_data_per_cluster_ ;
-            size_t total_size = maxclusters_ * predicted_size_per_cluster + maxelements_ * predicted_size_per_element;
             cout << "Size Mb: " << total_size / (1000 * 1000) << "\n";
             cur_element_count = 0;
 
-            visitedlistpool = new VisitedListPool(1, maxelements_ + maxclusters_);
+            visitedlistpool = new VisitedListPool(1, maxelements_);
             //initializations for special treatment of the first node
             enterpoint_node = -1;
             maxlevel_ = -1;
 
             //linkLists_ = (char **) malloc(sizeof(void *) * (/*maxelements_ +*/maxclusters_));
-            size_links_per_cluster_ = maxM_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
-            size_links_per_element_ = maxM_ * sizeof(tableint) + sizeof(linklistsizeint);
             mult_ = 1 / log(1.0 * M_);
         }
 
@@ -99,25 +92,14 @@ namespace hnswlib {
                 if (elementLevels[i] > 0)
                     free(linkLists_[i]);
             }
-            free(linkLists_);
+            //free(linkLists_);
             delete visitedlistpool;
             delete space;
         }
         // Fields
         SpaceInterface<dist_t> *space;
 
-        size_t maxelements_, maxclusters_;
-        size_t size_data_per_element_, size_data_per_cluster_;
-        size_t size_links_per_element_, size_links_per_cluster_;
-
-        size_t M_, M_cluster_;
-        size_t maxM_, maxM_cluster_;
-        size_t maxM0_, maxM0_cluster_;
-
-        size_t size_links_level0_, size_links_level0_cluster_;
-        size_t offsetData_, offsetData_cluster_;
-        size_t label_offset_cluster_;
-
+        size_t maxelements_;
         size_t cur_element_count;
 
         size_t efConstruction_;
@@ -137,24 +119,14 @@ namespace hnswlib {
         char **linkLists_;
 
         vector<char> elementLevels;
-        size_t numElementsLevels = 0;
-
+        vector<unordered_map<const char *, size_t>> params;
 
         size_t data_size_;
-        size_t label_offset_;
+        size_t total_size;
+        //size_t label_offset_;
         std::default_random_engine generator = std::default_random_engine(100);
 
-//        inline labeltype getExternalLabel(tableint internal_id)
-//        {
-//            if (internal_id < maxclusters_)
-//                return *((labeltype *) (data_level0_memory_ + internal_id * size_data_per_cluster_ + label_offset_cluster_));
-//            else {
-//                tableint internal_element_id = internal_id - maxclusters_;
-//                return *((labeltype *) (data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-//                                      internal_element_id * size_data_per_element_ + label_offset_));
-//            }
-//        }
-//
+
 //        inline labeltype *getExternalLabelPointer(tableint internal_id)
 //        {
 //            if (internal_id < maxclusters_)
@@ -166,36 +138,39 @@ namespace hnswlib {
 //            }
 //        }
 
+        inline unordered_map<const char *, size_t> getParamByInternalId(tableint internal_id)
+        {
+            for (int i = 0; i < params.size(); ++i)
+                if (internal_id < params[i]["maxelements"])
+                    return params[i];
+        };
+
         inline char *getDataByInternalId(tableint internal_id)
         {
-            if (internal_id < maxclusters_)
-                return (data_level0_memory_ + internal_id * size_data_per_cluster_ + offsetData_cluster_);
-            else {
-                tableint internal_element_id = internal_id - maxclusters_;
-                return (data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-                        internal_element_id * size_data_per_element_ + offsetData_);
-            }
+            auto param  = getParamByInternalId(internal_id);
+            tableint ref_internal_id = internal_id - param["maxelements"];
+
+            return (data_level0_memory_ + param["partOffset"] +
+                    ref_internal_id * param["size_data_per_element"] + param["offsetData"]);
         }
 
-        inline linklistsizeint *get_linklist0(tableint cur_c)
+        inline linklistsizeint *get_linklist0(tableint internal_id)
         {
-            if (cur_c < maxclusters_)
-                return (linklistsizeint *)(data_level0_memory_ + cur_c * size_data_per_cluster_ + offsetLevel0_);
-            else {
-                tableint cur_c_element = cur_c - maxclusters_;
-                return (linklistsizeint *)(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-                                 cur_c_element * size_data_per_element_ + offsetLevel0_);
-            }
+            auto param  = getParamByInternalId(internal_id);
+            tableint ref_internal_id = internal_id - param["maxelements"];
+
+            return (linklistsizeint *) (data_level0_memory_ + param["partOffset"] +
+                    ref_internal_id * param["size_data_per_element"] + offsetLevel0_);
         };
 
-        inline linklistsizeint* get_linklist(tableint cur_c, int level)
-        {
-            //In Smart hnsw only clusters on the above levels
-            if (cur_c < maxclusters_)
-                return (linklistsizeint *)(linkLists_[cur_c] + (level - 1) * size_links_per_cluster_);
-            else
-                return (linklistsizeint *)(linkLists_[cur_c] + (level - 1) * size_links_per_element_);
-        };
+//        inline linklistsizeint* get_linklist(tableint cur_c, int level)
+//        {
+//            //In Smart hnsw only clusters on the above levels
+//            if (cur_c < maxclusters_)
+//                return (linklistsizeint *)(linkLists_[cur_c] + (level - 1) * size_links_per_cluster_);
+//            else
+//                return (linklistsizeint *)(linkLists_[cur_c] + (level - 1) * size_links_per_element_);
+//        };
 
 
         std::priority_queue<std::pair<dist_t, tableint  >> searchBaseLayer(tableint ep, void *datapoint, int level)
@@ -298,20 +273,6 @@ namespace hnswlib {
                 if (-curr_el_pair.first > lowerBound)
                     break;
 
-//                int k = 1;
-//                for (int i = 1; i < k; i++) {
-//                    if (!candidateSet.empty()) {
-//                        curr_el_pair[i] = candidateSet.top();
-//                        if ((-curr_el_pair[1].first) > lowerBound) {
-//                            k = i;
-//                            break;
-//                        } else
-//                            candidateSet.pop();
-//                    } else {
-//                        k = i;
-//                    }
-//                }
-//                for (int i = 0; i < k; i++) {
                 candidateSet.pop();
                 tableint curNodeNum = curr_el_pair.second;
 
@@ -395,13 +356,10 @@ namespace hnswlib {
         void mutuallyConnectNewElement(void *datapoint, tableint cur_c,
                                        std::priority_queue<std::pair<dist_t, tableint>> topResults, int level)
         {
-            size_t Mcurmax;
-            if (cur_c < maxclusters_)
-                Mcurmax = level ? maxM_cluster_ : maxM0_cluster_;
-            else
-                Mcurmax = level ? maxM_ : maxM0_;
+            auto param = getParamByInternalId(cur_c);
+            size_t curMmax = level ? param["maxM"] : param["maxM0"];
+            size_t curM = param["M"];
 
-            size_t curM = cur_c < maxclusters_ ? M_cluster_ : M_;
             getNeighborsByHeuristic(topResults, curM);
 
             while (topResults.size() > curM) {
@@ -416,11 +374,8 @@ namespace hnswlib {
                 topResults.pop();
             }
             {
-                linklistsizeint *ll_cur;
-                if (level == 0)
-                    ll_cur = get_linklist0(cur_c);
-                else
-                    ll_cur = get_linklist(cur_c, level);
+                linklistsizeint *ll_cur = level ? get_linklist(cur_c, level) : get_linklist0(cur_c);
+
                 if (*ll_cur) {
                     cout << *ll_cur << "\n";
                     cout << (int) elementLevels[cur_c] << "\n";
@@ -442,27 +397,19 @@ namespace hnswlib {
                 if (rez[idx] == cur_c)
                     throw runtime_error("Connection to the same element");
 
-                size_t Mrezmax;
-                if (rez[idx] < maxclusters_)
-                    Mrezmax = level ? maxM_cluster_ : maxM0_cluster_;
-                else
-                    Mrezmax = level ? maxM_ : maxM0_;
-
-                linklistsizeint *ll_other;
-                if (level == 0)
-                    ll_other = get_linklist0(rez[idx]);
-                else
-                    ll_other = get_linklist(rez[idx], level);
+                auto rezParam = getParamByInternalId(rez[idx]);
+                size_t rezMmax = level ? rezParam["maxM"] : rezParam["maxM0"];
+                linklistsizeint *ll_other = level ? get_linklist(rez[idx], level) : get_linklist0(rez[idx]);
 
                 if (level > elementLevels[rez[idx]])
                     throw runtime_error("Bad level");
 
                 linklistsizeint sz_link_list_other = *ll_other;
 
-                if (sz_link_list_other > Mrezmax || sz_link_list_other < 0)
+                if (sz_link_list_other > rezMmax || sz_link_list_other < 0)
                     throw runtime_error("Bad sz_link_list_other");
 
-                if (sz_link_list_other < Mrezmax) {
+                if (sz_link_list_other < rezMmax) {
                     tableint *data = (tableint *) (ll_other + 1);
                     data[sz_link_list_other] = cur_c;
                     *ll_other = sz_link_list_other + 1;
@@ -477,7 +424,7 @@ namespace hnswlib {
                     for (int j = 0; j < sz_link_list_other; j++)
                         candidates.emplace(space->fstdistfunc(getDataByInternalId(data[j]), getDataByInternalId(rez[idx])), data[j]);
 
-                    getNeighborsByHeuristic(candidates, Mrezmax);
+                    getNeighborsByHeuristic(candidates, rezMmax);
 
                     int indx = 0;
                     while (candidates.size() > 0) {
@@ -504,7 +451,7 @@ namespace hnswlib {
             if (maxclusters_ == 0 || elements_per_level.size() == 0) {
                 std::uniform_real_distribution<double> distribution(0.0, 1.0);
                 for (size_t i = 0; i < maxelements_; ++i)
-                    elementLevels[i] = (int) (-log(distribution(generator)) * mult_);
+                    elementLevels[i] = 0; // (int) (-log(distribution(generator)) * mult_);
             } else{
                 for (size_t i = 0; i < maxclusters_ + maxelements_; ++i){
                     if (i < elements_per_level[6])
@@ -533,14 +480,14 @@ namespace hnswlib {
             tableint cur_c = 0;
             {
                 unique_lock <mutex> lock(cur_element_count_guard_);
-                if (cur_element_count >= (maxelements_ + maxclusters_)) {
+                if (cur_element_count >= maxelements_) {
                     cout << "The number of elements exceeds the specified limit\n";
                     throw runtime_error("The number of elements exceeds the specified limit");
                 };
                 cur_c = cur_element_count;
                 cur_element_count++;
             }
-            int curlevel = elementLevels[cur_c];
+            int curlevel = 0; //elementLevels[cur_c];
 
             unique_lock <mutex> templock(global);
             int maxlevelcopy = maxlevel_;
@@ -548,28 +495,24 @@ namespace hnswlib {
                 templock.unlock();
             tableint currObj = enterpoint_node;
 
-            if (cur_c < maxclusters_) {
-                memset(data_level0_memory_ + cur_c * size_data_per_cluster_ + offsetLevel0_, 0, size_data_per_cluster_);
-            } else {
-                tableint cur_c_element = cur_c - maxclusters_;
-                memset(data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-                       cur_c_element * size_data_per_element_ + offsetLevel0_, 0, size_data_per_element_);
-            }
+            auto curParam = getParamByInternalId(cur_c);
+            memset(get_linklist0(cur_c), 0, curParam["size_data_per_element"]);
+
             // Initialisation of the data and label
             //memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
             memcpy(getDataByInternalId(cur_c), datapoint, data_size_);
 
-            if (curlevel) {
-                // Above levels contain only clusters
-                if (cur_c < maxclusters_) {
-                    linkLists_[cur_c] = (char *) malloc(size_links_per_cluster_ * curlevel);
-                    memset(linkLists_[cur_c], 0, size_links_per_cluster_ * curlevel);
-                }
-                else {
-                    linkLists_[cur_c] = (char *) malloc(size_links_per_element_ * curlevel);
-                    memset(linkLists_[cur_c], 0, size_links_per_element_ * curlevel);
-                }
-            }
+//            if (curlevel) {
+//                // Above levels contain only clusters
+//                if (cur_c < maxclusters_) {
+//                    linkLists_[cur_c] = (char *) malloc(size_links_per_cluster_ * curlevel);
+//                    memset(linkLists_[cur_c], 0, size_links_per_cluster_ * curlevel);
+//                }
+//                else {
+//                    linkLists_[cur_c] = (char *) malloc(size_links_per_element_ * curlevel);
+//                    memset(linkLists_[cur_c], 0, size_links_per_element_ * curlevel);
+//                }
+//            }
             if (currObj != -1) {
                 if (curlevel < maxlevelcopy) {
                     dist_t curdist = space->fstdistfunc(datapoint, getDataByInternalId(currObj));
@@ -583,7 +526,7 @@ namespace hnswlib {
                             tableint *datal = (tableint *) (data + 1);
                             for (linklistsizeint i = 0; i < size; i++) {
                                 tableint cand = datal[i];
-                                if (cand < 0 || cand > (maxelements_ + maxclusters_))
+                                if (cand < 0 || cand > maxelements_)
                                     throw runtime_error("cand error");
                                 dist_t d = space->fstdistfunc(datapoint, getDataByInternalId(cand));
                                 if (d < curdist) {
@@ -637,7 +580,7 @@ namespace hnswlib {
                     tableint *datal = (tableint *) (data + 1);
                     for (linklistsizeint i = 0; i < size; i++) {
                         tableint cand = datal[i];
-                        if (cand < 0 || cand > (maxelements_ + maxclusters_))
+                        if (cand < 0 || cand > maxelements_)
                             throw runtime_error("cand error");
 
                         dist_t d;
@@ -694,46 +637,143 @@ namespace hnswlib {
             writeBinaryPOD(output, offsetLevel0_);
             writeBinaryPOD(output, maxelements_);
             writeBinaryPOD(output, cur_element_count);
-            writeBinaryPOD(output, size_data_per_element_);
-            writeBinaryPOD(output, label_offset_);
-            writeBinaryPOD(output, offsetData_);
             writeBinaryPOD(output, maxlevel_);
             writeBinaryPOD(output, enterpoint_node);
 
-            writeBinaryPOD(output, maxM_);
-            writeBinaryPOD(output, maxM0_);
-            writeBinaryPOD(output, M_);
             writeBinaryPOD(output, mult_);
             writeBinaryPOD(output, efConstruction_);
 
             // Clusters
-            writeBinaryPOD(output, maxclusters_);
-            writeBinaryPOD(output, size_data_per_cluster_);
-            writeBinaryPOD(output, label_offset_cluster_);
-            writeBinaryPOD(output, offsetData_cluster_);
-            writeBinaryPOD(output, maxM_cluster_);
-            writeBinaryPOD(output, maxM0_cluster_);
-            writeBinaryPOD(output, M_cluster_);
+            size_t maxelements, M, maxM, maxM0;
+            std::unordered_map<const char *, size_t> part;
+            size_t param_size = params.size();
 
-            output.write(data_level0_memory_, maxclusters_ * size_data_per_cluster_ +
-                         maxelements_ * size_data_per_element_);
 
-            for (size_t i = 0; i < maxclusters_; i++) {
-                unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_cluster_ * elementLevels[i] : 0;
-                writeBinaryPOD(output, linkListSize);
-                if (linkListSize)
-                    output.write((char *)linkLists_[i], linkListSize);
+            for (size_t i = 0; i < params_size; i++) {
+                maxelements = params[i]["maxelements"];
+                M = params[i]["M"];
+                maxM = params[i]["maxM"];
+                maxM0 = params[i]["maxM0"];
+
+                writeBinaryPOD(output, maxelements);
+                writeBinaryPOD(output, M);
+                writeBinaryPOD(output, maxM);
+                writeBinaryPOD(output, maxM0);
             }
-            for (size_t i = maxclusters_; i < maxelements_; i++) {
-                unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_element_ * elementLevels[i] : 0;
-                writeBinaryPOD(output, linkListSize);
-                if (linkListSize)
-                    output.write((char *)linkLists_[i], linkListSize);
-            }
+
+            output.write(data_level0_memory_, total_size);
+
+//            for (size_t i = 0; i < maxclusters_; i++) {
+//                unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_cluster_ * elementLevels[i] : 0;
+//                writeBinaryPOD(output, linkListSize);
+//                if (linkListSize)
+//                    output.write((char *)linkLists_[i], linkListSize);
+//            }
+//            for (size_t i = maxclusters_; i < maxelements_; i++) {
+//                unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_element_ * elementLevels[i] : 0;
+//                writeBinaryPOD(output, linkListSize);
+//                if (linkListSize)
+//                    output.write((char *)linkLists_[i], linkListSize);
+//            }
             output.close();
         }
 
         void LoadIndex(const string &location, SpaceInterface<dist_t> *s)
+        {
+            cout << "Loading index from " << location << endl;
+            std::ifstream input(location, std::ios::binary);
+            streampos position;
+
+            readBinaryPOD(input, offsetLevel0_);
+            readBinaryPOD(input, maxelements_);
+            readBinaryPOD(input, cur_element_count);
+            readBinaryPOD(input, maxlevel_);
+            readBinaryPOD(input, enterpoint_node);
+
+            readBinaryPOD(input, mult_);
+            readBinaryPOD(input, efConstruction_);
+
+            space = s;
+            data_size_ = s->get_data_size();
+
+            // Params
+            size_t params_size;
+            readBinaryPOD(input, params_size);
+
+            size_t maxelements, M, maxM, maxM0;
+            std::unordered_map<const char *, size_t> part;
+
+            total_size = 0;
+            for (size_t i = 0; i < params_size; i++) {
+                readBinaryPOD(input, maxelements);
+                readBinaryPOD(input, M);
+                readBinaryPOD(input, maxM);
+                readBinaryPOD(input, maxM0);
+
+                part["M"] = M;
+                part["maxelements"] = maxelements;
+                part["maxM"] = M;
+                part["maxM0"] = 2 * M;
+                part["size_links_level0"] = part["maxM0"]* sizeof(tableint) + sizeof(linklistsizeint);
+                part["size_data_per_element"] = part["size_links_level0"] + data_size_;
+                part["offsetData"] = part["size_links_level0"];
+                part["size_links_per_element"] = part["maxM"] * sizeof(tableint) + sizeof(linklistsizeint);
+                params.push_back(part);
+                total_size += maxelements * part["size_data_per_element"];
+            }
+
+            data_level0_memory_ = (char *) malloc(total_size);
+            input.read(data_level0_memory_, total_size);
+
+            visitedlistpool = new VisitedListPool(1, maxelements_);
+            linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ /*+ maxelements*/));
+
+            elementLevels = vector<char>(maxelements_);
+            for (int i = 0; i < maxelements_; i++)
+                elementLevels[i] = 0;
+
+//            for (size_t i = 0; i < maxclusters_; i++) {
+//                unsigned int linkListSize;
+//                readBinaryPOD(input, linkListSize);
+//                if (linkListSize == 0) {
+//                    elementLevels[i] = 0;
+//                    //linkLists_[i] = nullptr;
+//                } else {
+//                    elementLevels[i] = linkListSize / size_links_per_cluster_;
+//                    linkLists_[i] = (char *) malloc(linkListSize);
+//                    input.read((char *)linkLists_[i], linkListSize);
+//                }
+//            }
+//            for (size_t i = maxclusters_; i < maxelements_; i++) {
+//                unsigned int linkListSize;
+//                readBinaryPOD(input, linkListSize);
+//                if (linkListSize == 0) {
+//                    elementLevels[i] = 0;
+//                    //linkLists_[i] = nullptr;
+//                } else {
+//                    elementLevels[i] = linkListSize / size_links_per_element_;
+//                    linkLists_[i] = (char *) malloc(linkListSize);
+//                    input.read(linkLists_[i], linkListSize);
+//                }
+//            }
+
+            input.close();
+            cout << "Loaded index, predicted size=" << total_size / (1000 * 1000) << "\n";
+            return;
+        }
+
+        void printListsize()
+        {
+            for (int i = 0; i < maxelements_ + maxclusters_; i++){
+                if (i % 100 != 0)
+                    continue;
+
+                linklistsizeint *ll_cur = get_linklist0(i);
+                cout << "Element #" << i << " M:" << (int) *ll_cur << endl;
+            }
+        }
+
+        void PrevLoadIndex(const string &location, SpaceInterface<dist_t> *s)
         {
             cout << "Loading index from " << location << endl;
             std::ifstream input(location, std::ios::binary);
@@ -763,13 +803,14 @@ namespace hnswlib {
             readBinaryPOD(input, maxM0_cluster_);
             readBinaryPOD(input, M_cluster_);
 
+
             space = s;
             data_size_ = s->get_data_size();
 
             data_level0_memory_ = (char *) malloc(maxclusters_ * size_data_per_cluster_ +
                                                   maxelements_ * size_data_per_element_);
             input.read(data_level0_memory_, maxclusters_ * size_data_per_cluster_  +
-                       maxelements_ * size_data_per_element_);
+                                            maxelements_ * size_data_per_element_);
 
 
             size_links_per_element_ = maxM_ * sizeof(tableint) + sizeof(linklistsizeint);
@@ -781,7 +822,6 @@ namespace hnswlib {
             elementLevels = vector<char>(maxclusters_ + maxelements_);
             ef_ = 10;
 
-            numElementsLevels = 0;
             for (size_t i = 0; i < maxclusters_; i++) {
                 unsigned int linkListSize;
                 readBinaryPOD(input, linkListSize);
@@ -808,22 +848,9 @@ namespace hnswlib {
             }
 
             input.close();
-            size_t predicted_size_per_element = size_data_per_element_;
-            size_t predicted_size_per_cluster = size_data_per_cluster_;
-            size_t total_size = maxclusters_ * predicted_size_per_cluster + maxelements_ * predicted_size_per_element;
+            size_t total_size = maxclusters_ * size_data_per_cluster + maxelements_ * size_data_per_element;
             cout << "Loaded index, predicted size=" << total_size / (1000 * 1000) << "\n";
             return;
-        }
-
-        void printListsize()
-        {
-            for (int i = 0; i < maxelements_ + maxclusters_; i++){
-                if (i % 100 != 0)
-                    continue;
-
-                linklistsizeint *ll_cur = get_linklist0(i);
-                cout << "Element #" << i << " M:" << (int) *ll_cur << endl;
-            }
         }
     };
 }
