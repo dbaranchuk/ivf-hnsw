@@ -818,9 +818,9 @@ namespace hnswlib {
         void printListsize()
         {
             for (int i = 0; i < maxelements_ + maxclusters_; i++){
-                if (i % 10000 != 0)
+                if (i % 100 != 0)
                     continue;
-                
+
                 linklistsizeint *ll_cur = get_linklist0(i);
                 cout << "Element #" << i << " M:" << (int) *ll_cur << endl;
             }
