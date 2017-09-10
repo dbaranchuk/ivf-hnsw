@@ -235,8 +235,6 @@ static void printInfo(HierarchicalNSW<float> *hnsw)
         throw "Empty HNSW";
 
     cout << "Information about constructed HNSW" << endl;
-    cout << "M: " << hnsw->M_ << endl;
-    cout << "Test K: " << 1 << endl;
     cout << "efConstruction: " << hnsw->efConstruction_<< endl;
 
     map<char, int> table = map<char, int>();
