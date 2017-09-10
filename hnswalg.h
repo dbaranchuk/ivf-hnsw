@@ -142,6 +142,13 @@ namespace hnswlib {
 //            }
 //        }
 
+        inline size_t getParamIdxByInternalId(tableint internal_id)
+        {
+            for (int i = 0; i < params.size(); ++i)
+                if (internal_id < params[i]["threshold"])
+                    return i;
+        };
+
         inline unordered_map<const char *, size_t> &getParamByInternalId(tableint internal_id)
         {
             for (int i = 0; i < params.size(); ++i)
@@ -151,8 +158,9 @@ namespace hnswlib {
 
         inline char *getDataByInternalId(tableint internal_id)
         {
-            auto param  = getParamByInternalId(internal_id);
-            tableint ref_internal_id = internal_id - param["threshold"];
+            size_t idx = getParamIdxByInternalId(internal_id);
+            auto param = params[idx];
+            tableint ref_internal_id = (idx == 0) ? internal_id : internal_id - params[idx-1]["threshold"];
 
             return (data_level0_memory_ + param["partOffset"] +
                     ref_internal_id * param["size_data_per_element"] + param["offsetData"]);
@@ -160,8 +168,9 @@ namespace hnswlib {
 
         inline linklistsizeint *get_linklist0(tableint internal_id)
         {
-            auto param  = getParamByInternalId(internal_id);
-            tableint ref_internal_id = internal_id - param["threshold"];
+            size_t idx = getParamIdxByInternalId(internal_id);
+            auto param = params[idx];
+            tableint ref_internal_id = (idx == 0) ? internal_id : internal_id - params[idx-1]["threshold"];
 
             return (linklistsizeint *) (data_level0_memory_ + param["partOffset"] +
                     ref_internal_id * param["size_data_per_element"] + offsetLevel0_);
