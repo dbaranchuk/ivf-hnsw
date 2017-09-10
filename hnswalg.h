@@ -56,7 +56,8 @@ namespace hnswlib {
             total_size = 0;
             int i = 0;
             for (auto p : M_map){
-                unordered_map<const char *, size_t> part;
+                dense_hash_map<const char *, size_t> part;
+                part.set_empty_key(NULL);
                 part["M"] = p.second;
                 part["threshold"] = p.first;
                 part["maxelements"] = (params.size() == 0) ? p.first : p.first - params.back()["threshold"];
@@ -123,7 +124,7 @@ namespace hnswlib {
         char **linkLists_;
 
         vector<char> elementLevels;
-        vector<unordered_map<const char *, size_t>> params;
+        vector<dense_hash_map<const char *, size_t>> params;
 
         size_t data_size_;
         size_t total_size;
@@ -149,7 +150,7 @@ namespace hnswlib {
                     return i;
         };
 
-        inline unordered_map<const char *, size_t> &getParamByInternalId(tableint internal_id)
+        inline dense_hash_map<const char *, size_t> &getParamByInternalId(tableint internal_id)
         {
             for (int i = 0; i < params.size(); ++i)
                 if (internal_id < params[i]["threshold"])
@@ -702,15 +703,16 @@ namespace hnswlib {
             readBinaryPOD(input, params_size);
 
             size_t threshold, M, maxM, maxM0;
-            std::unordered_map<const char *, size_t> part;
-
             total_size = 0;
+
             for (size_t i = 0; i < params_size; i++) {
                 readBinaryPOD(input, threshold);
                 readBinaryPOD(input, M);
                 readBinaryPOD(input, maxM);
                 readBinaryPOD(input, maxM0);
 
+                std::dense_hash_map<const char *, size_t> part;
+                part.set_empty_key(NULL);
                 part["M"] = M;
                 part["threshold"] = threshold;
                 part["maxelements"] = (params.size() == 0) ? threshold : params.back()["threshold"] - threshold;
