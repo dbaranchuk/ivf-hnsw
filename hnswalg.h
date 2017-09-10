@@ -657,7 +657,7 @@ namespace hnswlib {
             writeBinaryPOD(output, total_size);
             writeBinaryPOD(output, parts_num);
             writeBinaryPOD(output, params_num);
-            output.write(params, parts_num * params_num);
+            output.write((char *)params, parts_num * params_num *sizeof(size_t));
 
 //            for (size_t i = 0; i < params_size; i++) {
 //                writeBinaryPOD(output, params[i] + i_threshold);
@@ -701,7 +701,7 @@ namespace hnswlib {
             readBinaryPOD(input, parts_num);
             readBinaryPOD(input, params_num);
             params = new size_t[params_num*parts_num];
-            input.read((size_t *) params, parts_num*params_num);
+            input.read((char *) params, parts_num*params_num*sizeof(size_t));
 
 //            size_t threshold, M, maxM, maxM0;
 //            total_size = 0;
