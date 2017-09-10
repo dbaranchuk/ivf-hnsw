@@ -83,7 +83,7 @@ namespace hnswlib {
             enterpoint_node = -1;
             maxlevel_ = -1;
 
-            //linkLists_ = (char **) malloc(sizeof(void *) * (/*maxelements_ +*/maxclusters_));
+            linkLists_ = (char **) malloc(sizeof(void *) * (params[0]["maxelements"]));
             mult_ = 1 / log(1.0 * params[0]["M"]);//M_);
         }
 
@@ -94,7 +94,7 @@ namespace hnswlib {
                 if (elementLevels[i] > 0)
                     free(linkLists_[i]);
             }
-            //free(linkLists_);
+            free(linkLists_);
             delete visitedlistpool;
             delete space;
         }
@@ -642,8 +642,7 @@ namespace hnswlib {
             // Clusters
             size_t maxelements, M, maxM, maxM0;
             std::unordered_map<const char *, size_t> part;
-            size_t param_size = params.size();
-
+            size_t params_size = params.size();
 
             for (size_t i = 0; i < params_size; i++) {
                 maxelements = params[i]["maxelements"];
@@ -659,18 +658,13 @@ namespace hnswlib {
 
             output.write(data_level0_memory_, total_size);
 
-//            for (size_t i = 0; i < maxclusters_; i++) {
-//                unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_cluster_ * elementLevels[i] : 0;
-//                writeBinaryPOD(output, linkListSize);
-//                if (linkListSize)
-//                    output.write((char *)linkLists_[i], linkListSize);
-//            }
-//            for (size_t i = maxclusters_; i < maxelements_; i++) {
-//                unsigned int linkListSize = elementLevels[i] > 0 ? size_links_per_element_ * elementLevels[i] : 0;
-//                writeBinaryPOD(output, linkListSize);
-//                if (linkListSize)
-//                    output.write((char *)linkLists_[i], linkListSize);
-//            }
+            for (size_t i = 0; i < params[0]["maxelements"]; i++) {
+                unsigned int linkListSize = elementLevels[i] > 0 ? params[0]["size_links_per_element"] * elementLevels[i] : 0;
+                writeBinaryPOD(output, linkListSize);
+                if (linkListSize)
+                    output.write((char *)linkLists_[i], linkListSize);
+            }
+
             output.close();
         }
 
@@ -722,36 +716,24 @@ namespace hnswlib {
             input.read(data_level0_memory_, total_size);
 
             visitedlistpool = new VisitedListPool(1, maxelements_);
-            linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ /*+ maxelements*/));
+            linkLists_ = (char **) malloc(sizeof(void *) * (params[0]["maxelements"]));
 
             elementLevels = vector<char>(maxelements_);
             for (int i = 0; i < maxelements_; i++)
                 elementLevels[i] = 0;
 
-//            for (size_t i = 0; i < maxclusters_; i++) {
-//                unsigned int linkListSize;
-//                readBinaryPOD(input, linkListSize);
-//                if (linkListSize == 0) {
-//                    elementLevels[i] = 0;
-//                    //linkLists_[i] = nullptr;
-//                } else {
-//                    elementLevels[i] = linkListSize / size_links_per_cluster_;
-//                    linkLists_[i] = (char *) malloc(linkListSize);
-//                    input.read((char *)linkLists_[i], linkListSize);
-//                }
-//            }
-//            for (size_t i = maxclusters_; i < maxelements_; i++) {
-//                unsigned int linkListSize;
-//                readBinaryPOD(input, linkListSize);
-//                if (linkListSize == 0) {
-//                    elementLevels[i] = 0;
-//                    //linkLists_[i] = nullptr;
-//                } else {
-//                    elementLevels[i] = linkListSize / size_links_per_element_;
-//                    linkLists_[i] = (char *) malloc(linkListSize);
-//                    input.read(linkLists_[i], linkListSize);
-//                }
-//            }
+            for (size_t i = 0; i < params[0]["maxelements"]; i++) {
+                unsigned int linkListSize;
+                readBinaryPOD(input, linkListSize);
+                if (linkListSize == 0) {
+                    elementLevels[i] = 0;
+                    linkLists_[i] = nullptr;
+                } else {
+                    elementLevels[i] = linkListSize / size_links_per_cluster_;
+                    linkLists_[i] = (char *) malloc(linkListSize);
+                    input.read((char *)linkLists_[i], linkListSize);
+                }
+            }
 
             input.close();
             cout << "Loaded index, predicted size=" << total_size / (1000 * 1000) << "\n";
@@ -760,7 +742,7 @@ namespace hnswlib {
 
         void printListsize()
         {
-            for (int i = 0; i < maxelements_ + maxclusters_; i++){
+            for (int i = 0; i < maxelements_; i++){
                 if (i % 100 != 0)
                     continue;
 
