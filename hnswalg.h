@@ -188,7 +188,7 @@ namespace hnswlib {
 
         inline linklistsizeint* get_linklist(tableint cur_c, int level)
         {
-            size_t *param = getParamByInternalId(cur_c);
+            size_t *param = getParametersByInternalId(cur_c);
             //In Smart hnsw only clusters on the above levels
             return (linklistsizeint *)(linkLists_[cur_c] + (level - 1) * param[i_size_links_per_element]);
         };
@@ -701,7 +701,7 @@ namespace hnswlib {
             readBinaryPOD(input, parts_num);
             readBinaryPOD(input, params_num);
             params = new size_t[params_num*parts_num];
-            input.read(params, parts_num*params_num);
+            input.read((size_t *) params, parts_num*params_num);
 
 //            size_t threshold, M, maxM, maxM0;
 //            total_size = 0;
