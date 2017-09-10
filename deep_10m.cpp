@@ -264,6 +264,7 @@ void deep_test10M()
 	size_t qsize = 10000;
 	size_t vecdim = 96;
 
+	const map<size_t, size_t> M_map = {{vecsize, M}};
 	char path_index[1024];
 	char path_gt[1024];
 	char *path_q = "/sata2/dbaranchuk/deep/deep1B_queries.fvecs";
@@ -319,7 +320,7 @@ void deep_test10M()
 	}
 	else {
 		cout << "Building index:\n";
-		appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M, efConstruction);
+		appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M_map, efConstruction);
 
 		input.read((char *)&in, 4);
 		if (in != 96)
