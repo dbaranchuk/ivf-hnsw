@@ -61,14 +61,13 @@ namespace hnswlib {
                 part["threshold"] = p.first;
                 part["maxelements"] = (params.size() == 0) ? p.first : p.first - params.back()["threshold"];
                 part["maxM"] = p.second;
-                part["maxM0"] = p.second;
+                part["maxM0"] = 2 * p.second;
                 part["size_links_level0"] = part["maxM0"]* sizeof(tableint) + sizeof(linklistsizeint);
                 part["size_data_per_element"] = part["size_links_level0"] + data_size_;
                 part["offsetData"] = part["size_links_level0"];
                 part["size_links_per_element"] = part["maxM"] * sizeof(tableint) + sizeof(linklistsizeint);
                 part["partOffset"] = total_size;
                 params.push_back(part);
-
 
                 total_size += part["maxelements"] * part["size_data_per_element"];
             }
@@ -490,7 +489,7 @@ namespace hnswlib {
                 cur_c = cur_element_count;
                 cur_element_count++;
             }
-            int curlevel = 0; //elementLevels[cur_c];
+            int curlevel = elementLevels[cur_c];
 
             unique_lock <mutex> templock(global);
             int maxlevelcopy = maxlevel_;
@@ -498,6 +497,7 @@ namespace hnswlib {
                 templock.unlock();
             tableint currObj = enterpoint_node;
 
+            cout << "HUIII" << endl;
             auto curParam = getParamByInternalId(cur_c);
             memset(get_linklist0(cur_c), 0, curParam["size_data_per_element"]);
 
@@ -542,8 +542,10 @@ namespace hnswlib {
                     if (level > maxlevelcopy || level < 0)
                         throw runtime_error("Level error");
 
+                    cout << "HUIII" << endl;
                     std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
                                                                                                     level);
+                    cout << "HUIII" << endl;
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
                 }
 
