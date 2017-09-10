@@ -211,13 +211,7 @@ namespace hnswlib {
 
                 tableint curNodeNum = curr_el_pair.second;
 
-                linklistsizeint *ll_cur;
-
-                if (level == 0)
-                    ll_cur = get_linklist0(curNodeNum);
-                else
-                    ll_cur = get_linklist(curNodeNum, level);
-
+                linklistsizeint *ll_cur = level ? get_linklist(curNodeNum, level) : ll_cur = get_linklist0(curNodeNum);
                 linklistsizeint size = *ll_cur;
                 tableint *data = (tableint *) (ll_cur + 1);
 
@@ -567,6 +561,7 @@ namespace hnswlib {
                 enterpoint_node = cur_c;
                 maxlevel_ = curlevel;
             }
+            cout << label << endl;
         };
 
         std::priority_queue<std::pair<dist_t, labeltype >> searchKnn(void *query_data, int k, std::unordered_set<int> &cluster_idx_set, int q_idx = -1)
