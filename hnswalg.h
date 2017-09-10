@@ -711,7 +711,7 @@ namespace hnswlib {
                 readBinaryPOD(input, maxM);
                 readBinaryPOD(input, maxM0);
 
-                std::dense_hash_map<const char *, size_t> part;
+                dense_hash_map<const char *, size_t> part;
                 part.set_empty_key(NULL);
                 part["M"] = M;
                 part["threshold"] = threshold;
