@@ -818,7 +818,7 @@ namespace hnswlib {
         void printListsize()
         {
             for (int i = 0; i < maxelements_ + maxclusters_; i++){
-                linklistsizeint *ll_cur = getDataByInternalId(i);
+                linklistsizeint *ll_cur = get_linklist0(i);
                 cout << "Element #" << i << " M:" << (int) *ll_cur << endl;
             }
         }
