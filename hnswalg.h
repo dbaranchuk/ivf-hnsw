@@ -54,10 +54,12 @@ namespace hnswlib {
             efConstruction_ = efConstruction;
 
             total_size = 0;
+            int i = 0;
             for (auto p : M_map){
                 unordered_map<const char *, size_t> part;
                 part["M"] = p.second;
-                part["maxelements"] = p.first;
+                part["threshold"] = p.first;
+                part["maxelements"] = (params.size() == 0) ? p.first : p.first - params.back()["threshold"];
                 part["maxM"] = p.second;
                 part["maxM0"] = p.second;
                 part["size_links_level0"] = part["maxM0"]* sizeof(tableint) + sizeof(linklistsizeint);
@@ -66,6 +68,7 @@ namespace hnswlib {
                 part["size_links_per_element"] = part["maxM"] * sizeof(tableint) + sizeof(linklistsizeint);
                 part["partOffset"] = total_size;
                 params.push_back(part);
+
 
                 total_size += part["maxelements"] * part["size_data_per_element"];
             }
@@ -83,7 +86,7 @@ namespace hnswlib {
             enterpoint_node = -1;
             maxlevel_ = -1;
 
-            linkLists_ = (char **) malloc(sizeof(void *) * (params[0]["maxelements"]));
+            linkLists_ = (char **) malloc(sizeof(void *) * params[0]["maxelements"]);
             mult_ = 1 / log(1.0 * params[0]["M"]);//M_);
         }
 
@@ -143,14 +146,14 @@ namespace hnswlib {
         inline unordered_map<const char *, size_t> &getParamByInternalId(tableint internal_id)
         {
             for (int i = 0; i < params.size(); ++i)
-                if (internal_id < params[i]["maxelements"])
+                if (internal_id < params[i]["threshold"])
                     return params[i];
         };
 
         inline char *getDataByInternalId(tableint internal_id)
         {
             auto param  = getParamByInternalId(internal_id);
-            tableint ref_internal_id = internal_id - param["maxelements"];
+            tableint ref_internal_id = internal_id - param["threshold"];
 
             return (data_level0_memory_ + param["partOffset"] +
                     ref_internal_id * param["size_data_per_element"] + param["offsetData"]);
@@ -159,7 +162,7 @@ namespace hnswlib {
         inline linklistsizeint *get_linklist0(tableint internal_id)
         {
             auto param  = getParamByInternalId(internal_id);
-            tableint ref_internal_id = internal_id - param["maxelements"];
+            tableint ref_internal_id = internal_id - param["threshold"];
 
             return (linklistsizeint *) (data_level0_memory_ + param["partOffset"] +
                     ref_internal_id * param["size_data_per_element"] + offsetLevel0_);
@@ -640,17 +643,17 @@ namespace hnswlib {
             writeBinaryPOD(output, efConstruction_);
 
             // Clusters
-            size_t maxelements, M, maxM, maxM0;
+            size_t threshold, M, maxM, maxM0;
             std::unordered_map<const char *, size_t> part;
             size_t params_size = params.size();
 
             for (size_t i = 0; i < params_size; i++) {
-                maxelements = params[i]["maxelements"];
+                threshold = params[i]["threshold"];
                 M = params[i]["M"];
                 maxM = params[i]["maxM"];
                 maxM0 = params[i]["maxM0"];
 
-                writeBinaryPOD(output, maxelements);
+                writeBinaryPOD(output, threshold);
                 writeBinaryPOD(output, M);
                 writeBinaryPOD(output, maxM);
                 writeBinaryPOD(output, maxM0);
@@ -658,7 +661,7 @@ namespace hnswlib {
 
             output.write(data_level0_memory_, total_size);
 
-            for (size_t i = 0; i < params[0]["maxelements"]; i++) {
+            for (size_t i = 0; i < params[0]["threshold"]; i++) {
                 unsigned int linkListSize = elementLevels[i] > 0 ? params[0]["size_links_per_element"] * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
@@ -690,18 +693,19 @@ namespace hnswlib {
             size_t params_size;
             readBinaryPOD(input, params_size);
 
-            size_t maxelements, M, maxM, maxM0;
+            size_t threshold, M, maxM, maxM0;
             std::unordered_map<const char *, size_t> part;
 
             total_size = 0;
             for (size_t i = 0; i < params_size; i++) {
-                readBinaryPOD(input, maxelements);
+                readBinaryPOD(input, threshold);
                 readBinaryPOD(input, M);
                 readBinaryPOD(input, maxM);
                 readBinaryPOD(input, maxM0);
 
                 part["M"] = M;
-                part["maxelements"] = maxelements;
+                part["threshold"] = threshold;
+                part["maxelements"] = (params.size() == 0) ? threshold : params.back()["threshold"] - threshold;
                 part["maxM"] = M;
                 part["maxM0"] = 2 * M;
                 part["size_links_level0"] = part["maxM0"]* sizeof(tableint) + sizeof(linklistsizeint);
@@ -709,20 +713,20 @@ namespace hnswlib {
                 part["offsetData"] = part["size_links_level0"];
                 part["size_links_per_element"] = part["maxM"] * sizeof(tableint) + sizeof(linklistsizeint);
                 params.push_back(part);
-                total_size += maxelements * part["size_data_per_element"];
+                total_size += part["maxelements"] * part["size_data_per_element"];
             }
 
             data_level0_memory_ = (char *) malloc(total_size);
             input.read(data_level0_memory_, total_size);
 
             visitedlistpool = new VisitedListPool(1, maxelements_);
-            linkLists_ = (char **) malloc(sizeof(void *) * (params[0]["maxelements"]));
+            linkLists_ = (char **) malloc(sizeof(void *) * (params[0]["threshold"]));
 
             elementLevels = vector<char>(maxelements_);
             for (int i = 0; i < maxelements_; i++)
                 elementLevels[i] = 0;
 
-            for (size_t i = 0; i < params[0]["maxelements"]; i++) {
+            for (size_t i = 0; i < params[0]["threshold"]; i++) {
                 unsigned int linkListSize;
                 readBinaryPOD(input, linkListSize);
                 if (linkListSize == 0) {
