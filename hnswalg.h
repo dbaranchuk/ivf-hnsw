@@ -220,7 +220,7 @@ namespace hnswlib {
 
                 tableint curNodeNum = curr_el_pair.second;
 
-                linklistsizeint *ll_cur = level ? get_linklist(curNodeNum, level) : ll_cur = get_linklist0(curNodeNum);
+                linklistsizeint *ll_cur = level ? get_linklist(curNodeNum, level) : get_linklist0(curNodeNum);
                 linklistsizeint size = *ll_cur;
                 tableint *data = (tableint *) (ll_cur + 1);
 
