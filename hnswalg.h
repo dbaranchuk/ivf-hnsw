@@ -359,7 +359,7 @@ namespace hnswlib {
                     dist_t curdist = space->fstdistfunc(getDataByInternalId(curen2.second), getDataByInternalId(curen.second));
                     if (curdist < dist_to_query) {
                         good = false;
-                        std::cout << curen << std::endl;
+                        std::cout << curen.second << std::endl;
                         break;
                     }
                 }
