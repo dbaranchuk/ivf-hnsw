@@ -357,7 +357,7 @@ namespace hnswlib {
                 bool good = true;
                 for (std::pair<dist_t, tableint> curen2 : returnlist) {
                     dist_t curdist = space->fstdistfunc(getDataByInternalId(curen2.second), getDataByInternalId(curen.second));
-                    if (curdist < dist_to_query) {
+                    if (curdist < 1.4*dist_to_query) {
                         good = false;
                         break;
                     }
@@ -758,8 +758,8 @@ namespace hnswlib {
         void printListsize()
         {
             for (int i = 0; i < maxelements_; i++){
-                //if (i % 1000 != 0)
-                //    continue;
+                if (i % 100 != 0)
+                    continue;
 
                 linklistsizeint *ll_cur = get_linklist0(i);
                 if (*ll_cur != 32)
