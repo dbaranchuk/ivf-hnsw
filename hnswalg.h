@@ -364,8 +364,8 @@ namespace hnswlib {
                 }
                 if (good) returnlist.push_back(curen);
             }
-            if (returnlist.size() != NN)
-                std::cout << returnlist.size() << std::endl;
+            //if (returnlist.size() != NN)
+            //    std::cout << returnlist.size() << std::endl;
             for (std::pair<dist_t, tableint> curen2 : returnlist)
                 topResults.emplace(-curen2.first, curen2.second);
         }
@@ -758,10 +758,11 @@ namespace hnswlib {
         void printListsize()
         {
             for (int i = 0; i < maxelements_; i++){
-                if (i % 1000 != 0)
-                    continue;
+                //if (i % 1000 != 0)
+                //    continue;
 
                 linklistsizeint *ll_cur = get_linklist0(i);
+                if (*ll_cur != 32)
                 cout << "Element #" << i << " M:" << (int) *ll_cur << endl;
             }
         }
