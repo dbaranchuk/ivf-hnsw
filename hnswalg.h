@@ -359,12 +359,12 @@ namespace hnswlib {
                     dist_t curdist = space->fstdistfunc(getDataByInternalId(curen2.second), getDataByInternalId(curen.second));
                     if (curdist < dist_to_query) {
                         good = false;
-                        std::cout << curen.second << std::endl;
                         break;
                     }
                 }
                 if (good) returnlist.push_back(curen);
             }
+            std::cout << returnlist.size() << std::endl;
             for (std::pair<dist_t, tableint> curen2 : returnlist)
                 topResults.emplace(-curen2.first, curen2.second);
         }
