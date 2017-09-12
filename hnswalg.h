@@ -758,7 +758,7 @@ namespace hnswlib {
         void printListsize()
         {
             for (int i = 0; i < maxelements_; i++){
-                if (i % 100 != 0)
+                if (i % 1000 != 0)
                     continue;
 
                 linklistsizeint *ll_cur = get_linklist0(i);
