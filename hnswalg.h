@@ -364,7 +364,8 @@ namespace hnswlib {
                 }
                 if (good) returnlist.push_back(curen);
             }
-            std::cout << returnlist.size() << std::endl;
+            if (returnlist.size() != NN)
+                std::cout << returnlist.size() << std::endl;
             for (std::pair<dist_t, tableint> curen2 : returnlist)
                 topResults.emplace(-curen2.first, curen2.second);
         }
