@@ -428,7 +428,7 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 
 void sift_test1B_PQ()
 {
-    const int subset_size_milllions = 100;
+    const int subset_size_milllions = 1000;
     const size_t vecsize = subset_size_milllions * 1000000;
     const size_t qsize = 10000;
     const size_t vecdim = 128;
