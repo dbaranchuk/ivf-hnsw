@@ -433,7 +433,7 @@ void sift_test1B_PQ()
     const size_t qsize = 10000;
     const size_t vecdim = 128;
 
-    const int efConstruction = 500;
+    const int efConstruction = 240;
     const int M_PQ = 16;
     const int k = 1;
 
