@@ -543,7 +543,7 @@ void sift_test1B_PQ()
         appr_alg->SaveIndex(path_index);
     }
     printInfo(appr_alg);
-    //appr_alg->printListsize();
+    appr_alg->printListsize();
 
     unordered_set<int> cluster_idx_set;
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
