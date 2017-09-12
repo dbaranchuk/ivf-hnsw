@@ -428,7 +428,7 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 
 void sift_test1B_PQ()
 {
-    const int subset_size_milllions = 1000;
+    const int subset_size_milllions = 10;
     const size_t vecsize = subset_size_milllions * 1000000;
     const size_t qsize = 10000;
     const size_t vecdim = 128;
@@ -437,7 +437,7 @@ void sift_test1B_PQ()
     const int M_PQ = 16;
     const int k = 1;
 
-    const map<size_t, size_t> M_map = {{50000000, 32}, {vecsize, 8}};//{100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
+    const map<size_t, size_t> M_map = {{vecsize, 32}};//{{50000000, 32}, {vecsize, 8}};//{100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
     const vector<size_t> elements_per_level = {vecsize};//{947368422, 50000000, 2500000, 125000, 6250, 312, 16};
 
 
