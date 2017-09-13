@@ -468,7 +468,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         unsigned char massb[PQ ? M_PQ : vecdim];
 
         int j1 = 0, in = 0;
-        appr_alg = new HierarchicalNSW<dist_t>(l2space, vecsize, M_map, efConstruction);
+        appr_alg = new HierarchicalNSW<dist_t>(l2space, M_map, efConstruction);
         appr_alg->setElementLevels(elements_per_level);
 
         StopW stopw = StopW();
