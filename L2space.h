@@ -151,10 +151,9 @@ namespace hnswlib {
 			data_size_ = dim * sizeof(float);
 		}
 
-		size_t get_data_size() {
-			return data_size_;
-		}
-
+		size_t get_data_size() { return data_size_; }
+        size_t get_data_dim() { return dim_; }
+        
         float fstdistfunc(const void *x, const void *y)
         {
             float res = 0;
@@ -178,9 +177,9 @@ namespace hnswlib {
 			data_size_ = dim * sizeof(unsigned char);
 		}
 
-		size_t get_data_size() {
-			return data_size_;
-		}
+		size_t get_data_size() { return data_size_; }
+        size_t get_data_dim() { return dim_; }
+
         int fstdistfunc(const void *x, const void *y)
         {
             size_t dim = dim_ >> 2;
