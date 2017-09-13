@@ -56,7 +56,7 @@ namespace hnswlib {
         HierarchicalNSW(SpaceInterface<dist_t> *s, const string &infoLocation, const string &dataLocation,
                         const string &edgeLocation, bool nmslib = false)
         {
-            LoadInfo(infoLocation, s);
+            LoadInfo<dist_t>(infoLocation, s);
             data_level0_memory_ = (char *) malloc(total_size);
             LoadData(dataLocation);
             LoadEdges(edgeLocation);
