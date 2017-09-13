@@ -539,8 +539,7 @@ void hnsw_test(const char *l2space_type,
                const int vecdim, const int efConstruction, const int M)
 {
     char path_gt_[1024], path_edges_[1024], path_info_[1024];
-    const int subset_size_milllions = 10;
-    const int M_PQ = 16;
+    const int subset_size_milllions = 100;
 
     if (!path_q) path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
     if (!path_data) path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
