@@ -400,16 +400,17 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 //}
 
 void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_info,
-                    const char *path_edges, const char *path_q, const char *path_gt, const int k, const int qsize)
+                    const char *path_edges, const char *path_q, const char *path_gt,
+                    const int k, const int vecsize, const int qsize,
+                    const int vecdim, const int efConstruction, const int M)
 {
     const int subset_size_milllions = 10;
-    const size_t vecsize = subset_size_milllions * 1000000;
-    const size_t vecdim = 128;
+    //const size_t vecsize = subset_size_milllions * 1000000;
 
-    const int efConstruction = 60;
+    //const int efConstruction = 60;
     const int M_PQ = 16;
 
-    const map<size_t, size_t> M_map = {{vecsize, 32}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
+    const map<size_t, size_t> M_map = {{vecsize, M}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
     const vector<size_t> elements_per_level = {vecsize};//{947368422, 50000000, 2500000, 125000, 6250, 312, 16};
 
     if (!path_q) path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
