@@ -535,7 +535,7 @@ void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const c
     cout << "Parsing gt:\n";
     get_gt<dist_t>(massQA, qsize, answers);
     cout << "Loaded gt\n";
-    test_vs_recall<dist_t>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, true);
+    test_vs_recall<dist_t>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, PQ);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQA;

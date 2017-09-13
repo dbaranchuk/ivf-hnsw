@@ -100,11 +100,11 @@ int main(int argc, char **argv) {
             std::cerr << "Use l2space_type = float for PQ" << std::endl;
             exit(1);
         }
-        sift_test1B_PQ<int>(path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt,
+        //sift_test1B_PQ<int>(path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt,
                             k, vecsize, qsize, vecdim, efConstruction, M);
     } else if (!strcmp (l2space_type, "float")) {
         sift_test1B_PQ<float>(path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt,
-                           k, vecsize, qsize, vecdim, efConstruction, M);
+                              k, vecsize, qsize, vecdim, efConstruction, M);
     }
 
     return 0;  
