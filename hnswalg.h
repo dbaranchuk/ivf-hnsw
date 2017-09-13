@@ -177,7 +177,7 @@ namespace hnswlib {
         {
             size_t *param = getParametersByInternalId(internal_id);
             tableint ref_id = (param == params) ? internal_id : internal_id - (param - params_num)[i_threshold];
-            return (data_level0_memory_ + param[i_partOffset] + (ref_id+1) * param[i_size_data_per_element] /*+ param[i_offsetData]*/);
+            return (data_level0_memory_ + param[i_partOffset] + ref_id * param[i_size_data_per_element] + param[i_offsetData]);
         }
 
         inline linklistsizeint *get_linklist0(tableint internal_id)
