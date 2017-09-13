@@ -83,9 +83,6 @@ int main(int argc, char **argv) {
         }
     }
     //assert(argc == 18);
-    //sift_test1B();
-
-
 
     hnsw_test(l2space_type, path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt,
                 k, vecsize, qsize, vecdim, efConstruction, M);

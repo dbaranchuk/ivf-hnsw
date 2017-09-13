@@ -559,12 +559,12 @@ void hnsw_test(const char *l2space_type,
         exit(1);
     }
     if (!strcmp (l2space_type, "int")) {
-        if (path_codebooks || path_tables) {
+        if (path_codebooks && path_tables) {
             std::cerr << "Use l2space_type = float for PQ" << std::endl;
             exit(1);
         }
-        _hnsw_test<int>(path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt,
-                    k, vecsize, qsize, vecdim, efConstruction, M);
+        //_hnsw_test<int>(path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt,
+        //            k, vecsize, qsize, vecdim, efConstruction, M);
     } else if (!strcmp (l2space_type, "float")) {
         _hnsw_test<float>(path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt,
                     k, vecsize, qsize, vecdim, efConstruction, M);
