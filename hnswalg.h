@@ -713,6 +713,7 @@ namespace hnswlib {
             cur_element_count = maxelements_;
 
             visitedlistpool = new VisitedListPool(1, maxelements_);
+            visitedsetpool = new VisitedSetPool(1);
 
             //linkLists_ = (char **) malloc(sizeof(void *) * (params[0*params_num + i_threshold]));
 
