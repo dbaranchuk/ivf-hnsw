@@ -668,7 +668,7 @@ namespace hnswlib {
             cout << maxlevel_ << endl;
             cout << total_size << endl;
             cout << cur_element_count << endl;
-            cour << maxelements_ << endl;
+            cout << maxelements_ << endl;
 
             writeBinaryPOD(output, parts_num);
             writeBinaryPOD(output, params_num);
