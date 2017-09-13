@@ -445,15 +445,22 @@ void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const c
     if (!path_codebooks) path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
     if (!path_tables) path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
 
-    cout << path_q << endl;
-    if (!path_gt)
-        sprintf(const_cast<char *>(path_gt), "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
-    if (!path_edges)
-        sprintf(const_cast<char *>(path_edges), "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_edges.ivecs", M_PQ, subset_size_milllions, efConstruction);
-    if (!path_info)
-        sprintf(const_cast<char *>(path_info), "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_info.bin", M_PQ, subset_size_milllions, efConstruction);
-
-    cout << path_gt << endl;
+    char path_gt_[1024], path_edges_[1024], path_info_[1024];
+    if (!path_gt) {
+        sprintf(path_gt_, "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
+        path_gt = path_gt_;
+    }
+    if (!path_edges) {
+        sprintf(path_edges_, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_edges.ivecs", M_PQ,
+                subset_size_milllions, efConstruction);
+        path_edges = path_edges_;
+    }
+    if (!path_info) {
+        sprintf(path_info_, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_info.bin", M_PQ, subset_size_milllions,
+                efConstruction);
+        path_info = path_info_;
+    }
+    
     //sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d.bin", M_PQ, subset_size_milllions, efConstruction);
     //sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
     //sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M%d/idx_%dM_pq.ivecs", M_PQ, subset_size_milllions);
