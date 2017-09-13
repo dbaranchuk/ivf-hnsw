@@ -437,11 +437,11 @@ void sift_test1B_PQ()
     const size_t qsize = 10000;
     const size_t vecdim = 128;
 
-    const int efConstruction = 500;
+    const int efConstruction = 240;
     const int M_PQ = 16;
     const int k = 1;
 
-    const map<size_t, size_t> M_map = {{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
+    const map<size_t, size_t> M_map = {{vecsize, 32}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
     const vector<size_t> elements_per_level = {vecsize};//{947368422, 50000000, 2500000, 125000, 6250, 312, 16};
 
 
@@ -457,7 +457,7 @@ void sift_test1B_PQ()
     sprintf(path_edges, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_edges.ivecs", M_PQ, subset_size_milllions, efConstruction);
     sprintf(path_info, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_info.bin", M_PQ, subset_size_milllions, efConstruction);
 
-    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_ev.bin", M_PQ, subset_size_milllions, efConstruction);
+    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d.bin", M_PQ, subset_size_milllions, efConstruction);
     sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
     //sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M%d/idx_%dM_pq.ivecs", M_PQ, subset_size_milllions);
 
@@ -498,8 +498,8 @@ void sift_test1B_PQ()
     l2space.compute_query_tables(massQ, qsize);
 
     HierarchicalNSW<float> *appr_alg;
-    if (exists_test(path_index)) {
-        appr_alg = new HierarchicalNSW<float>(&l2space, path_info, path_data, path_edges, false);
+    if (exists_test(path_info) && exists_test(path_edges)) {
+        appr_alg = new HierarchicalNSW<float>(&l2space, const_cast<char *>path_info, path_data, const_cast<char*>path_edges);
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
