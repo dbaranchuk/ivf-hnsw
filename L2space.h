@@ -19,107 +19,198 @@
 #include "hnswlib.h"
 namespace hnswlib {
 	using namespace std;
+    /**= Prev fstdistfunc =**/
+                    static float
+                    L2SqrSIMD16Ext(const void *pVect1v, const void *pVect2v, const void *qty_ptr)
+                {
+                    float *pVect1 = (float *)pVect1v;
+                    float *pVect2 = (float *)pVect2v;
+                    size_t qty = *((size_t *)qty_ptr);
+                    float PORTABLE_ALIGN32 TmpRes[8];
+            #ifdef USE_AVX
+                    size_t qty16 = qty >> 4;
 
-		static float
-			L2SqrSIMD16Ext(const void *pVect1v, const void *pVect2v, const void *qty_ptr)
-		{
-			float *pVect1 = (float *)pVect1v;
-			float *pVect2 = (float *)pVect2v;
-			size_t qty = *((size_t *)qty_ptr);
-			float PORTABLE_ALIGN32 TmpRes[8];
-	#ifdef USE_AVX
-			size_t qty16 = qty >> 4;
-	
-			const float *pEnd1 = pVect1 + (qty16 << 4);
-	
-			__m256 diff, v1, v2;
-			__m256 sum = _mm256_set1_ps(0);
-	
-			while (pVect1 < pEnd1) {
-				v1 = _mm256_loadu_ps(pVect1);
-				pVect1 += 8;
-				v2 = _mm256_loadu_ps(pVect2);
-				pVect2 += 8;
-				diff = _mm256_sub_ps(v1, v2);
-				sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
-	
-				v1 = _mm256_loadu_ps(pVect1);
-				pVect1 += 8;
-				v2 = _mm256_loadu_ps(pVect2);
-				pVect2 += 8;
-				diff = _mm256_sub_ps(v1, v2);
-				sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
-			}
-	
-			_mm256_store_ps(TmpRes, sum);
-			float res = TmpRes[0] + TmpRes[1] + TmpRes[2] + TmpRes[3] + TmpRes[4] + TmpRes[5] + TmpRes[6] + TmpRes[7];
-	
-			return (res);
-	#else
-			// size_t qty4 = qty >> 2;
-			size_t qty16 = qty >> 4;
-	
-			const float *pEnd1 = pVect1 + (qty16 << 4);
-			// const float* pEnd2 = pVect1 + (qty4 << 2);
-			// const float* pEnd3 = pVect1 + qty;
-	
-			__m128 diff, v1, v2;
-			__m128 sum = _mm_set1_ps(0);
-	
-			while (pVect1 < pEnd1) {
-				//_mm_prefetch((char*)(pVect2 + 16), _MM_HINT_T0);
-				v1 = _mm_loadu_ps(pVect1);
-				pVect1 += 4;
-				v2 = _mm_loadu_ps(pVect2);
-				pVect2 += 4;
-				diff = _mm_sub_ps(v1, v2);
-				sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
-	
-				v1 = _mm_loadu_ps(pVect1);
-				pVect1 += 4;
-				v2 = _mm_loadu_ps(pVect2);
-				pVect2 += 4;
-				diff = _mm_sub_ps(v1, v2);
-				sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
-	
-				v1 = _mm_loadu_ps(pVect1);
-				pVect1 += 4;
-				v2 = _mm_loadu_ps(pVect2);
-				pVect2 += 4;
-				diff = _mm_sub_ps(v1, v2);
-				sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
-	
-				v1 = _mm_loadu_ps(pVect1);
-				pVect1 += 4;
-				v2 = _mm_loadu_ps(pVect2);
-				pVect2 += 4;
-				diff = _mm_sub_ps(v1, v2);
-				sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
-			}	
-			_mm_store_ps(TmpRes, sum);
-			float res = TmpRes[0] + TmpRes[1] + TmpRes[2] + TmpRes[3];
-	
-			return (res);
-	#endif
-		};
-        static float PORTABLE_ALIGN32 TmpRes[8];
-        static float
-            L2SqrSIMD4Ext(const void *pVect1v, const void *pVect2v, const void *qty_ptr)
-        {
-            float *pVect1 = (float *)pVect1v;
-            float *pVect2 = (float *)pVect2v;
-            size_t qty = *((size_t *)qty_ptr);
-            
+                    const float *pEnd1 = pVect1 + (qty16 << 4);
 
-            // size_t qty4 = qty >> 2;
-            size_t qty16 = qty >> 2;
+                    __m256 diff, v1, v2;
+                    __m256 sum = _mm256_set1_ps(0);
 
-            const float *pEnd1 = pVect1 + (qty16 << 2);
+                    while (pVect1 < pEnd1) {
+                        v1 = _mm256_loadu_ps(pVect1);
+                        pVect1 += 8;
+                        v2 = _mm256_loadu_ps(pVect2);
+                        pVect2 += 8;
+                        diff = _mm256_sub_ps(v1, v2);
+                        sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
+
+                        v1 = _mm256_loadu_ps(pVect1);
+                        pVect1 += 8;
+                        v2 = _mm256_loadu_ps(pVect2);
+                        pVect2 += 8;
+                        diff = _mm256_sub_ps(v1, v2);
+                        sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
+                    }
+
+                    _mm256_store_ps(TmpRes, sum);
+                    float res = TmpRes[0] + TmpRes[1] + TmpRes[2] + TmpRes[3] + TmpRes[4] + TmpRes[5] + TmpRes[6] + TmpRes[7];
+
+                    return (res);
+            #else
+                    // size_t qty4 = qty >> 2;
+                    size_t qty16 = qty >> 4;
+
+                    const float *pEnd1 = pVect1 + (qty16 << 4);
+                    // const float* pEnd2 = pVect1 + (qty4 << 2);
+                    // const float* pEnd3 = pVect1 + qty;
+
+                    __m128 diff, v1, v2;
+                    __m128 sum = _mm_set1_ps(0);
+
+                    while (pVect1 < pEnd1) {
+                        //_mm_prefetch((char*)(pVect2 + 16), _MM_HINT_T0);
+                        v1 = _mm_loadu_ps(pVect1);
+                        pVect1 += 4;
+                        v2 = _mm_loadu_ps(pVect2);
+                        pVect2 += 4;
+                        diff = _mm_sub_ps(v1, v2);
+                        sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
+
+                        v1 = _mm_loadu_ps(pVect1);
+                        pVect1 += 4;
+                        v2 = _mm_loadu_ps(pVect2);
+                        pVect2 += 4;
+                        diff = _mm_sub_ps(v1, v2);
+                        sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
+
+                        v1 = _mm_loadu_ps(pVect1);
+                        pVect1 += 4;
+                        v2 = _mm_loadu_ps(pVect2);
+                        pVect2 += 4;
+                        diff = _mm_sub_ps(v1, v2);
+                        sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
+
+                        v1 = _mm_loadu_ps(pVect1);
+                        pVect1 += 4;
+                        v2 = _mm_loadu_ps(pVect2);
+                        pVect2 += 4;
+                        diff = _mm_sub_ps(v1, v2);
+                        sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
+                    }
+                    _mm_store_ps(TmpRes, sum);
+                    float res = TmpRes[0] + TmpRes[1] + TmpRes[2] + TmpRes[3];
+
+                    return (res);
+            #endif
+                };
+                static float PORTABLE_ALIGN32 TmpRes[8];
+                static float
+                    L2SqrSIMD4Ext(const void *pVect1v, const void *pVect2v, const void *qty_ptr)
+                {
+                    float *pVect1 = (float *)pVect1v;
+                    float *pVect2 = (float *)pVect2v;
+                    size_t qty = *((size_t *)qty_ptr);
+
+
+                    // size_t qty4 = qty >> 2;
+                    size_t qty16 = qty >> 2;
+
+                    const float *pEnd1 = pVect1 + (qty16 << 2);
+
+                    __m128 diff, v1, v2;
+                    __m128 sum = _mm_set1_ps(0);
+
+                    while (pVect1 < pEnd1) {
+                        v1 = _mm_loadu_ps(pVect1);
+                        pVect1 += 4;
+                        v2 = _mm_loadu_ps(pVect2);
+                        pVect2 += 4;
+                        diff = _mm_sub_ps(v1, v2);
+                        sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
+                    }
+                    _mm_store_ps(TmpRes, sum);
+                    float res = TmpRes[0] + TmpRes[1] + TmpRes[2] + TmpRes[3];
+
+                    return (res);
+                };
+	/**====================**/
+
+    enum class L2SpaceType { Int, Float, PQ };
+
+	class L2Space : public SpaceInterface
+    {
+		size_t data_size_;
+		size_t dim_;
+	public:
+		L2Space(size_t dim) {
+			dim_ = dim;
+			data_size_ = dim * sizeof(float);
+		}
+
+		size_t get_data_size() { return data_size_; }
+        size_t get_data_dim() { return dim_; }
+
+        float fstdistfunc(const void *x, const void *y) {
+            float *pVect1 = (float *) x;
+            float *pVect2 = (float *) y;
+            float PORTABLE_ALIGN32 TmpRes[8];
+            #ifdef USE_AVX
+            size_t qty16 = dim_ >> 4;
+
+            const float *pEnd1 = pVect1 + (qty16 << 4);
+
+            __m256 diff, v1, v2;
+            __m256 sum = _mm256_set1_ps(0);
+
+            while (pVect1 < pEnd1) {
+                v1 = _mm256_loadu_ps(pVect1);
+                pVect1 += 8;
+                v2 = _mm256_loadu_ps(pVect2);
+                pVect2 += 8;
+                diff = _mm256_sub_ps(v1, v2);
+                sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
+
+                v1 = _mm256_loadu_ps(pVect1);
+                pVect1 += 8;
+                v2 = _mm256_loadu_ps(pVect2);
+                pVect2 += 8;
+                diff = _mm256_sub_ps(v1, v2);
+                sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
+            }
+
+            _mm256_store_ps(TmpRes, sum);
+            float res = TmpRes[0] + TmpRes[1] + TmpRes[2] + TmpRes[3] + TmpRes[4] + TmpRes[5] + TmpRes[6] + TmpRes[7];
+
+            return (res);
+            #else
+            size_t qty16 = dim_ >> 4;
+
+            const float *pEnd1 = pVect1 + (qty16 << 4);
 
             __m128 diff, v1, v2;
             __m128 sum = _mm_set1_ps(0);
 
-            while (pVect1 < pEnd1) {               
+            while (pVect1 < pEnd1) {
+                v1 = _mm_loadu_ps(pVect1);
+                pVect1 += 4;
+                v2 = _mm_loadu_ps(pVect2);
+                pVect2 += 4;
+                diff = _mm_sub_ps(v1, v2);
+                sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
+
+                v1 = _mm_loadu_ps(pVect1);
+                pVect1 += 4;
+                v2 = _mm_loadu_ps(pVect2);
+                pVect2 += 4;
+                diff = _mm_sub_ps(v1, v2);
+                sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
+
+                v1 = _mm_loadu_ps(pVect1);
+                pVect1 += 4;
+                v2 = _mm_loadu_ps(pVect2);
+                pVect2 += 4;
+                diff = _mm_sub_ps(v1, v2);
+                sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
+
                 v1 = _mm_loadu_ps(pVect1);
                 pVect1 += 4;
                 v2 = _mm_loadu_ps(pVect2);
@@ -131,43 +222,12 @@ namespace hnswlib {
             float res = TmpRes[0] + TmpRes[1] + TmpRes[2] + TmpRes[3];
 
             return (res);
-        };
-	
-	class L2Space : public SpaceInterface<float>
-    {
-		size_t data_size_;
-		size_t dim_;
-	public:
-		L2Space(size_t dim) {
-			//fstdistfunc_ = L2Sqr;
-            //if (dim % 4 == 0)
-            //    fstdistfunc_ = L2SqrSIMD4Ext;
-            //if (dim % 16 == 0)
-			//	fstdistfunc_ = L2SqrSIMD16Ext;
-			/*else{
-				throw runtime_error("Data type not supported!");
-			}*/
-			dim_ = dim;
-			data_size_ = dim * sizeof(float);
-		}
-
-		size_t get_data_size() { return data_size_; }
-        size_t get_data_dim() { return dim_; }
-
-        float fstdistfunc(const void *x, const void *y)
-        {
-            float res = 0;
-            for (int i = 0; i < dim_; i++) {
-                float t = ((float *)x)[i] - ((float *)y)[i];
-                res += t*t;
-            }
-            return res;
-        };
-
-        float fstdistfuncST(const size_t q_idx, const void *y) { return 0; }
+            #endif
+        }
 	};
 
-	class L2SpaceI : public SpaceInterface<int>
+
+	class L2SpaceI : public SpaceInterface
     {
 		size_t data_size_;
 		size_t dim_;
@@ -195,15 +255,9 @@ namespace hnswlib {
             }
             return res;
         }
-        int fstdistfuncST(const size_t q_idx, const void *y) { return 0; }
 	};
 
-
-    /**
-     * PQ Space
-     * */
-
-    class L2SpacePQ: public SpaceInterface<float>
+    class L2SpacePQ: public SpaceInterface
     {
         size_t data_size_;
         size_t dim_;
@@ -228,7 +282,7 @@ namespace hnswlib {
             }
         }
 
-        ~L2SpacePQ()
+        virtual ~L2SpacePQ()
         {
             for (int i = 0; i < constructionTables.size(); i++)
                 free(constructionTables[i]);
@@ -268,12 +322,6 @@ namespace hnswlib {
                 constructionTables[i] = (float *) calloc(sizeof(float), k_ * k_);
                 fread((float *) constructionTables[i], sizeof(float), k_ * k_, fin);
             }
-            //for (int i = 0; i < k_; i++) {
-                //for (int j = 0; i < k_; j++)
-                //    std::cout << tables[0][k_ * i + j] << " ";
-                //std::cout << std::endl;
-            //}
-
             fclose(fin);
         }
 
@@ -295,13 +343,10 @@ namespace hnswlib {
                         y = codebooks[m] + k * vocab_dim_;
                         for (int j = 0; j < vocab_dim_; j++) {
                             float t = x[j] - y[j];
-                            //std::cout << (int)(x[j]) << " " << y[j] << " " << t * t << "\n";
                             res += t * t;
                         }
-                        //std::cout << res << " ";
                         queryTables[m][q_idx*k_ + k] = res;
                     }
-                    //std::cout << std::endl;
                 }
             }
         }
@@ -309,34 +354,16 @@ namespace hnswlib {
         size_t get_data_size() { return data_size_; }
         size_t get_data_dim() { return m_; }
 
-
         float fstdistfunc(const void *x_code, const void *y_code)
         {
             float res = 0.0;
             unsigned char x, y;
 
-//            for (size_t i = 0; i < m_; i++) {
-//                std::cout << (int)((unsigned char *)x_code)[i] << " ";
-//            }
-//            std::cout << std::endl;
-//            for (size_t i = 0; i < m_; i++) {
-//                std::cout << (int)((unsigned char *)y_code)[i] << " ";
-//            }
-//            std::cout << std::endl;
-
             for (size_t i = 0; i < m_; ++i) {
-                //_mm_prefetch((float *) constructionTables[i], _MM_HINT_T0);
-                //float *x = codebooks[i] + ((unsigned char *)x_code)[i] * vocab_dim_;
-                //float *y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
                 x = ((unsigned char *)x_code)[i];
                 y = ((unsigned char *)y_code)[i];
                 res += constructionTables[i][k_*x + y];
-                //for (int j = 0; j < vocab_dim_; j++) {
-                //    float t = x[j] - y[j];
-                //    res += t * t;
-                //}
             }
-            //std::cout << res << std::endl;
             return res;
         };
 
@@ -350,28 +377,6 @@ namespace hnswlib {
             }
             return res;
         };
-
-//        float fstdistfuncST(const void *x_vec, const void *y_code)
-//        {
-//            float res = 0.0;
-//            const unsigned char *x;
-//            const float *y;
-//
-//            //std::cout << std::endl;
-//            for (size_t i = 0; i < m_; i++) {
-//                x = (unsigned char *)(x_vec) + i * vocab_dim_;
-//                y = codebooks[i] + ((unsigned char *)y_code)[i] * vocab_dim_;
-//
-//                for (int j = 0; j < vocab_dim_; j++) {
-//                    float t = x[j] - y[j];
-//                    //std::cout << (int)(x[j]) << " " << y[j] << " " << t * t << "\n";
-//                    res += t * t;
-//                }
-//            }
-//            //std::cout << res << std::endl;
-//            return res;
-//        };
-
     };
 
 };

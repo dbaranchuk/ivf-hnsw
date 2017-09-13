@@ -50,10 +50,6 @@ int main(int argc, char **argv) {
         else if (!strcmp (a, "-path_gt") && i+1 < argc) {
             path_gt = argv[++i];
         }
-        //else if (!strcmp (a, "-enterpoint") && i+1 < argc) {
-        //    ret = sscanf (argv[++i], "%d", &ep);
-        //    assert (ret);
-        //}
         else if (!strcmp (a, "-k") && i+1 < argc) {
             ret = sscanf (argv[++i], "%d", &k);
             assert (ret);
@@ -84,8 +80,14 @@ int main(int argc, char **argv) {
     }
     //assert(argc == 18);
 
-    hnsw_test(l2space_type, path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt,
-                k, vecsize, qsize, vecdim, efConstruction, M);
+    if ((!path_codebooks && path_tables) || (path_codebooks && !path_tables)) {
+        std::cerr << "Enter path_codebooks and path_tables to use PQ" << std::endl;
+        exit(1);
+    }
+
+    hnsw_test(l2space_type, path_codebooks, path_tables, path_data, path_q,
+              path_gt, path_info, path_edges,
+              k, vecsize, qsize, vecdim, efConstruction, M);
 
     return 0;  
 };

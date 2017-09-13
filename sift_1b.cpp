@@ -402,6 +402,7 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 template<typename dist_t>
 static void _hnsw_test(const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_info,
                        const char *path_edges, const char *path_q, const char *path_gt,
+                       L2SpaceType l2SpaceType,
                        const int k, const int vecsize, const int qsize,
                        const int vecdim, const int efConstruction, const int M)
 {
@@ -442,15 +443,22 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     }
     inputQ.close();
 
-    SpaceInterface<dist_t> *l2space;
 
-    if (PQ){
-        l2space = new L2SpacePQ(vecdim, M_PQ, 256);
-        dynamic_cast<L2SpacePQ *>(l2space)->set_codebooks(path_codebooks);
-        dynamic_cast<L2SpacePQ *>(l2space)->set_construction_tables(path_tables);
-        dynamic_cast<L2SpacePQ *>(l2space)->compute_query_tables(massQ, qsize);
-    } else {
-        l2space = new L2SpaceI(vecdim);
+    SpaceInterface *l2space;
+
+    switch(l2SpaceType) {
+        case L2SpaceType::PQ:
+            l2space = new L2SpacePQ(vecdim, M_PQ, 256);
+            dynamic_cast<L2SpacePQ *>(l2space)->set_codebooks(path_codebooks);
+            dynamic_cast<L2SpacePQ *>(l2space)->set_construction_tables(path_tables);
+            dynamic_cast<L2SpacePQ *>(l2space)->compute_query_tables(massQ, qsize);
+            break;
+        case L2SpaceType::Float:
+            l2space = new L2Space(vecdim);
+            break;
+        case L2SpaceType::Int:
+            l2space = new L2SpaceI(vecdim);
+            break;
     }
 
     HierarchicalNSW<dist_t> *appr_alg;
@@ -520,55 +528,61 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQA;
+    delete l2space;
 }
 
 
 void hnsw_test(const char *l2space_type,
-               const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_info,
-               const char *path_edges, const char *path_q, const char *path_gt,
+               const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_q,
+               const char *path_gt, const char *path_info, const char *path_edges,
                const int k, const int vecsize, const int qsize,
                const int vecdim, const int efConstruction, const int M)
 {
+    char path_gt_[1024], char path_edges_[1024], char path_info_[1024];
     const int subset_size_milllions = 10;
     const int M_PQ = 16;
 
     if (!path_q) path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
-    if (!path_data) path_data = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base_pq.bvecs";
-    if (!path_codebooks) path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
-    if (!path_tables) path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
-
-    char path_gt_[1024], path_edges_[1024], path_info_[1024];
-    if (!path_gt) {
+    if (!path_data) path_data = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base.bvecs";
+    //if (!path_codebooks) path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
+    //if (!path_tables) path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
+    if (!path_gt){
         sprintf(path_gt_, "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
         path_gt = path_gt_;
     }
     if (!path_edges) {
-        sprintf(path_edges_, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_edges.ivecs", M_PQ,
-                subset_size_milllions, efConstruction);
+        sprintf(path_edges_, "/sata2/dbaranchuk/bigann/sift%dm_ef%d_M%d_edges.ivecs",
+                subset_size_milllions, efConstruction, M);
         path_edges = path_edges_;
     }
     if (!path_info) {
-        sprintf(path_info_, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_info.bin", M_PQ, subset_size_milllions,
-                efConstruction);
+        sprintf(path_info_, "/sata2/dbaranchuk/bigann/sift%dm_ef%d_M%d_info.bin",
+                subset_size_milllions, efConstruction, M);
         path_info = path_info_;
     }
+    //if (!path_edges) sprintf(path_edges, "/sata2/dbaranchuk/bigann/base1B_M16/sift%dm_ef%d_M%d_edges.ivecs",
+    //                         subset_size_milllions, efConstruction, M);
+    //if (!path_info) sprintf(path_info, "/sata2/dbaranchuk/bigann/base1B_M16/sift%dm_ef%d_M%d_info.bin",
+    //                        subset_size_milllions, efConstruction, M);
 
 
-
-    if ((!path_codebooks && path_tables) || (path_codebooks && !path_tables)) {
-        std::cerr << "Enter path_codebooks and path_tables to use PQ" << std::endl;
-        exit(1);
-    }
     if (!strcmp (l2space_type, "int")) {
         if (path_codebooks && path_tables) {
             std::cerr << "Use l2space_type = float for PQ" << std::endl;
             exit(1);
         }
-        _hnsw_test<int>(path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt,
+        _hnsw_test<int>(path_codebooks, path_tables, path_data, path_q,
+                        path_gt, path_info, path_edges,
+                        L2SpaceType::Int,
                         k, vecsize, qsize, vecdim, efConstruction, M);
-    } else if (!strcmp (l2space_type, "float")) {
-        _hnsw_test<float>(path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt,
-                    k, vecsize, qsize, vecdim, efConstruction, M);
+    } else if (!strcmp (l2space_type, "float"))
+        _hnsw_test<float>(path_codebooks, path_tables, path_data, path_q,
+                          path_gt, path_info, path_edges,
+                          (path_codebooks && path_tables) ? L2SpaceType::PQ : L2SpaceType::Float,
+                          k, vecsize, qsize, vecdim, efConstruction, M);
+    else {
+        std::cerr << "Available l2space_type: float or int" << std::endl;
+        exit(1);
     }
 }
 

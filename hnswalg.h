@@ -51,9 +51,9 @@ namespace hnswlib {
     class HierarchicalNSW : public AlgorithmInterface<dist_t>
     {
     public:
-        HierarchicalNSW(SpaceInterface<dist_t> *s) {}
+        HierarchicalNSW(SpaceInterface *s) {}
 
-        HierarchicalNSW(SpaceInterface<dist_t> *s, const string &infoLocation, const string &dataLocation,
+        HierarchicalNSW(SpaceInterface *s, const string &infoLocation, const string &dataLocation,
                         const string &edgeLocation, bool nmslib = false)
         {
             LoadInfo(infoLocation, s);
@@ -62,7 +62,7 @@ namespace hnswlib {
             LoadEdges(edgeLocation);
         }
 
-        HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxElements, const std::map<size_t, size_t> &M_map, size_t efConstruction = 200,
+        HierarchicalNSW(SpaceInterface *s, size_t maxElements, const std::map<size_t, size_t> &M_map, size_t efConstruction = 200,
                         size_t maxClusters = 0, size_t M_cluster = 0): elementLevels(maxElements)
         {
             maxelements_ = maxElements;
@@ -106,8 +106,8 @@ namespace hnswlib {
             enterpoint_node = -1;
             maxlevel_ = -1;
 
-            linkLists_ = (char **) malloc(sizeof(void *) * params[0*params_num + i_maxelements]);
-            mult_ = 1 / log(1.0 * params[0*params_num + i_M]);//M_);
+            //linkLists_ = (char **) malloc(sizeof(void *) * params[0*params_num + i_maxelements]);
+            //mult_ = 1 / log(1.0 * params[0*params_num + i_M]);//M_);
         }
 
         ~HierarchicalNSW()
@@ -117,13 +117,13 @@ namespace hnswlib {
                 if (elementLevels[i] > 0)
                     free(linkLists_[i]);
             }
-            free(linkLists_);
+            //free(linkLists_);
             delete visitedlistpool;
             delete space;
             delete params;
         }
         // Fields
-        SpaceInterface<dist_t> *space;
+        SpaceInterface *space;
 
         size_t maxelements_;
         size_t cur_element_count;
@@ -663,12 +663,6 @@ namespace hnswlib {
             cout << "Saving info to " << location << endl;
             std::ofstream output(location, std::ios::binary);
             streampos position;
-
-            cout << enterpoint_node << endl;
-            cout << maxlevel_ << endl;
-            cout << total_size << endl;
-            cout << cur_element_count << endl;
-            cout << maxelements_ << endl;
 
             writeBinaryPOD(output, parts_num);
             writeBinaryPOD(output, params_num);
