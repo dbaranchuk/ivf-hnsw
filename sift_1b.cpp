@@ -428,11 +428,10 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 //}
 
 void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_info,
-                    const char *path_edges, const char *path_q, const char *path_gt, const int k=1, const int nq = 10000)
+                    const char *path_edges, const char *path_q, const char *path_gt, const int k, const int qsize)
 {
     const int subset_size_milllions = 10;
     const size_t vecsize = subset_size_milllions * 1000000;
-    const size_t qsize = nq;
     const size_t vecdim = 128;
 
     const int efConstruction = 240;
