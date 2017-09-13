@@ -405,36 +405,12 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
                        const int k, const int vecsize, const int qsize,
                        const int vecdim, const int efConstruction, const int M)
 {
-    const int subset_size_milllions = 10;
-    //const size_t vecsize = subset_size_milllions * 1000000;
-
     //const int efConstruction = 60;
     const int M_PQ = 16;
     const bool PQ = (path_codebooks && path_tables);
 
     const map<size_t, size_t> M_map = {{vecsize, M}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
     const vector<size_t> elements_per_level = {vecsize};//{947368422, 50000000, 2500000, 125000, 6250, 312, 16};
-
-
-    char path_gt_[1024], path_edges_[1024], path_info_[1024];
-    if (!path_gt) {
-        sprintf(path_gt_, "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
-        path_gt = path_gt_;
-    }
-    if (!path_edges) {
-        sprintf(path_edges_, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_edges.ivecs", M_PQ,
-                subset_size_milllions, efConstruction);
-        path_edges = path_edges_;
-    }
-    if (!path_info) {
-        sprintf(path_info_, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_info.bin", M_PQ, subset_size_milllions,
-                efConstruction);
-        path_info = path_info_;
-    }
-
-    //sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d.bin", M_PQ, subset_size_milllions, efConstruction);
-    //sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
-    //sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M%d/idx_%dM_pq.ivecs", M_PQ, subset_size_milllions);
 
     cout << "Loading GT:\n";
     const int gt_size = 1000;
@@ -466,22 +442,27 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     }
     inputQ.close();
 
-    L2SpacePQ l2space(vecdim, M_PQ, 256);
+    SpaceInterface<dist_t> *l2space;
 
-    l2space.set_codebooks(path_codebooks);
-    l2space.set_construction_tables(path_tables);
-    l2space.compute_query_tables(massQ, qsize);
+    if (PQ){
+        l2space = new L2SpacePQ(vecdim, M_PQ, 256);
+        dynamic_cast<L2SpacePQ *>(l2space)->set_codebooks(path_codebooks);
+        dynamic_cast<L2SpacePQ *>(l2space)->set_construction_tables(path_tables);
+        dynamic_cast<L2SpacePQ *>(l2space)->compute_query_tables(massQ, qsize);
+    } else {
+        l2space = new L2SpaceI(vecdim);
+    }
 
     HierarchicalNSW<dist_t> *appr_alg;
     if (exists_test(path_info) && exists_test(path_edges)) {
-        appr_alg = new HierarchicalNSW<dist_t>(&l2space, path_info, path_data, path_edges);
+        appr_alg = new HierarchicalNSW<dist_t>(l2space, path_info, path_data, path_edges);
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
         unsigned char massb[M_PQ];
 
         int j1 = 0, in = 0;
-        appr_alg = new HierarchicalNSW<dist_t>(&l2space, vecsize, M_map, efConstruction);
+        appr_alg = new HierarchicalNSW<dist_t>(l2space, vecsize, M_map, efConstruction);
         appr_alg->setElementLevels(elements_per_level);
 
         StopW stopw = StopW();
@@ -548,10 +529,30 @@ void hnsw_test(const char *l2space_type,
                const int k, const int vecsize, const int qsize,
                const int vecdim, const int efConstruction, const int M)
 {
+    const int subset_size_milllions = 10;
+    const int M_PQ = 16;
+
     if (!path_q) path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
     if (!path_data) path_data = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base_pq.bvecs";
     if (!path_codebooks) path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
     if (!path_tables) path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
+
+    char path_gt_[1024], path_edges_[1024], path_info_[1024];
+    if (!path_gt) {
+        sprintf(path_gt_, "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
+        path_gt = path_gt_;
+    }
+    if (!path_edges) {
+        sprintf(path_edges_, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_edges.ivecs", M_PQ,
+                subset_size_milllions, efConstruction);
+        path_edges = path_edges_;
+    }
+    if (!path_info) {
+        sprintf(path_info_, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_info.bin", M_PQ, subset_size_milllions,
+                efConstruction);
+        path_info = path_info_;
+    }
+
 
 
     if ((!path_codebooks && path_tables) || (path_codebooks && !path_tables)) {
@@ -563,10 +564,9 @@ void hnsw_test(const char *l2space_type,
             std::cerr << "Use l2space_type = float for PQ" << std::endl;
             exit(1);
         }
-        //_hnsw_test<int>(path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt,
-        //            k, vecsize, qsize, vecdim, efConstruction, M);
+        _hnsw_test<int>(path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt,
+                        k, vecsize, qsize, vecdim, efConstruction, M);
     } else if (!strcmp (l2space_type, "float")) {
-        cout << path_q << endl;
         _hnsw_test<float>(path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt,
                     k, vecsize, qsize, vecdim, efConstruction, M);
     }
