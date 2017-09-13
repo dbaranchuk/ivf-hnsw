@@ -56,7 +56,7 @@ namespace hnswlib {
         HierarchicalNSW(SpaceInterface<dist_t> *s, const string &infoLocation, const string &dataLocation,
                         const string &edgeLocation, bool nmslib = false)
         {
-            LoadInfo<dist_t>(infoLocation, s);
+            LoadInfo(infoLocation, s);
             data_level0_memory_ = (char *) malloc(total_size);
             LoadData(dataLocation);
             LoadEdges(edgeLocation);
@@ -793,7 +793,6 @@ namespace hnswlib {
             output.close();
         }
 
-        template <typename dist_t>
         void LoadInfo(const string &location, SpaceInterface<dist_t> *s)
         {
             cout << "Loading info from " << location << endl;
