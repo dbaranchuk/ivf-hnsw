@@ -450,10 +450,10 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         StopW stopw = StopW();
         StopW stopw_full = StopW();
 
+        cout << in << endl;
         cout << "Adding elements\n";
         ifstream input(path_data, ios::binary);
         input.read((char *) &in, 4);
-        cout << in << endl;
         if (in != (PQ ? M_PQ : vecdim)) {
             cout << (PQ ? M_PQ : vecdim) << endl;
             cout << "file error\n";
