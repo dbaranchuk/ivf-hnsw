@@ -399,6 +399,7 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 //    delete massQA;
 //}
 
+template<typename dist_t>
 void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_info,
                     const char *path_edges, const char *path_q, const char *path_gt,
                     const int k, const int vecsize, const int qsize,
@@ -409,14 +410,11 @@ void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const c
 
     //const int efConstruction = 60;
     const int M_PQ = 16;
+    const bool PQ = (path_codebooks && path_tables);
 
     const map<size_t, size_t> M_map = {{vecsize, M}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
     const vector<size_t> elements_per_level = {vecsize};//{947368422, 50000000, 2500000, 125000, 6250, 312, 16};
 
-    if (!path_q) path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
-    if (!path_data) path_data = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base_pq.bvecs";
-    if (!path_codebooks) path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
-    if (!path_tables) path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
 
     char path_gt_[1024], path_edges_[1024], path_info_[1024];
     if (!path_gt) {
@@ -474,16 +472,16 @@ void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const c
     l2space.set_construction_tables(path_tables);
     l2space.compute_query_tables(massQ, qsize);
 
-    HierarchicalNSW<float> *appr_alg;
+    HierarchicalNSW<dist_t> *appr_alg;
     if (exists_test(path_info) && exists_test(path_edges)) {
-        appr_alg = new HierarchicalNSW<float>(&l2space, path_info, path_data, path_edges);
+        appr_alg = new HierarchicalNSW<dist_t>(&l2space, path_info, path_data, path_edges);
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
         unsigned char massb[M_PQ];
 
         int j1 = 0, in = 0;
-        appr_alg = new HierarchicalNSW<float>(&l2space, vecsize, M_map, efConstruction);
+        appr_alg = new HierarchicalNSW<dist_t>(&l2space, vecsize, M_map, efConstruction);
         appr_alg->setElementLevels(elements_per_level);
 
         StopW stopw = StopW();
@@ -532,12 +530,12 @@ void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const c
     //appr_alg->printListsize();
 
     unordered_set<int> cluster_idx_set;
-    vector<std::priority_queue< std::pair<float, labeltype >>> answers;
+    vector<std::priority_queue< std::pair<dist_t, labeltype >>> answers;
 
     cout << "Parsing gt:\n";
-    get_gt<float>(massQA, qsize, answers);
+    get_gt<dist_t>(massQA, qsize, answers);
     cout << "Loaded gt\n";
-    test_vs_recall<float>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, true);
+    test_vs_recall<dist_t>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, true);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQA;
