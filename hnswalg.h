@@ -834,7 +834,7 @@ namespace hnswlib {
         void SaveEdges(const string &location)
         {
             cout << "Saving index to " << location << endl;
-            FILE *fout = fopen(location, "wb");
+            FILE *fout = fopen(location.c_str(), "wb");
 
             for (tableint i = 0; i < maxelements_; i++)
             {
@@ -850,7 +850,7 @@ namespace hnswlib {
         void LoadEdges(const string &location)
         {
             cout << "Loading edges from " << location << endl;
-            FILE *fin = fopen(location, "rb");
+            FILE *fin = fopen(location.c_str(), "rb");
             size_t size;
 
             for (tableint i = 0; i < maxelements_; i++)
@@ -867,7 +867,7 @@ namespace hnswlib {
         void LoadData(const string &location, const int d)
         {
             cout << "Loading data from " << location << endl;
-            FILE *fin = fopen(location, "rb");
+            FILE *fin = fopen(location.c_str(), "rb");
             int dim;
             char *massb[d];
 
