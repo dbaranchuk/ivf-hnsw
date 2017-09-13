@@ -707,8 +707,8 @@ namespace hnswlib {
             input.read((char *) params, parts_num*params_num*sizeof(size_t));
             input.close();
 
-            
-            efConstruction_ = 60;
+
+            efConstruction_ = 70;
             enterpoint_node = ep;
             total_size = 0;
             maxelements_ = 0;
