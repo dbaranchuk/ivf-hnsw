@@ -224,6 +224,7 @@ namespace hnswlib {
             return (res);
             #endif
         }
+        float fstdistfuncST(const size_t q_idx, const void *y_code) { return 0.0; }
 	};
 
 
@@ -255,6 +256,7 @@ namespace hnswlib {
             }
             return res;
         }
+        float fstdistfuncST(const size_t q_idx, const void *y_code) { return 0.0; }
 	};
 
     class L2SpacePQ: public SpaceInterface
