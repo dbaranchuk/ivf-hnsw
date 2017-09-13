@@ -39,7 +39,10 @@ namespace hnswlib {
     class SpaceInterface {
     public:
         virtual size_t get_data_size() = 0;
-        virtual size_t get_data_dim() = 0;
+        virtual size_t get_data_dim() = 0;''
+        virtual int fstdistfunc(const void *, const void *);
+        virtual float fstdistfunc(const void *, const void *);
+        virtual float fstdistfuncST(const size_t, const void *);
     };
 }
 #include "L2space.h"
