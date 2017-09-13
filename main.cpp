@@ -4,8 +4,8 @@
 
 //void sift_test1B();
 //void deep_test10M();
-template<typename dist_t>
-void sift_test1B_PQ(const char *, const char *, const char *, const char *,
+//template<typename dist_t>
+void sift_test1B_PQ<float>(const char *, const char *, const char *, const char *,
                     const char *, const char *, const char *,
                     const int, const int, const int, const int, const int, const int);
 
