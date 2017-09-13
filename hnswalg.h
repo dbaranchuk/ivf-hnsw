@@ -82,7 +82,7 @@ namespace hnswlib {
                 params[i*params_num + i_maxelements] = i ? p.first - params[(i-1)*params_num + i_threshold] : p.first;
                 params[i*params_num + i_M] = p.second;
                 params[i*params_num + i_maxM] = p.second;
-                params[i*params_num + i_maxM0] = 1 * p.second;
+                params[i*params_num + i_maxM0] = 2 * p.second;
                 params[i*params_num + i_size_links_level0] = params[i*params_num + i_maxM0]* sizeof(tableint) + sizeof(linklistsizeint);
                 params[i*params_num + i_size_data_per_element] = params[i*params_num + i_size_links_level0] + data_size_;
                 params[i*params_num + i_offsetData] = params[i*params_num + i_size_links_level0];
@@ -177,7 +177,7 @@ namespace hnswlib {
         {
             size_t *param = getParametersByInternalId(internal_id);
             tableint ref_id = (param == params) ? internal_id : internal_id - (param - params_num)[i_threshold];
-            return (data_level0_memory_ + param[i_partOffset] + ref_id * param[i_size_data_per_element] + param[i_offsetData]);
+            return (data_level0_memory_ + param[i_partOffset] + (ref_id+1) * param[i_size_data_per_element] /*+ param[i_offsetData]*/);
         }
 
         inline linklistsizeint *get_linklist0(tableint internal_id)
