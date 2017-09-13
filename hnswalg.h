@@ -203,7 +203,7 @@ namespace hnswlib {
 
         std::priority_queue<std::pair<dist_t, tableint  >> searchBaseLayer(tableint ep, void *datapoint, int level)
         {
-            VisitedList *vl = visitedlistpool->getFreeVisitedList();
+            VisitedList *vs = visitedsetpool->getFreeVisitedSet();
 
             std::priority_queue<std::pair<dist_t, tableint  >> topResults;
             std::priority_queue<std::pair<dist_t, tableint >> candidateSet;
@@ -211,7 +211,7 @@ namespace hnswlib {
 
             topResults.emplace(dist, ep);
             candidateSet.emplace(-dist, ep);
-            setVisited->insert(ep);
+            vs->insert(ep);
 
             dist_t lowerBound = dist;
 
@@ -235,8 +235,8 @@ namespace hnswlib {
                 for (linklistsizeint j = 0; j < size; ++j) {
                     tableint tnum = *(data + j);
                     _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
-                    if (setVisited->count(tnum) == 0){
-                        setVisited->insert(tnum);
+                    if (vs->count(tnum) == 0){
+                        vs->insert(tnum);
                         dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
                         if (topResults.top().first > dist || topResults.size() < efConstruction_) {
                             candidateSet.emplace(-dist, tnum);
@@ -250,8 +250,7 @@ namespace hnswlib {
                     }
                 }
             }
-            visitedlistpool->releaseVisitedList(vl);
-
+            visitedsetpool->releaseVisitedSet(vs);
             return topResults;
         }
 
