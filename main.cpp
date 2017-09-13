@@ -31,7 +31,10 @@ void usage(const char * cmd)
                     "    -k #            number of NN to search, default: 1\n"
                     "    -M #            number of mandatory links maxM0 = 2*M, default: M=4\n"
                     "    -nq #           number of queries, default: 10000\n"
-                    "    -efConstruction #            -//-, default: 240\n");
+                    "    -efConstruction #            -//-, default: 240\n"
+                    "    -l2space int / float            Choose int for PQ compressed data or integer datasets like SIFT\n"
+                    "                                    Choose float for real datasets like DEEP\n"
+    );
     exit (0);
 }
 
@@ -118,12 +121,7 @@ int main(int argc, char **argv) {
         std::cerr << "Enter path_codebooks and path_tables to use PQ" << std::endl;
         exit(1);
     }
-    if (!strcmp (l2space_type, "int")) {
-        if (path_codebooks && path_tables) {
-            std::cerr << "Use l2space float for PQ" << std::endl;
-            exit(1);
-        }
-    } else if (strcmp (l2space_type, "float")){
+    if (strcmp (l2space_type, "int") && strcmp (l2space_type, "float")) {
         std::cerr << "Available l2space: float or int" << std::endl;
         exit(1);
     }

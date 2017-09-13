@@ -366,7 +366,6 @@ namespace hnswlib {
                 y = ((unsigned char *)y_code)[i];
                 res += constructionTables[i][k_*x + y];
             }
-            cout << res << endl;
             return res;
         };
 

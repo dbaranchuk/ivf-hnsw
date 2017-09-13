@@ -540,12 +540,12 @@ void hnsw_test(const char *l2space_type,
     if (!strcmp (l2space_type, "int")) {
         _hnsw_test<int>(path_codebooks, path_tables, path_data, path_q,
                         path_gt, path_info, path_edges,
-                        L2SpaceType::Int,
+                        (path_codebooks && path_tables) ? L2SpaceType::PQ : L2SpaceType::Int,
                         k, vecsize, qsize, vecdim, efConstruction, M);
     } else if (!strcmp (l2space_type, "float"))
         _hnsw_test<float>(path_codebooks, path_tables, path_data, path_q,
                           path_gt, path_info, path_edges,
-                          (path_codebooks && path_tables) ? L2SpaceType::PQ : L2SpaceType::Float,
+                          L2SpaceType::Float,
                           k, vecsize, qsize, vecdim, efConstruction, M);
 }
 
