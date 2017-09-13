@@ -426,10 +426,6 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 //    delete massQA;
 //}
 
-
-template <typename dist_t>
-HierarchicalNSW<dist_t> *constructIndex(const char *base)
-
 void sift_test1B_PQ()
 {
     const int subset_size_milllions = 10;
