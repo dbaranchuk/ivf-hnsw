@@ -543,7 +543,7 @@ void hnsw_test(const char *l2space_type,
     const int M_PQ = 16;
 
     if (!path_q) path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
-    if (!path_data) path_data = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base.bvecs";
+    if (!path_data) path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
     //if (!path_codebooks) path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
     //if (!path_tables) path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
     if (!path_gt){
