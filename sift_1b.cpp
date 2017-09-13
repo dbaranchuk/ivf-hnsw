@@ -220,6 +220,7 @@ static void test_vs_recall(unsigned char *massQ, size_t qsize, HierarchicalNSW<d
         appr_alg.hops = 0.0;
         appr_alg.hops0 = 0.0;
 		StopW stopw = StopW();
+
 		float recall = test_approx<dist_t>(massQ, qsize, appr_alg, vecdim, answers, k, cluster_idx_set, pq);
 		float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
 		float avr_dist_count = appr_alg.dist_calc*1.f / qsize;
@@ -427,11 +428,11 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 //}
 
 void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_info,
-                    const char *path_edges, const char *path_q, const char *path_gt, const int k=1, const int ep=-1)
+                    const char *path_edges, const char *path_q, const char *path_gt, const int k=1, const int nq = 10000)
 {
     const int subset_size_milllions = 10;
     const size_t vecsize = subset_size_milllions * 1000000;
-    const size_t qsize = 10000;
+    const size_t qsize = nq;
     const size_t vecdim = 128;
 
     const int efConstruction = 240;
@@ -460,7 +461,7 @@ void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const c
                 efConstruction);
         path_info = path_info_;
     }
-    
+
     //sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d.bin", M_PQ, subset_size_milllions, efConstruction);
     //sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
     //sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M%d/idx_%dM_pq.ivecs", M_PQ, subset_size_milllions);
@@ -503,7 +504,7 @@ void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const c
 
     HierarchicalNSW<float> *appr_alg;
     if (exists_test(path_info) && exists_test(path_edges)) {
-        appr_alg = new HierarchicalNSW<float>(&l2space, const_cast<char *>(path_info), path_data, const_cast<char*>(path_edges));
+        appr_alg = new HierarchicalNSW<float>(&l2space, path_info, path_data, path_edges);
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
@@ -556,7 +557,7 @@ void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const c
         appr_alg->SaveEdges(path_edges);
     }
     printInfo(appr_alg);
-    //appr_alg->printListsize();
+    appr_alg->printListsize();
 
     unordered_set<int> cluster_idx_set;
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
