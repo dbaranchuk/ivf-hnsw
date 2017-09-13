@@ -119,7 +119,6 @@ namespace hnswlib {
             }
             //free(linkLists_);
             delete visitedlistpool;
-            delete space;
             delete params;
         }
         // Fields
