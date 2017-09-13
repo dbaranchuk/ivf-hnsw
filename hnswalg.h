@@ -704,7 +704,7 @@ namespace hnswlib {
             enterpoint_node = ep;
             total_size = 0;
             maxelements_ = 0;
-            for (size_t i = 0; i < params_size; i++) {
+            for (size_t i = 0; i < parts_num; i++) {
                 maxelements_ += params[i][i_maxelements];
                 total_size += params[i][i_maxelements] * params[i][i_size_data_per_element];
             }
