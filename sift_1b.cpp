@@ -426,9 +426,13 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 //    delete massQA;
 //}
 
+
+template <typename dist_t>
+HierarchicalNSW<dist_t> *constructIndex(const char *base)
+
 void sift_test1B_PQ()
 {
-    const int subset_size_milllions = 1000;
+    const int subset_size_milllions = 10;
     const size_t vecsize = subset_size_milllions * 1000000;
     const size_t qsize = 10000;
     const size_t vecdim = 128;
@@ -442,12 +446,16 @@ void sift_test1B_PQ()
 
 
     char path_index[1024];
+    char path_edges[1024];
+    char path_info[1024];
     char path_gt[1024];
     const char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
     const char *path_data = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base_pq.bvecs";
-
     const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
     const char *path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
+
+    sprintf(path_edges, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_edges.ivecs", M_PQ, subset_size_milllions, efConstruction);
+    sprintf(path_info, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_info.bin", M_PQ, subset_size_milllions, efConstruction);
 
     sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_ev.bin", M_PQ, subset_size_milllions, efConstruction);
     sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
@@ -491,7 +499,7 @@ void sift_test1B_PQ()
 
     HierarchicalNSW<float> *appr_alg;
     if (exists_test(path_index)) {
-        appr_alg = new HierarchicalNSW<float>(&l2space, path_index, false);
+        appr_alg = new HierarchicalNSW<float>(&l2space, path_info, path_data, path_edges, false);
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
@@ -506,7 +514,6 @@ void sift_test1B_PQ()
 
         cout << "Adding elements\n";
         ifstream input(path_data, ios::binary);
-        //
         input.read((char *) &in, 4);
         if (in != M_PQ) {
             cout << "file error\n";
@@ -515,7 +522,7 @@ void sift_test1B_PQ()
         input.read((char *) massb, in);
 
         appr_alg->addPoint((void *) (massb), (size_t) j1);
-        //
+
         size_t report_every = 1000000;
 #pragma omp parallel for num_threads(32)
         for (int i = 1; i < vecsize; i++) {
@@ -540,7 +547,9 @@ void sift_test1B_PQ()
         }
         input.close();
         cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
-        appr_alg->SaveIndex(path_index);
+        //appr_alg->SaveIndex(path_index);
+        appr_alg->SaveInfo(path_info);
+        appr_alg->SaveEdges(path_edges);
     }
     printInfo(appr_alg);
     //appr_alg->printListsize();
