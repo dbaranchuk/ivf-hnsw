@@ -400,10 +400,10 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 //}
 
 template<typename dist_t>
-void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_info,
-                    const char *path_edges, const char *path_q, const char *path_gt,
-                    const int k, const int vecsize, const int qsize,
-                    const int vecdim, const int efConstruction, const int M)
+static void _hnsw_test(const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_info,
+                       const char *path_edges, const char *path_q, const char *path_gt,
+                       const int k, const int vecsize, const int qsize,
+                       const int vecdim, const int efConstruction, const int M)
 {
     const int subset_size_milllions = 10;
     //const size_t vecsize = subset_size_milllions * 1000000;
@@ -539,6 +539,36 @@ void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const c
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQA;
+}
+
+
+void hnsw_test(const char *l2space_type,
+               const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_info,
+               const char *path_edges, const char *path_q, const char *path_gt,
+               const int k, const int vecsize, const int qsize,
+               const int vecdim, const int efConstruction, const int M)
+{
+    if (!path_q) path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
+    if (!path_data) path_data = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base_pq.bvecs";
+    if (!path_codebooks) path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
+    if (!path_tables) path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
+
+
+    if ((!path_codebooks && path_tables) || (!path_codebooks && !path_tables)) {
+        std::cerr << "Enter path_codebooks and path_tables to use PQ" << std::endl;
+        exit(1);
+    }
+    if (!strcmp (l2space_type, "int")) {
+        if (path_codebooks || path_tables) {
+            std::cerr << "Use l2space_type = float for PQ" << std::endl;
+            exit(1);
+        }
+        _hnsw_test<int>(path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt,
+                    k, vecsize, qsize, vecdim, efConstruction, M);
+    } else if (!strcmp (l2space_type, "float")) {
+        _hnsw_test<float>(path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt,
+                    k, vecsize, qsize, vecdim, efConstruction, M);
+    }
 }
 
 
