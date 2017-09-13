@@ -434,7 +434,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
             break;
     }
 
-
+    cout << PQ << endl;
     HierarchicalNSW<dist_t> *appr_alg;
     if (exists_test(path_info) && exists_test(path_edges)) {
         appr_alg = new HierarchicalNSW<dist_t>(l2space, path_info, path_data, path_edges);
@@ -444,10 +444,10 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         unsigned char massb[PQ ? M_PQ : vecdim];
 
         int j1 = 0, in = 0;
-        cout << in << endl;
+        cout << PQ << endl;
         appr_alg = new HierarchicalNSW<dist_t>(l2space, M_map, efConstruction);
         appr_alg->setElementLevels(elements_per_level);
-        cout << in << endl;
+        cout << PQ << endl;
         StopW stopw = StopW();
         StopW stopw_full = StopW();
 
