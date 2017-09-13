@@ -445,6 +445,7 @@ void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const c
     if (!path_codebooks) path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
     if (!path_tables) path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
 
+    cout << path_q << endl;
     if (!path_gt)
         sprintf(const_cast<char *>(path_gt), "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
     if (!path_edges)
