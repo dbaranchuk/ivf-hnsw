@@ -708,7 +708,7 @@ namespace hnswlib {
             input.close();
 
 
-            efConstruction_ = 70;
+            efConstruction_ = 240;
             enterpoint_node = ep;
             total_size = 0;
             maxelements_ = 0;
