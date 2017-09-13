@@ -664,6 +664,12 @@ namespace hnswlib {
             std::ofstream output(location, std::ios::binary);
             streampos position;
 
+            cout << enterpoint_node << endl;
+            cout << maxlevel_ << endl;
+            cout << total_size << endl;
+            cout << cur_element_count << endl;
+            cour << maxelements_ << endl;
+
             writeBinaryPOD(output, parts_num);
             writeBinaryPOD(output, params_num);
             output.write((char *)params, parts_num * params_num *sizeof(size_t));
@@ -699,8 +705,9 @@ namespace hnswlib {
             readBinaryPOD(input, params_num);
             params = new size_t[params_num*parts_num];
             input.read((char *) params, parts_num*params_num*sizeof(size_t));
+            input.close();
 
-            efConstruction_ = 0;
+            efConstruction_ = 240;
             enterpoint_node = ep;
             total_size = 0;
             maxelements_ = 0;
@@ -724,7 +731,6 @@ namespace hnswlib {
             }
 
             cout << "Predicted size=" << total_size / (1000 * 1000) << "\n";
-            input.close();
         }
 
         void LoadData(const string &location)

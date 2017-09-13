@@ -434,7 +434,7 @@ void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const c
     const size_t vecsize = subset_size_milllions * 1000000;
     const size_t vecdim = 128;
 
-    const int efConstruction = 240;
+    const int efConstruction = 60;
     const int M_PQ = 16;
 
     const map<size_t, size_t> M_map = {{vecsize, 32}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
