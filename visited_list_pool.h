@@ -24,7 +24,7 @@ public:
         //vl_set->set_empty_key(NULL);
 		mass = new vl_type[numelements];
 	}
-    dense_hash_set<unsigned int> *getVisitedSet() {return vl_set;};
+    //dense_hash_set<unsigned int> *getVisitedSet() {return vl_set;};
 	void reset()
 	{
 		curV++;
