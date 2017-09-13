@@ -495,7 +495,7 @@ void sift_test1B_PQ()
 
     HierarchicalNSW<float> *appr_alg;
     if (exists_test(path_info) && exists_test(path_edges)) {
-        appr_alg = new HierarchicalNSW<float>(&l2space, const_cast<char *>path_info, path_data, const_cast<char*>path_edges);
+        appr_alg = new HierarchicalNSW<float>(&l2space, const_cast<char *>(path_info), path_data, const_cast<char*>(path_edges));
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
