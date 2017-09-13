@@ -434,10 +434,10 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
             break;
     }
 
-    cout << "ercc" << endl;
-    
+
     HierarchicalNSW<dist_t> *appr_alg;
     if (exists_test(path_info) && exists_test(path_edges)) {
+        cout << "ercc" << endl;
         appr_alg = new HierarchicalNSW<dist_t>(l2space, path_info, path_data, path_edges);
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
