@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
     int k = 1, ret, ep;
 
     if (argc == 1)
-        usage (argv[0])
+        usage (argv[0]);
 
     for (int i = 1 ; i < argc ; i++) {
         char *a = argv[i];
