@@ -269,7 +269,6 @@ namespace hnswlib {
 
             //vl_type *massVisited = vl->mass;
             //vl_type currentV = vl->curV;
-            cout << "HUII" << endl;
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> topResults;
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> candidateSet;
 
@@ -298,7 +297,7 @@ namespace hnswlib {
 
                 linklistsizeint *ll_cur = get_linklist0(curNodeNum);
                 linklistsizeint size = *ll_cur;
-
+                cout << size << endl;
                 tableint *data = (tableint *)(ll_cur + 1);
 
                 //_mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
@@ -589,6 +588,7 @@ namespace hnswlib {
             else
                 curdist = space->fstdistfunc(query_data, getDataByInternalId(enterpoint_node));
 
+            cout << curdist << endl;
             dist_calc++;
             for (int level = maxlevel_; level > 0; level--) {
                 bool changed = true;
