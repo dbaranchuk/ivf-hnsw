@@ -542,8 +542,8 @@ void hnsw_test(const char *l2space_type,
 
     if (!path_q) path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
     if (!path_data) path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
-    if (!path_codebooks) path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
-    if (!path_tables) path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
+    //if (!path_codebooks) path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
+    //if (!path_tables) path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
     if (!path_gt){
         sprintf(path_gt_, "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
         path_gt = path_gt_;
@@ -569,7 +569,7 @@ void hnsw_test(const char *l2space_type,
             std::cerr << "Use l2space_type = float for PQ" << std::endl;
             exit(1);
         }
-        _hnsw_test<int>(path_codebooks, path_tables, path_data, path_q,
+        _hnsw_test<float>(path_codebooks, path_tables, path_data, path_q,
                         path_gt, path_info, path_edges,
                         L2SpaceType::Int,
                         k, vecsize, qsize, vecdim, efConstruction, M);
