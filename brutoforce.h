@@ -19,6 +19,8 @@ namespace hnswlib {
 		~BruteforceSearch() {
 			free(data_);
 		}
+
+		SpaceInterface *space;
 		char *data_;
 		size_t maxelements_;
 		size_t cur_element_count;
