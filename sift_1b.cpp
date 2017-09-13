@@ -426,7 +426,8 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 //    delete massQA;
 //}
 
-void sift_test1B_PQ()
+void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_info,
+                    const char *path_edges, const char *path_q, const char *path_gt, const int k=-1, const int ep=-1)
 {
     const int subset_size_milllions = 10;
     const size_t vecsize = subset_size_milllions * 1000000;
@@ -440,20 +441,20 @@ void sift_test1B_PQ()
     const map<size_t, size_t> M_map = {{vecsize, 32}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
     const vector<size_t> elements_per_level = {vecsize};//{947368422, 50000000, 2500000, 125000, 6250, 312, 16};
 
-    char path_index[1024];
-    char path_edges[1024];
-    char path_info[1024];
-    char path_gt[1024];
-    const char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
-    const char *path_data = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base_pq.bvecs";
-    const char *path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
-    const char *path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
+    if (!path_q) path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
+    if (!path_data) path_data = "/sata2/dbaranchuk/bigann/base1B_M16/bigann_base_pq.bvecs"
+    if (!path_codebooks) path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
+    if (!path_tables) path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
 
-    sprintf(path_edges, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_edges.ivecs", M_PQ, subset_size_milllions, efConstruction);
-    sprintf(path_info, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_info.bin", M_PQ, subset_size_milllions, efConstruction);
+    if (!path_gt)
+        sprintf(const_cast<char *>(path_gt), "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
+    if (!path_edges)
+        sprintf(const_cast<char *>(path_edges), "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_edges.ivecs", M_PQ, subset_size_milllions, efConstruction);
+    if (!path_info)
+        sprintf(const_cast<char *>(path_info), "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_info.bin", M_PQ, subset_size_milllions, efConstruction);
 
-    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d.bin", M_PQ, subset_size_milllions, efConstruction);
-    sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
+    //sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d.bin", M_PQ, subset_size_milllions, efConstruction);
+    //sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
     //sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M%d/idx_%dM_pq.ivecs", M_PQ, subset_size_milllions);
 
     cout << "Loading GT:\n";

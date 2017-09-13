@@ -1,9 +1,11 @@
 #include <iostream>
 #include <cstring>
+#include <cassert>
 
 //void sift_test1B();
 //void deep_test10M();
-void sift_test1B_PQ();
+void sift_test1B_PQ(const char *, const char *, const char *, const char *,
+                    const char *, const char *, const char *, const int, const int);
 
 int main(int argc, char **argv) {
     const int subset_size_milllions = 10;
@@ -13,62 +15,52 @@ int main(int argc, char **argv) {
 
     const int efConstruction = 240;
     const int M_PQ = 16;
-    const int k = 1;
 
-    const map<size_t, size_t> M_map = {{vecsize, 32}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
-    const vector<size_t> elements_per_level = {vecsize};//{947368422, 50000000, 2500000, 125000, 6250, 312, 16};
-
-    char path_index[1024];
-    char path_edges[1024];
-    char path_info[1024];
-    char path_gt[1024];
+    const char *path_gt = NULL;
     const char *path_q = NULL;
     const char *path_data = NULL;
     const char *path_codebooks = NULL;
     const char *path_tables = NULL;
+    const char *path_edges = NULL;
+    const char *path_info = NULL;
 
-    sprintf(path_edges, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_edges.ivecs", M_PQ, subset_size_milllions, efConstruction);
-    sprintf(path_info, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d_info.bin", M_PQ, subset_size_milllions, efConstruction);
-
-    sprintf(path_index, "/sata2/dbaranchuk/bigann/base1B_M%d/sift%dm_ef_%d.bin", M_PQ, subset_size_milllions, efConstruction);
-    sprintf(path_gt,"/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
-    //sprintf(path_gt,"/sata2/dbaranchuk/bigann/base1B_M%d/idx_%dM_pq.ivecs", M_PQ, subset_size_milllions);
-
-    int d;
-    int n, k, ret;
+    int k, ret, ep;
 
     for (int i = 1 ; i < argc ; i++) {
         char *a = argv[i];
-        if (!strcmp (a, "-data") && i+1 < argc) {
+        if (!strcmp (a, "-path_codebooks") && i+1 < argc) {
+            path_codebooks = argv[++i];
+        }
+        else if (!strcmp (a, "-path_tables") && i+1 < argc) {
+            path_tables = argv[++i];
+        }
+        else if (!strcmp (a, "-path_data") && i+1 < argc) {
             path_data = argv[++i];
         }
-        else if (!strcmp (a, "-info") && i+1 < argc) {
-            fi_name = argv[++i];
-            fmt_in = FMT_BVEC;
+        else if (!strcmp (a, "-path_info") && i+1 < argc) {
+            path_info = argv[++i];
         }
-        else if (!strcmp (a, "-o") && i+1 < argc) {
-            fo_name = argv[++i];
+        else if (!strcmp (a, "-path_edges") && i+1 < argc) {
+            path_edges = argv[++i];
         }
-        else if (!strcmp (a, "-n") && i+1 < argc) {
-            ret = sscanf (argv[++i], "%d", &n);
+        else if (!strcmp (a, "-path_q") && i+1 < argc) {
+            path_q = argv[++i];
+        }
+        else if (!strcmp (a, "-path_gt") && i+1 < argc) {
+            path_gt = argv[++i];
+        }
+        else if (!strcmp (a, "-enterpoint") && i+1 < argc) {
+            ret = sscanf (argv[++i], "%d", &ep);
             assert (ret);
         }
         else if (!strcmp (a, "-k") && i+1 < argc) {
             ret = sscanf (argv[++i], "%d", &k);
             assert (ret);
         }
-        else if (!strcmp (a, "-d") && i+1 < argc) {
-            ret = sscanf (argv[++i], "%d", &d);
-            assert (ret);
-        }
-        else if (!strcmp (a, "-rnd")) {
-            rnd = true;
-        }
     }
-    assert (fi_name && fo_name);
+    assert(argc == 18);
 
     //sift_test1B();
-    sift_test1B_PQ();
-    //deep_test10M();
+    sift_test1B_PQ(path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt, k, ep);
     return 0;  
 };

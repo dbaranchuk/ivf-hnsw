@@ -361,7 +361,7 @@ namespace hnswlib {
                 bool good = true;
                 for (std::pair<dist_t, tableint> curen2 : returnlist) {
                     dist_t curdist = space->fstdistfunc(getDataByInternalId(curen2.second), getDataByInternalId(curen.second));
-                    if (curdist < 1.218*dist_to_query) { // 75 gradus
+                    if (curdist < dist_to_query) { // 75 gradus
                         good = false;
                         break;
                     }
@@ -645,119 +645,6 @@ namespace hnswlib {
         };
 
 
-        void SaveIndex(const string &location)
-        {
-            cout << "Saving index to " << location.c_str() << "\n";
-            std::ofstream output(location, std::ios::binary);
-            streampos position;
-
-            writeBinaryPOD(output, offsetLevel0_);
-            writeBinaryPOD(output, maxelements_);
-            writeBinaryPOD(output, cur_element_count);
-            writeBinaryPOD(output, maxlevel_);
-            writeBinaryPOD(output, enterpoint_node);
-
-            writeBinaryPOD(output, mult_);
-            writeBinaryPOD(output, efConstruction_);
-
-            writeBinaryPOD(output, total_size);
-            writeBinaryPOD(output, parts_num);
-            writeBinaryPOD(output, params_num);
-            output.write((char *)params, parts_num * params_num *sizeof(size_t));
-
-//            for (size_t i = 0; i < params_size; i++) {
-//                writeBinaryPOD(output, params[i] + i_threshold);
-//                writeBinaryPOD(output, params[i] + i_M);
-//                writeBinaryPOD(output, params[i] + i_maxM);
-//                writeBinaryPOD(output, params[i] + i_maxM0);
-//            }
-
-            output.write(data_level0_memory_, total_size);
-
-//            for (size_t i = 0; i < params[0*params_num + i_threshold]; ++i) {
-//                unsigned int linkListSize = elementLevels[i] > 0 ? params[0*params_num + i_size_links_per_element] * elementLevels[i] : 0;
-//                writeBinaryPOD(output, linkListSize);
-//                if (linkListSize)
-//                    output.write((char *)linkLists_[i], linkListSize);
-//            }
-            output.close();
-        }
-
-        void LoadIndex(const string &location, SpaceInterface<dist_t> *s)
-        {
-            cout << "Loading index from " << location << endl;
-            std::ifstream input(location, std::ios::binary);
-            streampos position;
-
-            readBinaryPOD(input, offsetLevel0_);
-            readBinaryPOD(input, maxelements_);
-            readBinaryPOD(input, cur_element_count);
-            readBinaryPOD(input, maxlevel_);
-            readBinaryPOD(input, enterpoint_node);
-
-            readBinaryPOD(input, mult_);
-            readBinaryPOD(input, efConstruction_);
-
-            space = s;
-            data_size_ = s->get_data_size();
-
-            // Params
-            readBinaryPOD(input, total_size);
-            readBinaryPOD(input, parts_num);
-            readBinaryPOD(input, params_num);
-            params = new size_t[params_num*parts_num];
-            input.read((char *) params, parts_num*params_num*sizeof(size_t));
-
-//            size_t threshold, M, maxM, maxM0;
-//            total_size = 0;
-//
-//            for (size_t i = 0; i < params_size; i++) {
-//                readBinaryPOD(input, threshold);
-//                readBinaryPOD(input, M);
-//                readBinaryPOD(input, maxM);
-//                readBinaryPOD(input, maxM0);
-//
-//                params[i][i_M] = M;
-//                params[i][i_threshold] = threshold;
-//                params[i][i_maxelements] = i ? params[i-1][i_threshold] - threshold : threshold;
-//                params[i][i_maxM] = M;
-//                params[i][i_maxM0] = 2 * M;
-//                params[i][i_size_links_level0] = params[i][i_maxM0]* sizeof(tableint) + sizeof(linklistsizeint);
-//                params[i][i_size_data_per_element] = params[i][i_size_links_level0] + data_size_;
-//                params[i][i_offsetData] = params[i][i_size_links_level0];
-//                params[i][i_size_links_per_element] = params[i][i_maxM] * sizeof(tableint) + sizeof(linklistsizeint);
-//
-//                total_size += params[i][i_maxelements] * params[i][i_size_data_per_element];
-//            }
-
-            data_level0_memory_ = (char *) malloc(total_size);
-            input.read(data_level0_memory_, total_size);
-
-            visitedlistpool = new VisitedListPool(1, maxelements_);
-//            linkLists_ = (char **) malloc(sizeof(void *) * (params[0*params_num + i_threshold]));
-
-            elementLevels = vector<char>(maxelements_);
-            for (int i = 0; i < maxelements_; i++)
-                elementLevels[i] = 0;
-
-//            for (size_t i = 0; i < params[0*params_num + i_threshold]; i++) {
-//                unsigned int linkListSize;
-//                readBinaryPOD(input, linkListSize);
-//                if (linkListSize == 0) {
-//                    elementLevels[i] = 0;
-//                    linkLists_[i] = nullptr;
-//                } else {
-//                    elementLevels[i] = linkListSize / params[0*params_num + i_size_links_per_element];
-//                    linkLists_[i] = (char *) malloc(linkListSize);
-//                    input.read((char *)linkLists_[i], linkListSize);
-//                }
-//            }
-
-            input.close();
-            cout << "Loaded index, predicted size=" << total_size / (1000 * 1000) << "\n";
-            return;
-        }
-
         void printListsize()
         {
             for (int i = 0; i < maxelements_; i++){
@@ -777,66 +664,19 @@ namespace hnswlib {
             std::ofstream output(location, std::ios::binary);
             streampos position;
 
-            writeBinaryPOD(output, offsetLevel0_);
-            writeBinaryPOD(output, maxelements_);
-            writeBinaryPOD(output, cur_element_count);
-            writeBinaryPOD(output, maxlevel_);
-            writeBinaryPOD(output, enterpoint_node);
-
-            writeBinaryPOD(output, mult_);
-            writeBinaryPOD(output, efConstruction_);
-
-            writeBinaryPOD(output, total_size);
             writeBinaryPOD(output, parts_num);
             writeBinaryPOD(output, params_num);
             output.write((char *)params, parts_num * params_num *sizeof(size_t));
             output.close();
         }
 
-        void LoadInfo(const string &location, SpaceInterface<dist_t> *s)
-        {
-            cout << "Loading info from " << location << endl;
-            std::ifstream input(location, std::ios::binary);
-            streampos position;
-
-            readBinaryPOD(input, offsetLevel0_);
-            readBinaryPOD(input, maxelements_);
-            readBinaryPOD(input, cur_element_count);
-            readBinaryPOD(input, maxlevel_);
-            readBinaryPOD(input, enterpoint_node);
-
-            readBinaryPOD(input, mult_);
-            readBinaryPOD(input, efConstruction_);
-
-            space = s;
-            data_size_ = s->get_data_size();
-
-            // Params
-            readBinaryPOD(input, total_size);
-            readBinaryPOD(input, parts_num);
-            readBinaryPOD(input, params_num);
-            params = new size_t[params_num*parts_num];
-            input.read((char *) params, parts_num*params_num*sizeof(size_t));
-
-            visitedlistpool = new VisitedListPool(1, maxelements_);
-
-            //linkLists_ = (char **) malloc(sizeof(void *) * (params[0*params_num + i_threshold]));
-
-            elementLevels = vector<char>(maxelements_);
-            for (int i = 0; i < maxelements_; i++)
-                elementLevels[i] = 0;
-
-            cout << "Predicted size=" << total_size / (1000 * 1000) << "\n";
-            input.close();
-        }
 
         void SaveEdges(const string &location)
         {
             cout << "Saving index to " << location << endl;
             FILE *fout = fopen(location.c_str(), "wb");
 
-            for (tableint i = 0; i < maxelements_; i++)
-            {
+            for (tableint i = 0; i < maxelements_; i++) {
                 linklistsizeint *ll_cur = get_linklist0(i);
                 size_t size = *ll_cur;
 
@@ -846,21 +686,45 @@ namespace hnswlib {
             }
         }
 
-        void LoadEdges(const string &location)
+        void LoadInfo(const string &location, SpaceInterface<dist_t> *s, const int ep = 0)
         {
-            cout << "Loading edges from " << location << endl;
-            FILE *fin = fopen(location.c_str(), "rb");
-            size_t size;
+            cout << "Loading info from " << location << endl;
+            std::ifstream input(location, std::ios::binary);
+            streampos position;
 
-            for (tableint i = 0; i < maxelements_; i++)
-            {
-                fread((size_t *)&size, sizeof(size_t), 1, fin);
-                linklistsizeint *ll_cur = get_linklist0(i);
-                *ll_cur = size;
-                tableint *data = (tableint *)(ll_cur + 1);
+            space = s;
+            data_size_ = s->get_data_size();
 
-                fread((tableint *)data, sizeof(tableint), size, fin);
+            readBinaryPOD(input, parts_num);
+            readBinaryPOD(input, params_num);
+            params = new size_t[params_num*parts_num];
+            input.read((char *) params, parts_num*params_num*sizeof(size_t));
+
+            efConstruction_ = 0;
+            enterpoint_node = ep;
+            total_size = 0;
+            maxelements_ = 0;
+            for (size_t i = 0; i < params_size; i++) {
+                maxelements_ += params[i][i_maxelements];
+                total_size += params[i][i_maxelements] * params[i][i_size_data_per_element];
             }
+            cur_element_count = maxelements_;
+
+            visitedlistpool = new VisitedListPool(1, maxelements_);
+
+            //linkLists_ = (char **) malloc(sizeof(void *) * (params[0*params_num + i_threshold]));
+
+            elementLevels = vector<char>(maxelements_);
+            maxlevel_ = 0;
+            for (int i = 0; i < maxelements_; i++) {
+                elementLevels[i] = 0;
+                if (elementLevels[i] > maxlevel_){
+                    maxlevel_ = elementLevels[i];
+                }
+            }
+
+            cout << "Predicted size=" << total_size / (1000 * 1000) << "\n";
+            input.close();
         }
 
         void LoadData(const string &location)
@@ -880,6 +744,23 @@ namespace hnswlib {
                 memcpy(getDataByInternalId(i), massb, data_size_);
             }
         }
+
+        void LoadEdges(const string &location)
+        {
+            cout << "Loading edges from " << location << endl;
+            FILE *fin = fopen(location.c_str(), "rb");
+            size_t size;
+
+            for (tableint i = 0; i < maxelements_; i++) {
+                fread((size_t *)&size, sizeof(size_t), 1, fin);
+                linklistsizeint *ll_cur = get_linklist0(i);
+                *ll_cur = size;
+                tableint *data = (tableint *)(ll_cur + 1);
+
+                fread((tableint *)data, sizeof(tableint), size, fin);
+            }
+        }
+
 
 //        void PrevLoadIndex(const string &location, SpaceInterface<dist_t> *s)
 //        {
@@ -957,6 +838,118 @@ namespace hnswlib {
 //
 //            input.close();
 //            size_t total_size = maxclusters_ * size_data_per_cluster + maxelements_ * size_data_per_element;
+//            cout << "Loaded index, predicted size=" << total_size / (1000 * 1000) << "\n";
+//            return;
+//        }
+//        void SaveIndex(const string &location)
+//        {
+//            cout << "Saving index to " << location.c_str() << "\n";
+//            std::ofstream output(location, std::ios::binary);
+//            streampos position;
+//
+//            writeBinaryPOD(output, offsetLevel0_);
+//            writeBinaryPOD(output, maxelements_);
+//            writeBinaryPOD(output, cur_element_count);
+//            writeBinaryPOD(output, maxlevel_);
+//            writeBinaryPOD(output, enterpoint_node);
+//
+//            writeBinaryPOD(output, mult_);
+//            writeBinaryPOD(output, efConstruction_);
+//
+//            writeBinaryPOD(output, total_size);
+//            writeBinaryPOD(output, parts_num);
+//            writeBinaryPOD(output, params_num);
+//            output.write((char *)params, parts_num * params_num *sizeof(size_t));
+//
+////            for (size_t i = 0; i < params_size; i++) {
+////                writeBinaryPOD(output, params[i] + i_threshold);
+////                writeBinaryPOD(output, params[i] + i_M);
+////                writeBinaryPOD(output, params[i] + i_maxM);
+////                writeBinaryPOD(output, params[i] + i_maxM0);
+////            }
+//
+//            output.write(data_level0_memory_, total_size);
+//
+////            for (size_t i = 0; i < params[0*params_num + i_threshold]; ++i) {
+////                unsigned int linkListSize = elementLevels[i] > 0 ? params[0*params_num + i_size_links_per_element] * elementLevels[i] : 0;
+////                writeBinaryPOD(output, linkListSize);
+////                if (linkListSize)
+////                    output.write((char *)linkLists_[i], linkListSize);
+////            }
+//            output.close();
+//        }
+//
+//        void LoadIndex(const string &location, SpaceInterface<dist_t> *s)
+//        {
+//            cout << "Loading index from " << location << endl;
+//            std::ifstream input(location, std::ios::binary);
+//            streampos position;
+//
+//            readBinaryPOD(input, offsetLevel0_);
+//            readBinaryPOD(input, maxelements_);
+//            readBinaryPOD(input, cur_element_count);
+//            readBinaryPOD(input, maxlevel_);
+//            readBinaryPOD(input, enterpoint_node);
+//
+//            readBinaryPOD(input, mult_);
+//            readBinaryPOD(input, efConstruction_);
+//
+//            space = s;
+//            data_size_ = s->get_data_size();
+//
+//            // Params
+//            readBinaryPOD(input, total_size);
+//            readBinaryPOD(input, parts_num);
+//            readBinaryPOD(input, params_num);
+//            params = new size_t[params_num*parts_num];
+//            input.read((char *) params, parts_num*params_num*sizeof(size_t));
+//
+//            size_t threshold, M, maxM, maxM0;
+//            total_size = 0;
+//
+////            for (size_t i = 0; i < params_size; i++) {
+////                readBinaryPOD(input, threshold);
+////                readBinaryPOD(input, M);
+////                readBinaryPOD(input, maxM);
+////                readBinaryPOD(input, maxM0);
+////
+////                params[i][i_M] = M;
+////                params[i][i_threshold] = threshold;
+////                params[i][i_maxelements] = i ? params[i-1][i_threshold] - threshold : threshold;
+////                params[i][i_maxM] = M;
+////                params[i][i_maxM0] = 2 * M;
+////                params[i][i_size_links_level0] = params[i][i_maxM0]* sizeof(tableint) + sizeof(linklistsizeint);
+////                params[i][i_size_data_per_element] = params[i][i_size_links_level0] + data_size_;
+////                params[i][i_offsetData] = params[i][i_size_links_level0];
+////                params[i][i_size_links_per_element] = params[i][i_maxM] * sizeof(tableint) + sizeof(linklistsizeint);
+////
+////                total_size += params[i][i_maxelements] * params[i][i_size_data_per_element];
+////            }
+//
+//            data_level0_memory_ = (char *) malloc(total_size);
+//            input.read(data_level0_memory_, total_size);
+//
+//            visitedlistpool = new VisitedListPool(1, maxelements_);
+////            linkLists_ = (char **) malloc(sizeof(void *) * (params[0*params_num + i_threshold]));
+//
+//            elementLevels = vector<char>(maxelements_);
+//            for (int i = 0; i < maxelements_; i++)
+//                elementLevels[i] = 0;
+//
+////            for (size_t i = 0; i < params[0*params_num + i_threshold]; i++) {
+////                unsigned int linkListSize;
+////                readBinaryPOD(input, linkListSize);
+////                if (linkListSize == 0) {
+////                    elementLevels[i] = 0;
+////                    linkLists_[i] = nullptr;
+////                } else {
+////                    elementLevels[i] = linkListSize / params[0*params_num + i_size_links_per_element];
+////                    linkLists_[i] = (char *) malloc(linkListSize);
+////                    input.read((char *)linkLists_[i], linkListSize);
+////                }
+////            }
+//
+//            input.close();
 //            cout << "Loaded index, predicted size=" << total_size / (1000 * 1000) << "\n";
 //            return;
 //        }
