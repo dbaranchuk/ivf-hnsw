@@ -444,13 +444,13 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         unsigned char massb[PQ ? M_PQ : vecdim];
 
         int j1 = 0, in = 0;
+        cout << in << endl;
         appr_alg = new HierarchicalNSW<dist_t>(l2space, M_map, efConstruction);
         appr_alg->setElementLevels(elements_per_level);
-
+        cout << in << endl;
         StopW stopw = StopW();
         StopW stopw_full = StopW();
 
-        cout << in << endl;
         cout << "Adding elements\n";
         ifstream input(path_data, ios::binary);
         input.read((char *) &in, 4);
