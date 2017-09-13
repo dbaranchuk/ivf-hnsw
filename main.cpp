@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
     const char *path_edges = NULL;
     const char *path_info = NULL;
 
-    int k, ret, ep;
+    int k = 1, ret, ep;
 
     for (int i = 1 ; i < argc ; i++) {
         char *a = argv[i];
