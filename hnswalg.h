@@ -296,7 +296,6 @@ namespace hnswlib {
 
                 linklistsizeint *ll_cur = get_linklist0(curNodeNum);
                 linklistsizeint size = *ll_cur;
-                cout << size << endl;
                 tableint *data = (tableint *)(ll_cur + 1);
 
                 //_mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
@@ -367,8 +366,6 @@ namespace hnswlib {
                 }
                 if (good) returnlist.push_back(curen);
             }
-            //if (returnlist.size() != NN)
-            //    std::cout << returnlist.size() << std::endl;
             for (std::pair<dist_t, tableint> curen2 : returnlist)
                 topResults.emplace(-curen2.first, curen2.second);
         }
