@@ -9,12 +9,39 @@ void hnsw_test( const char *l2space_type,
                 const char *, const char *, const char *,
                 const int, const int, const int, const int, const int, const int);
 
+
+
+void usage(const char * cmd)
+{
+    printf ("Usage: %s [options]\n", cmd);
+
+    printf (
+            "  Input\n"
+                    "  Path parameters"
+                    "    -path_data filename     set of base vectors (bvecs file format)\n"
+                    "    -path_edges filename     set of links in the constructed graph  (ivecs file format)\n"
+                    "    -path_info filename     set of graph parameters)\n"
+                    "    -path_gt filename     groundtruth (ivecs file format))\n"
+                    "    -path_q filename     set of queries (ivecs file format))\n"
+                    "    -path_codebooks filename     codebook for PQ vectors (fvecs file format))\n"
+                    "    -path_tables filename     precomputed distances for PQ vectors (dat file format))\n"
+                    "  General parameters\n"
+                    "    -n #            use n points from the file, default: 1B\n"
+                    "    -d #            dimension of the vector, default: 128\n"
+                    "    -k #            number of NN to search, default: 1\n"
+                    "    -M #            number of mandatory links maxM0 = 2*M, default: M=4\n"
+                    "    -nq #           number of queries, default: 10000\n"
+                    "    -efConstruction #            -//-, default: 240\n");
+    exit (0);
+}
+
+
 int main(int argc, char **argv) {
-    size_t vecsize = 10000000;
+    size_t vecsize = 1000000000;
     size_t qsize = 10000;
     size_t vecdim = 128;
-    size_t M = 16;
-    size_t efConstruction = 60;
+    size_t M = 4;
+    size_t efConstruction = 240;
 
     const char *path_gt = NULL;
     const char *path_q = NULL;
@@ -27,8 +54,15 @@ int main(int argc, char **argv) {
     const char *l2space_type = NULL; //{int, float}
     int k = 1, ret, ep;
 
+    if (argc == 1)
+        usage (argv[0])
+
     for (int i = 1 ; i < argc ; i++) {
         char *a = argv[i];
+
+        if (!strcmp (a, "-h") || !strcmp (a, "--help"))
+            usage (argv[0]);
+
         if (!strcmp (a, "-path_codebooks") && i+1 < argc) {
             path_codebooks = argv[++i];
         }
@@ -82,6 +116,15 @@ int main(int argc, char **argv) {
 
     if ((!path_codebooks && path_tables) || (path_codebooks && !path_tables)) {
         std::cerr << "Enter path_codebooks and path_tables to use PQ" << std::endl;
+        exit(1);
+    }
+    if (!strcmp (l2space_type, "int")) {
+        if (path_codebooks && path_tables) {
+            std::cerr << "Use l2space float for PQ" << std::endl;
+            exit(1);
+        }
+    } else if (strcmp (l2space_type, "float")){
+        std::cerr << "Available l2space: float or int" << std::endl;
         exit(1);
     }
 

@@ -239,31 +239,6 @@ inline bool exists_test(const std::string& name) {
 }
 
 /**
- * Print Configuration
- **/
-template <typename dist_t>
-static void printInfo(HierarchicalNSW<dist_t> *hnsw)
-{
-    if (hnsw == NULL)
-        throw "Empty HNSW";
-
-    cout << "Information about constructed HNSW" << endl;
-    cout << "efConstruction: " << hnsw->efConstruction_<< endl;
-
-    map<char, int> table = map<char, int>();
-    for (char layerNum : hnsw->elementLevels) {
-        if (table.count(layerNum) == 0) {
-            table[layerNum] = 1;
-        } else {
-            table[layerNum]++;
-        }
-    }
-    for (auto elementsPerLayer : table){
-        cout << "Number of elements on the " << (int) elementsPerLayer.first << "level: " << elementsPerLayer.second << endl;
-    }
-}
-
-/**
  * Main SIFT Test Function
 */
 //void sift_test1B() {
@@ -514,7 +489,6 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         appr_alg->SaveInfo(path_info);
         appr_alg->SaveEdges(path_edges);
     }
-    printInfo(appr_alg);
     //appr_alg->printListsize();
 
     unordered_set<int> cluster_idx_set;
@@ -563,13 +537,8 @@ void hnsw_test(const char *l2space_type,
     //if (!path_info) sprintf(path_info, "/sata2/dbaranchuk/bigann/base1B_M16/sift%dm_ef%d_M%d_info.bin",
     //                        subset_size_milllions, efConstruction, M);
 
-
     if (!strcmp (l2space_type, "int")) {
-        if (path_codebooks && path_tables) {
-            std::cerr << "Use l2space_type = float for PQ" << std::endl;
-            exit(1);
-        }
-        _hnsw_test<float>(path_codebooks, path_tables, path_data, path_q,
+        _hnsw_test<int>(path_codebooks, path_tables, path_data, path_q,
                         path_gt, path_info, path_edges,
                         L2SpaceType::Int,
                         k, vecsize, qsize, vecdim, efConstruction, M);
@@ -578,10 +547,6 @@ void hnsw_test(const char *l2space_type,
                           path_gt, path_info, path_edges,
                           (path_codebooks && path_tables) ? L2SpaceType::PQ : L2SpaceType::Float,
                           k, vecsize, qsize, vecdim, efConstruction, M);
-    else {
-        std::cerr << "Available l2space_type: float or int" << std::endl;
-        exit(1);
-    }
 }
 
 
