@@ -169,6 +169,7 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 	//uncomment to test in parallel mode:
 	//#pragma omp parallel for
 	for (int i = 0; i < qsize; i++) {
+        cout << "HUII" << endl;
 		std::priority_queue< std::pair<dist_t, labeltype >> result;
         if (pq)
             result = appr_alg.searchKnn(massQ + vecdim*i, k, cluster_idx_set, i);
@@ -182,6 +183,7 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
                                                      appr_alg.getDataByInternalId(appr_alg.enterpoint0));
         appr_alg.nev9zka += dist2gt / qsize;
 
+        cout << "HUII" << endl;
 		while (gt.size()) {
 			g.insert(gt.top().second);
 			gt.pop();
@@ -220,7 +222,6 @@ static void test_vs_recall(unsigned char *massQ, size_t qsize, HierarchicalNSW<d
         appr_alg.hops = 0.0;
         appr_alg.hops0 = 0.0;
 		StopW stopw = StopW();
-        cout << "HUII" << endl;
 		float recall = test_approx<dist_t>(massQ, qsize, appr_alg, vecdim, answers, k, cluster_idx_set, pq);
 		float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
 		float avr_dist_count = appr_alg.dist_calc*1.f / qsize;
