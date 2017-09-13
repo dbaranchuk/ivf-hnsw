@@ -307,7 +307,7 @@ namespace hnswlib {
         }
 
         size_t get_data_size() { return data_size_; }
-        size_t get_data_dim() { return dim_; }
+        size_t get_data_dim() { return m_; }
 
 
         float fstdistfunc(const void *x_code, const void *y_code)
