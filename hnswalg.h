@@ -62,17 +62,15 @@ namespace hnswlib {
             LoadEdges(edgeLocation);
         }
 
-        HierarchicalNSW(SpaceInterface *s, size_t maxElements, const std::map<size_t, size_t> &M_map, size_t efConstruction = 200,
-                        size_t maxClusters = 0, size_t M_cluster = 0): elementLevels(maxElements)
+        HierarchicalNSW(SpaceInterface *s, const std::map<size_t, size_t> &M_map, size_t efConstruction = 200)
         {
-            maxelements_ = maxElements;
-
             space = s;
             data_size_ = s->get_data_size();
 
             efConstruction_ = efConstruction;
 
             total_size = 0;
+            maxelements_ = 0;
             parts_num = M_map.size();
             params_num = 10;
             params = new size_t[parts_num * params_num];
@@ -90,9 +88,11 @@ namespace hnswlib {
                 params[i*params_num + i_partOffset] = total_size;
 
                 total_size += params[i*params_num + i_maxelements] * params[i*params_num + i_size_data_per_element];
+                maxelements_ += params[i*params_num + i_maxelements];
                 i++;
             }
             offsetLevel0_ = 0;
+            elementLevels = vector<char>(maxelements_);
 
             std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
             data_level0_memory_ = (char *) malloc(total_size);
@@ -101,7 +101,7 @@ namespace hnswlib {
             cout << "Size Mb: " << total_size / (1000 * 1000) << "\n";
             cur_element_count = 0;
 
-            visitedlistpool = new VisitedListPool(1, maxelements_);
+            //visitedlistpool = new VisitedListPool(1, maxelements_);
             visitedsetpool = new VisitedSetPool(1);
             //initializations for special treatment of the first node
             enterpoint_node = -1;
@@ -120,7 +120,7 @@ namespace hnswlib {
             }
             //free(linkLists_);
             delete visitedsetpool;
-            delete visitedlistpool;
+            //delete visitedlistpool;
             delete params;
         }
         // Fields
@@ -698,7 +698,7 @@ namespace hnswlib {
             input.close();
 
 
-            efConstruction_ = 240;
+            efConstruction_ = 0;
             enterpoint_node = ep;
             total_size = 0;
             maxelements_ = 0;
@@ -708,7 +708,7 @@ namespace hnswlib {
             }
             cur_element_count = maxelements_;
 
-            visitedlistpool = new VisitedListPool(1, maxelements_);
+            //visitedlistpool = new VisitedListPool(1, maxelements_);
             visitedsetpool = new VisitedSetPool(1);
 
             //linkLists_ = (char **) malloc(sizeof(void *) * (params[0*params_num + i_threshold]));
@@ -721,7 +721,6 @@ namespace hnswlib {
                     maxlevel_ = elementLevels[i];
                 }
             }
-
             cout << "Predicted size=" << total_size / (1000 * 1000) << "\n";
         }
 
