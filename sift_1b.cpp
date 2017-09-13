@@ -406,7 +406,6 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
                        const int k, const int vecsize, const int qsize,
                        const int vecdim, const int efConstruction, const int M)
 {
-    //const int efConstruction = 60;
     const int M_PQ = 16;
     const bool PQ = (path_codebooks && path_tables);
 
@@ -462,12 +461,12 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     }
 
     HierarchicalNSW<dist_t> *appr_alg;
-    if (exists_test(path_info) && exists_test(path_edges)) {
+    if (exists_test(path_info) && exists_test(path_edges) && exists_test(path_info)) {
         appr_alg = new HierarchicalNSW<dist_t>(l2space, path_info, path_data, path_edges);
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
-        unsigned char massb[M_PQ];
+        unsigned char massb[PQ ? M_PQ : vecdim];
 
         int j1 = 0, in = 0;
         appr_alg = new HierarchicalNSW<dist_t>(l2space, vecsize, M_map, efConstruction);
@@ -479,7 +478,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         cout << "Adding elements\n";
         ifstream input(path_data, ios::binary);
         input.read((char *) &in, 4);
-        if (in != M_PQ) {
+        if (in != PQ ? M_PQ : vecdim) {
             cout << "file error\n";
             exit(1);
         }
@@ -490,11 +489,11 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         size_t report_every = 1000000;
 #pragma omp parallel for num_threads(32)
         for (int i = 1; i < vecsize; i++) {
-            unsigned char massb[M_PQ];
+            unsigned char massb[PQ ? M_PQ : vecdim];
 #pragma omp critical
             {
                 input.read((char *) &in, 4);
-                if (in != M_PQ) {
+                if (in != PQ ? M_PQ : vecdim) {
                     cout << "file error";
                     exit(1);
                 }
