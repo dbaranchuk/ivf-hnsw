@@ -538,7 +538,7 @@ void hnsw_test(const char *l2space_type,
                const int k, const int vecsize, const int qsize,
                const int vecdim, const int efConstruction, const int M)
 {
-    char path_gt_[1024], char path_edges_[1024], char path_info_[1024];
+    char path_gt_[1024], path_edges_[1024], path_info_[1024];
     const int subset_size_milllions = 10;
     const int M_PQ = 16;
 
