@@ -556,7 +556,7 @@ void sift_test1B_PQ(const char *path_codebooks, const char *path_tables, const c
         appr_alg->SaveEdges(path_edges);
     }
     printInfo(appr_alg);
-    appr_alg->printListsize();
+    //appr_alg->printListsize();
 
     unordered_set<int> cluster_idx_set;
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
