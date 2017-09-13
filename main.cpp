@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
         }
     }
     //assert(argc == 18);
-
+    std::cout << "HUIII" << std::endl;
     //sift_test1B();
     sift_test1B_PQ(path_codebooks, path_tables, path_data, path_info, path_edges, path_q, path_gt, k, ep);
     return 0;  
