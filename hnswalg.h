@@ -863,7 +863,7 @@ namespace hnswlib {
             }
         }
 
-        void LoadData(const string &location, const int d)
+        void LoadData(const string &location)
         {
             cout << "Loading data from " << location << endl;
             FILE *fin = fopen(location.c_str(), "rb");
@@ -872,7 +872,7 @@ namespace hnswlib {
 
             for (tableint i = 0; i < maxelements_; i++) {
                 fread((int *) &dim, sizeof(int), 1, fin);
-                if (dim != d)
+                if (dim != space->get_data_dim())
                     cerr << "Wront data dim" << endl;
 
                 fread((char *)massb, sizeof(char), dim, fin);
