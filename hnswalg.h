@@ -269,7 +269,7 @@ namespace hnswlib {
 
             //vl_type *massVisited = vl->mass;
             //vl_type currentV = vl->curV;
-
+            cout << "HUII" << endl;
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> topResults;
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> candidateSet;
 
