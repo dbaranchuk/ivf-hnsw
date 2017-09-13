@@ -11,30 +11,30 @@ namespace hnswlib{
 typedef unsigned short vl_type;
 class VisitedList {
 public:
-	//vl_type curV;
-	//vl_type *mass;
-    dense_hash_set<unsigned int> *vl_set;
-	unsigned int numelements;
+	vl_type curV;
+	vl_type *mass;
+    //dense_hash_set<unsigned int> *vl_set;
+	//unsigned int numelements;
 
 	VisitedList(unsigned int numelements1)
 	{
-		//curV = -1;
+		curV = -1;
 		numelements = numelements1;
-        vl_set = new dense_hash_set<unsigned int>();
-        vl_set->set_empty_key(NULL);
-		//mass = new vl_type[numelements];
+        //vl_set = new dense_hash_set<unsigned int>();
+        //vl_set->set_empty_key(NULL);
+		mass = new vl_type[numelements];
 	}
     dense_hash_set<unsigned int> *getVisitedSet() {return vl_set;};
 	void reset()
 	{
-		//curV++;
-		//if (curV == 0) {
-		//	memset(mass, 0, sizeof(vl_type) * numelements);
-		//	curV++;
-		//}
-        vl_set->clear();
+		curV++;
+		if (curV == 0) {
+			memset(mass, 0, sizeof(vl_type) * numelements);
+			curV++;
+		}
+        //vl_set->clear();
 	};
-	~VisitedList() { delete vl_set;/*mass;*/ }
+	~VisitedList() { delete /*vl_set;*/mass; }
 };
 ///////////////////////////////////////////////////////////
 //
