@@ -514,24 +514,24 @@ void hnsw_test(const char *l2space_type,
     char path_gt_[1024], path_edges_[1024], path_info_[1024];
     const int subset_size_milllions = 100;
 
-    if (!path_q) path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
-    if (!path_data) path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
-    if (!path_codebooks) path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
-    if (!path_tables) path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
-    if (!path_gt){
-        sprintf(path_gt_, "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
-        path_gt = path_gt_;
-    }
-    if (!path_edges) {
-        sprintf(path_edges_, "/sata2/dbaranchuk/bigann/sift%dm_ef%d_M%d_edges.ivecs",
-                subset_size_milllions, efConstruction, M);
-        path_edges = path_edges_;
-    }
-    if (!path_info) {
-        sprintf(path_info_, "/sata2/dbaranchuk/bigann/sift%dm_ef%d_M%d_info.bin",
-                subset_size_milllions, efConstruction, M);
-        path_info = path_info_;
-    }
+    //if (!path_q) path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
+    //if (!path_data) path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
+    //if (!path_codebooks) path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
+    //if (!path_tables) path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
+    //if (!path_gt){
+    //    sprintf(path_gt_, "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
+    //    path_gt = path_gt_;
+    //}
+    //if (!path_edges) {
+    //    sprintf(path_edges_, "/sata2/dbaranchuk/bigann/sift%dm_ef%d_M%d_edges.ivecs",
+    //            subset_size_milllions, efConstruction, M);
+    //    path_edges = path_edges_;
+    //}
+    //if (!path_info) {
+    //    sprintf(path_info_, "/sata2/dbaranchuk/bigann/sift%dm_ef%d_M%d_info.bin",
+    //            subset_size_milllions, efConstruction, M);
+    //    path_info = path_info_;
+    //}
     //if (!path_edges) sprintf(path_edges, "/sata2/dbaranchuk/bigann/base1B_M16/sift%dm_ef%d_M%d_edges.ivecs",
     //                         subset_size_milllions, efConstruction, M);
     //if (!path_info) sprintf(path_info, "/sata2/dbaranchuk/bigann/base1B_M16/sift%dm_ef%d_M%d_info.bin",
