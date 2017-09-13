@@ -336,46 +336,18 @@ static void printInfo(HierarchicalNSW<dist_t> *hnsw)
 //        StopW stopw = StopW();
 //        StopW stopw_full = StopW();
 //
-//        cout << "Adding clustets:\n";
-//        ifstream inputC(path_clusters, ios::binary);
-//        inputC.read((char *) &in, 4);
+//        cout << "Adding elements\n";
+//        ifstream input(path_data, ios::binary);
+//
+//        input.read((char *) &in, 4);
 //        if (in != vecdim) {
 //            cout << "file error\n";
 //            exit(1);
 //        }
-//        inputC.read((char *) massb, in);
+//        input.read((char *) massb, in);
+//
 //        appr_alg->addPoint((void *) (massb), (size_t) j1);
 //
-//#pragma omp parallel for
-//        for (int i = 1; i < clustersize; i++) {
-//            unsigned char massb[vecdim];
-//#pragma omp critical
-//            {
-//                inputC.read((char *) &in, 4);
-//                if (in != vecdim) {
-//                    cout << "file error";
-//                    exit(1);
-//                }
-//                inputC.read((char *) massb, in);
-//                j1++;
-//            }
-//            appr_alg->addPoint((void *) (massb), (size_t) j1);
-//        }
-//        inputC.close();
-//        cout << "Clusters have been added" << endl;
-//
-//        cout << "Adding elements\n";
-//        ifstream input(path_data, ios::binary);
-//        //
-////        input.read((char *) &in, 4);
-////        if (in != vecdim) {
-////            cout << "file error\n";
-////            exit(1);
-////        }
-////        input.read((char *) massb, in);
-////
-////        appr_alg->addPoint((void *) (massb), (size_t) j1);
-//        //
 //        size_t report_every = 1000000;
 //#pragma omp parallel for num_threads(32)
 //        for (int i = 0; i < vecsize; i++) {
