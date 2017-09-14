@@ -268,7 +268,7 @@ namespace hnswlib {
         size_t vocab_dim_;
 
         std::vector<float *> codebooks;
-        std::vector<int *> constructionTables;
+        std::vector<float *> constructionTables;
         std::vector<int *> queryTables;
 
     public:
@@ -317,7 +317,7 @@ namespace hnswlib {
         }
 
         void set_construction_tables(const char *tablesFilename) {
-            constructionTables = std::vector<int *>(k_);
+            constructionTables = std::vector<float *>(k_);
             float massf[k_*k_];
 
             FILE *fin = fopen(tablesFilename, "rb");
@@ -325,7 +325,7 @@ namespace hnswlib {
                 constructionTables[i] = (int *) calloc(sizeof(int), k_ * k_);
                 fread((float *) massf, sizeof(float), k_ * k_, fin);
                 for (int j =0; j < k_*k_; j++) {
-                    constructionTables[i][j] = round(massf[j]);
+                    constructionTables[i][j] = massf[j];
                 }
             }
             fclose(fin);
@@ -362,7 +362,7 @@ namespace hnswlib {
 
         int fstdistfunc(const void *x_code, const void *y_code)
         {
-            int res = 0;
+            float res = 0;
             unsigned char x, y;
 
             for (size_t i = 0; i < m_; ++i) {
