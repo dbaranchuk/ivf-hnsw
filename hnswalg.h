@@ -761,29 +761,33 @@ namespace hnswlib {
 
         int check_connectivity()
         {
+            bool *map = new bool[maxelements_];
+            memset((char *)map, 0, sizeof(bool)*maxelements_);
+
             int counter = 0;
             //#pragma parallel for num_thereds(32)
             for (tableint i = 0; i < maxelements_; i++){
-                bool isDisconnected = true;
+                if (map[i]) continue;
                 for (tableint j = 0; j < maxelements_; i++) {
                     linklistsizeint *ll_cur = get_linklist0(j);
                     linklistsizeint size = *ll_cur;
                     tableint *data = (tableint *)(ll_cur + 1);
 
-                    for (tableint l = 0; l < size; l++)
-                        if (i == *(data+l)) {
-                            isDisconnected = false;
-                            break;
-                        }
-                    if (!isDisconnected) break;
+                    for (tableint l = 0; l < size; l++) {
+                        map[*(data + l)] = true;
+                        if (i == *(data + l))
+                            map[i] = true;
+                    }
+                    if (map[i]) break;
                 }
-                if (isDisconnected) {
+                if (!map[i]) {
                     cout << "Element #" << i << endl;
                     counter++;
                 }
             }
             cout << "Total number of disconnected nodes: " << counter << endl;
         }
+
 //        void PrevLoadIndex(const string &location, SpaceInterface<dist_t> *s)
 //        {
 //            cout << "Loading index from " << location << endl;

@@ -159,8 +159,8 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
 	}
 }
 
-template <typename dist_t>
-static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dist_t> &appr_alg,
+template <typename dist_t, typename qtype>
+static float test_approx(qtype *massQ, size_t qsize, HierarchicalNSW<dist_t> &appr_alg,
                          size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
                          size_t k, unordered_set<int> &cluster_idx_set, bool pq = false)
 {
@@ -196,8 +196,8 @@ static float test_approx(unsigned char *massQ, size_t qsize, HierarchicalNSW<dis
 	return 1.0f*correct / qsize;
 }
 
-template <typename dist_t>
-static void test_vs_recall(unsigned char *massQ, size_t qsize, HierarchicalNSW<dist_t> &appr_alg,
+template <typename dist_t, typename qtype>
+static void test_vs_recall(qtype *massQ, size_t qsize, HierarchicalNSW<dist_t> &appr_alg,
                            size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
                            size_t k, unordered_set<int> &cluster_idx_set, bool pq = false)
 {
@@ -220,7 +220,7 @@ static void test_vs_recall(unsigned char *massQ, size_t qsize, HierarchicalNSW<d
         appr_alg.hops = 0.0;
         appr_alg.hops0 = 0.0;
 		StopW stopw = StopW();
-		float recall = test_approx<dist_t>(massQ, qsize, appr_alg, vecdim, answers, k, cluster_idx_set, pq);
+		float recall = test_approx<dist_t, qtype>(massQ, qsize, appr_alg, vecdim, answers, k, cluster_idx_set, pq);
 		float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
 		float avr_dist_count = appr_alg.dist_calc*1.f / qsize;
 		cout << ef << "\t" << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\t" << appr_alg.hops0 + appr_alg.hops << " hps\n";
@@ -375,10 +375,11 @@ inline bool exists_test(const std::string& name) {
 
 
 template <typename format>
-static void loadXvecs(const char *path, format *mass, const int n, const int d)
+static format *loadXvecs(const char *path, const int n, const int d)
 {
-    ifstream input(path, ios::binary);
+    format *mass = new format[n * d];
 
+    ifstream input(path, ios::binary);
     for (int i = 0; i < n; i++) {
         int in = 0;
         input.read((char *)&in, sizeof(int));
@@ -389,6 +390,7 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
         input.read((char *)(mass + i*d), in*sizeof(format));
     }
     input.close();
+    return mass;
 }
 
 template <typename format>
@@ -419,12 +421,14 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
 
     cout << "Loading GT:\n";
     const int gt_dim = 1000;
-    unsigned int *massQA = new unsigned int[qsize * gt_dim];
-    loadXvecs<unsigned int>(path_gt, massQA, qsize, gt_dim);
+    unsigned int *massQA = loadXvecs<unsigned int>(path_gt, qsize, gt_dim);
 
     cout << "Loading queries:\n";
-    unsigned char massQ[qsize * vecdim];
-    loadXvecs<unsigned char>(path_q, massQ, qsize, vecdim);
+    void *massQ;
+    if (l2SpaceType == L2SpaceType::Float)
+        massQ = loadXvecs<float>(path_q, qsize, vecdim);
+    else
+        massQ = loadXvecs<unsigned char>(path_q, qsize, vecdim);
 
     SpaceInterface<dist_t> *l2space;
 
@@ -433,7 +437,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
             l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2SpacePQ(vecdim, M_PQ, 256));
             dynamic_cast<L2SpacePQ *>(l2space)->set_codebooks(path_codebooks);
             dynamic_cast<L2SpacePQ *>(l2space)->set_construction_tables(path_tables);
-            dynamic_cast<L2SpacePQ *>(l2space)->compute_query_tables(massQ, qsize);
+            dynamic_cast<L2SpacePQ *>(l2space)->compute_query_tables((unsigned char *) massQ, qsize);
             break;
         case L2SpaceType::Float:
             l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2Space(vecdim));
@@ -449,8 +453,6 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
-        unsigned char massb[PQ ? M_PQ : vecdim];
-
         int j1 = 0;
         appr_alg = new HierarchicalNSW<dist_t>(l2space, M_map, efConstruction);
         appr_alg->setElementLevels(elements_per_level);
@@ -460,16 +462,24 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         cout << "Adding elements\n";
         ifstream input(path_data, ios::binary);
 
-        readXvec<unsigned char>(input, massb, (PQ ? M_PQ : vecdim));
-        appr_alg->addPoint((void *) (massb), (size_t) j1);
+        void mass[PQ ? M_PQ : vecdim];
+        if (l2SpaceType == L2SpaceType::Float)
+            readXvec<float>(input, (float *)mass, vecdim);
+        else
+            readXvec<unsigned char>(input, (unsigned char *)mass, (PQ ? M_PQ : vecdim));
+
+        appr_alg->addPoint((void *) (mass), (size_t) j1);
 
         size_t report_every = 1000000;
 #pragma omp parallel for num_threads(32)
         for (int i = 1; i < vecsize; i++) {
-            unsigned char massb[PQ ? M_PQ : vecdim];
+            void mass[PQ ? M_PQ : vecdim];
 #pragma omp critical
             {
-                readXvec<unsigned char>(input, massb, (PQ ? M_PQ : vecdim));
+                if (l2SpaceType == L2SpaceType::Float)
+                    readXvec<float>(input, (float *)mass, vecdim);
+                else
+                    readXvec<unsigned char>(input, (unsigned char *)mass, (PQ ? M_PQ : vecdim));
                 if (++j1 % report_every == 0) {
                     cout << j1 / (0.01 * vecsize) << " %, "
                          << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
@@ -477,7 +487,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
                     stopw.reset();
                 }
             }
-            appr_alg->addPoint((void *) (massb), (size_t) j1);
+            appr_alg->addPoint((void *) (mass), (size_t) j1);
         }
         input.close();
         cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
@@ -486,16 +496,21 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     }
     //appr_alg->printListsize();
     appr_alg->check_connectivity();
-    
+
     unordered_set<int> cluster_idx_set;
     vector<std::priority_queue< std::pair<dist_t, labeltype >>> answers;
 
     cout << "Parsing gt:\n";
     get_gt<dist_t>(massQA, qsize, answers);
+
     cout << "Loaded gt\n";
-    test_vs_recall<dist_t>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, PQ);
+    if (l2SpaceType == L2SpaceType::Float)
+        test_vs_recall<dist_t, float>((float *)massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, PQ);
+    else
+        test_vs_recall<dist_t, unsigned char>((unsigned char *)massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, PQ);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
+    delete massQ;
     delete massQA;
     delete l2space;
 }
