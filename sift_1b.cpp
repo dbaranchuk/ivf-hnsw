@@ -391,7 +391,7 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
 }
 
 template <typename format>
-static void readXvec(ifstream input, format *mass, const int d)
+static void readXvec(ifstream &input, format *mass, const int d)
 {
     int in = 0;
     input.read((char *) &in, sizeof(int));
