@@ -322,7 +322,7 @@ namespace hnswlib {
 
             FILE *fin = fopen(tablesFilename, "rb");
             for (int i = 0; i < m_; i++) {
-                constructionTables[i] = (int *) calloc(sizeof(int), k_ * k_);
+                constructionTables[i] = (float *) calloc(sizeof(float), k_ * k_);
                 fread((float *) massf, sizeof(float), k_ * k_, fin);
                 for (int j =0; j < k_*k_; j++) {
                     constructionTables[i][j] = massf[j];
