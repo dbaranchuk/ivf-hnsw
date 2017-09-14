@@ -14,6 +14,7 @@
 #include <unordered_map>
 #include <array>
 #include <map>
+#include <cmath>
 
 using google::dense_hash_map;
 using google::dense_hash_set;
