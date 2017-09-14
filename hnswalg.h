@@ -768,7 +768,7 @@ namespace hnswlib {
                 for (tableint j = 0; j < maxelements_; i++) {
                     linklistsizeint *ll_cur = get_linklist0(j);
                     linklistsizeint size = *ll_cur;
-                    tableint *data = (tablein *)(ll_cur + 1);
+                    tableint *data = (tableint *)(ll_cur + 1);
 
                     for (tableint l = 0; l < size; l++)
                         if (i == *(data+l)) {
