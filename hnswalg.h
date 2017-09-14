@@ -682,7 +682,7 @@ namespace hnswlib {
             }
         }
 
-        void LoadInfo(const string &location, SpaceInterface *s, const int ep = 0)
+        void LoadInfo(const string &location, SpaceInterface<dist_t> *s, const int ep = 0)
         {
             cout << "Loading info from " << location << endl;
             std::ifstream input(location, std::ios::binary);
