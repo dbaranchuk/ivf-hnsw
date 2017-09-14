@@ -373,6 +373,7 @@ inline bool exists_test(const std::string& name) {
 //    delete massQA;
 //}
 
+
 template <typename format>
 static void loadXvecs(const char *path, format *mass, const int n, const int d)
 {
