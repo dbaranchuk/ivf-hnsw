@@ -383,7 +383,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     const int M_PQ = 16;
     const bool PQ = (path_codebooks && path_tables);
 
-    const map<size_t, size_t> M_map = {{vecsize, M}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
+    const map<size_t, size_t> M_map = {{vecsize/10, 6}, {vecsize-vecsize/100000000, M}, {vecsize, M}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
     const vector<size_t> elements_per_level = {vecsize};//{947368422, 50000000, 2500000, 125000, 6250, 312, 16};
 
     cout << "Loading GT:\n";
@@ -443,10 +443,8 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         unsigned char massb[PQ ? M_PQ : vecdim];
 
         int j1 = 0, in = 0;
-        cerr << PQ << endl;
         appr_alg = new HierarchicalNSW<dist_t>(l2space, M_map, efConstruction);
         appr_alg->setElementLevels(elements_per_level);
-        cerr << PQ << endl;
         StopW stopw = StopW();
         StopW stopw_full = StopW();
 
