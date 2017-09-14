@@ -36,7 +36,8 @@ namespace hnswlib {
 //		virtual void *get_dist_func_param() = 0;
 //
 //	};
-    class SpaceInterface<dist_t> {
+    template<typename dist_t>
+    class SpaceInterface {
     public:
         virtual size_t get_data_size() = 0;
         virtual size_t get_data_dim() = 0;
