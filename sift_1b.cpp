@@ -373,6 +373,35 @@ inline bool exists_test(const std::string& name) {
 //    delete massQA;
 //}
 
+template <typename format>
+static void loadXvecs(const char *path, format *mass, const int n, const int d)
+{
+    ifstream input(path, ios::binary);
+
+    for (int i = 0; i < n; i++) {
+        int in = 0;
+        input.read((char *)&in, sizeof(int));
+        if (in != d) {
+            cout << "file error\n";
+            exit(1);
+        }
+        input.read((char *)(mass + i*d), in*sizeof(format));
+    }
+    input.close();
+}
+
+template <typename format>
+static void readXvec(ifstream input, format *mass, const int d)
+{
+    int in = 0;
+    input.read((char *) &in, sizeof(int));
+    if (in != d) {
+        cout << "file error\n";
+        exit(1);
+    }
+    input.read((char *) mass, in * sizeof(format));
+}
+
 template<typename dist_t>
 static void _hnsw_test(const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_q,
                        const char *path_gt, const char *path_info, const char *path_edges,
@@ -382,40 +411,19 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
 {
     const int M_PQ = 16;
     const bool PQ = (path_codebooks && path_tables);
+    const char *path_clusters = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_base_100m_clusters.bvecs";
 
-    const map<size_t, size_t> M_map = {{vecsize/10, 6}, {vecsize-vecsize/100000000, M}, {vecsize, M}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
+    const map<size_t, size_t> M_map = {{vecsize/10, 6}, {vecsize-vecsize/10, M}, {vecsize, M}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
     const vector<size_t> elements_per_level = {vecsize};//{947368422, 50000000, 2500000, 125000, 6250, 312, 16};
 
     cout << "Loading GT:\n";
-    const int gt_size = 1000;
-    ifstream inputGT(path_gt, ios::binary);
-    unsigned int *massQA = new unsigned int[qsize * gt_size];
-    for (int i = 0; i < qsize; i++) {
-        int t;
-        inputGT.read((char *)&t, 4);
-        inputGT.read((char *)(massQA + gt_size*i), t * 4);
-        if (t != gt_size) {
-            cout << "error\n";
-            exit(1);
-        }
-    }
+    const int gt_dim = 1000;
+    unsigned int *massQA = new unsigned int[qsize * gt_dim];
+    loadXvecs<unsigned int>(path_gt, massQA, qsize, gt_dim);
 
     cout << "Loading queries:\n";
     unsigned char massQ[qsize * vecdim];
-    ifstream inputQ(path_q, ios::binary);
-
-    for (int i = 0; i < qsize; i++) {
-        int in = 0;
-        inputQ.read((char *)&in, 4);
-        if (in != vecdim)
-        {
-            cout << "file error";
-            exit(1);
-        }
-        inputQ.read((char *)(massQ + i*vecdim), in);
-    }
-    inputQ.close();
-
+    loadXvecs<unsigned char>(path_q, massQ, qsize, vecdim);
 
     SpaceInterface *l2space;
 
@@ -450,14 +458,8 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
 
         cout << "Adding elements\n";
         ifstream input(path_data, ios::binary);
-        input.read((char *) &in, 4);
-        if (in != (PQ ? M_PQ : vecdim)) {
-            cout << (PQ ? M_PQ : vecdim) << endl;
-            cout << "file error\n";
-            exit(1);
-        }
-        input.read((char *) massb, in);
 
+        readXvec<unsigned char>(input, massb, (PQ ? M_PQ : vecdim));
         appr_alg->addPoint((void *) (massb), (size_t) j1);
 
         size_t report_every = 1000000;
@@ -466,14 +468,8 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
             unsigned char massb[PQ ? M_PQ : vecdim];
 #pragma omp critical
             {
-                input.read((char *) &in, 4);
-                if (in != (PQ ? M_PQ : vecdim)) {
-                    cout << "file error";
-                    exit(1);
-                }
-                input.read((char *) massb, in);
-                j1++;
-                if (j1 % report_every == 0) {
+                readXvec<unsigned char>(input, massb, (PQ ? M_PQ : vecdim));
+                if (++j1 % report_every == 0) {
                     cout << j1 / (0.01 * vecsize) << " %, "
                          << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
                          << getCurrentRSS() / 1000000 << " Mb \n";
@@ -484,7 +480,6 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         }
         input.close();
         cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
-        //appr_alg->SaveIndex(path_index);
         appr_alg->SaveInfo(path_info);
         appr_alg->SaveEdges(path_edges);
     }
@@ -512,7 +507,6 @@ void hnsw_test(const char *l2space_type,
 {
     char path_gt_[1024], path_edges_[1024], path_info_[1024];
     const int subset_size_milllions = 100;
-
     //if (!path_q) path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
     //if (!path_data) path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
     //if (!path_codebooks) path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
