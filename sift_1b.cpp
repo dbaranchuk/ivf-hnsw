@@ -425,7 +425,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     unsigned char massQ[qsize * vecdim];
     loadXvecs<unsigned char>(path_q, massQ, qsize, vecdim);
 
-    SpaceInterface *l2space;
+    SpaceInterface<dist_t> *l2space;
 
     switch(l2SpaceType) {
         case L2SpaceType::PQ:

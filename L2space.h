@@ -136,7 +136,7 @@ namespace hnswlib {
 
     enum class L2SpaceType { Int, Float, PQ };
 
-	class L2Space : public SpaceInterface
+	class L2Space : public SpaceInterface<float>
     {
 		size_t data_size_;
 		size_t dim_;
@@ -228,7 +228,7 @@ namespace hnswlib {
 	};
 
 
-	class L2SpaceI : public SpaceInterface
+	class L2SpaceI : public SpaceInterface<int>
     {
 		size_t data_size_;
 		size_t dim_;
@@ -241,7 +241,7 @@ namespace hnswlib {
 		size_t get_data_size() { return data_size_; }
         size_t get_data_dim() { return dim_; }
 
-        float fstdistfunc(const void *x, const void *y)
+        int fstdistfunc(const void *x, const void *y)
         {
             size_t dim = dim_ >> 2;
             int res = 0;
@@ -256,10 +256,10 @@ namespace hnswlib {
             }
             return res;
         }
-        float fstdistfuncST(const size_t q_idx, const void *y_code) { return 0.0; }
+        int fstdistfuncST(const size_t q_idx, const void *y_code) { return 0; }
 	};
 
-    class L2SpacePQ: public SpaceInterface
+    class L2SpacePQ: public SpaceInterface<int>
     {
         size_t data_size_;
         size_t dim_;

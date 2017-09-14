@@ -51,9 +51,9 @@ namespace hnswlib {
     class HierarchicalNSW : public AlgorithmInterface<dist_t>
     {
     public:
-        HierarchicalNSW(SpaceInterface *s) {}
+        HierarchicalNSW(SpaceInterface<dist_t> *s) {}
 
-        HierarchicalNSW(SpaceInterface *s, const string &infoLocation, const string &dataLocation,
+        HierarchicalNSW(SpaceInterface<dist_t> *s, const string &infoLocation, const string &dataLocation,
                         const string &edgeLocation, bool nmslib = false)
         {
             LoadInfo(infoLocation, s);
@@ -62,7 +62,7 @@ namespace hnswlib {
             LoadEdges(edgeLocation);
         }
 
-        HierarchicalNSW(SpaceInterface *s, const std::map<size_t, size_t> &M_map, size_t efConstruction = 200)
+        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::map<size_t, size_t> &M_map, size_t efConstruction = 200)
         {
             space = s;
             data_size_ = s->get_data_size();
@@ -124,7 +124,7 @@ namespace hnswlib {
             delete params;
         }
         // Fields
-        SpaceInterface *space;
+        SpaceInterface<dist_t> *space;
 
         size_t maxelements_;
         size_t cur_element_count;
