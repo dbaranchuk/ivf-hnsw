@@ -15,7 +15,7 @@
 #define PORTABLE_ALIGN32 __declspec(align(32))
 #endif
 
-
+#include <cmath>
 #include "hnswlib.h"
 namespace hnswlib {
 	using namespace std;
