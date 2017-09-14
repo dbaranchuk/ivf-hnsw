@@ -325,7 +325,7 @@ namespace hnswlib {
                 constructionTables[i] = (int *) calloc(sizeof(int), k_ * k_);
                 fread((float *) massf, sizeof(float), k_ * k_, fin);
                 for (int j =0; j < k_*k_; j++) {
-                    constructionTables[i][j] = std::round(massf[j]);
+                    constructionTables[i][j] = round(massf[j]);
                 }
             }
             fclose(fin);
