@@ -429,16 +429,16 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
 
     switch(l2SpaceType) {
         case L2SpaceType::PQ:
-            l2space = new L2SpacePQ(vecdim, M_PQ, 256);
+            l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2SpacePQ(vecdim, M_PQ, 256));
             dynamic_cast<L2SpacePQ *>(l2space)->set_codebooks(path_codebooks);
             dynamic_cast<L2SpacePQ *>(l2space)->set_construction_tables(path_tables);
             dynamic_cast<L2SpacePQ *>(l2space)->compute_query_tables(massQ, qsize);
             break;
         case L2SpaceType::Float:
-            l2space = new L2Space(vecdim);
+            l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2Space(vecdim));
             break;
         case L2SpaceType::Int:
-            l2space = new L2SpaceI(vecdim);
+            l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2SpaceI(vecdim));
             break;
     }
 
@@ -450,7 +450,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         cout << "Building index:\n";
         unsigned char massb[PQ ? M_PQ : vecdim];
 
-        int j1 = 0, in = 0;
+        int j1 = 0;
         appr_alg = new HierarchicalNSW<dist_t>(l2space, M_map, efConstruction);
         appr_alg->setElementLevels(elements_per_level);
         StopW stopw = StopW();
