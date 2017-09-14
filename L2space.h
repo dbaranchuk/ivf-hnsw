@@ -268,8 +268,7 @@ namespace hnswlib {
         size_t vocab_dim_;
 
         std::vector<float *> codebooks;
-        int *constructionTables;
-        //std::vector<int *> constructionTables;
+        std::vector<int *> constructionTables;
         std::vector<int *> queryTables;
 
     public:
@@ -287,8 +286,8 @@ namespace hnswlib {
 
         virtual ~L2SpacePQ()
         {
-            //for (int i = 0; i < constructionTables.size(); i++)
-                free(constructionTables);
+            for (int i = 0; i < constructionTables.size(); i++)
+                free(constructionTables[i]);
 
             for (int i = 0; i < queryTables.size(); i++)
                 free(queryTables[i]);
@@ -318,15 +317,15 @@ namespace hnswlib {
         }
 
         void set_construction_tables(const char *tablesFilename) {
-            constructionTables = new int[m_*k_*k_];//std::vector<int *>(m_);
+            constructionTables = std::vector<int *>(m_);
             float massf[k_*k_];
 
             FILE *fin = fopen(tablesFilename, "rb");
             for (int i = 0; i < m_; i++) {
-                //constructionTables[i] = (int *) calloc(sizeof(int), k_ * k_);
+                constructionTables[i] = (int *) calloc(sizeof(int), k_ * k_);
                 fread((float *) massf, sizeof(float), k_ * k_, fin);
                 for (int j =0; j < k_*k_; j++) {
-                    constructionTables[i*k_*k_ + j] = round(massf[j]);
+                    constructionTables[i][j] = round(massf[j]);
                 }
             }
             fclose(fin);
@@ -369,7 +368,7 @@ namespace hnswlib {
             for (size_t i = 0; i < m_; ++i) {
                 x = ((unsigned char *)x_code)[i];
                 y = ((unsigned char *)y_code)[i];
-                res += constructionTables[i*k_*k_ + k_*x + y];
+                res += constructionTables[i][k_*x + y];
             }
             return res;
         };
