@@ -493,7 +493,7 @@ namespace hnswlib {
             }
         }
 
-        void addPoint(void *datapoint, labeltype label)
+        void addPoint(/*void *datapoint, */labeltype label)
         {
             tableint cur_c = 0;
             {
@@ -511,14 +511,14 @@ namespace hnswlib {
             int maxlevelcopy = maxlevel_;
             if (curlevel <= maxlevelcopy)
                 templock.unlock();
-            tableint currObj = enterpoint_node;
 
-            auto curParam = getParametersByInternalId(cur_c);
-            memset((char *) get_linklist0(cur_c), 0, curParam[i_size_data_per_element]);
 
-            // Initialisation of the data and label
-            //memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
-            memcpy(getDataByInternalId(cur_c), datapoint, data_size_);
+//            auto curParam = getParametersByInternalId(cur_c);
+//            memset((char *) get_linklist0(cur_c), 0, curParam[i_size_data_per_element]);
+//
+//            // Initialisation of the data and label
+//            //memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
+//            memcpy(getDataByInternalId(cur_c), datapoint, data_size_);
 
             if (curlevel) {
                 // Above levels contain only clusters
@@ -528,6 +528,8 @@ namespace hnswlib {
                 memset(linkLists_[cur_c], 0, param[i_size_links_per_element] * curlevel);
             }
 
+            tableint currObj = enterpoint_node;
+            void *datapoint = getDataByInternalId(cur_c);
             if (currObj != -1) {
                 if (curlevel < maxlevelcopy) {
                     dist_t curdist = space->fstdistfunc(datapoint, getDataByInternalId(currObj));
@@ -739,8 +741,14 @@ namespace hnswlib {
                     cerr << "Wront data dim" << endl;
 
                 fread((char *)massb, sizeof(char), dim, fin);
+
+                // Initialisation of the data and label
+                //memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
                 memcpy(getDataByInternalId(i), massb, data_size_);
+                memset((char *) get_linklist0(i), 0, getParametersByInternalId(i)[i_size_data_per_element]);
             }
+
+
         }
 
         void LoadEdges(const string &location)
