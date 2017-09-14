@@ -3,10 +3,10 @@
 namespace hnswlib {
 	template <typename dist_t> class BruteforceSearch : public AlgorithmInterface<dist_t> {
 	public:
-		BruteforceSearch(SpaceInterface *s) {
+		BruteforceSearch(SpaceInterface<dist_t> *s) {
 
 		}
-		BruteforceSearch(SpaceInterface *s, size_t maxElements) {
+		BruteforceSearch(SpaceInterface<dist_t> *s, size_t maxElements) {
 			maxelements_ = maxElements;
 
 			space = s;
@@ -20,7 +20,7 @@ namespace hnswlib {
 			free(data_);
 		}
 
-		SpaceInterface *space;
+		SpaceInterface<dist_t> *space;
 		char *data_;
 		size_t maxelements_;
 		size_t cur_element_count;
