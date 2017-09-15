@@ -361,7 +361,7 @@ namespace hnswlib {
                 bool good = true;
                 for (std::pair<dist_t, tableint> curen2 : returnlist) {
                     dist_t curdist = space->fstdistfunc(getDataByInternalId(curen2.second), getDataByInternalId(curen.second));
-                    if (curdist < 1.3 * dist_to_query) { // 75 gradus
+                    if (curdist < dist_to_query) { // 75 gradus
                         good = false;
                         break;
                     }
