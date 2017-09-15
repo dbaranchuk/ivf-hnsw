@@ -663,6 +663,7 @@ namespace hnswlib {
             std::ofstream output(location, std::ios::binary);
             streampos position;
 
+            writeBinaryPOD(output, enterpoint_node);
             writeBinaryPOD(output, parts_num);
             writeBinaryPOD(output, params_num);
             output.write((char *) params, parts_num * params_num * sizeof(size_t));
@@ -692,7 +693,7 @@ namespace hnswlib {
             }
         }
 
-        void LoadInfo(const string &location, SpaceInterface<dist_t> *s, const int ep = 0)
+        void LoadInfo(const string &location, SpaceInterface<dist_t> *s)
         {
             cout << "Loading info from " << location << endl;
             std::ifstream input(location, std::ios::binary);
@@ -701,13 +702,13 @@ namespace hnswlib {
             space = s;
             data_size_ = s->get_data_size();
 
+            readBinaryPOD(input, enterpoint_node);
             readBinaryPOD(input, parts_num);
             readBinaryPOD(input, params_num);
             params = new size_t[params_num*parts_num];
             input.read((char *) params, parts_num*params_num*sizeof(size_t));
 
             efConstruction_ = 0;
-            enterpoint_node = ep;
             total_size = 0;
             maxelements_ = 0;
             for (size_t i = 0; i < parts_num; i++) {
