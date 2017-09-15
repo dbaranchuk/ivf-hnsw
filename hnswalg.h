@@ -82,7 +82,7 @@ namespace hnswlib {
                 params[i*params_num + i_maxelements] = i ? p.first - params[(i-1)*params_num + i_threshold] : p.first;
                 params[i*params_num + i_M] = p.second;
                 params[i*params_num + i_maxM] = p.second;
-                params[i*params_num + i_maxM0] = p.second + 6;//(i == parts_num-1) ? p.second : 2 * p.second;
+                params[i*params_num + i_maxM0] = 2*p.second;//p.second + 6;//(i == parts_num-1) ? p.second : 2 * p.second;
                 params[i*params_num + i_size_links_level0] = params[i*params_num + i_maxM0]* sizeof(tableint) + sizeof(linklistsizeint);
                 params[i*params_num + i_size_data_per_element] = params[i*params_num + i_size_links_level0] + data_size_;
                 params[i*params_num + i_offsetData] = params[i*params_num + i_size_links_level0];
@@ -647,12 +647,12 @@ namespace hnswlib {
 
         void printListsize()
         {
+            float av_M = 0;
             for (int i = 0; i < maxelements_; i++){
+                linklistsizeint *ll_cur = get_linklist0(i);
+                av_M +=
                 if (i % 1000 != 0)
                     continue;
-
-                linklistsizeint *ll_cur = get_linklist0(i);
-                if (*ll_cur != 32)
                 cout << "Element #" << i << " M:" << (int) *ll_cur << endl;
             }
         }
