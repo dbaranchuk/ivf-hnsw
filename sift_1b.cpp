@@ -457,32 +457,32 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         size_t j1 = 0;
         appr_alg = new HierarchicalNSW<dist_t>(l2space, M_map, efConstruction);
         appr_alg->setElementLevels(elements_per_level);
-        appr_alg->LoadData(path_data);
+        //appr_alg->LoadData(path_data);
 
         StopW stopw = StopW();
         StopW stopw_full = StopW();
 
         cout << "Adding elements\n";
-        //ifstream input(path_data, ios::binary);
+        ifstream input(path_data, ios::binary);
 
-        //void mass[PQ ? M_PQ : vecdim];
+        unsigned char mass[PQ ? M_PQ : vecdim];
         //if (l2SpaceType == L2SpaceType::Float)
         //    readXvec<float>(input, (float *)mass, vecdim);
         //else
-        //    readXvec<unsigned char>(input, (unsigned char *)mass, (PQ ? M_PQ : vecdim));
+        readXvec<unsigned char>(input, (unsigned char *)mass, (PQ ? M_PQ : vecdim));
 
-        appr_alg->addPoint(/*(void *) (mass),*/ j1);
+        appr_alg->addPoint((void *) (mass), j1);
 
         size_t report_every = 1000000;
 #pragma omp parallel for num_threads(32)
         for (int i = 1; i < vecsize; i++) {
-            //void mass[PQ ? M_PQ : vecdim];
+            unsigned char mass[PQ ? M_PQ : vecdim];
 #pragma omp critical
             {
                 //if (l2SpaceType == L2SpaceType::Float)
                 //    readXvec<float>(input, (float *)mass, vecdim);
                 //else
-                //    readXvec<unsigned char>(input, (unsigned char *)mass, (PQ ? M_PQ : vecdim));
+                readXvec<unsigned char>(input, (unsigned char *)mass, (PQ ? M_PQ : vecdim));
                 if (++j1 % report_every == 0) {
                     cout << j1 / (0.01 * vecsize) << " %, "
                          << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
@@ -490,7 +490,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
                     stopw.reset();
                 }
             }
-            appr_alg->addPoint(/*(void *) (mass), (size_t) */j1);
+            appr_alg->addPoint((void *) (mass), (size_t) j1);
         }
         //input.close();
         cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
