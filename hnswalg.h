@@ -775,6 +775,7 @@ namespace hnswlib {
             tableint *data = (tableint *)(ll_cur + 1);
 
             for (tableint l = 0; l < size; l++) {
+                if (map[*(data + l)]) continue;
                 map[*(data + l)] = true;
                 check(map, *(data + l));
             }
@@ -785,7 +786,6 @@ namespace hnswlib {
             bool *map = new bool[maxelements_];
             memset((char *)map, 0, sizeof(bool)*maxelements_);
 
-            cout << map[100] << endl;
             //#pragma parallel for num_thereds(32)
             map[0] = true;
             check(map, 0);
