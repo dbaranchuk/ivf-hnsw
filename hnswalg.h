@@ -82,7 +82,7 @@ namespace hnswlib {
                 params[i*params_num + i_maxelements] = i ? p.first - params[(i-1)*params_num + i_threshold] : p.first;
                 params[i*params_num + i_M] = p.second;
                 params[i*params_num + i_maxM] = p.second;
-                params[i*params_num + i_maxM0] = p.second + 5;//(i == parts_num-1) ? p.second : 2 * p.second;
+                params[i*params_num + i_maxM0] = p.second + 6;//(i == parts_num-1) ? p.second : 2 * p.second;
                 params[i*params_num + i_size_links_level0] = params[i*params_num + i_maxM0]* sizeof(tableint) + sizeof(linklistsizeint);
                 params[i*params_num + i_size_data_per_element] = params[i*params_num + i_size_links_level0] + data_size_;
                 params[i*params_num + i_offsetData] = params[i*params_num + i_size_links_level0];
@@ -361,7 +361,7 @@ namespace hnswlib {
                 bool good = true;
                 for (std::pair<dist_t, tableint> curen2 : returnlist) {
                     dist_t curdist = space->fstdistfunc(getDataByInternalId(curen2.second), getDataByInternalId(curen.second));
-                    if (curdist < dist_to_query) { // 75 gradus
+                    if (curdist < 1.3 * dist_to_query) { // 75 gradus
                         good = false;
                         break;
                     }
