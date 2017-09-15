@@ -471,7 +471,6 @@ namespace hnswlib {
                 std::uniform_real_distribution<double> distribution(0.0, 1.0);
                 for (size_t i = 0; i < maxelements_; ++i) {
                     elementLevels[i] = (int) (-log(distribution(generator)) * mult_);
-                    cout << elementLevels[i] << " ";
                 }
             } else{
                 for (size_t i = 0; i < maxelements_; ++i){
