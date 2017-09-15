@@ -56,6 +56,7 @@ int main(int argc, char **argv) {
 
     const char *l2space_type = NULL; //{int, float}
     int k = 1, ret, ep;
+    bool one_layer = false;
 
     if (argc == 1)
         usage (argv[0]);
@@ -114,6 +115,10 @@ int main(int argc, char **argv) {
         else if (!strcmp (a, "-l2space") && i+1 < argc) {
             l2space_type = argv[++i];
         }
+        else if (!strcmp (a, "-1layer")) {
+            one_layer = true;
+        }
+
     }
     //assert(argc == 18);
 
@@ -128,7 +133,7 @@ int main(int argc, char **argv) {
 
     hnsw_test(l2space_type, path_codebooks, path_tables, path_data, path_q,
               path_gt, path_info, path_edges,
-              k, vecsize, qsize, vecdim, efConstruction, M);
+              k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
 
     return 0;  
 };

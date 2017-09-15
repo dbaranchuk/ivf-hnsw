@@ -407,7 +407,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
                        const char *path_gt, const char *path_info, const char *path_edges,
                        L2SpaceType l2SpaceType,
                        const int k, const int vecsize, const int qsize,
-                       const int vecdim, const int efConstruction, const int M)
+                       const int vecdim, const int efConstruction, const int M, bool one_layer)
 {
     const int M_PQ = 16;
     const bool PQ = (path_codebooks && path_tables);
@@ -415,7 +415,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
 
     //const map<size_t, size_t> M_map = {{vecsize/10, 6}, {vecsize-vecsize/10, M}, {vecsize, M}};
     const map<size_t, size_t> M_map = {{vecsize, M}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
-    const vector<size_t> elements_per_level = {vecsize};//{947368422, 50000000, 2500000, 125000, 6250, 312, 16};
+    const vector<size_t> elements_per_level;// = {vecsize};//{947368422, 50000000, 2500000, 125000, 6250, 312, 16};
 
     cout << "Loading GT:\n";
     const int gt_dim = 1000;
@@ -451,7 +451,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         cout << "Building index:\n";
         size_t j1 = 0;
         appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, M_map, efConstruction);
-        appr_alg->setElementLevels(elements_per_level);
+        appr_alg->setElementLevels(elements_per_level, one_layer);
 
         StopW stopw = StopW();
         StopW stopw_full = StopW();
@@ -507,7 +507,7 @@ void hnsw_test(const char *l2space_type,
                const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_q,
                const char *path_gt, const char *path_info, const char *path_edges,
                const int k, const int vecsize, const int qsize,
-               const int vecdim, const int efConstruction, const int M)
+               const int vecdim, const int efConstruction, const int M, bool one_layer)
 {
     char path_gt_[1024], path_edges_[1024], path_info_[1024];
     const int subset_size_milllions = 100;
@@ -538,12 +538,12 @@ void hnsw_test(const char *l2space_type,
         _hnsw_test<int, unsigned char>(path_codebooks, path_tables, path_data, path_q,
                         path_gt, path_info, path_edges,
                         (path_codebooks && path_tables) ? L2SpaceType::PQ : L2SpaceType::Int,
-                        k, vecsize, qsize, vecdim, efConstruction, M);
+                        k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
     } else if (!strcmp (l2space_type, "float"))
         _hnsw_test<float, float>(path_codebooks, path_tables, path_data, path_q,
                           path_gt, path_info, path_edges,
                           L2SpaceType::Float,
-                          k, vecsize, qsize, vecdim, efConstruction, M);
+                          k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
 }
 
 

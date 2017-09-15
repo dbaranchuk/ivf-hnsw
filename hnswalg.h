@@ -465,12 +465,12 @@ namespace hnswlib {
         float hops = 0.0;
         float hops0 = 0.0;
 
-        void setElementLevels(const vector<size_t> &elements_per_level)
+        void setElementLevels(const vector<size_t> &elements_per_level, bool one_layer)
         {
             if (elements_per_level.size() == 0) {
                 std::uniform_real_distribution<double> distribution(0.0, 1.0);
                 for (size_t i = 0; i < maxelements_; ++i) {
-                    elementLevels[i] = (int) (-log(distribution(generator)) * mult_);
+                    elementLevels[i] = one_layer ? 0 : (int) (-log(distribution(generator)) * mult_);
                 }
             } else{
                 for (size_t i = 0; i < maxelements_; ++i){
