@@ -673,7 +673,7 @@ namespace hnswlib {
 
         void SaveEdges(const string &location)
         {
-            cout << "Saving index to " << location << endl;
+            cout << "Saving edges to " << location << endl;
             FILE *fout = fopen(location.c_str(), "wb");
 
             for (tableint i = 0; i < maxelements_; i++) {
@@ -808,7 +808,6 @@ namespace hnswlib {
                             break;
                         }
                     }
-                //    cout << "Element #" << i << endl;
                     num_unreachable++;
                 }
             }
