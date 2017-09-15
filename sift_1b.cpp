@@ -496,10 +496,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     get_gt<dist_t>(massQA, qsize, answers);
 
     cout << "Loaded gt\n";
-    if (l2SpaceType == L2SpaceType::Float)
-        test_vs_recall<dist_t, float>((float *)massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, PQ);
-    else
-        test_vs_recall<dist_t, unsigned char>((unsigned char *)massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, PQ);
+    test_vs_recall<dist_t, vtype>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, PQ);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQA;
