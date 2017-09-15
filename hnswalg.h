@@ -787,7 +787,7 @@ namespace hnswlib {
             }
         }
 
-        int check_connectivity()
+        int check_connectivity(unsigned int *massQA, int qsize)
         {
             bool *map = new bool[maxelements_];
             memset((char *)map, 0, sizeof(bool)*maxelements_);
@@ -796,14 +796,24 @@ namespace hnswlib {
             map[0] = true;
             check(map, 0);
 
-            int counter = 0;
+            int num_unreachable = 0;
+            int num_unreachable_gt = 0;
+
+            #pragma omp parallel for num_threads(32)
             for (tableint i = 0; i < maxelements_; i++){
                 if (!map[i]) {
+                    for (int q = 0; q < qsize; q++){
+                        if (i == massQA[1000*q]) {
+                            num_unreachable_gt++;
+                            break;
+                        }
+                    }
                 //    cout << "Element #" << i << endl;
-                    counter++;
+                    num_unreachable++;
                 }
             }
-            cout << "Total number of unreachable nodes: " << counter << endl;
+            cout << "Number of unreachable gt nodes: " << num_unreachable_gt << endl;
+            cout << "Total number of unreachable nodes: " << num_unreachable << endl;
             delete map;
         }
 //        int check_connectivity()
