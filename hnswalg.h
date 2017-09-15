@@ -770,7 +770,7 @@ namespace hnswlib {
 
         void check(bool *map, tableint id)
         {
-            linklistsizeint *ll_cur = get_linklist0(j);
+            linklistsizeint *ll_cur = get_linklist0(id);
             linklistsizeint size = *ll_cur;
             tableint *data = (tableint *)(ll_cur + 1);
 
