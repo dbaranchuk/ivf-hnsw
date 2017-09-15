@@ -375,7 +375,7 @@ inline bool exists_test(const std::string& name) {
 
 
 template <typename format>
-static void loadXvecs(const char *path, format mass, const int n, const int d)
+static void loadXvecs(const char *path, format *mass, const int n, const int d)
 {
     ifstream input(path, ios::binary);
     for (int i = 0; i < n; i++) {
@@ -420,7 +420,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     cout << "Loading GT:\n";
     const int gt_dim = 1000;
     unsigned int *massQA = new unsigned int[qsize * gt_dim];
-    loadXvecs<vtype>(path_gt, massQA, qsize, gt_dim);
+    loadXvecs<unsigned int>(path_gt, massQA, qsize, gt_dim);
 
     cout << "Loading queries:\n";
     vtype massQ[qsize * vecdim];
