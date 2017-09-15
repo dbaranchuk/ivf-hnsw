@@ -15,6 +15,7 @@
 #include <array>
 #include <map>
 #include <cmath>
+#include <queue>
 
 using google::dense_hash_map;
 using google::dense_hash_set;
@@ -710,7 +711,6 @@ namespace hnswlib {
                 total_size += params[i*params_num + i_maxelements] * params[i*params_num + i_size_data_per_element];
             }
             cur_element_count = maxelements_;
-            cout << maxelements_ << endl;
             //visitedlistpool = new VisitedListPool(1, maxelements_);
             visitedsetpool = new VisitedSetPool(1);
 
@@ -768,17 +768,22 @@ namespace hnswlib {
         }
 
 
-        void check(bool *map, tableint id)
+        void check(bool *map, tableint ep)
         {
-            linklistsizeint *ll_cur = get_linklist0(id);
-            linklistsizeint size = *ll_cur;
-            tableint *data = (tableint *)(ll_cur + 1);
+            queue<tableint> q;
+            q.push(ep);
 
-            for (tableint l = 0; l < size; l++) {
-                if (map[*(data + l)]) continue;
-                map[*(data + l)] = true;
-                cout << *(data + l) << endl;
-                check(map, *(data + l));
+            while(!q.empty()) {
+                linklistsizeint *ll_cur = get_linklist0(q.front());
+                linklistsizeint size = *ll_cur;
+                tableint *data = (tableint *) (ll_cur + 1);
+                q.pop();
+
+                for (tableint l = 0; l < size; l++) {
+                    if (map[*(data + l)]) continue;
+                    map[*(data + l)] = true;
+                    q.push(*(data + l));
+                }
             }
         }
 
