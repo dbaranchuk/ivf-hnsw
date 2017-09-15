@@ -710,7 +710,7 @@ namespace hnswlib {
                 total_size += params[i*params_num + i_maxelements] * params[i*params_num + i_size_data_per_element];
             }
             cur_element_count = maxelements_;
-
+            cout << maxelements_ << endl;
             //visitedlistpool = new VisitedListPool(1, maxelements_);
             visitedsetpool = new VisitedSetPool(1);
 
@@ -784,7 +784,6 @@ namespace hnswlib {
 
         int check_connectivity()
         {
-            cout << maxelements_ << endl;
             bool *map = new bool[maxelements_];
             memset((char *)map, 0, sizeof(bool)*maxelements_);
 
