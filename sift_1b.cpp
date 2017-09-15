@@ -159,8 +159,8 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
 	}
 }
 
-template <typename dist_t, typename qtype>
-static float test_approx(qtype *massQ, size_t qsize, HierarchicalNSW<dist_t> &appr_alg,
+template <typename dist_t, typename vtype>
+static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vtype> &appr_alg,
                          size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
                          size_t k, unordered_set<int> &cluster_idx_set, bool pq = false)
 {
@@ -196,8 +196,8 @@ static float test_approx(qtype *massQ, size_t qsize, HierarchicalNSW<dist_t> &ap
 	return 1.0f*correct / qsize;
 }
 
-template <typename dist_t, typename qtype>
-static void test_vs_recall(qtype *massQ, size_t qsize, HierarchicalNSW<dist_t> &appr_alg,
+template <typename dist_t, typename vtype>
+static void test_vs_recall(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vtype> &appr_alg,
                            size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
                            size_t k, unordered_set<int> &cluster_idx_set, bool pq = false)
 {
@@ -220,7 +220,7 @@ static void test_vs_recall(qtype *massQ, size_t qsize, HierarchicalNSW<dist_t> &
         appr_alg.hops = 0.0;
         appr_alg.hops0 = 0.0;
 		StopW stopw = StopW();
-		float recall = test_approx<dist_t, qtype>(massQ, qsize, appr_alg, vecdim, answers, k, cluster_idx_set, pq);
+		float recall = test_approx<dist_t, vtype>(massQ, qsize, appr_alg, vecdim, answers, k, cluster_idx_set, pq);
 		float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
 		float avr_dist_count = appr_alg.dist_calc*1.f / qsize;
 		cout << ef << "\t" << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\t" << appr_alg.hops0 + appr_alg.hops << " hps\n";
@@ -443,16 +443,16 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
             break;
     }
 
-    HierarchicalNSW<dist_t> *appr_alg;
+    HierarchicalNSW<dist_t, vtype> *appr_alg;
     if (exists_test(path_info) && exists_test(path_edges)) {
-        appr_alg = new HierarchicalNSW<dist_t>(l2space, path_info, path_data, path_edges);
-        appr_alg->LoadData<vtype>(path_data);
+        appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, path_info, path_data, path_edges);
+        appr_alg->LoadData(path_data);
         appr_alg->LoadEdges(path_edges);
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
         size_t j1 = 0;
-        appr_alg = new HierarchicalNSW<dist_t>(l2space, M_map, efConstruction);
+        appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, M_map, efConstruction);
         appr_alg->setElementLevels(elements_per_level);
 
         StopW stopw = StopW();

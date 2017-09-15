@@ -49,7 +49,7 @@ namespace hnswlib {
     typedef unsigned int tableint;
     typedef unsigned char linklistsizeint;
 
-    template<typename dist_t>
+    template<typename dist_t, vtype>
     class HierarchicalNSW : public AlgorithmInterface<dist_t>
     {
     public:
@@ -60,8 +60,8 @@ namespace hnswlib {
         {
             LoadInfo(infoLocation, s);
             data_level0_memory_ = (char *) malloc(total_size);
-            //LoadData(dataLocation);
-            //LoadEdges(edgeLocation);
+            LoadData(dataLocation);
+            LoadEdges(edgeLocation);
         }
 
         HierarchicalNSW(SpaceInterface<dist_t> *s, const std::map<size_t, size_t> &M_map, size_t efConstruction = 200)
@@ -727,7 +727,6 @@ namespace hnswlib {
             cout << "Predicted size=" << total_size / (1000 * 1000) << "\n";
         }
 
-        template<typename vtype>
         void LoadData(const string &location)
         {
             cout << "Loading data from " << location << endl;
@@ -817,34 +816,6 @@ namespace hnswlib {
             cout << "Total number of unreachable nodes: " << num_unreachable << endl;
             delete map;
         }
-//        int check_connectivity()
-//        {
-//            bool *map = new bool[maxelements_];
-//            memset((char *)map, 0, sizeof(bool)*maxelements_);
-//
-//            int counter = 0;
-//            //#pragma parallel for num_thereds(32)
-//            for (tableint i = 0; i < maxelements_; i++){
-//                if (map[i]) continue;
-//                for (tableint j = 0; j < maxelements_; i++) {
-//                    linklistsizeint *ll_cur = get_linklist0(j);
-//                    linklistsizeint size = *ll_cur;
-//                    tableint *data = (tableint *)(ll_cur + 1);
-//
-//                    for (tableint l = 0; l < size; l++) {
-//                        map[*(data + l)] = true;
-//                        if (i == *(data + l))
-//                            map[i] = true;
-//                    }
-//                    if (map[i]) break;
-//                }
-//                if (!map[i]) {
-//                    cout << "Element #" << i << endl;
-//                    counter++;
-//                }
-//            }
-//            cout << "Total number of disconnected nodes: " << counter << endl;
-//        }
 
 //        void PrevLoadIndex(const string &location, SpaceInterface<dist_t> *s)
 //        {
