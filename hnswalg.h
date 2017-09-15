@@ -777,12 +777,14 @@ namespace hnswlib {
             for (tableint l = 0; l < size; l++) {
                 if (map[*(data + l)]) continue;
                 map[*(data + l)] = true;
+                cout << *(data + l) << endl;
                 check(map, *(data + l));
             }
         }
 
         int check_connectivity()
         {
+            cout << maxelements_ << endl;
             bool *map = new bool[maxelements_];
             memset((char *)map, 0, sizeof(bool)*maxelements_);
 
