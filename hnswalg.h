@@ -767,34 +767,67 @@ namespace hnswlib {
             }
         }
 
+
+        void check(bool *map, tableint id)
+        {
+            linklistsizeint *ll_cur = get_linklist0(j);
+            linklistsizeint size = *ll_cur;
+            tableint *data = (tableint *)(ll_cur + 1);
+
+            for (tableint l = 0; l < size; l++) {
+                map[*(data + l)] = true;
+                check(map, *(data + l));
+            }
+        }
+
         int check_connectivity()
         {
             bool *map = new bool[maxelements_];
             memset((char *)map, 0, sizeof(bool)*maxelements_);
 
-            int counter = 0;
+            cout << map[100] << endl;
             //#pragma parallel for num_thereds(32)
-            for (tableint i = 0; i < maxelements_; i++){
-                if (map[i]) continue;
-                for (tableint j = 0; j < maxelements_; i++) {
-                    linklistsizeint *ll_cur = get_linklist0(j);
-                    linklistsizeint size = *ll_cur;
-                    tableint *data = (tableint *)(ll_cur + 1);
+            map[0] = true;
+            check(map, 0);
 
-                    for (tableint l = 0; l < size; l++) {
-                        map[*(data + l)] = true;
-                        if (i == *(data + l))
-                            map[i] = true;
-                    }
-                    if (map[i]) break;
-                }
+            int counter = 0;
+            for (tableint i = 0; i < maxelements_; i++){
                 if (!map[i]) {
                     cout << "Element #" << i << endl;
                     counter++;
                 }
             }
-            cout << "Total number of disconnected nodes: " << counter << endl;
+            cout << "Total number of unreachable nodes: " << counter << endl;
+            delete map;
         }
+//        int check_connectivity()
+//        {
+//            bool *map = new bool[maxelements_];
+//            memset((char *)map, 0, sizeof(bool)*maxelements_);
+//
+//            int counter = 0;
+//            //#pragma parallel for num_thereds(32)
+//            for (tableint i = 0; i < maxelements_; i++){
+//                if (map[i]) continue;
+//                for (tableint j = 0; j < maxelements_; i++) {
+//                    linklistsizeint *ll_cur = get_linklist0(j);
+//                    linklistsizeint size = *ll_cur;
+//                    tableint *data = (tableint *)(ll_cur + 1);
+//
+//                    for (tableint l = 0; l < size; l++) {
+//                        map[*(data + l)] = true;
+//                        if (i == *(data + l))
+//                            map[i] = true;
+//                    }
+//                    if (map[i]) break;
+//                }
+//                if (!map[i]) {
+//                    cout << "Element #" << i << endl;
+//                    counter++;
+//                }
+//            }
+//            cout << "Total number of disconnected nodes: " << counter << endl;
+//        }
 
 //        void PrevLoadIndex(const string &location, SpaceInterface<dist_t> *s)
 //        {

@@ -375,10 +375,8 @@ inline bool exists_test(const std::string& name) {
 
 
 template <typename format>
-static format *loadXvecs(const char *path, const int n, const int d)
+static void loadXvecs(const char *path, format mass, const int n, const int d)
 {
-    format *mass = new format[n * d];
-
     ifstream input(path, ios::binary);
     for (int i = 0; i < n; i++) {
         int in = 0;
@@ -390,7 +388,6 @@ static format *loadXvecs(const char *path, const int n, const int d)
         input.read((char *)(mass + i*d), in*sizeof(format));
     }
     input.close();
-    return mass;
 }
 
 template <typename format>
@@ -405,7 +402,7 @@ static void readXvec(ifstream &input, format *mass, const int d)
     input.read((char *) mass, in * sizeof(format));
 }
 
-template<typename dist_t>
+template<typename dist_t, typename vtype>
 static void _hnsw_test(const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_q,
                        const char *path_gt, const char *path_info, const char *path_edges,
                        L2SpaceType l2SpaceType,
@@ -422,14 +419,12 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
 
     cout << "Loading GT:\n";
     const int gt_dim = 1000;
-    unsigned int *massQA = loadXvecs<unsigned int>(path_gt, qsize, gt_dim);
+    unsigned int *massQA = new unsigned int[qsize * gt_dim];
+    loadXvecs<vtype>(path_gt, massQA, qsize, gt_dim);
 
     cout << "Loading queries:\n";
-    void *massQ;
-    if (l2SpaceType == L2SpaceType::Float)
-        massQ = loadXvecs<float>(path_q, qsize, vecdim);
-    else
-        massQ = loadXvecs<unsigned char>(path_q, qsize, vecdim);
+    vtype massQ[qsize * vecdim];
+    loadXvecs<vtype>(path_q, massQ, qsize, vecdim);
 
     SpaceInterface<dist_t> *l2space;
 
@@ -457,7 +452,6 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         size_t j1 = 0;
         appr_alg = new HierarchicalNSW<dist_t>(l2space, M_map, efConstruction);
         appr_alg->setElementLevels(elements_per_level);
-        //appr_alg->LoadData(path_data);
 
         StopW stopw = StopW();
         StopW stopw_full = StopW();
@@ -465,24 +459,17 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         cout << "Adding elements\n";
         ifstream input(path_data, ios::binary);
 
-        unsigned char mass[PQ ? M_PQ : vecdim];
-        //if (l2SpaceType == L2SpaceType::Float)
-        //    readXvec<float>(input, (float *)mass, vecdim);
-        //else
-        readXvec<unsigned char>(input, (unsigned char *)mass, (PQ ? M_PQ : vecdim));
-
+        vtype mass[PQ ? M_PQ : vecdim];
+        readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
         appr_alg->addPoint((void *) (mass), j1);
 
         size_t report_every = 1000000;
 #pragma omp parallel for num_threads(32)
         for (int i = 1; i < vecsize; i++) {
-            unsigned char mass[PQ ? M_PQ : vecdim];
+            vtype mass[PQ ? M_PQ : vecdim];
 #pragma omp critical
             {
-                //if (l2SpaceType == L2SpaceType::Float)
-                //    readXvec<float>(input, (float *)mass, vecdim);
-                //else
-                readXvec<unsigned char>(input, (unsigned char *)mass, (PQ ? M_PQ : vecdim));
+                readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
                 if (++j1 % report_every == 0) {
                     cout << j1 / (0.01 * vecsize) << " %, "
                          << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
@@ -492,7 +479,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
             }
             appr_alg->addPoint((void *) (mass), (size_t) j1);
         }
-        //input.close();
+        input.close();
         cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
         appr_alg->SaveInfo(path_info);
         appr_alg->SaveEdges(path_edges);
