@@ -835,15 +835,14 @@ namespace hnswlib {
 
         void printNumElements()
         {
-            vector<int> counters(maxlevel_);
-            cout << maxlevel_ << endl;
-            for (int i = 0; i < maxlevel_; i++)
+            vector<int> counters(maxlevel_+1);
+            for (int i = 0; i < maxlevel_+!; i++)
                 counters[i] = 0;
 
             for(int i = 0; i < maxelements_; i++)
                 counters[elementLevels[i]]++;
 
-            for (int i = 0; i < maxlevel_; i++)
+            for (int i = 0; i < maxlevel_+1; i++)
                 cout << "Number of elements on the " << i << " level: " << counters[i] << endl;
         }
 
