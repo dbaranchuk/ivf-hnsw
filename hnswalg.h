@@ -799,7 +799,7 @@ namespace hnswlib {
             int counter = 0;
             for (tableint i = 0; i < maxelements_; i++){
                 if (!map[i]) {
-                    cout << "Element #" << i << endl;
+                //    cout << "Element #" << i << endl;
                     counter++;
                 }
             }
