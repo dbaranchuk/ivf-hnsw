@@ -744,8 +744,8 @@ namespace hnswlib {
 
                 // Initialisation of the data and label
                 //memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
-                memcpy(getDataByInternalId(i), massb, data_size_);
                 memset((char *) get_linklist0(i), 0, getParametersByInternalId(i)[i_size_data_per_element]);
+                memcpy(getDataByInternalId(i), massb, data_size_);
             }
 
 
