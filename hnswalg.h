@@ -716,7 +716,7 @@ namespace hnswlib {
                 total_size += params[i*params_num + i_maxelements] * params[i*params_num + i_size_data_per_element];
             }
             cur_element_count = maxelements_;
-            visitedlistpool = new VisitedListPool(1, maxelements_);
+            //visitedlistpool = new VisitedListPool(1, maxelements_);
             visitedsetpool = new VisitedSetPool(1);
 
             /** Hierarcy **/
