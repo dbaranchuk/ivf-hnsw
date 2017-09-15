@@ -7,7 +7,7 @@
 void hnsw_test( const char *l2space_type,
                 const char *, const char *, const char *, const char *,
                 const char *, const char *, const char *,
-                const int, const int, const int, const int, const int, const int);
+                const int, const int, const int, const int, const int, const int, bool);
 
 
 
