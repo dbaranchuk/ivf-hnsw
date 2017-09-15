@@ -446,6 +446,8 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     HierarchicalNSW<dist_t> *appr_alg;
     if (exists_test(path_info) && exists_test(path_edges)) {
         appr_alg = new HierarchicalNSW<dist_t>(l2space, path_info, path_data, path_edges);
+        appr_alg->LoadData<vtype>(path_data);
+        appr_alg->LoadEdges(path_edges);
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
@@ -500,7 +502,6 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         test_vs_recall<dist_t, unsigned char>((unsigned char *)massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, PQ);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
-    delete massQ;
     delete massQA;
     delete l2space;
 }

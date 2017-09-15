@@ -60,8 +60,8 @@ namespace hnswlib {
         {
             LoadInfo(infoLocation, s);
             data_level0_memory_ = (char *) malloc(total_size);
-            LoadData(dataLocation);
-            LoadEdges(edgeLocation);
+            //LoadData(dataLocation);
+            //LoadEdges(edgeLocation);
         }
 
         HierarchicalNSW(SpaceInterface<dist_t> *s, const std::map<size_t, size_t> &M_map, size_t efConstruction = 200)
@@ -727,25 +727,26 @@ namespace hnswlib {
             cout << "Predicted size=" << total_size / (1000 * 1000) << "\n";
         }
 
+        template<typename vtype>
         void LoadData(const string &location)
         {
             cout << "Loading data from " << location << endl;
             FILE *fin = fopen(location.c_str(), "rb");
             int dim;
             const int D = space->get_data_dim();
-            char *massb[D];
+            vtype mass[D];
 
             for (tableint i = 0; i < maxelements_; i++) {
                 fread((int *) &dim, sizeof(int), 1, fin);
                 if (dim != D)
                     cerr << "Wront data dim" << endl;
 
-                fread((char *)massb, sizeof(char), dim, fin);
+                fread((vtype *)mass, sizeof(vtype), dim, fin);
 
                 // Initialisation of the data and label
                 //memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
                 memset((char *) get_linklist0(i), 0, getParametersByInternalId(i)[i_size_data_per_element]);
-                memcpy(getDataByInternalId(i), massb, data_size_);
+                memcpy(getDataByInternalId(i), mass, data_size_);
             }
 
 
