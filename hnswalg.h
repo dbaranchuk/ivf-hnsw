@@ -835,6 +835,7 @@ namespace hnswlib {
         void printNumElements()
         {
             vector<int> counters(maxlevel_);
+            cout << maxlevel_ << endl;
             for (int i = 0; i < maxlevel_; i++)
                 counters[i] = 0;
 
