@@ -832,6 +832,19 @@ namespace hnswlib {
             delete map;
         }
 
+        void printNumElements()
+        {
+            vector<int> counters(maxlevel_);
+            for (int i = 0; i < maxlevel_; i++)
+                counters[i] = 0;
+
+            for(int i = 0; i < maxelements_; i++)
+                counters[elementLevels[i]]++;
+
+            for (int i = 0; i < maxlevel_; i++)
+                cout << "Number of elements on the " << i << " level: " << counters[i] << endl;
+        }
+
 //        void PrevLoadIndex(const string &location, SpaceInterface<dist_t> *s)
 //        {
 //            cout << "Loading index from " << location << endl;
