@@ -82,7 +82,7 @@ namespace hnswlib {
                 params[i*params_num + i_maxelements] = i ? p.first - params[(i-1)*params_num + i_threshold] : p.first;
                 params[i*params_num + i_M] = p.second;
                 params[i*params_num + i_maxM] = p.second;
-                params[i*params_num + i_maxM0] = 2*p.second;//p.second + 6;//(i == parts_num-1) ? p.second : 2 * p.second;
+                params[i*params_num + i_maxM0] = (i == parts_num-1) ? p.second : 2 * p.second;
                 params[i*params_num + i_size_links_level0] = params[i*params_num + i_maxM0]* sizeof(tableint) + sizeof(linklistsizeint);
                 params[i*params_num + i_size_data_per_element] = params[i*params_num + i_size_links_level0] + data_size_;
                 params[i*params_num + i_offsetData] = params[i*params_num + i_size_links_level0];
@@ -685,9 +685,9 @@ namespace hnswlib {
 
             for (tableint i = 0; i < maxelements_; i++) {
                 linklistsizeint *ll_cur = get_linklist0(i);
-                size_t size = *ll_cur;
+                int size = *ll_cur;
 
-                fwrite(&size, sizeof(size_t), 1, fout);
+                fwrite((int *)&size, sizeof(int), 1, fout);
                 tableint *data = (tableint *)(ll_cur + 1);
                 fwrite(data, sizeof(tableint), *ll_cur, fout);
             }
@@ -772,10 +772,10 @@ namespace hnswlib {
         {
             cout << "Loading edges from " << location << endl;
             FILE *fin = fopen(location.c_str(), "rb");
-            size_t size;
+            int size;
 
             for (tableint i = 0; i < maxelements_; i++) {
-                fread((size_t *)&size, sizeof(size_t), 1, fin);
+                fread((int *)&size, sizeof(int), 1, fin);
                 linklistsizeint *ll_cur = get_linklist0(i);
                 *ll_cur = size;
                 tableint *data = (tableint *)(ll_cur + 1);

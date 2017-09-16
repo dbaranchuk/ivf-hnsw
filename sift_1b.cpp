@@ -413,8 +413,9 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     const bool PQ = (path_codebooks && path_tables);
     const char *path_clusters = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_base_100m_clusters.bvecs";
 
-    //const map<size_t, size_t> M_map = {{vecsize/10, 6}, {vecsize-vecsize/10, M}, {vecsize, M}};
-    const map<size_t, size_t> M_map = {{vecsize, M}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
+    const int specsize = 100000000;//101917929;
+    const map<size_t, size_t> M_map = {{specsize, 6}, {vecsize-specsize, M}, {vecsize, M}};
+    //const map<size_t, size_t> M_map = {{vecsize, M}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
     const vector<size_t> elements_per_level;// = {vecsize};//{947368422, 50000000, 2500000, 125000, 6250, 312, 16};
 
     cout << "Loading GT:\n";
@@ -484,7 +485,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         appr_alg->SaveInfo(path_info);
         appr_alg->SaveEdges(path_edges);
     }
-    //appr_alg->printListsize();
+    appr_alg->printListsize();
     appr_alg->check_connectivity(massQA, qsize);
     appr_alg->printNumElements();
 
