@@ -474,7 +474,6 @@ namespace hnswlib {
                 }
                 for (int i = params[0*params_num + i_maxelements]; i < maxelements_; i++)
                     elementLevels[i] = 0;
-                cout << (int) elementLevels[100] << endl;
             } else{
                 for (size_t i = 0; i < maxelements_; ++i) {
                     if (one_layer){
