@@ -416,8 +416,9 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     const int specsize = 100000000;//101917929;
     const map<size_t, size_t> M_map = {{specsize, 6}, {vecsize-specsize, M}, {vecsize, M}};
     //const map<size_t, size_t> M_map = {{vecsize, M}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
-    const vector<size_t> elements_per_level;// = {vecsize};//{947368422, 50000000, 2500000, 125000, 6250, 312, 16};
-
+    //
+    const vector<size_t> elements_per_level;// = {100000000, 5000000, 250000, 12500, 625, 32};
+    //const map<size_t, size_t> M_map = {{5263157, 16}, {vecsize, 4}};
     cout << "Loading GT:\n";
     const int gt_dim = 1000;
     unsigned int *massQA = new unsigned int[qsize * gt_dim];
@@ -485,7 +486,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         appr_alg->SaveInfo(path_info);
         appr_alg->SaveEdges(path_edges);
     }
-    appr_alg->printListsize();
+    //appr_alg->printListsize();
     appr_alg->check_connectivity(massQA, qsize);
     appr_alg->printNumElements();
 

@@ -469,24 +469,28 @@ namespace hnswlib {
         {
             if (elements_per_level.size() == 0) {
                 std::uniform_real_distribution<double> distribution(0.0, 1.0);
-                for (size_t i = 0; i < maxelements_; ++i) {
-                    elementLevels[i] = one_layer ? 0 : (int) (-log(distribution(generator)) * mult_);
+                for (size_t i = 0; i < params[0*params_num + i_maxelements]; ++i) {
+                    elementLevels[i] = (int) (-log(distribution(generator)) * mult_) + 1;
                 }
+                for (int i = params[0*params_num + i_maxelements]; i < maxelements_; i++)
+                    elementLevels[i] = 0;
             } else{
-                for (size_t i = 0; i < maxelements_; ++i){
-                    if (i < elements_per_level[6])
+                for (size_t i = 0; i < maxelements_; ++i) {
+                    if (one_layer){
                         elementLevels[i] = 0;
-                    else if (i < elements_per_level[6] + elements_per_level[5])
+                        continue;
+                    }
+                    if (i < elements_per_level[5])
                         elementLevels[i] = 0;
-                    else if (i < elements_per_level[6] + elements_per_level[5] + elements_per_level[4])
+                    else if (i < elements_per_level[5] + elements_per_level[4])
                         elementLevels[i] = 0;
-                    else if (i < elements_per_level[6] + elements_per_level[5] + elements_per_level[4] +
+                    else if (i < elements_per_level[5] + elements_per_level[4] +
                                  elements_per_level[3])
                         elementLevels[i] = 0;
-                    else if (i < elements_per_level[6] + elements_per_level[5] + elements_per_level[4] +
+                    else if (i < elements_per_level[5] + elements_per_level[4] +
                                  elements_per_level[3] + elements_per_level[2])
                         elementLevels[i] = 0;
-                    else if (i < elements_per_level[6] + elements_per_level[5] + elements_per_level[4] +
+                    else if (i < elements_per_level[5] + elements_per_level[4] +
                                  elements_per_level[3] + elements_per_level[2] + elements_per_level[1])
                         elementLevels[i] = 0;
                     else
