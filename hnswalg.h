@@ -706,10 +706,11 @@ namespace hnswlib {
             space = s;
             data_size_ = s->get_data_size();
 
-            enterpoint_node = 0;
-            //readBinaryPOD(input, enterpoint_node);
+            readBinaryPOD(input, enterpoint_node);
             readBinaryPOD(input, parts_num);
             readBinaryPOD(input, params_num);
+
+            cout << enterpoint_node << " " << parts_num << " " << params_num << endl;
             params = new size_t[params_num*parts_num];
             input.read((char *) params, parts_num*params_num*sizeof(size_t));
 
