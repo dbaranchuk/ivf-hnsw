@@ -706,7 +706,8 @@ namespace hnswlib {
             space = s;
             data_size_ = s->get_data_size();
 
-            readBinaryPOD(input, enterpoint_node);
+            enterpoint_node = 0;
+            //readBinaryPOD(input, enterpoint_node);
             readBinaryPOD(input, parts_num);
             readBinaryPOD(input, params_num);
             params = new size_t[params_num*parts_num];
