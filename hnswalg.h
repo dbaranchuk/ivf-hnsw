@@ -710,7 +710,7 @@ namespace hnswlib {
             readBinaryPOD(input, parts_num);
             readBinaryPOD(input, params_num);
 
-            cout << enterpoint_node << " " << parts_num << " " << params_num << endl;
+            enterpoint_node  = 0;
             params = new size_t[params_num*parts_num];
             input.read((char *) params, parts_num*params_num*sizeof(size_t));
 
@@ -731,21 +731,21 @@ namespace hnswlib {
             elementLevels = vector<char>(maxelements_);
             maxlevel_ = 0;
 
-            for (size_t i = 0; i < params[0*params_num + i_maxelements]; i++) {
-                unsigned int linkListSize;
-                readBinaryPOD(input, linkListSize);
-                if (linkListSize == 0) {
-                    elementLevels[i] = 0;
-                    linkLists_[i] = nullptr;
-                } else {
-                    elementLevels[i] = linkListSize / params[0*params_num + i_size_links_per_element];
-                    linkLists_[i] = (char *) malloc(linkListSize);
-                    input.read(linkLists_[i], linkListSize);
-                }
-                if (elementLevels[i] > maxlevel_){
-                    maxlevel_ = elementLevels[i];
-                }
-            }
+//            for (size_t i = 0; i < params[0*params_num + i_maxelements]; i++) {
+//                unsigned int linkListSize;
+//                readBinaryPOD(input, linkListSize);
+//                if (linkListSize == 0) {
+//                    elementLevels[i] = 0;
+//                    linkLists_[i] = nullptr;
+//                } else {
+//                    elementLevels[i] = linkListSize / params[0*params_num + i_size_links_per_element];
+//                    linkLists_[i] = (char *) malloc(linkListSize);
+//                    input.read(linkLists_[i], linkListSize);
+//                }
+//                if (elementLevels[i] > maxlevel_){
+//                    maxlevel_ = elementLevels[i];
+//                }
+//            }
             cout << "Predicted size=" << total_size / (1000 * 1000) << "\n";
             input.close();
         }
