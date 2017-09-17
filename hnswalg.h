@@ -655,7 +655,7 @@ namespace hnswlib {
             for (int i = 0; i < maxelements_; i++){
                 linklistsizeint *ll_cur = get_linklist0(i);
                 av_M += (1.0 * *ll_cur) / maxelements_;
-                if (i % 1000 != 0)
+                if (i % 100 != 0)
                     continue;
                 cout << "Element #" << i << " M:" << (int) *ll_cur << endl;
             }
