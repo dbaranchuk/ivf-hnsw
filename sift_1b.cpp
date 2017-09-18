@@ -418,7 +418,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     //const map<size_t, size_t> M_map = {{vecsize, M}};//{{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
     //
     const vector<size_t> elements_per_level = {100000000, 5000000, 250000, 12500, 625, 32};
-    const map<size_t, size_t> M_map = /*{{5263157, 16},*/ {{vecsize, M}};
+    const map<size_t, size_t> M_map = {{5263157, 16}, {vecsize, M}};
     cout << "Loading GT:\n";
     const int gt_dim = 1000;
     unsigned int *massQA = new unsigned int[qsize * gt_dim];

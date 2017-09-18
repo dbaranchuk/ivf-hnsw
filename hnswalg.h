@@ -82,7 +82,7 @@ namespace hnswlib {
                 params[i*params_num + i_maxelements] = i ? p.first - params[(i-1)*params_num + i_threshold] : p.first;
                 params[i*params_num + i_M] = p.second;
                 params[i*params_num + i_maxM] = p.second;
-                params[i*params_num + i_maxM0] = (i == parts_num-1) ? p.second : 2 * p.second;
+                params[i*params_num + i_maxM0] = 2*p.second;//(i == parts_num-1) ? p.second : 2 * p.second;
                 params[i*params_num + i_size_links_level0] = params[i*params_num + i_maxM0]* sizeof(tableint) + sizeof(linklistsizeint);
                 params[i*params_num + i_size_data_per_element] = params[i*params_num + i_size_links_level0] + data_size_;
                 params[i*params_num + i_offsetData] = params[i*params_num + i_size_links_level0];
@@ -481,18 +481,18 @@ namespace hnswlib {
                         continue;
                     }
                     if (i < elements_per_level[5])
-                        elementLevels[i] = 0;
+                        elementLevels[i] = 5;
                     else if (i < elements_per_level[5] + elements_per_level[4])
-                        elementLevels[i] = 0;
+                        elementLevels[i] = 4;
                     else if (i < elements_per_level[5] + elements_per_level[4] +
                                  elements_per_level[3])
-                        elementLevels[i] = 0;
+                        elementLevels[i] = 3;
                     else if (i < elements_per_level[5] + elements_per_level[4] +
                                  elements_per_level[3] + elements_per_level[2])
-                        elementLevels[i] = 0;
+                        elementLevels[i] = 2;
                     else if (i < elements_per_level[5] + elements_per_level[4] +
                                  elements_per_level[3] + elements_per_level[2] + elements_per_level[1])
-                        elementLevels[i] = 0;
+                        elementLevels[i] = 1;
                     else
                         elementLevels[i] = 0;
                 }
