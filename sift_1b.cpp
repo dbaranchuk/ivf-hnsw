@@ -148,13 +148,14 @@ size_t getCurrentRSS()
 
 
 template <typename dist_t>
-static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers, size_t k = 1)
+static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
+                   size_t gt_dim, size_t k = 1)
 {
 	(vector<std::priority_queue< std::pair<dist_t, labeltype >>>(qsize)).swap(answers);
     cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
-			answers[i].emplace(0.0f, massQA[1000*i + j]);
+			answers[i].emplace(0.0f, massQA[gt_dim*i + j]);
 		}
 	}
 }
@@ -496,7 +497,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     vector<std::priority_queue< std::pair<dist_t, labeltype >>> answers;
 
     cout << "Parsing gt:\n";
-    get_gt<dist_t>(massQA, qsize, answers);
+    get_gt<dist_t>(massQA, qsize, answers, gt_dim);
 
     cout << "Loaded gt\n";
     test_vs_recall<dist_t, vtype>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, PQ);
