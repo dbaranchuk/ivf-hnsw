@@ -416,7 +416,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     const int specsize = 100000000;//101917929;
     //const map<size_t, size_t> M_map = {{specsize, 6}, {vecsize-specsize, M}, {vecsize, M}};
     //const map<size_t, size_t> M_map = {{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
-    const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 8}},{200000000, {8, 8}},{400000000, {5, 8}},
+    const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}},{200000000, {8, 8}},{400000000, {5, 8}},
                                                      {600000000, {5, 8}},{800000000, {5, 8}},{900000000, {5, 8}},{vecsize, {5, 8}}};
     //
     const vector<size_t> elements_per_level;// = {100000000, 5000000, 250000, 12500, 625, 32};
