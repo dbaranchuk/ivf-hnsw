@@ -64,7 +64,7 @@ namespace hnswlib {
             LoadEdges(edgeLocation);
         }
 
-        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::map<size_t, size_t> &M_map, size_t efConstruction = 200)
+        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::map<size_t, pair<size_t, size_t>> &M_map, size_t efConstruction = 200)
         {
             space = s;
             data_size_ = s->get_data_size();
@@ -80,9 +80,9 @@ namespace hnswlib {
             for (auto p : M_map){
                 params[i*params_num + i_threshold] = p.first;
                 params[i*params_num + i_maxelements] = i ? p.first - params[(i-1)*params_num + i_threshold] : p.first;
-                params[i*params_num + i_M] = p.second;
-                params[i*params_num + i_maxM] = p.second;
-                params[i*params_num + i_maxM0] = 2*p.second;//(i == parts_num-1) ? p.second : 2 * p.second;
+                params[i*params_num + i_M] = p.second.first;
+                params[i*params_num + i_maxM] = p.second.second;
+                params[i*params_num + i_maxM0] = p.second.second;//(i == parts_num-1) ? p.second : 2 * p.second;
                 params[i*params_num + i_size_links_level0] = params[i*params_num + i_maxM0]* sizeof(tableint) + sizeof(linklistsizeint);
                 params[i*params_num + i_size_data_per_element] = params[i*params_num + i_size_links_level0] + data_size_;
                 params[i*params_num + i_offsetData] = params[i*params_num + i_size_links_level0];
