@@ -206,13 +206,13 @@ static void test_vs_recall(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, v
     if (k < 30) {
         for (int i = k; i < 30; i++) efs.push_back(i);
         for (int i = 30; i < 100; i += 10) efs.push_back(i);
-        for (int i = 100; i <= 700; i += 40) efs.push_back(i);
+        for (int i = 100; i <= 620; i += 40) efs.push_back(i);
     }
 	else if (k < 100) {
         for (int i = k; i < 100; i += 10) efs.push_back(i);
-        for (int i = 100; i <= 500; i += 40) efs.push_back(i);
+        for (int i = 100; i <= 620; i += 40) efs.push_back(i);
     } else
-        for (int i = k; i <= 500; i += 40) efs.push_back(i);
+        for (int i = k; i <= 620; i += 40) efs.push_back(i);
 
 	for (size_t ef : efs) {
 		appr_alg.ef_ = ef;
@@ -417,8 +417,8 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     //const map<size_t, pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize-specsize, {M, 2*M}}, {vecsize, {M, 2*M}}};
     //const map<size_t, size_t> M_map = {{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
-    const map<size_t, pair<size_t, size_t>> M_map = {{50000000, {16, 32}},{100000000, {12, 24}},{200000000, {8, 16}},{400000000, {4, 9}},
-                                                     {600000000, {4, 8}},{800000000, {4, 7}},{900000000, {4, 6}},{vecsize, {4, 5}}};
+    const map<size_t, pair<size_t, size_t>> M_map = {{50000000, {16, 32}},{100000000, {14, 24}},{200000000, {10, 16}},{400000000, {5, 9}},
+                                                     {600000000, {5, 8}},{800000000, {5, 7}},{900000000, {5, 6}},{vecsize, {5, 5}}};
     //
     const vector<size_t> elements_per_level;// = {100000000, 5000000, 250000, 12500, 625, 32};
     //const map<size_t, pair<size_t, size_t>> M_map = {{5263157, {16, 32}}, {vecsize, {M, 2*M}}};
