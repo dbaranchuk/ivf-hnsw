@@ -62,25 +62,23 @@ namespace hnswlib {
             LoadEdges(edgeLocation);
         }
 
-        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::multimap<size_t, size_t> &M_map, size_t maxelements, size_t efConstruction = 200):
+        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::vector<pair<unsigned int, unsigned int>> &M_vec, size_t maxelements, size_t efConstruction = 200):
                 maxelements_(maxelements), efConstruction_(efConstruction)
         {
             space = s;
             data_size_ = s->get_data_size();
 
             total_size = 0;
-            parts_num = M_map.size();
+            parts_num = M_vec.size();
             threshold_ = maxelements_ / parts_num;
             params_num = 8;
-            params = new size_t[parts_num * params_num];
+            params = new unsigned int[parts_num * params_num];
 
-            cout <<  maxelements_ << " " << parts_num <<  " " << threshold_ << endl;
-            int i = 0;
-            for (auto p : M_map){
-                cout << p.first << " " << p.second << endl;
-                params[i*params_num + i_M] = p.first;
-                params[i*params_num + i_maxM] = p.second;
-                params[i*params_num + i_maxM0] = p.second;//(i == parts_num-1) ? p.second : 2 * p.second;
+            for (int i = 0; i < parts_num; i++) {
+                cout << M_vec[i].first << " " << M_vec[i].second << endl;
+                params[i*params_num + i_M] = M_vec[i].first;
+                params[i*params_num + i_maxM] = M_vec[i].second;
+                params[i*params_num + i_maxM0] = M_vec[i].second;//(i == parts_num-1) ? p.second : 2 * p.second;
                 params[i*params_num + i_size_links_level0] = params[i*params_num + i_maxM0]* sizeof(tableint) + sizeof(linklistsizeint);
                 params[i*params_num + i_size_data_per_element] = params[i*params_num + i_size_links_level0] + data_size_;
                 params[i*params_num + i_offsetData] = params[i*params_num + i_size_links_level0];
@@ -88,7 +86,6 @@ namespace hnswlib {
                 params[i*params_num + i_partOffset] = total_size;
 
                 total_size += threshold_ * params[i*params_num + i_size_data_per_element];
-                i++;
             }
             elementLevels = vector<char>(maxelements_);
 
@@ -124,11 +121,10 @@ namespace hnswlib {
         // Fields
         SpaceInterface<dist_t> *space;
 
-        size_t threshold_;
-        size_t maxelements_;
-        size_t cur_element_count;
+        unsigned int maxelements_;
+        unsigned int cur_element_count;
 
-        size_t efConstruction_;
+        unsigned int efConstruction_;
         double mult_;
         int maxlevel_;
 
@@ -147,11 +143,10 @@ namespace hnswlib {
 
         vector<char> elementLevels;
 
-        size_t *params;
-        size_t parts_num;
-        size_t params_num;
-
-        size_t data_size_;
+        unsigned int *params;
+        unsigned int parts_num;
+        unsigned int params_num;
+        unsigned int data_size_;
         size_t total_size;
         //size_t label_offset_;
         std::default_random_engine generator = std::default_random_engine(100);
@@ -661,7 +656,7 @@ namespace hnswlib {
             writeBinaryPOD(output, maxelements_);
             writeBinaryPOD(output, parts_num);
             writeBinaryPOD(output, params_num);
-            output.write((char *) params, parts_num * params_num * sizeof(size_t));
+            output.write((char *) params, parts_num * params_num * sizeof(unsigned int));
 
             for (size_t i = 0; i < threshold_; ++i) {
                 unsigned int linkListSize = elementLevels[i] > 0 ? params[0*params_num + i_size_links_per_element] * elementLevels[i] : 0;
@@ -702,10 +697,8 @@ namespace hnswlib {
             readBinaryPOD(input, parts_num);
             readBinaryPOD(input, params_num);
 
-            cout << enterpoint_node << " " << parts_num << " " << params_num << endl;
-            //enterpoint_node  = 0;
-            params = new size_t[params_num*parts_num];
-            input.read((char *) params, parts_num*params_num*sizeof(size_t));
+            params = new unsigned int[params_num*parts_num];
+            input.read((char *) params, parts_num*params_num*sizeof(unsigned int));
 
             efConstruction_ = 0;
             total_size = 0;

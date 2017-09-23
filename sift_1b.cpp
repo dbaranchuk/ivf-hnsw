@@ -414,8 +414,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     const bool PQ = (path_codebooks && path_tables);
 
     const int specsize = 10000000;//101917929;
-    const multimap<size_t, size_t> M_map = {{16, 32}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, M}};
-    cout << M_map.size() << endl;
+    const vector<pair<size_t, size_t>> M_vec = {{16, 32}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, M}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}},{200000000, {8, 16}},{400000000, {5, 10}},
     //                                                 {600000000, {5, 9}},{800000000, {5, 8}},{900000000, {5, 7}},{vecsize, {5, 6}}};
     //
@@ -454,7 +453,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     } else {
         cout << "Building index:\n";
         size_t j1 = 0;
-        appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, M_map, vecsize, efConstruction);
+        appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, M_vec, vecsize, efConstruction);
         appr_alg->setElementLevels(elements_per_level, one_layer);
 
         StopW stopw = StopW();
