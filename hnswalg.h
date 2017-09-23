@@ -163,28 +163,28 @@ namespace hnswlib {
 //            }
 //        }
 
-        inline size_t *getParametersByInternalId(tableint internal_id) {
+        inline unsigned int *getParametersByInternalId(tableint internal_id) {
             return params + (internal_id / threshold_)*params_num;
         }
 
         inline char *getDataByInternalId(tableint internal_id)
         {
             int i = internal_id / threshold_;
-            size_t *param = params + i*params_num;
+            unsigned int *param = params + i*params_num;
             return (data_level0_memory_ + param[i_partOffset] + (internal_id - i*threshold_) * param[i_size_data_per_element] + param[i_offsetData]);
         }
 
         inline linklistsizeint *get_linklist0(tableint internal_id)
         {
             int i = internal_id / threshold_;
-            size_t *param = params + i*params_num;
+            unsigned int *param = params + i*params_num;
             return (linklistsizeint *) (data_level0_memory_ + param[i_partOffset] + (internal_id - i*threshold_) * param[i_size_data_per_element]);
         };
 
         inline linklistsizeint* get_linklist(tableint internal_id, int level)
         {
             int i = internal_id / threshold_;
-            size_t *param = params + i*params_num;
+            unsigned int *param = params + i*params_num;
             //In Smart hnsw only clusters on the above levels
             return (linklistsizeint *)(linkLists_[internal_id] + (level - 1) * param[i_size_links_per_element]);
         };
@@ -362,9 +362,9 @@ namespace hnswlib {
         void mutuallyConnectNewElement(void *datapoint, tableint cur_c,
                                        std::priority_queue<std::pair<dist_t, tableint>> topResults, int level)
         {
-            size_t *param = getParametersByInternalId(cur_c);
-            size_t curMmax = level ? param[i_maxM] : param[i_maxM0];
-            size_t curM = param[i_M];
+            unsigned int *param = getParametersByInternalId(cur_c);
+            unsigned int curMmax = level ? param[i_maxM] : param[i_maxM0];
+            unsigned int curM = param[i_M];
 
             getNeighborsByHeuristic(topResults, curM);
 
@@ -403,8 +403,8 @@ namespace hnswlib {
                 if (rez[idx] == cur_c)
                     throw runtime_error("Connection to the same element");
 
-                auto rezParam = getParametersByInternalId(rez[idx]);
-                size_t rezMmax = level ? rezParam[i_maxM] : rezParam[i_maxM0];
+                unsigned int *rezParam = getParametersByInternalId(rez[idx]);
+                unsigned int rezMmax = level ? rezParam[i_maxM] : rezParam[i_maxM0];
                 linklistsizeint *ll_other = level ? get_linklist(rez[idx], level) : get_linklist0(rez[idx]);
 
                 if (level > elementLevels[rez[idx]])
@@ -506,7 +506,7 @@ namespace hnswlib {
                 templock.unlock();
 
 
-            auto curParam = getParametersByInternalId(cur_c);
+            unsigned int *curParam = getParametersByInternalId(cur_c);
             memset((char *) get_linklist0(cur_c), 0, curParam[i_size_data_per_element]);
 //
 //            // Initialisation of the data and label
