@@ -165,19 +165,19 @@ namespace hnswlib {
 //        }
 
         inline unsigned int *getParametersByInternalId(tableint internal_id) {
-            return params + (internal_id / threshold_)*params_num;
+            return params;// + (internal_id / threshold_)*params_num;
         }
 
         inline char *getDataByInternalId(tableint internal_id)
         {
             unsigned int *param = getParametersByInternalId(internal_id);
-            return (data_level0_memory_ + param[i_partOffset] + (internal_id % threshold_) * param[i_size_data_per_element] + param[i_offsetData]);
+            return (data_level0_memory_ + param[i_partOffset] + (internal_id) * param[i_size_data_per_element] + param[i_offsetData]);
         }
 
         inline linklistsizeint *get_linklist0(tableint internal_id)
         {
             unsigned int *param = getParametersByInternalId(internal_id);
-            return (linklistsizeint *) (data_level0_memory_ + param[i_partOffset] + (internal_id % threshold_) * param[i_size_data_per_element]);
+            return (linklistsizeint *) (data_level0_memory_ + param[i_partOffset] + (internal_id) * param[i_size_data_per_element]);
         };
 
         inline linklistsizeint* get_linklist(tableint internal_id, int level)
