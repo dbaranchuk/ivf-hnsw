@@ -360,15 +360,20 @@ namespace hnswlib {
         size_t get_data_size() { return data_size_; }
         size_t get_data_dim() { return m_; }
 
-        int fstdistfunc(const void *_x_code, const void *_y_code)
+        int fstdistfunc(const void *x_code, const void *y_code)
         {
             int res = 0;
-            unsigned char *x = (unsigned char *)_x_code;
-            unsigned char *y = (unsigned char *)_y_code;
+            int dim = m_ >> 2;
+            unsigned char *x = (unsigned char *)x_code;
+            unsigned char *y = (unsigned char *)y_code;
 
-            for (int i = 0; i < m_; ++i)
-                res += constructionTables[i][k_*x[i] + y[i]];
-
+            int n = 0;
+            for (int i = 0; i < dim; ++i) {
+                res += constructionTables[n][k_*x[n] + y[n]]; n++;
+                res += constructionTables[n][k_*x[n] + y[n]]; n++;
+                res += constructionTables[n][k_*x[n] + y[n]]; n++;
+                res += constructionTables[n][k_*x[n] + y[n]]; n++;
+            }
             return res;
         };
 
