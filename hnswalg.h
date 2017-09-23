@@ -62,7 +62,7 @@ namespace hnswlib {
             LoadEdges(edgeLocation);
         }
 
-        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::map<size_t, size_t> &M_map, size_t maxelements, size_t efConstruction = 200):
+        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::multimap<size_t, size_t> &M_map, size_t maxelements, size_t efConstruction = 200):
                 maxelements_(maxelements), efConstruction_(efConstruction)
         {
             space = s;
@@ -77,6 +77,7 @@ namespace hnswlib {
             cout <<  maxelements_ << " " << parts_num <<  " " << threshold_ << endl;
             int i = 0;
             for (auto p : M_map){
+                cout << p.first << " " << p.second << endl;
                 params[i*params_num + i_M] = p.first;
                 params[i*params_num + i_maxM] = p.second;
                 params[i*params_num + i_maxM0] = p.second;//(i == parts_num-1) ? p.second : 2 * p.second;
