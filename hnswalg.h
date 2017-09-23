@@ -21,16 +21,14 @@ using google::dense_hash_map;
 using google::dense_hash_set;
 
 enum ParameterIndex{
-    i_threshold = 0,
-    i_maxelements = 1,
-    i_M = 2,
-    i_maxM = 3,
-    i_maxM0 = 4,
-    i_size_links_level0 = 5,
-    i_size_data_per_element = 6,
-    i_offsetData = 7,
-    i_size_links_per_element = 8,
-    i_partOffset = 9
+    i_M = 0,
+    i_maxM = 1,
+    i_maxM0 = 2,
+    i_size_links_level0 = 3,
+    i_size_data_per_element = 4,
+    i_offsetData = 5,
+    i_size_links_per_element = 6,
+    i_partOffset = 7
 };
 
 
@@ -64,36 +62,32 @@ namespace hnswlib {
             LoadEdges(edgeLocation);
         }
 
-        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::map<size_t, pair<size_t, size_t>> &M_map, size_t efConstruction = 200)
+        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::map<size_t, size_t> &M_map, size_t maxelements, size_t efConstruction = 200):
+                maxelements_(maxelements), efConstruction_(efConstruction)
         {
             space = s;
             data_size_ = s->get_data_size();
 
-            efConstruction_ = efConstruction;
-
             total_size = 0;
-            maxelements_ = 0;
             parts_num = M_map.size();
-            params_num = 10;
+            threshold_ = maxelements_ / parts_num;
+            params_num = 8;
             params = new size_t[parts_num * params_num];
+
             int i = 0;
             for (auto p : M_map){
-                params[i*params_num + i_threshold] = p.first;
-                params[i*params_num + i_maxelements] = i ? p.first - params[(i-1)*params_num + i_threshold] : p.first;
-                params[i*params_num + i_M] = p.second.first;
-                params[i*params_num + i_maxM] = p.second.second;
-                params[i*params_num + i_maxM0] = p.second.second;//(i == parts_num-1) ? p.second : 2 * p.second;
+                params[i*params_num + i_M] = p.first;
+                params[i*params_num + i_maxM] = p.second;
+                params[i*params_num + i_maxM0] = p.second;//(i == parts_num-1) ? p.second : 2 * p.second;
                 params[i*params_num + i_size_links_level0] = params[i*params_num + i_maxM0]* sizeof(tableint) + sizeof(linklistsizeint);
                 params[i*params_num + i_size_data_per_element] = params[i*params_num + i_size_links_level0] + data_size_;
                 params[i*params_num + i_offsetData] = params[i*params_num + i_size_links_level0];
                 params[i*params_num + i_size_links_per_element] = params[i*params_num + i_maxM] * sizeof(tableint) + sizeof(linklistsizeint);
                 params[i*params_num + i_partOffset] = total_size;
 
-                total_size += params[i*params_num + i_maxelements] * params[i*params_num + i_size_data_per_element];
-                maxelements_ += params[i*params_num + i_maxelements];
+                total_size += threshold_ * params[i*params_num + i_size_data_per_element];
                 i++;
             }
-            offsetLevel0_ = 0;
             elementLevels = vector<char>(maxelements_);
 
             std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
@@ -109,7 +103,7 @@ namespace hnswlib {
             enterpoint_node = -1;
             maxlevel_ = -1;
 
-            linkLists_ = (char **) malloc(sizeof(void *) * params[0*params_num + i_maxelements]);
+            linkLists_ = (char **) malloc(sizeof(void *) * threshold_);
             mult_ = 1 / log(1.0 * params[0*params_num + i_M]);//M_);
         }
 
@@ -128,6 +122,7 @@ namespace hnswlib {
         // Fields
         SpaceInterface<dist_t> *space;
 
+        size_t threshold_;
         size_t maxelements_;
         size_t cur_element_count;
 
@@ -144,7 +139,6 @@ namespace hnswlib {
         tableint enterpoint_node;
 
         size_t dist_calc;
-        size_t offsetLevel0_;
 
         char *data_level0_memory_;
         char **linkLists_;
@@ -172,32 +166,28 @@ namespace hnswlib {
 //            }
 //        }
 
-        inline size_t *getParametersByInternalId(tableint internal_id)
-        {
-            int i = 0;
-            while (internal_id >= params[i*params_num + i_threshold]) ++i;
-            return (params + i*params_num);
-        };
+        inline size_t *getParameterByInternalId(tableint internal_id) {
+            return params + (internal_id / threshold_)*params_num;
+        }
 
         inline char *getDataByInternalId(tableint internal_id)
         {
-            size_t *param = getParametersByInternalId(internal_id);
-            tableint ref_id = (param == params) ? internal_id : internal_id - (param - params_num)[i_threshold];
-            return (data_level0_memory_ + param[i_partOffset] + ref_id * param[i_size_data_per_element] + param[i_offsetData]);
+            int i = internal_id / threshold_;
+            size_t *param = params + i*params_num;
+            return (data_level0_memory_ + param[i_partOffset] + (internal_id - i*threshold_) * param[i_size_data_per_element] + param[i_offsetData]);
         }
 
         inline linklistsizeint *get_linklist0(tableint internal_id)
         {
-            size_t *param = getParametersByInternalId(internal_id);
-            tableint ref_id = (param == params) ? internal_id : internal_id - (param - params_num)[i_threshold];
-
-            return (linklistsizeint *) (data_level0_memory_ + param[i_partOffset] +
-                                        ref_id * param[i_size_data_per_element] + offsetLevel0_);
+            int i = internal_id / threshold_;
+            size_t *param = params + i*params_num;
+            return (linklistsizeint *) (data_level0_memory_ + param[i_partOffset] + (internal_id - i*threshold_) * param[i_size_data_per_element]);
         };
 
         inline linklistsizeint* get_linklist(tableint cur_c, int level)
         {
-            size_t *param = getParametersByInternalId(cur_c);
+            int i = internal_id / threshold_;
+            size_t *param = params + i*params_num;
             //In Smart hnsw only clusters on the above levels
             return (linklistsizeint *)(linkLists_[cur_c] + (level - 1) * param[i_size_links_per_element]);
         };
@@ -528,10 +518,8 @@ namespace hnswlib {
 
             if (curlevel) {
                 // Above levels contain only clusters
-                auto param = getParametersByInternalId(cur_c);
-
-                linkLists_[cur_c] = (char *) malloc(param[i_size_links_per_element] * curlevel);
-                memset(linkLists_[cur_c], 0, param[i_size_links_per_element] * curlevel);
+                linkLists_[cur_c] = (char *) malloc(curParam[i_size_links_per_element] * curlevel);
+                memset(linkLists_[cur_c], 0, curParam[i_size_links_per_element] * curlevel);
             }
 
             tableint currObj = enterpoint_node;
@@ -668,11 +656,12 @@ namespace hnswlib {
             streampos position;
 
             writeBinaryPOD(output, enterpoint_node);
+            writeBinaryPOD(output, maxelements_);
             writeBinaryPOD(output, parts_num);
             writeBinaryPOD(output, params_num);
             output.write((char *) params, parts_num * params_num * sizeof(size_t));
 
-            for (size_t i = 0; i < params[0*params_num + i_maxelements]; ++i) {
+            for (size_t i = 0; i < threshold_; ++i) {
                 unsigned int linkListSize = elementLevels[i] > 0 ? params[0*params_num + i_size_links_per_element] * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
@@ -707,8 +696,10 @@ namespace hnswlib {
             data_size_ = s->get_data_size();
 
             readBinaryPOD(input, enterpoint_node);
+            readBinaryPOD(input, maxelements_);
             readBinaryPOD(input, parts_num);
             readBinaryPOD(input, params_num);
+
             cout << enterpoint_node << " " << parts_num << " " << params_num << endl;
             //enterpoint_node  = 0;
             params = new size_t[params_num*parts_num];
@@ -716,22 +707,21 @@ namespace hnswlib {
 
             efConstruction_ = 0;
             total_size = 0;
-            maxelements_ = 0;
+            threshold_ = maxelements_ / parts_num;
             for (size_t i = 0; i < parts_num; i++) {
-                maxelements_ += params[i*params_num + i_maxelements];
-                total_size += params[i*params_num + i_maxelements] * params[i*params_num + i_size_data_per_element];
+                total_size += threshold_ * params[i*params_num + i_size_data_per_element];
             }
             cur_element_count = maxelements_;
             //visitedlistpool = new VisitedListPool(1, maxelements_);
             visitedsetpool = new VisitedSetPool(1);
 
             /** Hierarcy **/
-            linkLists_ = (char **) malloc(sizeof(void *) * (params[0*params_num + i_maxelements]));
+            linkLists_ = (char **) malloc(sizeof(void *) * threshold_);
 
             elementLevels = vector<char>(maxelements_);
             maxlevel_ = 0;
 
-            for (size_t i = 0; i < params[0*params_num + i_maxelements]; i++) {
+            for (size_t i = 0; i < threshold_; i++) {
                 unsigned int linkListSize;
                 readBinaryPOD(input, linkListSize);
                 if (linkListSize == 0) {
