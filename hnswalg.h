@@ -170,22 +170,19 @@ namespace hnswlib {
 
         inline char *getDataByInternalId(tableint internal_id)
         {
-            int i = internal_id / threshold_;
-            unsigned int *param = params + i*params_num;
-            return (data_level0_memory_ + param[i_partOffset] + (internal_id - i*threshold_) * param[i_size_data_per_element] + param[i_offsetData]);
+            unsigned int *param = getParametersByInternalId(internal_id);
+            return (data_level0_memory_ + param[i_partOffset] + (internal_id % threshold_) * param[i_size_data_per_element] + param[i_offsetData]);
         }
 
         inline linklistsizeint *get_linklist0(tableint internal_id)
         {
-            int i = internal_id / threshold_;
-            unsigned int *param = params + i*params_num;
-            return (linklistsizeint *) (data_level0_memory_ + param[i_partOffset] + (internal_id - i*threshold_) * param[i_size_data_per_element]);
+            unsigned int *param = getParametersByInternalId(internal_id);
+            return (linklistsizeint *) (data_level0_memory_ + param[i_partOffset] + (internal_id % threshold_) * param[i_size_data_per_element]);
         };
 
         inline linklistsizeint* get_linklist(tableint internal_id, int level)
         {
-            int i = internal_id / threshold_;
-            unsigned int *param = params + i*params_num;
+            unsigned int *param = getParametersByInternalId(internal_id);
             //In Smart hnsw only clusters on the above levels
             return (linklistsizeint *)(linkLists_[internal_id] + (level - 1) * param[i_size_links_per_element]);
         };
