@@ -459,10 +459,10 @@ namespace hnswlib {
         {
             if (elements_per_level.size() == 0) {
                 std::uniform_real_distribution<double> distribution(0.0, 1.0);
-                for (size_t i = 0; i < params[0*params_num + i_maxelements]; ++i) {
+                for (size_t i = 0; i < threshold_; ++i) {
                     elementLevels[i] = 0; //(int) (-log(distribution(generator)) * mult_) + 1;
                 }
-                for (int i = params[0*params_num + i_maxelements]; i < maxelements_; i++)
+                for (int i = threshold_; i < maxelements_; i++)
                     elementLevels[i] = 0;
             } else{
                 for (size_t i = 0; i < maxelements_; ++i) {
