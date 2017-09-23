@@ -85,7 +85,7 @@ namespace hnswlib {
                 params[i*params_num + i_size_links_per_element] = params[i*params_num + i_maxM] * sizeof(tableint) + sizeof(linklistsizeint);
                 params[i*params_num + i_partOffset] = total_size;
 
-                total_size += threshold_ * params[i*params_num + i_size_data_per_element];
+                total_size += (size_t)(threshold_) * params[i*params_num + i_size_data_per_element];
             }
             elementLevels = vector<char>(maxelements_);
 
