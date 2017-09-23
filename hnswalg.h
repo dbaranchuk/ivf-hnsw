@@ -112,7 +112,7 @@ namespace hnswlib {
             size_links_level0 = params[i_size_links_level0];
             size_data_per_element = params[i_size_data_per_element];
             offsetData = params[i_offsetData];
-            size_links_per_element = params[i_size_links_per_element]);
+            size_links_per_element = params[i_size_links_per_element];
             partOffset = params[i_partOffset];
         }
         //
