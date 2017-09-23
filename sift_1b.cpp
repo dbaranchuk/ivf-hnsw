@@ -414,7 +414,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     const bool PQ = (path_codebooks && path_tables);
 
     const int specsize = 10000000;//101917929;
-    const vector<pair<size_t, size_t>> M_vec = {{16, 32}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, M}};
+    const vector<pair<unsigned int, unsigned int>> M_vec = {{16, 32}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, M}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}},{200000000, {8, 16}},{400000000, {5, 10}},
     //                                                 {600000000, {5, 9}},{800000000, {5, 8}},{900000000, {5, 7}},{vecsize, {5, 6}}};
     //
