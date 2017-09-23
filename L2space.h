@@ -367,12 +367,11 @@ namespace hnswlib {
             unsigned char *x = (unsigned char *)x_code;
             unsigned char *y = (unsigned char *)y_code;
 
-            int n = 0;
             for (int i = 0; i < dim; ++i) {
-                res += constructionTables[n][k_*x[n] + y[n]]; n++;
-                res += constructionTables[n][k_*x[n] + y[n]]; n++;
-                res += constructionTables[n][k_*x[n] + y[n]]; n++;
-                res += constructionTables[n][k_*x[n] + y[n]]; n++;
+                res += constructionTables[n++][k_*(*x) + (*y)]; ++x; ++y;
+                res += constructionTables[n++][k_*(*x) + (*y)]; ++x; ++y;
+                res += constructionTables[n++][k_*(*x) + (*y)]; ++x; ++y;
+                res += constructionTables[n++][k_*(*x) + (*y)]; ++x; ++y;
             }
             return res;
         };
