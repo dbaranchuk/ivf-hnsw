@@ -121,6 +121,7 @@ namespace hnswlib {
         // Fields
         SpaceInterface<dist_t> *space;
 
+        unsigned int threshold_;
         unsigned int maxelements_;
         unsigned int cur_element_count;
 
