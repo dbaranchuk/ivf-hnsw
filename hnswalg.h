@@ -74,7 +74,7 @@ namespace hnswlib {
             params_num = 8;
             params = new size_t[parts_num * params_num];
 
-            cout <<  maxelements_ << parts_num << threshold_ << endl;
+            cout <<  maxelements_ << " " << parts_num <<  " " << threshold_ << endl;
             int i = 0;
             for (auto p : M_map){
                 params[i*params_num + i_M] = p.first;
