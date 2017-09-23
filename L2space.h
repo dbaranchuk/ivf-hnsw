@@ -363,15 +363,20 @@ namespace hnswlib {
         int fstdistfunc(const void *x_code, const void *y_code)
         {
             int res = 0;
+            int dim = m_ >> 3;
             unsigned char *x = (unsigned char *)x_code;
             unsigned char *y = (unsigned char *)y_code;
 
-
-            for (int i = 0; i < m_; i += 4) {
-                res += constructionTables[i][k_*(*x) + (*y)]; ++x; ++y;
-                res += constructionTables[i+1][k_*(*x) + (*y)]; ++x; ++y;
-                res += constructionTables[i+2][k_*(*x) + (*y)]; ++x; ++y;
-                res += constructionTables[i+3][k_*(*x) + (*y)]; ++x; ++y;
+            int n = 0;
+            for (int i = 0; i < dim; ++i) {
+                res += constructionTables[n][k_*x[n] + y[n]]; ++n;
+                res += constructionTables[n][k_*x[n] + y[n]]; ++n;
+                res += constructionTables[n][k_*x[n] + y[n]]; ++n;
+                res += constructionTables[n][k_*x[n] + y[n]]; ++n;
+                res += constructionTables[n][k_*x[n] + y[n]]; ++n;
+                res += constructionTables[n][k_*x[n] + y[n]]; ++n;
+                res += constructionTables[n][k_*x[n] + y[n]]; ++n;
+                res += constructionTables[n][k_*x[n] + y[n]]; ++n;
             }
             return res;
         };
