@@ -104,7 +104,20 @@ namespace hnswlib {
 
             linkLists_ = (char **) malloc(sizeof(void *) * threshold_);
             mult_ = 1 / log(1.0 * params[0*params_num + i_M]);//M_);
+
+
+
+
+            /////
+            size_links_level0 = params[i_size_links_level0];
+            size_data_per_element = params[i_size_data_per_element];
+            offsetData = params[i_offsetData];
+            size_links_per_element = params[i_size_links_per_element]);
+            partOffset = params[i_partOffset];
         }
+        //
+        unsigned int size_links_level0, size_data_per_element, offsetData, size_links_per_element, partOffset;
+        //
 
         ~HierarchicalNSW()
         {
@@ -170,21 +183,21 @@ namespace hnswlib {
 
         inline char *getDataByInternalId(tableint internal_id)
         {
-            unsigned int *param = getParametersByInternalId(internal_id);
-            return (data_level0_memory_ + param[i_partOffset] + (internal_id) * param[i_size_data_per_element] + param[i_offsetData]);
+            //unsigned int *param = getParametersByInternalId(internal_id);
+            return (data_level0_memory_ + partOffset + (internal_id) * size_data_per_element + offsetData);
         }
 
         inline linklistsizeint *get_linklist0(tableint internal_id)
         {
-            unsigned int *param = getParametersByInternalId(internal_id);
-            return (linklistsizeint *) (data_level0_memory_ + param[i_partOffset] + (internal_id) * param[i_size_data_per_element]);
+            //unsigned int *param = getParametersByInternalId(internal_id);
+            return (linklistsizeint *) (data_level0_memory_ + partOffset + (internal_id) * size_data_per_element);
         };
 
         inline linklistsizeint* get_linklist(tableint internal_id, int level)
         {
-            unsigned int *param = getParametersByInternalId(internal_id);
+            //unsigned int *param = getParametersByInternalId(internal_id);
             //In Smart hnsw only clusters on the above levels
-            return (linklistsizeint *)(linkLists_[internal_id] + (level - 1) * param[i_size_links_per_element]);
+            return (linklistsizeint *)(linkLists_[internal_id] + (level - 1) * size_links_per_element);
         };
 
 
