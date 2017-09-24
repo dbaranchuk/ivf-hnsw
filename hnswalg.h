@@ -528,10 +528,8 @@ namespace hnswlib {
 
             if (curlevel) {
                 // Above levels contain only clusters
-                auto param = getParametersByInternalId(cur_c);
-
-                linkLists_[cur_c] = (char *) malloc(param[i_size_links_per_element] * curlevel);
-                memset(linkLists_[cur_c], 0, param[i_size_links_per_element] * curlevel);
+                linkLists_[cur_c] = (char *) malloc(curParam[i_size_links_per_element] * curlevel);
+                memset(linkLists_[cur_c], 0, curParam[i_size_links_per_element] * curlevel);
             }
 
             tableint currObj = enterpoint_node;
