@@ -189,8 +189,8 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
 			gt.pop();
 		}
 
-        cout << "Save Results" << endl;
-
+        /*Save Results*/
+        cout << result.size() << endl;
 		while (result.size()) {
             int res = result.top().second;
             fwrite((int *)&k, sizeof(int), 1, fout);
