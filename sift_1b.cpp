@@ -188,8 +188,8 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
 			gt.pop();
 		}
 
-        /*Save Results*/
-        FILE *fout = fopen("/sata2/dbaranchuk/bigann_base_100m_5m_clusters.ivecs", "wb");
+        cout << "Save Results" << endl;
+        FILE *fout = fopen("/home/dbaranchuk/data/bigann_base_100m_5m_clusters.ivecs", "wb");
 		while (result.size()) {
             int res = result.top().second;
             fwrite((int *)&k, sizeof(int), 1, fout);
@@ -366,7 +366,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         appr_alg->SaveEdges(path_edges);
     }
     //appr_alg->printListsize();
-    appr_alg->check_connectivity(massQA, qsize);
+    //appr_alg->check_connectivity(massQA, qsize);
     appr_alg->printNumElements();
 
     unordered_set<int> cluster_idx_set;
