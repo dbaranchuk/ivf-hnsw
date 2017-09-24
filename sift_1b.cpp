@@ -177,17 +177,17 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
         else
             result = appr_alg.searchKnn(massQ + vecdim*i, k, cluster_idx_set);
 
-		std::priority_queue<std::pair<dist_t, labeltype >> gt(answers[i]);
+		//std::priority_queue<std::pair<dist_t, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 
         float dist2gt = appr_alg.space->fstdistfunc((void*)(massQ + vecdim*i),//appr_alg.getDataByInternalId(gt.top().second),
                                                      appr_alg.getDataByInternalId(appr_alg.enterpoint0));
         appr_alg.nev9zka += dist2gt / qsize;
 
-		while (gt.size()) {
-			g.insert(gt.top().second);
-			gt.pop();
-		}
+		//while (gt.size()) {
+		//	g.insert(gt.top().second);
+		//	gt.pop();
+		//}
 
         /*Save Results*/
         cout << i << " " << result.top().second << endl;
@@ -307,10 +307,6 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     cout << "Loading queries:\n";
     vtype *massQ = new vtype[qsize * vecdim];
     loadXvecs<vtype>(path_q, massQ, qsize, vecdim);
-
-    for (int i = 0; i < qsize; i++){
-        cout << massQ[i*vecdim] << endl;
-    }
 
     SpaceInterface<dist_t> *l2space;
 
