@@ -381,16 +381,6 @@ namespace hnswlib {
             return res;
         };
 
-//        int fstdistfuncST(const size_t q_idx, const void *y_code)
-//        {
-//            int res = 0, offset = k_*q_idx;
-//            unsigned char *y = (unsigned char *)y_code;
-//            for (size_t i = 0; i < m_; ++i) {
-//                res += queryTables[i][offset + y[i]];
-//            }
-//            return res;
-//        };
-
         int fstdistfuncST(const size_t q_idx, const void *y_code)
         {
             int res = 0;
