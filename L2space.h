@@ -391,26 +391,26 @@ namespace hnswlib {
             return res;
         };
 
-        int fstdistfuncST(const size_t q_idx, const void *y_code)
-        {
-            int res = 0;
-            int dim = m_;// >> 3;
-            unsigned char *y = (unsigned char *)y_code;
-
-            int n = 0, offset = k_ * q_idx;
-            for (int i = 0; i < dim; ++i) {
-                res += queryTables[i][offset + y[i]]; //++n;
-//                res += queryTables[n][offset + y[n]]; ++n;
-//                res += queryTables[n][offset + y[n]]; ++n;
-//                res += queryTables[n][offset + y[n]]; ++n;
-//                res += queryTables[n][offset + y[n]]; ++n;
-//                res += queryTables[n][offset + y[n]]; ++n;
-//                res += queryTables[n][offset + y[n]]; ++n;
-//                res += queryTables[n][offset + y[n]]; ++n;
-//                res += queryTables[n][offset + y[n]]; ++n;
-            }
-            return res;
-        };
+//        int fstdistfuncST(const size_t q_idx, const void *y_code)
+//        {
+//            int res = 0;
+//            int dim = m_;// >> 3;
+//            unsigned char *y = (unsigned char *)y_code;
+//
+//            int n = 0, offset = k_ * q_idx;
+//            for (int i = 0; i < dim; ++i) {
+//                res += queryTables[i][offset + y[i]]; //++n;
+////                res += queryTables[n][offset + y[n]]; ++n;
+////                res += queryTables[n][offset + y[n]]; ++n;
+////                res += queryTables[n][offset + y[n]]; ++n;
+////                res += queryTables[n][offset + y[n]]; ++n;
+////                res += queryTables[n][offset + y[n]]; ++n;
+////                res += queryTables[n][offset + y[n]]; ++n;
+////                res += queryTables[n][offset + y[n]]; ++n;
+////                res += queryTables[n][offset + y[n]]; ++n;
+//            }
+//            return res;
+//        };
     };
 
 };
