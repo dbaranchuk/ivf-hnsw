@@ -380,38 +380,37 @@ namespace hnswlib {
             }
             return res;
         };
-        
+
         int fstdistfuncST(const size_t q_idx, const void *y_code)
         {
-            int res = 0;
-            unsigned char y;
+            int res = 0, offset = k_*q_idx;
+            unsigned char *y = (unsigned char *)y_code;
             for (size_t i = 0; i < m_; ++i) {
-                y = ((unsigned char *)y_code)[i];
-                res += queryTables[i][k_*q_idx + y];
+                res += queryTables[i][offset + y[i]];
             }
             return res;
         };
 
-//        int fstdistfuncST(const size_t q_idx, const void *y_code)
-//        {
-//            int res = 0;
-//            int dim = m_;// >> 3;
-//            unsigned char *y = (unsigned char *)y_code;
-//
-//            int n = 0, offset = k_ * q_idx;
-//            for (int i = 0; i < dim; ++i) {
-//                res += queryTables[i][offset + y[i]]; //++n;
-////                res += queryTables[n][offset + y[n]]; ++n;
-////                res += queryTables[n][offset + y[n]]; ++n;
-////                res += queryTables[n][offset + y[n]]; ++n;
-////                res += queryTables[n][offset + y[n]]; ++n;
-////                res += queryTables[n][offset + y[n]]; ++n;
-////                res += queryTables[n][offset + y[n]]; ++n;
-////                res += queryTables[n][offset + y[n]]; ++n;
-////                res += queryTables[n][offset + y[n]]; ++n;
-//            }
-//            return res;
-//        };
+        int fstdistfuncST(const size_t q_idx, const void *y_code)
+        {
+            int res = 0;
+            int dim = m_;// >> 3;
+            unsigned char *y = (unsigned char *)y_code;
+
+            int n = 0, offset = k_ * q_idx;
+            for (int i = 0; i < dim; ++i) {
+                res += queryTables[i][offset + y[i]]; //++n;
+//                res += queryTables[n][offset + y[n]]; ++n;
+//                res += queryTables[n][offset + y[n]]; ++n;
+//                res += queryTables[n][offset + y[n]]; ++n;
+//                res += queryTables[n][offset + y[n]]; ++n;
+//                res += queryTables[n][offset + y[n]]; ++n;
+//                res += queryTables[n][offset + y[n]]; ++n;
+//                res += queryTables[n][offset + y[n]]; ++n;
+//                res += queryTables[n][offset + y[n]]; ++n;
+            }
+            return res;
+        };
     };
 
 };
