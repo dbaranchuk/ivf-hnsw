@@ -414,9 +414,11 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     const bool PQ = (path_codebooks && path_tables);
 
     const int specsize = 10000000;//101917929;
-    const vector<pair<unsigned int, unsigned int>> M_vec = {{16, 32}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, 2*M}, {M, M}};
-    //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}},{200000000, {8, 16}},{400000000, {5, 10}},
-    //                                                 {600000000, {5, 9}},{800000000, {5, 8}},{900000000, {5, 7}},{vecsize, {5, 6}}};
+    //const map<size_t, pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
+    //const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize-specsize, {M, 2*M}}, {vecsize, {M, 2*M}}};
+    //const map<size_t, size_t> M_map = {{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
+    const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}},{200000000, {8, 16}},{400000000, {5, 10}},
+                                                     {600000000, {5, 9}},{800000000, {5, 8}},{900000000, {5, 7}},{vecsize, {5, 6}}};
     //
     const vector<size_t> elements_per_level;// = {100000000, 5000000, 250000, 12500, 625, 32};
     //const map<size_t, pair<size_t, size_t>> M_map = {{5263157, {16, 32}}, {vecsize, {M, 2*M}}};
@@ -453,7 +455,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     } else {
         cout << "Building index:\n";
         size_t j1 = 0;
-        appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, M_vec, vecsize, efConstruction);
+        appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, M_map, efConstruction);
         appr_alg->setElementLevels(elements_per_level, one_layer);
 
         StopW stopw = StopW();
@@ -512,6 +514,31 @@ void hnsw_test(const char *l2space_type,
                const int k, const int vecsize, const int qsize,
                const int vecdim, const int efConstruction, const int M, bool one_layer)
 {
+    char path_gt_[1024], path_edges_[1024], path_info_[1024];
+    const int subset_size_milllions = 100;
+    //if (!path_q) path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
+    //if (!path_data) path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
+    //if (!path_codebooks) path_codebooks = "/sata2/dbaranchuk/bigann/base1B_M16/codebooks.fvecs";
+    //if (!path_tables) path_tables = "/sata2/dbaranchuk/bigann/base1B_M16/distance_tables.dat";
+    //if (!path_gt){
+    //    sprintf(path_gt_, "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
+    //    path_gt = path_gt_;
+    //}
+    //if (!path_edges) {
+    //    sprintf(path_edges_, "/sata2/dbaranchuk/bigann/sift%dm_ef%d_M%d_edges.ivecs",
+    //            subset_size_milllions, efConstruction, M);
+    //    path_edges = path_edges_;
+    //}
+    //if (!path_info) {
+    //    sprintf(path_info_, "/sata2/dbaranchuk/bigann/sift%dm_ef%d_M%d_info.bin",
+    //            subset_size_milllions, efConstruction, M);
+    //    path_info = path_info_;
+    //}
+    //if (!path_edges) sprintf(path_edges, "/sata2/dbaranchuk/bigann/base1B_M16/sift%dm_ef%d_M%d_edges.ivecs",
+    //                         subset_size_milllions, efConstruction, M);
+    //if (!path_info) sprintf(path_info, "/sata2/dbaranchuk/bigann/base1B_M16/sift%dm_ef%d_M%d_info.bin",
+    //                        subset_size_milllions, efConstruction, M);
+
     if (!strcmp (l2space_type, "int")) {
         _hnsw_test<int, unsigned char>(path_codebooks, path_tables, path_data, path_q,
                         path_gt, path_info, path_edges,

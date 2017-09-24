@@ -384,10 +384,20 @@ namespace hnswlib {
         int fstdistfuncST(const size_t q_idx, const void *y_code)
         {
             int res = 0;
-            unsigned char y;
-            for (size_t i = 0; i < m_; ++i) {
-                y = ((unsigned char *)y_code)[i];
-                res += queryTables[i][k_*q_idx + y];
+            int dim = m_ >> 3;
+            unsigned char *y = (unsigned char *)y_code;
+
+            int n = 0, offset = k_ * q_idx;
+            for (int i = 0; i < dim; ++i) {
+                res += queryTables[n][offset + y[n]]; ++n;
+                res += queryTables[n][offset + y[n]]; ++n;
+                res += queryTables[n][offset + y[n]]; ++n;
+                res += queryTables[n][offset + y[n]]; ++n;
+                res += queryTables[n][offset + y[n]]; ++n;
+                res += queryTables[n][offset + y[n]]; ++n;
+                res += queryTables[n][offset + y[n]]; ++n;
+                res += queryTables[n][offset + y[n]]; ++n;
+                res += queryTables[n][offset + y[n]]; ++n;
             }
             return res;
         };
