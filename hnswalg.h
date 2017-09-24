@@ -174,9 +174,9 @@ namespace hnswlib {
 
         inline size_t *getParametersByInternalId(tableint internal_id)
         {
-            int i = 0;
-            while (internal_id >= params[i*params_num + i_threshold]) ++i;
-            return (params + i*params_num);
+            size_t *param = params;
+            while (internal_id >= param[i_threshold]) param += params_num;
+            return param;
         };
 
         inline char *getDataByInternalId(tableint internal_id)
