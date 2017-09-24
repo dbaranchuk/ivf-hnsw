@@ -167,6 +167,7 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
 {
 	size_t correct = 0;
 
+    FILE *fout = fopen("/home/dbaranchuk/data/bigann_base_100m_5m_clusters.ivecs", "wb");
 	//uncomment to test in parallel mode:
 	//#pragma omp parallel for
 	for (int i = 0; i < qsize; i++) {
@@ -189,7 +190,7 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
 		}
 
         cout << "Save Results" << endl;
-        FILE *fout = fopen("/home/dbaranchuk/data/bigann_base_100m_5m_clusters.ivecs", "wb");
+
 		while (result.size()) {
             int res = result.top().second;
             fwrite((int *)&k, sizeof(int), 1, fout);
@@ -198,8 +199,8 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
 				correct++;
 			result.pop();
 		}
-        fclose(fout);
 	}
+    fclose(fout);
 	return 1.0f*correct / qsize;
 }
 
