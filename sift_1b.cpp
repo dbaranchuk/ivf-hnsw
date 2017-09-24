@@ -308,6 +308,10 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     vtype *massQ = new vtype[qsize * vecdim];
     loadXvecs<vtype>(path_q, massQ, qsize, vecdim);
 
+    for (int i = 0; i < qsize; i++){
+        cout << massQ[i*vecdim] << endl;
+    }
+
     SpaceInterface<dist_t> *l2space;
 
     switch(l2SpaceType) {
