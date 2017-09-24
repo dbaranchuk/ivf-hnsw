@@ -325,7 +325,7 @@ namespace hnswlib {
                         if (topResults.top().first > dist || topResults.size() < ef) {
                             candidateSet.emplace(-dist, tnum);
 
-                            _mm_prefetch(get_linklist0(candidateSet.top().second), _MM_HINT_T0);\
+                            _mm_prefetch(get_linklist0(candidateSet.top().second), _MM_HINT_T0);
                             topResults.emplace(dist, tnum);
 
                             if (topResults.size() > ef)

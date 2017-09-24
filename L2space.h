@@ -363,12 +363,12 @@ namespace hnswlib {
         int fstdistfunc(const void *x_code, const void *y_code)
         {
             int res = 0;
-            //int dim = m_ >> 4;
+            int dim = m_ >> 3;
             unsigned char *x = (unsigned char *)x_code;
             unsigned char *y = (unsigned char *)y_code;
 
             int n = 0;
-            //for (int i = 0; i < dim; ++i) {
+            for (int i = 0; i < dim; ++i) {
                 res += constructionTables[n][k_*x[n] + y[n]]; ++n;
                 res += constructionTables[n][k_*x[n] + y[n]]; ++n;
                 res += constructionTables[n][k_*x[n] + y[n]]; ++n;
@@ -377,26 +377,18 @@ namespace hnswlib {
                 res += constructionTables[n][k_*x[n] + y[n]]; ++n;
                 res += constructionTables[n][k_*x[n] + y[n]]; ++n;
                 res += constructionTables[n][k_*x[n] + y[n]]; ++n;
-            res += constructionTables[n][k_*x[n] + y[n]]; ++n;
-            res += constructionTables[n][k_*x[n] + y[n]]; ++n;
-            res += constructionTables[n][k_*x[n] + y[n]]; ++n;
-            res += constructionTables[n][k_*x[n] + y[n]]; ++n;
-            res += constructionTables[n][k_*x[n] + y[n]]; ++n;
-            res += constructionTables[n][k_*x[n] + y[n]]; ++n;
-            res += constructionTables[n][k_*x[n] + y[n]]; ++n;
-            res += constructionTables[n][k_*x[n] + y[n]]; ++n;
-            //}
+            }
             return res;
         };
 
         int fstdistfuncST(const size_t q_idx, const void *y_code)
         {
             int res = 0;
-            //int dim = m_ >> 4;
+            int dim = m_ >> 3;
             unsigned char *y = (unsigned char *)y_code;
 
             int n = 0, offset = k_ * q_idx;
-            //for (int i = 0; i < dim; ++i) {
+            for (int i = 0; i < dim; ++i) {
                 res += queryTables[n][offset + y[n]]; ++n;
                 res += queryTables[n][offset + y[n]]; ++n;
                 res += queryTables[n][offset + y[n]]; ++n;
@@ -406,16 +398,7 @@ namespace hnswlib {
                 res += queryTables[n][offset + y[n]]; ++n;
                 res += queryTables[n][offset + y[n]]; ++n;
                 res += queryTables[n][offset + y[n]]; ++n;
-            //}
-            res += queryTables[n][offset + y[n]]; ++n;
-            res += queryTables[n][offset + y[n]]; ++n;
-            res += queryTables[n][offset + y[n]]; ++n;
-            res += queryTables[n][offset + y[n]]; ++n;
-            res += queryTables[n][offset + y[n]]; ++n;
-            res += queryTables[n][offset + y[n]]; ++n;
-            res += queryTables[n][offset + y[n]]; ++n;
-            res += queryTables[n][offset + y[n]]; ++n;
-            res += queryTables[n][offset + y[n]]; ++n;
+            }
             return res;
         };
     };
