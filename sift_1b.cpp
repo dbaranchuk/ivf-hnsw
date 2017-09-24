@@ -302,7 +302,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     loadXvecs<unsigned int>(path_gt, massQA, 10000/*qsize*/, gt_dim);
 
     cout << "Loading queries:\n";
-    vtype massQ[qsize * vecdim];
+    vtype *massQ = new vtype[qsize * vecdim];
     loadXvecs<vtype>(path_q, massQ, qsize, vecdim);
 
     SpaceInterface<dist_t> *l2space;
@@ -377,6 +377,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     test_vs_recall<dist_t, vtype>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, PQ);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
+    delete massQ;
     delete massQA;
     delete l2space;
 }
