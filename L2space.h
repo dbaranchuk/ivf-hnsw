@@ -406,6 +406,7 @@ namespace hnswlib {
                 res += queryTables[n][k_ * q_idx + y[n]]; ++n;
                 res += queryTables[n][k_ * q_idx + y[n]]; ++n;
                 res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
             }
             return res;
         };
