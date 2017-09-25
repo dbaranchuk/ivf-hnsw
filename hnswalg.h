@@ -203,7 +203,7 @@ namespace hnswlib {
         };
 
 
-        std::priority_queue<std::pair<dist_t, tableint  >> searchBaseLayer(tableint ep, void *datapoint, int level)
+        std::priority_queue<std::pair<dist_t, tableint>> searchBaseLayer(tableint ep, void *datapoint, int level, int ef = efConstruction_)
         {
             VisitedSet *vs = visitedsetpool->getFreeVisitedSet();
 
@@ -240,11 +240,11 @@ namespace hnswlib {
                     if (vs->count(tnum) == 0){
                         vs->insert(tnum);
                         dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
-                        if (topResults.top().first > dist || topResults.size() < efConstruction_) {
+                        if (topResults.top().first > dist || topResults.size() < ef) {
                             candidateSet.emplace(-dist, tnum);
                             _mm_prefetch(getDataByInternalId(candidateSet.top().second), _MM_HINT_T0);
                             topResults.emplace(dist, tnum);
-                            if (topResults.size() > efConstruction_) {
+                            if (topResults.size() > ef) {
                                 topResults.pop();
                             }
                             lowerBound = topResults.top().first;
@@ -563,7 +563,7 @@ namespace hnswlib {
                         throw runtime_error("Level error");
 
                     std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
-                                                                                                    level);
+                                                                                                  level, (cur_c < params[i_threshold]) ? 240 : 500);
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
                 }
 
