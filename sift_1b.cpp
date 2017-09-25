@@ -169,7 +169,7 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
 
     FILE *fout = fopen("/home/dbaranchuk/data/bigann_base_100m_5m_clusters.ivecs", "wb");
 	//uncomment to test in parallel mode:
-	#pragma omp parallel for num_threds(32)
+	#pragma omp parallel for num_threads(32)
 	for (int i = 0; i < qsize; i++) {
 		std::priority_queue< std::pair<dist_t, labeltype >> result;
         if (pq)
