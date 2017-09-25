@@ -211,7 +211,7 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
 template <typename dist_t, typename vtype>
 static void test_vs_recall(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vtype> &appr_alg,
                            size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
-                           size_t k, unordered_set<int> &cluster_idx_set, bool pq = false)
+                           size_t k, bool pq = false)
 {
 	vector<size_t> efs; //= {30, 100, 460};
     if (k < 30) {
@@ -234,7 +234,7 @@ static void test_vs_recall(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, v
 
         k = 1;
 		StopW stopw = StopW();
-		float recall = test_approx<dist_t, vtype>(massQ, qsize, appr_alg, vecdim, answers, k, cluster_idx_set, pq);
+		float recall = test_approx<dist_t, vtype>(massQ, qsize, appr_alg, vecdim, answers, k, pq);
 		float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
 		float avr_dist_count = appr_alg.dist_calc*1.f / qsize;
 		cout << ef << "\t" << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\t" << appr_alg.hops0 + appr_alg.hops << " hps\n";
