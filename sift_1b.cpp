@@ -167,9 +167,9 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
 {
 	size_t correct = 0;
 
-    FILE *fout = fopen("/home/dbaranchuk/data/bigann_base_100m_5m_clusters.ivecs", "wb");
+    //FILE *fout = fopen("/home/dbaranchuk/data/bigann_base_100m_5m_clusters.ivecs", "wb");
 	//uncomment to test in parallel mode:
-	#pragma omp parallel for num_threads(32)
+	//#pragma omp parallel for num_threads(32)
 	for (int i = 0; i < qsize; i++) {
 		std::priority_queue< std::pair<dist_t, labeltype >> result;
         if (pq)
@@ -177,34 +177,34 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
         else
             result = appr_alg.searchKnn(massQ + vecdim*i, k);
 
-		//std::priority_queue<std::pair<dist_t, labeltype >> gt(answers[i]);
+		std::priority_queue<std::pair<dist_t, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 
         float dist2gt = appr_alg.space->fstdistfunc((void*)(massQ + vecdim*i),//appr_alg.getDataByInternalId(gt.top().second),
                                                      appr_alg.getDataByInternalId(appr_alg.enterpoint0));
         appr_alg.nev9zka += dist2gt / qsize;
 
-		//while (gt.size()) {
-		//	g.insert(gt.top().second);
-		//	gt.pop();
-		//}
+		while (gt.size()) {
+			g.insert(gt.top().second);
+			gt.pop();
+		}
 
         /*Save Results*/
-        #pragma omp critical
-        {
-            if (i % 100000 == 0) cout << i << " " << *((int *)&k) << endl;
-            int res = result.top().second;
-            int d = k;
-            fwrite((int *) &d, sizeof(int), 1, fout);
-            fwrite((int *) &res, sizeof(int), k, fout);
-            //while (result.size()) {
-            //if (g.find(result.top().second) != g.end())
-            //	correct++;
-            //result.pop();
-            //}
-        };
+        //#pragma omp critical
+//        {
+//            if (i % 100000 == 0) cout << i << " " << *((int *) &k) << endl;
+//            int res = result.top().second;
+//            int d = k;
+//            fwrite((int *) &d, sizeof(int), 1, fout);
+//            fwrite((int *) &res, sizeof(int), k, fout);
+//        };
+        while (result.size()) {
+            if (g.find(result.top().second) != g.end())
+            	correct++;
+            result.pop();
+        }
 	}
-    fclose(fout);
+    //fclose(fout);
 	return 1.0f*correct / qsize;
 }
 
@@ -295,8 +295,8 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     const bool PQ = (path_codebooks && path_tables);
 
     const int specsize = 5000000;//101917929;
-    const map<size_t, pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
-    //const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
+    //const map<size_t, pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
+    const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
     //const map<size_t, size_t> M_map = {{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}},{200000000, {8, 16}},{400000000, {5, 10}},
     //                                                 {600000000, {5, 9}},{800000000, {5, 8}},{900000000, {5, 7}},{vecsize, {5, 6}}};
@@ -305,8 +305,8 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     //const map<size_t, pair<size_t, size_t>> M_map = {{5263157, {16, 32}}, {vecsize, {M, 2*M}}};
     cout << "Loading GT:\n";
     const int gt_dim = 1000;
-    unsigned int *massQA = new unsigned int[10000/*qsize*/ * gt_dim];
-    loadXvecs<unsigned int>(path_gt, massQA, 10000/*qsize*/, gt_dim);
+    unsigned int *massQA = new unsigned int[qsize * gt_dim];
+    loadXvecs<unsigned int>(path_gt, massQA, qsize, gt_dim);
 
     cout << "Loading queries:\n";
     vtype *massQ = new vtype[qsize * vecdim];
@@ -377,7 +377,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     vector<std::priority_queue< std::pair<dist_t, labeltype >>> answers;
 
     cout << "Parsing gt:\n";
-    get_gt<dist_t>(massQA, 10000/*qsize*/, answers, gt_dim);
+    get_gt<dist_t>(massQA, qsize, answers, gt_dim);
 
     cout << "Loaded gt\n";
     test_vs_recall<dist_t, vtype>(massQ, qsize, *appr_alg, vecdim, answers, k, PQ);
