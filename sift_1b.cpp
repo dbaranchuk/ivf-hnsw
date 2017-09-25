@@ -163,7 +163,7 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
 template <typename dist_t, typename vtype>
 static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vtype> &appr_alg,
                          size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
-                         size_t k, unordered_set<int> &cluster_idx_set, bool pq = false)
+                         size_t k, bool pq = false)
 {
 	size_t correct = 0;
 
@@ -173,9 +173,9 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
 	for (int i = 0; i < qsize; i++) {
 		std::priority_queue< std::pair<dist_t, labeltype >> result;
         if (pq)
-            result = appr_alg.searchKnn(massQ + vecdim*i, k, cluster_idx_set, i);
+            result = appr_alg.searchKnn(massQ + vecdim*i, k, i);
         else
-            result = appr_alg.searchKnn(massQ + vecdim*i, k, cluster_idx_set);
+            result = appr_alg.searchKnn(massQ + vecdim*i, k);
 
 		//std::priority_queue<std::pair<dist_t, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
@@ -190,15 +190,19 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
 		//}
 
         /*Save Results*/
-        if (i % 100000 == 0) cout << i << endl;
-        int res = result.top().second;
-        fwrite((int *)&k, sizeof(int), 1, fout);
-        fwrite((int *)&res, sizeof(int), k, fout);
-		while (result.size()) {
-			//if (g.find(result.top().second) != g.end())
-			//	correct++;
-			result.pop();
-		}
+        #pragma omp critical
+        {
+            if (i % 100000 == 0) cout << i << " " << *((int *)&k) << endl;
+            int res = result.top().second;
+            int d = k;
+            fwrite((int *) &d, sizeof(int), 1, fout);
+            fwrite((int *) &res, sizeof(int), k, fout);
+            //while (result.size()) {
+            //if (g.find(result.top().second) != g.end())
+            //	correct++;
+            //result.pop();
+            //}
+        };
 	}
     fclose(fout);
 	return 1.0f*correct / qsize;
@@ -370,14 +374,13 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     //appr_alg->check_connectivity(massQA, qsize);
     appr_alg->printNumElements();
 
-    unordered_set<int> cluster_idx_set;
     vector<std::priority_queue< std::pair<dist_t, labeltype >>> answers;
 
     cout << "Parsing gt:\n";
     get_gt<dist_t>(massQA, 10000/*qsize*/, answers, gt_dim);
 
     cout << "Loaded gt\n";
-    test_vs_recall<dist_t, vtype>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set, PQ);
+    test_vs_recall<dist_t, vtype>(massQ, qsize, *appr_alg, vecdim, answers, k, PQ);
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
     delete massQ;
