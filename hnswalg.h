@@ -203,7 +203,7 @@ namespace hnswlib {
         };
 
 
-        std::priority_queue<std::pair<dist_t, tableint>> searchBaseLayer(tableint ep, void *datapoint, int level, int ef = efConstruction_)
+        std::priority_queue<std::pair<dist_t, tableint>> searchBaseLayer(tableint ep, void *datapoint, int level, int ef)
         {
             VisitedSet *vs = visitedsetpool->getFreeVisitedSet();
 
