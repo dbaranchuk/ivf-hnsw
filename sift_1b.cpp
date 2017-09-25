@@ -27,7 +27,6 @@ public:
 
 };
 
-
 /*
 * Author:  David Robert Nadeau
 * Site:    http://NadeauSoftware.com/
@@ -232,7 +231,6 @@ static void test_vs_recall(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, v
         appr_alg.hops = 0.0;
         appr_alg.hops0 = 0.0;
 
-        k = 1;
 		StopW stopw = StopW();
 		float recall = test_approx<dist_t, vtype>(massQ, qsize, appr_alg, vecdim, answers, k, pq);
 		float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
@@ -296,10 +294,11 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
 
     const int specsize = 5000000;//101917929;
     //const map<size_t, pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
-    const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
+    //const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
     //const map<size_t, size_t> M_map = {{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
-    //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}},{200000000, {8, 16}},{400000000, {5, 10}},
-    //                                                 {600000000, {5, 9}},{800000000, {5, 8}},{900000000, {5, 7}},{vecsize, {5, 6}}};
+//    const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}},{200000000, {8, 16}},{400000000, {5, 10}},
+//                                                     {600000000, {5, 8}},{800000000, {5, 7}},{900000000, {5, 6}},{vecsize, {5, 5}}};
+    const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}},{200000000, {6, 11}}, {900000000, {5, 8}},{vecsize, {5, 5}}};
     //
     const vector<size_t> elements_per_level;// = {100000000, 5000000, 250000, 12500, 625, 32};
     //const map<size_t, pair<size_t, size_t>> M_map = {{5263157, {16, 32}}, {vecsize, {M, 2*M}}};
