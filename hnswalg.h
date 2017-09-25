@@ -203,7 +203,7 @@ namespace hnswlib {
         };
 
 
-        std::priority_queue<std::pair<dist_t, tableint>> searchBaseLayer(tableint ep, void *datapoint, int level, int ef)
+        std::priority_queue<std::pair<dist_t, tableint  >> searchBaseLayer(tableint ep, void *datapoint, int level, int ef)
         {
             VisitedSet *vs = visitedsetpool->getFreeVisitedSet();
 
@@ -563,7 +563,7 @@ namespace hnswlib {
                         throw runtime_error("Level error");
 
                     std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
-                                                                                                  level, (cur_c < params[i_threshold]) ? 240 : 500);
+                                                                                                    level, (cur_c < params[i_threshold]) ? 240 : 500);
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
                 }
 
@@ -621,19 +621,27 @@ namespace hnswlib {
             }
             enterpoint0 = currObj;
 
-            std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> topResults = searchBaseLayerST(
+            std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> tmpTopResults = searchBaseLayerST(
                     currObj, query_data, ef_, q_idx);
             std::priority_queue<std::pair<dist_t, labeltype >> results;
+
+            // Remove clusters as answers
+            std::priority_queue<std::pair<dist_t, tableint >> topResults;
+            while (tmpTopResults.size() > 0) {
+                std::pair<dist_t, tableint> rez = tmpTopResults.top();
+                topResults.push(rez);
+                tmpTopResults.pop();
+            }
 
             while (topResults.size() > k)
                 topResults.pop();
 
-            while (topResults.size() > 0) {
-                std::pair<dist_t, tableint> res = topResults.top();
-                results.push(std::pair<dist_t, labeltype>(res.first, res.second));
-                topResults.pop();
-            }
-            return results;
+            //while (topResults.size() > 0) {
+            //    std::pair<dist_t, tableint> rez = topResults.top();
+            //    results.push(std::pair<dist_t, labeltype>(rez.first, rez.second-maxclusters_));
+            //    topResults.pop();
+            //}
+            return topResults;
         };
 
 
