@@ -563,7 +563,8 @@ namespace hnswlib {
                         throw runtime_error("Level error");
 
                     std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
-                                                                                                    level, (cur_c < params[i_threshold]) ? 240 : 500);
+                                                                                                    level, efConstruction_);
+                                                                                                  //(cur_c < params[i_threshold]) ? 240 : 500);
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
                 }
 
