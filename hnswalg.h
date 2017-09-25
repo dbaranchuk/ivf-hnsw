@@ -628,12 +628,12 @@ namespace hnswlib {
             while (topResults.size() > k)
                 topResults.pop();
 
-            //while (topResults.size() > 0) {
-            //    std::pair<dist_t, tableint> rez = topResults.top();
-            //    results.push(std::pair<dist_t, labeltype>(rez.first, rez.second-maxclusters_));
-            //    topResults.pop();
-            //}
-            return topResults;
+            while (topResults.size() > 0) {
+                std::pair<dist_t, tableint> res = topResults.top();
+                results.push(std::pair<dist_t, labeltype>(res.first, res.second));
+                topResults.pop();
+            }
+            return results;
         };
 
 
