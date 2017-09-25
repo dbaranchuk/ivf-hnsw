@@ -242,138 +242,6 @@ inline bool exists_test(const std::string& name) {
 /**
  * Main SIFT Test Function
 */
-//void sift_test1B() {
-//    const int subset_size_milllions = 100;
-//    const int efConstruction = 240;
-//    const int M = 4;//16;
-//    const int M_cluster = 16;
-//
-//    const size_t clustersize = 5263157;
-//    const vector<size_t> elements_per_layer = {100000000, 5000000, 250000, 12500, 625, 32};
-//
-//    const size_t vecsize = subset_size_milllions * 1000000;
-//    const size_t qsize = 10000;
-//    const size_t vecdim = 128;
-//
-//    char path_index[1024];
-//    char path_gt[1024];
-//    const char *path_q = "/sata2/dbaranchuk/bigann/bigann_query.bvecs";
-//    const char *path_data = "/sata2/dbaranchuk/bigann/bigann_base.bvecs";
-//    const char *path_clusters = "/sata2/dbaranchuk/synthetic_100m_5m/bigann_base_100m_clusters.bvecs";
-//
-//    sprintf(path_index, "/sata2/dbaranchuk/synthetic_100m_5m/sift%dm_ef_%d_M_%d_cM_%d_1layer.bin", subset_size_milllions, efConstruction, M,
-//            M_cluster);
-//    sprintf(path_gt, "/sata2/dbaranchuk/bigann/gnd/idx_%dM.ivecs", subset_size_milllions);
-//
-//    cout << "Loading GT:\n";
-//    ifstream inputGT(path_gt, ios::binary);
-//    unsigned int *massQA = new unsigned int[qsize * 1000];
-//    for (int i = 0; i < qsize; i++) {
-//        int t;
-//        inputGT.read((char *) &t, 4);
-//        inputGT.read((char *) (massQA + 1000 * i), t * 4);
-//        if (t != 1000) {
-//            cout << "err";
-//            exit(1);
-//        }
-//    }
-//    inputGT.close();
-//
-//    cout << "Loading queries:\n";
-//    unsigned char massQ[qsize * vecdim];
-//    ifstream inputQ(path_q, ios::binary);
-//
-//    for (int i = 0; i < qsize; i++) {
-//        int in = 0;
-//        inputQ.read((char *) &in, 4);
-//        if (in != vecdim) {
-//            cout << "file error";
-//            exit(1);
-//        }
-//        inputQ.read((char *) (massQ + i * vecdim), in);
-//    }
-//    inputQ.close();
-//
-//    L2SpaceI l2space(vecdim);
-//
-//    HierarchicalNSW<int> *appr_alg;
-//    if (exists_test(path_index)) {
-//        appr_alg = new HierarchicalNSW<int>(&l2space, path_index, false);
-//        cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
-//    } else {
-//        cout << "Building index:\n";
-//        unsigned char massb[vecdim];
-//
-//        int j1 = 0, in = 0;
-//        appr_alg = new HierarchicalNSW<int>(&l2space, vecsize, M, efConstruction, clustersize, M_cluster);
-//        appr_alg->setElementLevels(elements_per_layer);
-//
-//        StopW stopw = StopW();
-//        StopW stopw_full = StopW();
-//
-//        cout << "Adding elements\n";
-//        ifstream input(path_data, ios::binary);
-//
-//        input.read((char *) &in, 4);
-//        if (in != vecdim) {
-//            cout << "file error\n";
-//            exit(1);
-//        }
-//        input.read((char *) massb, in);
-//
-//        appr_alg->addPoint((void *) (massb), (size_t) j1);
-//
-//        size_t report_every = 1000000;
-//#pragma omp parallel for num_threads(32)
-//        for (int i = 0; i < vecsize; i++) {
-//            unsigned char massb[vecdim];
-//#pragma omp critical
-//            {
-//                input.read((char *) &in, 4);
-//                if (in != vecdim) {
-//                    cout << "file error";
-//                    exit(1);
-//                }
-//                input.read((char *) massb, in);
-//                j1++;
-//                if ((j1 - clustersize) % report_every == 0) {
-//                    cout << (j1 - clustersize) / (0.01 * vecsize) << " %, "
-//                         << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
-//                         << getCurrentRSS() / 1000000 << " Mb \n";
-//                    stopw.reset();
-//                }
-//            }
-//            appr_alg->addPoint((void *) (massb), (size_t) j1);
-//        }
-//        input.close();
-//        cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
-//        appr_alg->SaveIndex(path_index);
-//    }
-//    printInfo(appr_alg);
-//
-//    //FILE *fin = fopen("/sata2/dbaranchuk/synthetic_100m_5m/new_cluster_idx.dat", "rb");
-//    //int *cluster_idx_table = new int[clustersize];
-//    //int ret = fread(cluster_idx_table, sizeof(int), clustersize, fin);
-//    unordered_set<int> cluster_idx_set;
-//    for (int i = 0; i < clustersize; i++) {
-//    //    cluster_idx_set.insert(cluster_idx_table[i]);
-//        cluster_idx_set.insert(i);
-//    }
-//    //delete cluster_idx_table;
-//    //fclose(fin);
-//    //
-//
-//	vector<std::priority_queue< std::pair<int, labeltype >>> answers;
-//	size_t k = 1;
-//	cout << "Parsing gt:\n";
-//	get_gt<int>(massQA, qsize, answers, k);
-//	cout << "Loaded gt\n";
-//    test_vs_recall<int>(massQ, qsize, *appr_alg, vecdim, answers, k, cluster_idx_set);
-//	cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
-//
-//    delete massQA;
-//}
-
 
 template <typename format>
 static void loadXvecs(const char *path, format *mass, const int n, const int d)
@@ -415,8 +283,9 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
 
     const int specsize = 5000000;//101917929;
     //const map<size_t, pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
-    const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
-    //const map<size_t, size_t> M_map = {{50000000, 32}, {100000000, 24}, {150000000, 16}, {800000000, 8}, {900000000, 6}, {1000000000, 4}};
+    //const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
+    const map<size_t, pair<size_t, size_t>> M_map = {{50000000, {16, 32}}, {100000000, {12, 24}}, {150000000, {8, 16}},
+                                                     {800000000, {4, 8}}, {900000000, {4, 6}}, {1000000000, {4, 4}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}},{200000000, {8, 16}},{400000000, {5, 10}},
     //                                                 {600000000, {5, 9}},{800000000, {5, 8}},{900000000, {5, 7}},{vecsize, {5, 6}}};
     //
