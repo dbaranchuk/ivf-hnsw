@@ -921,8 +921,9 @@ namespace hnswlib {
             #pragma omp parallel for num_threads(8)
             for (int i = 0; i < 1000; i++) {
                 tableint id = *(start + i);
-                //double gain = computeMoveGain(id, error, v1, v2, true);
-                s1.push(std::pair<double, labeltype>(computeMoveGain(id, error, v1, v2, true), id));
+                double gain = computeMoveGain(id, error, v1, v2, true);
+                auto element = std::pair<double, labeltype>(gain, id);
+                s1.push(element) ;
             }
             cout << "Compute Move Gains S2" << endl;
             #pragma omp parallel for num_threads(4)
