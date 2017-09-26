@@ -945,6 +945,9 @@ namespace hnswlib {
         void reorder_graph()
         {
             labeltype *labels = new labeltype[maxelements_];
+            for (int i = 0; i < maxelements_; i++){
+                labels[i] = i;
+            }
             recursive_reorder(labels, maxelements_);
             delete labels;
         }
