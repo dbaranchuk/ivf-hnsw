@@ -894,7 +894,7 @@ namespace hnswlib {
                 int term2 = deg2 * ((long)(log2(n2 / (deg2+1))) + 1);
                 gain += (double) (term1 + term2) / maxelements_;
             }
-            gain -= error;
+            gain = error - gain;
             //cout << "Gain #" << id << ": " << gain << endl;
             return gain;
         }
