@@ -890,8 +890,8 @@ namespace hnswlib {
                     deg1 += v1.count(*(data + j));
                     deg2 += v2.count(*(data + j));
                 }
-                int term1 = deg1 * ((long)(log2(n1 / (deg1+1))) + 1);
-                int term2 = deg2 * ((long)(log2(n2 / (deg2+1))) + 1);
+                int term1 = deg1 * ((long)(log2((n1 + !isInFirst - isInFirst) / (deg1+1))) + 1);
+                int term2 = deg2 * ((long)(log2((n2 - !isInFirst + isInFirst)/ (deg2+1))) + 1);
                 gain += (double) (term1 + term2) / maxelements_;
             }
             gain = error - gain;
@@ -919,7 +919,7 @@ namespace hnswlib {
 
             cout << "Compute Move Gains S1" << endl;
             //#pragma omp parallel for num_threads(2)
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 20000; i++) {
                 tableint id = *(start + i);
                 double gain = computeMoveGain(id, error, v1, v2, true);
                 auto element = std::pair<double, labeltype>(gain, id);
@@ -927,7 +927,7 @@ namespace hnswlib {
             }
             cout << "Compute Move Gains S2" << endl;
             //#pragma omp parallel for num_threads(4)
-            for (int i = n1; i < n1+100; i++)
+            for (int i = n1; i < n1+20000; i++)
                 s2.push(std::pair<double, labeltype>(computeMoveGain(*(start + i), error, v1, v2, false), *(start + i)));
 
             cout << "Swap good candidates" << endl;
