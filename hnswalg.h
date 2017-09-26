@@ -918,13 +918,13 @@ namespace hnswlib {
             priority_queue<std::pair<double, labeltype>> s1, s2;
 
             cout << "Compute Move Gains S1" << endl;
-            #pragma omp parallel for num_threads(6)
+            #pragma omp parallel for num_threads(4)
             for (int i = 0; i < 10000; i++)
                 s1.push(std::pair<double, labeltype>(computeMoveGain(*(start + i), error, v1, v2, true), *(start + i)));
 
             cout << "Compute Move Gains S2" << endl;
-            #pragma omp parallel for num_threads(6)
-            for (int i = 10000; i < 20000; i++)
+            #pragma omp parallel for num_threads(4)
+            for (int i = n1; i < n1+10000; i++)
                 s2.push(std::pair<double, labeltype>(computeMoveGain(*(start + i), error, v1, v2, false), *(start + i)));
 
             cout << "Swap good candidates" << endl;
