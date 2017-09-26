@@ -911,13 +911,13 @@ namespace hnswlib {
             for (int i = 0; i < n1; i++)
                 v1.insert(*(start + i));
             for (int i = n1; i < n; i++)
-                v2,insert(*(start + i));
+                v2.insert(*(start + i));
 
-            priority_queue<double, labeltype> s1, s2;
+            priority_queue<std::pair<double, labeltype>> s1, s2;
             for (int i = 0; i < n1; i++)
-                s1.emplace({computeMoveGain(*(start + i), v1, v2), *(start + i)});
+                s1.push({computeMoveGain(*(start + i), v1, v2), *(start + i)});
             for (int i = n1; i < n; i++)
-                s2.emplace({computeMoveGain(*(start + i), v1, v2), *(start + i)});
+                s2.push({computeMoveGain(*(start + i), v1, v2), *(start + i)});
 
             int num_swaps = 0;
             while (!s1.empty() && !s2.empty()){
@@ -928,7 +928,7 @@ namespace hnswlib {
                     v1.insert(s2.top().second);
 
                     v2.set_delete_key(NULL);
-                    v2.erase(s2.top.second);
+                    v2.erase(s2.top().second);
                     v2.clear_deleted_key();
                     v2.insert(s1.top().second);
 
