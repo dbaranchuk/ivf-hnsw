@@ -919,7 +919,7 @@ namespace hnswlib {
 
             cout << "Compute Move Gains S1" << endl;
             //#pragma omp parallel for num_threads(2)
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 100; i++) {
                 tableint id = *(start + i);
                 double gain = computeMoveGain(id, error, v1, v2, true);
                 auto element = std::pair<double, labeltype>(gain, id);
@@ -927,13 +927,13 @@ namespace hnswlib {
             }
             cout << "Compute Move Gains S2" << endl;
             //#pragma omp parallel for num_threads(4)
-            for (int i = n1; i < n1+10; i++)
+            for (int i = n1; i < n1+100; i++)
                 s2.push(std::pair<double, labeltype>(computeMoveGain(*(start + i), error, v1, v2, false), *(start + i)));
 
             cout << "Swap good candidates" << endl;
             int num_swaps = 0;
             while (!s1.empty() && !s2.empty()){
-                if (s1.top().first + s2.top().first > 0){
+                if ((s1.top().first + s2.top().first) > 0){
                     v1.set_deleted_key(NULL);
                     v1.erase(s1.top().second);
                     v1.clear_deleted_key();
