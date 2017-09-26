@@ -944,7 +944,9 @@ namespace hnswlib {
 
         void reorder_graph()
         {
-            recursive_reorder(data_level0_memory_, maxelements_);
+            labeltype *labels = new labeltype[maxelements_];
+            recursive_reorder(labels, maxelements_);
+            delete labels;
         }
     };
 }
