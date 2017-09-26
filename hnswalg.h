@@ -868,7 +868,6 @@ namespace hnswlib {
                 int term2 = deg2 * ((long) (log2(n2 / (deg2 + 1))) + 1);
                 error += (double) (term1 + term2) / maxelements_;
             }
-            cout << "Current Error: " << error << endl;
             return error;
         }
 
@@ -896,7 +895,7 @@ namespace hnswlib {
                 gain += (double) (term1 + term2) / maxelements_;
             }
             gain -= error;
-            cout << "Gain #" << id << ": " << gain << endl;
+            //cout << "Gain #" << id << ": " << gain << endl;
             return gain;
         }
 
@@ -914,8 +913,10 @@ namespace hnswlib {
                 v2.insert(*(start + i));
 
             double error = computeError(v1, v2);
+            cout << "Current Error: " << error << endl;
 
             priority_queue<std::pair<double, labeltype>> s1, s2;
+            cout << "Compute Move Gains" << endl;
             #pragma omp parallel for num_threads(32)
             for (int i = 0; i < n1; i++)
                 s1.push(std::pair<double, labeltype>(computeMoveGain(*(start + i), error, v1, v2, true), *(start + i)));
@@ -924,6 +925,7 @@ namespace hnswlib {
             for (int i = n1; i < n; i++)
                 s2.push(std::pair<double, labeltype>(computeMoveGain(*(start + i), error, v1, v2, false), *(start + i)));
 
+            cout << "Swap good candidates" << endl;
             int num_swaps = 0;
             while (!s1.empty() && !s2.empty()){
                 if (s1.top().first + s2.top().first > 0){
@@ -943,6 +945,7 @@ namespace hnswlib {
                 s2.pop();
             }
             cout << "Number of swaps: " << num_swaps << endl;
+            cout << "Final Error: " << computeError(v1, v2) << endl;
         }
 
         void reorder_graph()
