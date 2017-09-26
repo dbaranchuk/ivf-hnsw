@@ -872,8 +872,8 @@ namespace hnswlib {
         }
 
         double computeMoveGain(tableint id, double error, dense_hash_set<labeltype> &v1, dense_hash_set<labeltype>&v2, bool isInFirst)
-        #pragma omp critical
         {
+#pragma omp critical{
             double gain = 0.0;
             size_t n1 = v1.size(), n2 = v2.size();
 
@@ -899,6 +899,7 @@ namespace hnswlib {
             //cout << "Gain #" << id << ": " << gain << endl;
             return gain;
         }
+        }
 
         void recursive_reorder(labeltype *start, size_t n)
         {
@@ -918,6 +919,7 @@ namespace hnswlib {
 
             priority_queue<std::pair<double, labeltype>> s1, s2;
             cout << "Compute Move Gains" << endl;
+
             #pragma omp parallel for num_threads(32)
             for (int i = 0; i < n1; i++)
                 s1.push(std::pair<double, labeltype>(computeMoveGain(*(start + i), error, v1, v2, true), *(start + i)));
