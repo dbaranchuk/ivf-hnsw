@@ -359,7 +359,8 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         appr_alg->SaveEdges(path_edges);
     }
     //appr_alg->printListsize();
-    appr_alg->check_connectivity(massQA, qsize);
+    appr_alg->reorder_graph();
+    //appr_alg->check_connectivity(massQA, qsize);
     appr_alg->printNumElements();
 
     vector<std::priority_queue< std::pair<dist_t, labeltype >>> answers;

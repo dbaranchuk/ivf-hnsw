@@ -849,196 +849,100 @@ namespace hnswlib {
                 cout << "Number of elements on the " << i << " level: " << counters[i] << endl;
         }
 
-//        void PrevLoadIndex(const string &location, SpaceInterface<dist_t> *s)
-//        {
-//            cout << "Loading index from " << location << endl;
-//            std::ifstream input(location, std::ios::binary);
-//            streampos position;
-//
-//            readBinaryPOD(input, offsetLevel0_);
-//            readBinaryPOD(input, maxelements_);
-//            readBinaryPOD(input, cur_element_count);
-//            readBinaryPOD(input, size_data_per_element_);
-//            readBinaryPOD(input, label_offset_);
-//            readBinaryPOD(input, offsetData_);
-//            readBinaryPOD(input, maxlevel_);
-//            readBinaryPOD(input, enterpoint_node);
-//
-//            readBinaryPOD(input, maxM_);
-//            readBinaryPOD(input, maxM0_);
-//            readBinaryPOD(input, M_);
-//            readBinaryPOD(input, mult_);
-//            readBinaryPOD(input, efConstruction_);
-//
-//            // Clusters
-//            readBinaryPOD(input, maxclusters_);
-//            readBinaryPOD(input, size_data_per_cluster_);
-//            readBinaryPOD(input, label_offset_cluster_);
-//            readBinaryPOD(input, offsetData_cluster_);
-//            readBinaryPOD(input, maxM_cluster_);
-//            readBinaryPOD(input, maxM0_cluster_);
-//            readBinaryPOD(input, M_cluster_);
-//
-//
-//            space = s;
-//            data_size_ = s->get_data_size();
-//
-//            data_level0_memory_ = (char *) malloc(maxclusters_ * size_data_per_cluster_ +
-//                                                  maxelements_ * size_data_per_element_);
-//            input.read(data_level0_memory_, maxclusters_ * size_data_per_cluster_  +
-//                                            maxelements_ * size_data_per_element_);
-//
-//
-//            size_links_per_element_ = maxM_ * sizeof(tableint) + sizeof(linklistsizeint);
-//            size_links_per_cluster_ = maxM_cluster_ * sizeof(tableint) + sizeof(linklistsizeint);
-//
-//            visitedlistpool = new VisitedListPool(1, maxclusters_ + maxelements_);
-//            linkLists_ = (char **) malloc(sizeof(void *) * (maxclusters_ /*+ maxelements*/));
-//
-//            elementLevels = vector<char>(maxclusters_ + maxelements_);
-//            ef_ = 10;
-//
-//            for (size_t i = 0; i < maxclusters_; i++) {
-//                unsigned int linkListSize;
-//                readBinaryPOD(input, linkListSize);
-//                if (linkListSize == 0) {
-//                    elementLevels[i] = 0;
-//                    //linkLists_[i] = nullptr;
-//                } else {
-//                    elementLevels[i] = linkListSize / size_links_per_cluster_;
-//                    linkLists_[i] = (char *) malloc(linkListSize);
-//                    input.read((char *)linkLists_[i], linkListSize);
-//                }
-//            }
-//            for (size_t i = maxclusters_; i < maxelements_; i++) {
-//                unsigned int linkListSize;
-//                readBinaryPOD(input, linkListSize);
-//                if (linkListSize == 0) {
-//                    elementLevels[i] = 0;
-//                    linkLists_[i] = nullptr;
-//                } else {
-//                    elementLevels[i] = linkListSize / size_links_per_element_;
-//                    linkLists_[i] = (char *) malloc(linkListSize);
-//                    input.read(linkLists_[i], linkListSize);
-//                }
-//            }
-//
-//            input.close();
-//            size_t total_size = maxclusters_ * size_data_per_cluster + maxelements_ * size_data_per_element;
-//            cout << "Loaded index, predicted size=" << total_size / (1000 * 1000) << "\n";
-//            return;
-//        }
-//        void SaveIndex(const string &location)
-//        {
-//            cout << "Saving index to " << location.c_str() << "\n";
-//            std::ofstream output(location, std::ios::binary);
-//            streampos position;
-//
-//            writeBinaryPOD(output, offsetLevel0_);
-//            writeBinaryPOD(output, maxelements_);
-//            writeBinaryPOD(output, cur_element_count);
-//            writeBinaryPOD(output, maxlevel_);
-//            writeBinaryPOD(output, enterpoint_node);
-//
-//            writeBinaryPOD(output, mult_);
-//            writeBinaryPOD(output, efConstruction_);
-//
-//            writeBinaryPOD(output, total_size);
-//            writeBinaryPOD(output, parts_num);
-//            writeBinaryPOD(output, params_num);
-//            output.write((char *)params, parts_num * params_num *sizeof(size_t));
-//
-////            for (size_t i = 0; i < params_size; i++) {
-////                writeBinaryPOD(output, params[i] + i_threshold);
-////                writeBinaryPOD(output, params[i] + i_M);
-////                writeBinaryPOD(output, params[i] + i_maxM);
-////                writeBinaryPOD(output, params[i] + i_maxM0);
-////            }
-//
-//            output.write(data_level0_memory_, total_size);
-//
-////            for (size_t i = 0; i < params[0*params_num + i_threshold]; ++i) {
-////                unsigned int linkListSize = elementLevels[i] > 0 ? params[0*params_num + i_size_links_per_element] * elementLevels[i] : 0;
-////                writeBinaryPOD(output, linkListSize);
-////                if (linkListSize)
-////                    output.write((char *)linkLists_[i], linkListSize);
-////            }
-//            output.close();
-//        }
-//
-//        void LoadIndex(const string &location, SpaceInterface<dist_t> *s)
-//        {
-//            cout << "Loading index from " << location << endl;
-//            std::ifstream input(location, std::ios::binary);
-//            streampos position;
-//
-//            readBinaryPOD(input, offsetLevel0_);
-//            readBinaryPOD(input, maxelements_);
-//            readBinaryPOD(input, cur_element_count);
-//            readBinaryPOD(input, maxlevel_);
-//            readBinaryPOD(input, enterpoint_node);
-//
-//            readBinaryPOD(input, mult_);
-//            readBinaryPOD(input, efConstruction_);
-//
-//            space = s;
-//            data_size_ = s->get_data_size();
-//
-//            // Params
-//            readBinaryPOD(input, total_size);
-//            readBinaryPOD(input, parts_num);
-//            readBinaryPOD(input, params_num);
-//            params = new size_t[params_num*parts_num];
-//            input.read((char *) params, parts_num*params_num*sizeof(size_t));
-//
-//            size_t threshold, M, maxM, maxM0;
-//            total_size = 0;
-//
-////            for (size_t i = 0; i < params_size; i++) {
-////                readBinaryPOD(input, threshold);
-////                readBinaryPOD(input, M);
-////                readBinaryPOD(input, maxM);
-////                readBinaryPOD(input, maxM0);
-////
-////                params[i][i_M] = M;
-////                params[i][i_threshold] = threshold;
-////                params[i][i_maxelements] = i ? params[i-1][i_threshold] - threshold : threshold;
-////                params[i][i_maxM] = M;
-////                params[i][i_maxM0] = 2 * M;
-////                params[i][i_size_links_level0] = params[i][i_maxM0]* sizeof(tableint) + sizeof(linklistsizeint);
-////                params[i][i_size_data_per_element] = params[i][i_size_links_level0] + data_size_;
-////                params[i][i_offsetData] = params[i][i_size_links_level0];
-////                params[i][i_size_links_per_element] = params[i][i_maxM] * sizeof(tableint) + sizeof(linklistsizeint);
-////
-////                total_size += params[i][i_maxelements] * params[i][i_size_data_per_element];
-////            }
-//
-//            data_level0_memory_ = (char *) malloc(total_size);
-//            input.read(data_level0_memory_, total_size);
-//
-//            visitedlistpool = new VisitedListPool(1, maxelements_);
-////            linkLists_ = (char **) malloc(sizeof(void *) * (params[0*params_num + i_threshold]));
-//
-//            elementLevels = vector<char>(maxelements_);
-//            for (int i = 0; i < maxelements_; i++)
-//                elementLevels[i] = 0;
-//
-////            for (size_t i = 0; i < params[0*params_num + i_threshold]; i++) {
-////                unsigned int linkListSize;
-////                readBinaryPOD(input, linkListSize);
-////                if (linkListSize == 0) {
-////                    elementLevels[i] = 0;
-////                    linkLists_[i] = nullptr;
-////                } else {
-////                    elementLevels[i] = linkListSize / params[0*params_num + i_size_links_per_element];
-////                    linkLists_[i] = (char *) malloc(linkListSize);
-////                    input.read((char *)linkLists_[i], linkListSize);
-////                }
-////            }
-//
-//            input.close();
-//            cout << "Loaded index, predicted size=" << total_size / (1000 * 1000) << "\n";
-//            return;
-//        }
+        double computeError(dense_hash_set<labeltype> &v1, dense_hash_set<labeltype>&v2)
+        {
+            double error = 0.0;
+            size_t n1 = v1.size(), n2 = v2.size();
+
+            for (int i = 0; i < maxelements_; i++) {
+                linklistsizeint *ll_cur = get_linklist0(i);
+                size_t size = *ll_cur;
+                tableint *data = (tableint *) (ll_cur + 1);
+
+                int deg1 = 0, deg2 = 0;
+                for (int j = 0; j < size; j++) {
+                    deg1 += v1.count(*(data + j));
+                    deg2 += v2.count(*(data + j));
+                }
+                int term1 = deg1 * ((long) (log2(n1 / (deg1 + 1))) + 1);
+                int term2 = deg2 * ((long) (log2(n2 / (deg2 + 1))) + 1);
+                error += (double) (term1 + term2) / maxelements_;
+            }
+            cout << "Current Error: " << error << endl;
+            return error;
+        }
+
+        double computeMoveGain(tableint id, double error, dense_hash_set<labeltype> &v1, dense_hash_set<labeltype>&v2, bool isInFirst)
+        {
+            double gain = 0.0;
+            size_t n1 = v1.size(), n2 = v2.size();
+
+            for (int i = 0; i < maxelements_; i++) {
+                linklistsizeint *ll_cur = get_linklist0(i);
+                size_t size = *ll_cur;
+                tableint *data = (tableint *) (ll_cur + 1);
+
+                int deg1 = 0, deg2 = 0;
+                for (int j = 0; j < size; j++) {
+                    if (*(data + j) == id){
+                        deg1 += !isInFirst;
+                        deg2 += isInFirst;
+                    }
+                    deg1 += v1.count(*(data + j));
+                    deg2 += v2.count(*(data + j));
+                }
+                int term1 = deg1 * ((long)(log2(n1 / (deg1+1))) + 1);
+                int term2 = deg2 * ((long)(log2(n2 / (deg2+1))) + 1);
+                gain += (double) (term1 + term2) / maxelements_;
+            }
+            gain -= error;
+            cout << "Gain #" << id << ": " << gain << endl;
+            return gain;
+        }
+
+        void recursive_reorder(labeltype *start, size_t n)
+        {
+            size_t n1 = n/2, n2 = n - n1;
+            dense_hash_set<labeltype> v1(n1), v2(n2);
+            v1.set_empty_key(NULL);
+            v2.set_empty_key(NULL);
+
+            //Init
+            for (int i = 0; i < n1; i++)
+                v1.insert(*(start + i));
+            for (int i = n1; i < n; i++)
+                v2,insert(*(start + i));
+
+            priority_queue<double, labeltype> s1, s2;
+            for (int i = 0; i < n1; i++)
+                s1.emplace({computeMoveGain(*(start + i), v1, v2), *(start + i)});
+            for (int i = n1; i < n; i++)
+                s2.emplace({computeMoveGain(*(start + i), v1, v2), *(start + i)});
+
+            int num_swaps = 0;
+            while (!s1.empty() && !s2.empty()){
+                if (s1.top().first + s2.top().first > 0){
+                    v1.set_delete_key(NULL);
+                    v1.erase(s1.top().second);
+                    v1.clear_deleted_key();
+                    v1.insert(s2.top().second);
+
+                    v2.set_delete_key(NULL);
+                    v2.erase(s2.top.second);
+                    v2.clear_deleted_key();
+                    v2.insert(s1.top().second);
+
+                    num_swaps++;
+                }
+                s1.pop();
+                s2.pop();
+            }
+            cout << "Number of swaps: " << num_swaps << endl;
+        }
+
+        void reorder_graph()
+        {
+            recursive_reorder(data_level0_memory_, maxelements_);
+        }
     };
 }
