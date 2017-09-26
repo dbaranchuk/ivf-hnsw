@@ -876,6 +876,7 @@ namespace hnswlib {
             double gain = 0.0;
             size_t n1 = v1.size(), n2 = v2.size();
 
+            #pragma omp parallel for num_threads(4)
             for (int i = 0; i < maxelements_; i++) {
                 linklistsizeint *ll_cur = get_linklist0(i);
                 size_t size = *ll_cur;
@@ -895,7 +896,7 @@ namespace hnswlib {
                 gain += (double) (term1 + term2) / maxelements_;
             }
             gain -= error;
-            //cout << "Gain #" << id << ": " << gain << endl;
+            cout << "Gain #" << id << ": " << gain << endl;
             return gain;
         }
 
@@ -918,11 +919,11 @@ namespace hnswlib {
             priority_queue<std::pair<double, labeltype>> s1, s2;
             cout << "Compute Move Gains" << endl;
 
-            #pragma omp parallel for num_threads(4)
+            //#pragma omp parallel for num_threads(4)
             for (int i = 0; i < n1; i++)
                 s1.push(std::pair<double, labeltype>(computeMoveGain(*(start + i), error, v1, v2, true), *(start + i)));
 
-            #pragma omp parallel for num_threads(4)
+            //#pragma omp parallel for num_threads(4)
             for (int i = n1; i < n; i++)
                 s2.push(std::pair<double, labeltype>(computeMoveGain(*(start + i), error, v1, v2, false), *(start + i)));
 
