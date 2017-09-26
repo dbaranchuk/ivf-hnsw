@@ -876,7 +876,7 @@ namespace hnswlib {
             double gain = 0.0;
             size_t n1 = v1.size(), n2 = v2.size();
 
-            #pragma omp parallel for num_threads(4)
+            //#pragma omp parallel for num_threads(4)
             for (int i = 0; i < maxelements_; i++) {
                 linklistsizeint *ll_cur = get_linklist0(i);
                 size_t size = *ll_cur;
