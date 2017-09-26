@@ -918,9 +918,10 @@ namespace hnswlib {
             priority_queue<std::pair<double, labeltype>> s1, s2;
             cout << "Compute Move Gains" << endl;
             #pragma omp parallel for num_threads(32)
-            for (int i = 0; i < n1; i++)
+            for (int i = 0; i < n1; i++) {
+            #pragma omp critical
                 s1.push(std::pair<double, labeltype>(computeMoveGain(*(start + i), error, v1, v2, true), *(start + i)));
-
+            }
             #pragma omp parallel for num_threads(32)
             for (int i = n1; i < n; i++)
                 s2.push(std::pair<double, labeltype>(computeMoveGain(*(start + i), error, v1, v2, false), *(start + i)));
