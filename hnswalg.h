@@ -849,6 +849,7 @@ namespace hnswlib {
                 cout << "Number of elements on the " << i << " level: " << counters[i] << endl;
         }
 
+
         double computeError(dense_hash_set<labeltype> &v1, dense_hash_set<labeltype>&v2)
         {
             double error = 0.0;
