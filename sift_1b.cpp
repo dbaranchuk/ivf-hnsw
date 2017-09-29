@@ -339,7 +339,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         appr_alg->addPoint((void *) (mass), j1);
 
         size_t report_every = 1000000;
-#pragma omp parallel for num_threads(30)
+#pragma omp parallel for num_threads(31)
         for (int i = 1; i < vecsize; i++) {
             vtype mass[PQ ? M_PQ : vecdim];
 #pragma omp critical
@@ -376,7 +376,6 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     delete massQA;
     delete l2space;
 }
-
 
 void hnsw_test(const char *l2space_type,
                const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_q,
