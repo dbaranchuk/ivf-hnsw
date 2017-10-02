@@ -651,7 +651,7 @@ namespace hnswlib {
             float av_M = 0;
             int numLinks[32];
             for (int i = 0; i < 32; i++)
-                numLinks = 0;
+                numLinks[i] = 0;
 
             for (int i = 0; i < maxelements_; i++){
                 linklistsizeint *ll_cur = get_linklist0(i);
