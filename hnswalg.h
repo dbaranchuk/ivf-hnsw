@@ -657,11 +657,12 @@ namespace hnswlib {
                 linklistsizeint *ll_cur = get_linklist0(i);
                 numLinks[*ll_cur - 1]++;
                 av_M += (1.0 * *ll_cur) / maxelements_;
-                if (i % 10000 != 0)
-                    continue;
-                cout << "Element #" << i << " M:" << (int) *ll_cur << endl;
+                //if (i % 10000 != 0)
+                //    continue;
+                //cout << "Element #" << i << " M:" << (int) *ll_cur << endl;
             }
 
+            cout << "Average number of links: " << endl;
             cout << "Links distribution" << endl;
             for (int i = 0; i < 32; i++){
                 cout << " Number of elements with " << i+1 << " links: " << numLinks[i] << endl;
