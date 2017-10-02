@@ -686,6 +686,16 @@ namespace hnswlib {
             for (int i = 7; i < 10; i++)
                 part_4 += numLinks[i];
             cout << "Part Mmax = 10: " << part_4 << endl;
+
+            int part_5 = 0;
+            for (int i = 5; i < 7; i++)
+                part_5 += numLinks[i];
+            cout << "Part Mmax = 7: " << part_5 << endl;
+
+            int part_6 = 0;
+            for (int i = 0; i < 5; i++)
+                part_6 += numLinks[i];
+            cout << "Part Mmax = 5: " << part_6 << endl;
         }
 
 
