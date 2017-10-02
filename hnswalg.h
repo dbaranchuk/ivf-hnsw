@@ -649,12 +649,22 @@ namespace hnswlib {
         void printListsize()
         {
             float av_M = 0;
+            int numLinks[32];
+            for (int i = 0; i < 32; i++)
+                numLinks = 0;
+
             for (int i = 0; i < maxelements_; i++){
                 linklistsizeint *ll_cur = get_linklist0(i);
+                numLinks[*ll_cur]++;
                 av_M += (1.0 * *ll_cur) / maxelements_;
-                if (i % 100 != 0)
+                if (i % 10000 != 0)
                     continue;
                 cout << "Element #" << i << " M:" << (int) *ll_cur << endl;
+            }
+
+            cout << "Links distribution" << endl;
+            for (int i = 0; i < 32; i++){
+                cout << " Number of elements with " << i << " links: " << numLinks[i] << endl;
             }
         }
 
