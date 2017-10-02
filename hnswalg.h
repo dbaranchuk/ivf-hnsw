@@ -655,7 +655,7 @@ namespace hnswlib {
 
             for (int i = 0; i < maxelements_; i++){
                 linklistsizeint *ll_cur = get_linklist0(i);
-                numLinks[*ll_cur]++;
+                numLinks[*ll_cur - 1]++;
                 av_M += (1.0 * *ll_cur) / maxelements_;
                 if (i % 10000 != 0)
                     continue;
@@ -664,8 +664,27 @@ namespace hnswlib {
 
             cout << "Links distribution" << endl;
             for (int i = 0; i < 32; i++){
-                cout << " Number of elements with " << i << " links: " << numLinks[i] << endl;
+                cout << " Number of elements with " << i+1 << " links: " << numLinks[i] << endl;
             }
+            int part_1 = 0;
+            for (int i = 24; i < 32; i++)
+                part_1 += numLinks[i];
+            cout << "Part Mmax = 32: " << part_1 << endl;
+
+            int part_2 = 0;
+            for (int i = 16; i < 24; i++)
+                part_2 += numLinks[i];
+            cout << "Part Mmax = 24: " << part_2 << endl;
+
+            int part_3 = 0;
+            for (int i = 10; i < 16; i++)
+                part_3 += numLinks[i];
+            cout << "Part Mmax = 16: " << part_3 << endl;
+
+            int part_4 = 0;
+            for (int i = 7; i < 10; i++)
+                part_4 += numLinks[i];
+            cout << "Part Mmax = 10: " << part_4 << endl;
         }
 
 
