@@ -5,7 +5,6 @@
 #include <queue>
 #include <chrono>
 #include "hnswlib.h"
-#include <faiss>
 
 #include <map>
 #include <unordered_set>
