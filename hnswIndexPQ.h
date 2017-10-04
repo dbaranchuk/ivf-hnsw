@@ -70,7 +70,7 @@ namespace hnswlib {
 		{
 			cout << "Constructing quantizer\n";
 			int j1 = 0;
-			ifstream input(path_clusters, ios::binary);
+			std::ifstream input(path_clusters, ios::binary);
 
 			d_type mass[d];
 			readXvec<dist_t>(input, mass, d);
@@ -103,7 +103,7 @@ namespace hnswlib {
 		{
 			cout << "Assigning base elements\n";
 			int j1 = 0;
-			ifstream input(path_clusters, ios::binary);
+			std::ifstream input(path_clusters, ios::binary);
 
 			d_type mass[d];
 			std::priority_queue <std::pair<dist_t, labeltype >> result;
