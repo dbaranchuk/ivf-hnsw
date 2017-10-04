@@ -98,11 +98,11 @@ namespace hnswlib {
 		{
 			cout << "Assigning base elements\n";
 			int j1 = 0;
-			std::ifstream input(path_clusters, ios::binary);
+			std::ifstream input(path_base, ios::binary);
 
 			dist_t mass[d];
 			std::priority_queue <std::pair<dist_t, labeltype >> result;
-			readXvec<d_type>(input, mass, d);
+			readXvec<dist_t>(input, mass, d);
 			precomputed_idx[j1] = quantizer->searchKnn(mass, 1).second;
 
 			size_t report_every = 10000000;
@@ -150,7 +150,7 @@ namespace hnswlib {
 
 			for (size_t i = 0; i < n; i++) {
 				idx_t key = idx[i];
-
+				idx_t id = xids[i];
 				ids[key].push_back(id);
 				uint8_t *code = xcodes + i * code_size;
 				for (size_t j = 0; j < code_size; j++)
