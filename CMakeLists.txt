@@ -20,10 +20,10 @@ SET( CMAKE_CXX_FLAGS  "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -mar
 
 
 
-include_directories(faiss)
+#include_directories(faiss)
 
-add_library(faiss STATIC IMPORTED)
-set_property(TARGET faiss PROPERTY IMPORTED_LOCATION /home/dbaranchuk/hnsw/libfaiss.a)
+#add_library(faiss STATIC IMPORTED)
+#set_property(TARGET faiss PROPERTY IMPORTED_LOCATION /home/dbaranchuk/hnsw/libfaiss.a)
 
 
-target_link_libraries(main sift_test faiss)
+target_link_libraries(main sift_test /home/dbaranchuk/hnsw/libfaiss.a)
