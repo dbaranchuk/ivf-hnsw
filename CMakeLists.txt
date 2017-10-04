@@ -18,4 +18,6 @@ add_library(sift_test STATIC ${SOURCE_LIB2})
 add_executable(main ${SOURCE_EXE})  
 SET( CMAKE_CXX_FLAGS  "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -march=native -fpic -w -fopenmp -ftree-vectorize -ftree-vectorizer-verbose=0" )
 
-target_link_libraries(main sift_test ${CMAKE_SOURCE_DIR}/libfaiss.a)
+link_directories(/home/dbaranchuk/hnsw/libfaiss.a)
+
+target_link_libraries(main sift_test)
