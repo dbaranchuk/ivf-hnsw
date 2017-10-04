@@ -84,7 +84,7 @@ namespace hnswlib {
 				{
 					readXvec<d_type>(input, mass, d);
 					if (++j1 % report_every == 0) {
-						cout << j1 / (0.01 * vecsize) << " %, "
+						cout << j1 / (0.01 * size) << " %, "
 							 << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
 							 << getCurrentRSS() / 1000000 << " Mb \n";
 						stopw.reset();
