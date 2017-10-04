@@ -89,9 +89,8 @@ namespace hnswlib {
 				quantizer->addPoint((void *) (mass), (size_t) j1);
 			}
 			input.close();
-			cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
-			appr_alg->SaveInfo(path_info);
-			appr_alg->SaveEdges(path_edges);
+			quantizer->SaveInfo(path_info);
+			quantizer->SaveEdges(path_edges);
 		}
 
 
