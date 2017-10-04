@@ -22,7 +22,7 @@ static void readXvec(std::ifstream &input, format *mass, const int d)
 	int in = 0;
 	input.read((char *) &in, sizeof(int));
 	if (in != d) {
-		cout << "file error\n";
+		std::cout << "file error\n";
 		exit(1);
 	}
 	input.read((char *) mass, in * sizeof(format));
@@ -84,7 +84,7 @@ namespace hnswlib {
 				{
 					readXvec<d_type>(input, mass, d);
 					if (++j1 % report_every == 0) {
-						cout << j1 / (0.01 * size) << " %, "
+						std::cout << j1 / (0.01 * size) << " %, "
 							 << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
 							 << getCurrentRSS() / 1000000 << " Mb \n";
 						stopw.reset();
@@ -117,9 +117,9 @@ namespace hnswlib {
 				std::priority_queue <std::pair<dist_t, labeltype >> result;
 		#pragma omp critical
 				{
-					readXvec<d_type>(input, mass, d);
+					readXvec<dist_t>(input, mass, d);
 					if (++j1 % report_every == 0) {
-						cout << j1 / (0.01 * vecsize) << " %, "
+						std::cout << j1 / (0.01 * vecsize) << " %, "
 							 << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
 							 << getCurrentRSS() / 1000000 << " Mb \n";
 						stopw.reset();
