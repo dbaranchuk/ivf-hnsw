@@ -72,14 +72,14 @@ namespace hnswlib {
 			int j1 = 0;
 			std::ifstream input(path_clusters, ios::binary);
 
-			d_type mass[d];
+			dist_t mass[d];
 			readXvec<dist_t>(input, mass, d);
 			quantizer->addPoint((void *) (mass), j1);
 
 			size_t report_every = 1000000;
 		#pragma omp parallel for num_threads(32)
 			for (int i = 1; i < size; i++) {
-				d_type mass[d];
+				dist_t mass[d];
 		#pragma omp critical
 				{
 					readXvec<d_type>(input, mass, d);
@@ -105,7 +105,7 @@ namespace hnswlib {
 			int j1 = 0;
 			std::ifstream input(path_clusters, ios::binary);
 
-			d_type mass[d];
+			dist_t mass[d];
 			std::priority_queue <std::pair<dist_t, labeltype >> result;
 			readXvec<d_type>(input, mass, d);
 			precomputed_idx[j1] = quantizer->searchKnn(mass, 1).second;
@@ -113,7 +113,7 @@ namespace hnswlib {
 			size_t report_every = 10000000;
 		#pragma omp parallel for num_threads(32)
 			for (int i = 1; i < size; i++) {
-				d_type mass[d];
+				dist_t mass[d];
 				std::priority_queue <std::pair<dist_t, labeltype >> result;
 		#pragma omp critical
 				{
