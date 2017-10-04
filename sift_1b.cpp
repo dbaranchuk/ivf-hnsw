@@ -6,6 +6,7 @@
 #include <chrono>
 #include "hnswlib.h"
 #include <faiss/ProductQuantizer.h>
+#include "hnswquantizer.h"
 
 #include <map>
 #include <unordered_set>
