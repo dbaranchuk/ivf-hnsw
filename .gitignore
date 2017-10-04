@@ -3,7 +3,7 @@ bin
 CMakeFiles
 cmake*
 .idea
-*.a
+#*.a
 Makefile
 CMakeCache.txt
 main

@@ -5,6 +5,7 @@
 #include <queue>
 #include <chrono>
 #include "hnswlib.h"
+#include <faiss/Clustering.h>
 
 #include <map>
 #include <unordered_set>
