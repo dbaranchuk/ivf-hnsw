@@ -68,7 +68,7 @@ namespace hnswlib {
 		void buildQuantizer(const char *path_clusters, const char *path_info,
 							const char *path_edges)
 		{
-			cout << "Constructing quantizer\n";
+			std::cout << "Constructing quantizer\n";
 			int j1 = 0;
 			std::ifstream input(path_clusters, ios::binary);
 
@@ -96,7 +96,7 @@ namespace hnswlib {
 
 		void assign(const char *path_base, unsigned int *precomputed_idx, size_t vecsize)
 		{
-			cout << "Assigning base elements\n";
+			std::cout << "Assigning base elements\n";
 			int j1 = 0;
 			std::ifstream input(path_base, ios::binary);
 
@@ -107,7 +107,7 @@ namespace hnswlib {
 
 			size_t report_every = 10000000;
 		#pragma omp parallel for num_threads(32)
-			for (int i = 1; i < size; i++) {
+			for (int i = 1; i < vecsize; i++) {
 				dist_t mass[d];
 				std::priority_queue <std::pair<dist_t, labeltype >> result;
 		#pragma omp critical
@@ -118,7 +118,23 @@ namespace hnswlib {
 				}
 				precomputed_idx[j1] = quantizer->searchKnn(mass, 1).second;
 			}
+
 			input.close();
+
+			//Fill thresholds
+			//count number of elements per cluster
+			for (int i = 0; i < size; i++)
+				thresholds.push_back(0);
+			for(int i = 0; i < vecsize; i++){
+				thresholds[precomputed_idx[i]]++;
+			}
+			for (int i = 1; i < size; i++)
+				thresholds[i] += thresholds[i-1];
+
+			if (thresholds.back() != vecsize){
+				std::cout << "Something Wrong\n";
+				exit(1);
+			}
 		}
 
 
@@ -210,6 +226,16 @@ namespace hnswlib {
 								 float *coarse_dis, idx_t *idx,
 								 float *distances, idx_t *labels)
 		{
+			std::priority_queue <std::pair<dist_t, idx_t>> centroids;
+			std::priority_queue <std::pair<dist_t, idx_t>> min_heap;
+
+			while (!centroids.is_empty()){
+				auto el = centroids.top();
+				min_heap.emplace({-el.first, el.second});
+				centroids.pop();
+			}
+
+
 			for (int i = 0; i < nprobe; i++){
 
 			}
