@@ -17,7 +17,7 @@ typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
 
 template <typename format>
-static void readXvec(ifstream &input, format *mass, const int d)
+static void readXvec(std::ifstream &input, format *mass, const int d)
 {
 	int in = 0;
 	input.read((char *) &in, sizeof(int));
@@ -49,7 +49,7 @@ namespace hnswlib {
 		size_t code_size;
 		std::vector < std::vector<uint8_t> > codes;
 	public:
-		HierarchicalNSW *quantizer;
+		HierarchicalNSW<dist_t, vtype> *quantizer;
 		faiss::ProductQuantizer pq;
 
 
@@ -57,7 +57,7 @@ namespace hnswlib {
 			  size_t bytes_per_code, size_t nbits_per_idx):
 				d(dim), size(ncentroids), pq (dim, bytes_per_code, nbits_per_idx)
 		{
-			quantizer = new HierarchicalNSW<dist_t>(l2space, {size, {16, 32}}, 240);
+			quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, {size, {16, 32}}, 240);
 		}
 
 
@@ -196,7 +196,7 @@ namespace hnswlib {
 		void compute_residual(const float *x, float *residual, idx_t key)
 		{
 			float *centroid = quantizer->getDataByInternalId(key);
-			for (int i = 0; i < d, i++){
+			for (int i = 0; i < d; i++){
 				residual[i] = x[i] - centroid[i];
 			}
 		}
