@@ -82,13 +82,9 @@ namespace hnswlib {
 				dist_t mass[d];
 		#pragma omp critical
 				{
-					readXvec<d_type>(input, mass, d);
-					if (++j1 % report_every == 0) {
-						std::cout << j1 / (0.01 * size) << " %, "
-							 << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
-							 << getCurrentRSS() / 1000000 << " Mb \n";
-						stopw.reset();
-					}
+					readXvec<dist_t>(input, mass, d);
+					if (++j1 % report_every == 0)
+						std::cout << j1 / (0.01 * size) << " %\n";
 				}
 				quantizer->addPoint((void *) (mass), (size_t) j1);
 			}
@@ -118,12 +114,8 @@ namespace hnswlib {
 		#pragma omp critical
 				{
 					readXvec<dist_t>(input, mass, d);
-					if (++j1 % report_every == 0) {
-						std::cout << j1 / (0.01 * vecsize) << " %, "
-							 << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
-							 << getCurrentRSS() / 1000000 << " Mb \n";
-						stopw.reset();
-					}
+					if (++j1 % report_every == 0)
+						std::cout << j1 / (0.01 * vecsize) << " %\n";
 				}
 				precomputed_idx[j1] = quantizer->searchKnn(mass, 1).second;
 			}
