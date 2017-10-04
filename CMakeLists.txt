@@ -14,8 +14,9 @@ set(SOURCE_LIB2 sift_1b.cpp)
 
 #add_library(deep_test STATIC ${SOURCE_LIB1})
 add_library(sift_test STATIC ${SOURCE_LIB2})
-add_library(faiss STATIC IMPORTED)
-set_property(TARGET faiss PROPERTY IMPORTED_LOCATION /home/dbaranchuk/hnsw/libfaiss.a)
+
+#add_library(faiss STATIC IMPORTED)
+#set_property(TARGET faiss PROPERTY IMPORTED_LOCATION /home/dbaranchuk/hnsw/libfaiss.a)
 
 add_executable(main ${SOURCE_EXE})  
 SET( CMAKE_CXX_FLAGS  "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -march=native -fpic -w -fopenmp -ftree-vectorize -ftree-vectorizer-verbose=0" )
@@ -23,4 +24,4 @@ SET( CMAKE_CXX_FLAGS  "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -mar
 
 
 
-target_link_libraries(main sift_test faiss)
+target_link_libraries(main sift_test /home/dbaranchuk/hnsw/libfaiss.a)
