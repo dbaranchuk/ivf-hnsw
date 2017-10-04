@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ifstream>
+#include <fstream>
 #include <cstdio>
 #include <vector>
 #include <priority_queue>
