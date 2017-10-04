@@ -19,11 +19,8 @@ add_executable(main ${SOURCE_EXE})
 SET( CMAKE_CXX_FLAGS  "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -march=native -fpic -w -fopenmp -ftree-vectorize -ftree-vectorizer-verbose=0" )
 
 
-
-#include_directories(faiss)
-
-#add_library(faiss STATIC IMPORTED)
-#set_property(TARGET faiss PROPERTY IMPORTED_LOCATION /home/dbaranchuk/hnsw/libfaiss.a)
+add_library(faiss STATIC IMPORTED)
+set_property(TARGET faiss PROPERTY IMPORTED_LOCATION /home/dbaranchuk/hnsw/libfaiss.a)
 
 
-target_link_libraries(main sift_test /home/dbaranchuk/hnsw/libfaiss.a)
+target_link_libraries(main sift_test faiss)
