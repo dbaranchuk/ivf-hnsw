@@ -193,47 +193,47 @@ namespace hnswlib {
 			delete norm_codes;
 		}
 
-		void search (size_t nx, float *x, idx_t k, idx_t *results)
-		{
-			float *x_residual = new float[nx*nprobe*d];
-			idx_t *centroids = new idx_t[nx*nprobe];
-
-			for (int i = 0; i < nx; i++) {
-				auto coarse = quantizer->searchKnn(x+i*d, nprobe);
-				// add from the end because coarse is a max_heap
-				for (int j = nprobe - 1; j >= 0; j--)
-				{
-					auto elem = coarse.top();
-					compute_residual(x+i*d, x_residual + (nprobe*i + j)*d, elem.second);
-					centroids[nprobe*i + j] = elem.second;
-					coarse.pop();
-				}
-			}
-
-			compute_query_tables(x_residual, nx*nprobe);
-
-			for (int i = 0; i < nx; i++){
-				std::priority_queue<std::pair<float, idx_t>> topResults;
-				for (int j = 0; j < nprobe; j++){
-					size_t left_border = thresholds[centroids[i*nprobe + j]];
-					size_t right_border = thresholds[centroids[i*nprobe + j]+1];
-					for (int id = left_border; id < right_border; id++){
-						float dist = fstdistfunc(i, codes[id]);
-						topResults.emplace({dist, id});
-					}
-				}
-				while (topResults.size() > k)
-					topResults.pop();
-				for (int j = k-1; j >= 0; j--) {
-					results[i * k + j] = topResults.top().second;
-					topResults.pop();
-				}
-			}
-
-
-			delete centroids;
-			delete x_residual;
-		}
+//		void search (size_t nx, float *x, idx_t k, idx_t *results)
+//		{
+//			float *x_residual = new float[nx*nprobe*d];
+//			idx_t *centroids = new idx_t[nx*nprobe];
+//
+//			for (int i = 0; i < nx; i++) {
+//				auto coarse = quantizer->searchKnn(x+i*d, nprobe);
+//				// add from the end because coarse is a max_heap
+//				for (int j = nprobe - 1; j >= 0; j--)
+//				{
+//					auto elem = coarse.top();
+//					compute_residual(x+i*d, x_residual + (nprobe*i + j)*d, elem.second);
+//					centroids[nprobe*i + j] = elem.second;
+//					coarse.pop();
+//				}
+//			}
+//
+//			compute_query_tables(x_residual, nx*nprobe);
+//
+//			for (int i = 0; i < nx; i++){
+//				std::priority_queue<std::pair<float, idx_t>> topResults;
+//				for (int j = 0; j < nprobe; j++){
+//					size_t left_border = thresholds[centroids[i*nprobe + j]];
+//					size_t right_border = thresholds[centroids[i*nprobe + j]+1];
+//					for (int id = left_border; id < right_border; id++){
+//						float dist = fstdistfunc(i, codes[id]);
+//						topResults.emplace(std::make_pair(dist, id));
+//					}
+//				}
+//				while (topResults.size() > k)
+//					topResults.pop();
+//				for (int j = k-1; j >= 0; j--) {
+//					results[i * k + j] = topResults.top().second;
+//					topResults.pop();
+//				}
+//			}
+//
+//
+//			delete centroids;
+//			delete x_residual;
+//		}
 
 		void compute_query_tables(float *massQ, size_t qsize)
 		{
