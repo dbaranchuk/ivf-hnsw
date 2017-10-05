@@ -100,7 +100,7 @@ namespace hnswlib {
 
 		void assign(const char *path_base, idx_t *precomputed_idx, size_t vecsize)
 		{
-            quantizer->ef_ = 100;
+            quantizer->ef_ = 240;
 			std::cout << "Assigning base elements\n";
 			int j1 = 0;
 			std::ifstream input(path_base, ios::binary);
