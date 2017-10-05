@@ -261,17 +261,17 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
     input.close();
 }
 
-template <typename format>
-static void readXvec(ifstream &input, format *mass, const int d)
-{
-    int in = 0;
-    input.read((char *) &in, sizeof(int));
-    if (in != d) {
-        cout << "file error\n";
-        exit(1);
-    }
-    input.read((char *) mass, in * sizeof(format));
-}
+//template <typename format>
+//static void readXvec(ifstream &input, format *mass, const int d)
+//{
+//    int in = 0;
+//    input.read((char *) &in, sizeof(int));
+//    if (in != d) {
+//        cout << "file error\n";
+//        exit(1);
+//    }
+//    input.read((char *) mass, in * sizeof(format));
+//}
 
 template<typename dist_t, typename vtype>
 static void _hnsw_test(const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_q,
