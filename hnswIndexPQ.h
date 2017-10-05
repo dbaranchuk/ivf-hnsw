@@ -193,8 +193,7 @@ namespace hnswlib {
 			delete norm_codes;
 		}
 
-		void search (size_t nx, float *x, idx_t k,
-					 idx_t *results) const
+		void search (size_t nx, float *x, idx_t k, idx_t *results)
 		{
 			float *x_residual = new float[nx*nprobe*d];
 			idx_t *centroids = new idx_t[nx*nprobe];
