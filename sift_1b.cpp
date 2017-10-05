@@ -466,7 +466,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     }
     delete precomputed_idx;
     delete batch;
-    
+
     input.close();
     //fclose(fin);
     fclose(fout);

@@ -112,7 +112,7 @@ namespace hnswlib {
 		}
 
 
-		void assign(size_t n, const vtype *data, idx_t *precomputed_idx)
+		void assign(size_t n, vtype *data, idx_t *precomputed_idx)
 		{
             quantizer->ef_ = 40;
 			std::cout << "Assigning base elements\n";
