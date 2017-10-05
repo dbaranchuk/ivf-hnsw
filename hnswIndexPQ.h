@@ -33,11 +33,9 @@ namespace hnswlib {
 	template<typename dist_t, typename vtype>
 	class Index
 	{
-		float *clusters;
 		int d;
 		size_t size;
 
-		std::vector<unsigned char> data;
 		std::vector<unsigned int> thresholds;
 
 		std::vector<float> norms;
@@ -45,9 +43,13 @@ namespace hnswlib {
 
 		bool by_residual = true;
 
-		size_t nprobe = 16;
 		size_t code_size;
 		std::vector < std::vector<uint8_t> > codes;
+
+		/** Query members **/
+		size_t nprobe = 16;
+		dist_t *dis_tables;
+
 	public:
 		HierarchicalNSW<dist_t, vtype> *quantizer;
 		faiss::ProductQuantizer pq;
@@ -61,7 +63,11 @@ namespace hnswlib {
 		}
 
 
-		~Index() { delete quantizer; }
+		~Index() {
+			delete quantizer;
+			if (dis_tables)
+				delete dis_tables;
+		}
 
 		void loadQuantizer(const char *path_info, const char *path_edges) {};
 
@@ -179,24 +185,54 @@ namespace hnswlib {
 			delete norm_codes;
 		}
 
-		void search (const float *x, idx_t k,
-					 float *distances, idx_t *labels) const
+		void search (size_t nx, const float *x, idx_t k,
+					 idx_t *results) const
 		{
-			idx_t * idx = new labeltype [nprobe];
-			dist_t * coarse_dis = new dist_t [nprobe];
+			float *x_residual = new float[nx*nprobe*d];
+			idx_t centroids = new idx_t[nx*nprobe];
 
-			std::priority_queue <std::pair<dist_t, idx_t>> coarse = quantizer->searchKnn(x, nprobe);
-			for (int i = 0; i < nprobe; i++){
-				coarse_dis[i] = coarse.top().first;
-				idx[i] = coarse.top().second;
-				coarse.pop();
+			for (int i = 0; i < nx; i++) {
+				auto coarse = quantizer->searchKnn(x+i*d, nprobe);
+				// add from the end because coarse is a max_heap
+				for (int j = nprobe - 1; j >= 0; j--)
+				{
+					auto elem = coarse.top();
+					compute_residual(x+i*d, x_residual + (nprobe*i + j)*d, elem.second);
+					centroids[nprobe*i + j] = elem.second;
+					coarse.pop();
+				}
 			}
 
-			search_preassigned (1, x, k, idx, coarse_dis,
-								distances, labels, false);
+			compute_query_tables(x_residual, nx*nprobe);
 
-			delete coarse_dis;
-			delete idx;
+			for (int i = 0; i < nx; i++){
+				std::priority_queue<std::pair<dist_t, idx_t>> topResults;
+				for (int j = 0; j < nprobe; j++){
+					size_t left_border = thresholds[centroids[i*nprobe + j].second];
+					size_t right_border = thresholds[centroids[i*nprobe + j].second+1];
+					for (int id = left_border; id < right_border; id++){
+						dist_t dist = fstdistfunc(i, codes[id]);
+						topResults.insert({dist, id});''
+					}
+				}
+				while (topResults.size() > k)
+					topResults.pop();
+				for (int j = k-1; j >= 0; j--) {
+					results[i * k + j] = topResults.top().second;
+					topResults.top();
+				}
+			}
+
+
+			delete centroids;
+			delete x_residual;
+		}
+
+		void compute_query_tables(vtype *massQ, size_t qsize)
+		{
+			int ksub = 256
+			dis_tables = new dist_t[qsize*ksub*code_size];
+			pq.compute_distance_tables(qsize, massQ, dis_tables);
 		}
 
 	private:
@@ -222,24 +258,25 @@ namespace hnswlib {
 			return result;
 		}
 
-		void search_preassigned (const float *x, idx_t k,
-								 float *coarse_dis, idx_t *idx,
-								 float *distances, idx_t *labels)
+		dist_t fstdistfunc(const size_t q_idx, const uint8_t *y)
 		{
-			std::priority_queue <std::pair<dist_t, idx_t>> centroids;
-			std::priority_queue <std::pair<dist_t, idx_t>> min_heap;
+			dist_t res = 0;
+			int ksub = pq.ksub;
+			int dim = code_size >> 3;
 
-			while (!centroids.is_empty()){
-				auto el = centroids.top();
-				min_heap.emplace({-el.first, el.second});
-				centroids.pop();
+			int n = 0;
+			for (int i = 0; i < dim; ++i) {
+				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
+				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
+				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
+				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
+				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
+				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
+				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
+				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
 			}
-
-
-			for (int i = 0; i < nprobe; i++){
-
-			}
-		}
+			return res;
+		};
 	};
 
 }
