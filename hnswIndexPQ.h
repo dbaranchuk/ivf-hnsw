@@ -36,9 +36,8 @@ namespace hnswlib {
 		int d;
 		size_t size;
 
-		std::vector<unsigned int> thresholds;
+		std::vector<idx_t> thresholds;
 
-		std::vector<float> norms;
 		faiss::ProductQuantizer norm_pq;
 
 		bool by_residual = true;
@@ -152,7 +151,7 @@ namespace hnswlib {
 			uint8_t *norm_codes = new uint8_t[n];
 
 			const float *to_encode = nullptr;
-			float *norm_to_encode = nullptr;
+			const float *norm_to_encode = nullptr;
 
 			if (by_residual) {
 				float *residuals = new float [n * d];
@@ -174,8 +173,8 @@ namespace hnswlib {
 
 			for (size_t i = 0; i < n; i++) {
 				idx_t key = idx[i];
-				idx_t id = xids[i];
-				ids[key].push_back(id);
+				//idx_t id = xids[i];
+				//ids[key].push_back(id);
 				uint8_t *code = xcodes + i * code_size;
 				for (size_t j = 0; j < code_size; j++)
 					codes[key].push_back (code[j]);
