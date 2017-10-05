@@ -80,7 +80,7 @@ namespace hnswlib {
 			readXvec<dist_t>(input, mass, d);
 			quantizer->addPoint((void *) (mass), j1);
 
-			size_t report_every = 1000000;
+			size_t report_every = 100000;
 		#pragma omp parallel for num_threads(32)
 			for (int i = 1; i < clustersize; i++) {
 				dist_t mass[d];
@@ -88,7 +88,7 @@ namespace hnswlib {
 				{
 					readXvec<dist_t>(input, mass, d);
 					if (++j1 % report_every == 0)
-						std::cout << j1 / (0.01 * size) << " %\n";
+						std::cout << j1 / (0.01 * clustersize) << " %\n";
 				}
 				quantizer->addPoint((void *) (mass), (size_t) j1);
 			}
@@ -127,12 +127,12 @@ namespace hnswlib {
 
 			//Fill thresholds
 			//count number of elements per cluster
-			for (int i = 0; i < size; i++)
+			for (int i = 0; i < clustersize; i++)
 				thresholds.push_back(0);
 			for(int i = 0; i < vecsize; i++){
 				thresholds[precomputed_idx[i]]++;
 			}
-			for (int i = 1; i < size; i++)
+			for (int i = 1; i < clustersize; i++)
 				thresholds[i] += thresholds[i-1];
 
 			if (thresholds.back() != vecsize){
