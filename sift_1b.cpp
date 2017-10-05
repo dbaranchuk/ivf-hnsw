@@ -444,8 +444,8 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
             break;
     }
 
-    Index<dist_t, vtype> *index = new Index<dist_t, vtype>(l2space, vecdim, 1000000, M_PQ, 8);
-    index->buildQuantizer("/sata2/dbaranchuk/bigann/bigann_learn.bvecs", path_info, path_edges);
+    Index<dist_t, vtype> *index = new Index<dist_t, vtype>(vecdim, 1000000, M_PQ, 8);
+    index->buildQuantizer(l2space, "/sata2/dbaranchuk/bigann/bigann_learn.bvecs", path_info, path_edges);
 
     idx_t *precomputed_idx = new idx_t[vecsize];
     index->assign(path_data, precomputed_idx, vecsize);

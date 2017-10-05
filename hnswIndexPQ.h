@@ -59,7 +59,7 @@ namespace hnswlib {
 		faiss::ProductQuantizer pq;
 
 
-		Index(SpaceInterface<dist_t> *l2space, size_t dim, size_t ncentroids,
+		Index(size_t dim, size_t ncentroids,
 			  size_t bytes_per_code, size_t nbits_per_idx):
 				d(dim), csize(ncentroids), pq (dim, bytes_per_code, nbits_per_idx)
 		{}
@@ -71,7 +71,8 @@ namespace hnswlib {
 				delete dis_tables;
 		}
 
-		void buildQuantizer(const char *path_clusters, const char *path_info, const char *path_edges)
+		void buildQuantizer(SpaceInterface<dist_t> *l2space, const char *path_clusters,
+                            const char *path_info, const char *path_edges)
 		{
             if (exists_test(path_info) && exists_test(path_edges)) {
                 quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, path_info, path_clusters, path_edges);
