@@ -448,8 +448,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     index->buildQuantizer(l2space, "/sata2/dbaranchuk/bigann/bigann_learn.bvecs", path_info, path_edges);
 
     std::cout << "Assigning base elements\n";
-    size_t batch_size = 1000000;
-    //FILE *fin = fopen("/sata2/dbaranchuk/bigann/bigann_base.bvecs", "rb");
+    size_t batch_size = 10000000;
     FILE *fout = fopen("/sata2/dbaranchuk/precomputed_idxs.ivecs", "wb");
 
     std::ifstream input(path_data, ios::binary);
@@ -457,7 +456,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     vtype *batch = new vtype[batch_size * vecdim];
     idx_t *precomputed_idx = new idx_t[batch_size];
     for (int i = 0; i < vecsize / batch_size; i++) {
-        std::cout << "Batch number: " << i << std::endl;
+        std::cout << "Batch number: " << i+1 << " of " << vecsize / batch_size << std::endl;
 
         readXvec(input, batch, vecdim, batch_size);
         index->assign(batch_size, batch, precomputed_idx);

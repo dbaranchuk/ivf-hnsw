@@ -56,7 +56,7 @@ namespace hnswlib {
 
 	public:
         std::vector<idx_t> thresholds;
-        
+
 		HierarchicalNSW<dist_t, vtype> *quantizer;
 		faiss::ProductQuantizer pq;
 
