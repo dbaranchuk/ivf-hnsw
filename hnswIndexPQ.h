@@ -157,7 +157,7 @@ namespace hnswlib {
 			const idx_t * idx = precomputed_idx;
 
 			uint8_t * xcodes = new uint8_t [n * code_size];
-			uint8_t *norm_codes = new uint8_t[n];
+			//uint8_t *norm_codes = new uint8_t[n];
 
 			const float *to_encode = nullptr;
 			float *norm_to_encode = new float[n];
@@ -174,9 +174,9 @@ namespace hnswlib {
 
 			pq.compute_codes (to_encode, xcodes, n);
 
-			for (size_t i = 0; i < n; i++)
-				norm_to_encode[i]  = compute_norm(x + i * d);
-			norm_pq.compute_codes(norm_to_encode, norm_codes, n);
+			//for (size_t i = 0; i < n; i++)
+			//	norm_to_encode[i]  = compute_norm(x + i * d);
+			//norm_pq.compute_codes(norm_to_encode, norm_codes, n);
 
 			for (size_t i = 0; i < n; i++) {
 				idx_t key = idx[i];
@@ -185,12 +185,12 @@ namespace hnswlib {
 				uint8_t *code = xcodes + i * code_size;
 				for (size_t j = 0; j < code_size; j++)
 					codes[key].push_back (code[j]);
-				codes[key].push_back(norm_codes[i]);
+				//codes[key].push_back(norm_codes[i]);
 			}
 
 			delete xcodes;
-			delete norm_to_encode;
-			delete norm_codes;
+			//delete norm_to_encode;
+			//delete norm_codes;
 		}
 
 //		void search (size_t nx, float *x, idx_t k, idx_t *results)
