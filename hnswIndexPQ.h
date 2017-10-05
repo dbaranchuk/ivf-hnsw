@@ -108,11 +108,10 @@ namespace hnswlib {
 			readXvec<vtype>(input, mass, d);
 			precomputed_idx[j1] = quantizer->searchKnn(mass, 1).top().second;
 
-			size_t report_every = 1000000;
+			size_t report_every = 10000;
 		#pragma omp parallel for num_threads(32)
 			for (int i = 1; i < vecsize; i++) {
 				vtype mass[d];
-				std::priority_queue <std::pair<dist_t, labeltype >> result;
 		#pragma omp critical
 				{
 					readXvec<vtype>(input, mass, d);
