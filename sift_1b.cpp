@@ -37,6 +37,7 @@ public:
 *          http://creativecommons.org/licenses/by/3.0/deed.en_US
 */
 
+
 #if defined(_WIN32)
 #include <windows.h>
 #include <psapi.h>
@@ -397,4 +398,90 @@ void hnsw_test(const char *l2space_type,
                           path_gt, path_info, path_edges,
                           L2SpaceType::Float,
                           k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+template<typename dist_t, typename vtype>
+static void ____hnsw_test(const char *path_data, const char *path_q,
+                       const char *path_gt, const char *path_info, const char *path_edges,
+                       L2SpaceType l2SpaceType,
+                       const int k, const int vecsize, const int qsize,
+                       const int vecdim, const int efConstruction, const int M)
+{
+    const int M_PQ = 16;
+
+    cout << "Loading GT:\n";
+    const int gt_dim = 1000;
+    unsigned int *massQA = new unsigned int[qsize * gt_dim];
+    loadXvecs<unsigned int>(path_gt, massQA, qsize, gt_dim);
+
+    cout << "Loading queries:\n";
+    vtype massQ[qsize * vecdim];
+    loadXvecs<vtype>(path_q, massQ, qsize, vecdim);
+
+    SpaceInterface<dist_t> *l2space;
+
+    switch(l2SpaceType) {
+        case L2SpaceType::PQ:
+            break;
+        case L2SpaceType::Float:
+            l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2Space(vecdim));
+            break;
+        case L2SpaceType::Int:
+            l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2SpaceI(vecdim));
+            break;
+    }
+
+    Index<dist_t, vtype> *index = new Index(l2space, vecdim, 1000000, M_PQ, 8);
+    index->buildQuantizer("/sata2/dbaranchuk/bigann/bigann_learn.bvecs", path_info, path_edges);
+
+
+    //appr_alg->printListsize();
+    //appr_alg->reorder_graph();
+    //appr_alg->check_connectivity(massQA, qsize);
+    //appr_alg->printNumElements();
+
+    vector<std::priority_queue< std::pair<dist_t, labeltype >>> answers;
+
+    cout << "Parsing gt:\n";
+    get_gt<dist_t>(massQA, qsize, answers, gt_dim);
+
+    //cout << "Loaded gt\n";
+    //test_vs_recall<dist_t, vtype>(massQ, qsize, *appr_alg, vecdim, answers, k, PQ);
+    //cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
+
+    delete index;
+    delete massQA;
+    delete l2space;
+}
+
+
+void ___hnsw_test(const char *l2space_type,
+                  const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_q,
+                  const char *path_gt, const char *path_info, const char *path_edges,
+                  const int k, const int vecsize, const int qsize,
+                  const int vecdim, const int efConstruction, const int M, bool one_layer)
+{
+    if (!strcmp (l2space_type, "int")) {
+        ____hnsw_test<int, unsigned char>(path_data, path_q, path_gt, path_info, path_edges,
+                                          L2SpaceType::Int, k, vecsize, qsize, vecdim, efConstruction, M);
+    } else if (!strcmp (l2space_type, "float"))
+        ____hnsw_test<float, float>(path_data, path_q, path_gt, path_info, path_edges,
+                                    L2SpaceType::Float, k, vecsize, qsize, vecdim, efConstruction, M);
 }
