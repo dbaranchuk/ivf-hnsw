@@ -448,7 +448,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     index->buildQuantizer(l2space, "/sata2/dbaranchuk/bigann/bigann_learn.bvecs", path_info, path_edges);
 
     std::cout << "Assigning base elements\n";
-    size_t batch_size = 10000000;
+    size_t batch_size = 100;
     FILE *fout = fopen("/sata2/dbaranchuk/precomputed_idxs.ivecs", "wb");
 
     std::ifstream input(path_data, ios::binary);
