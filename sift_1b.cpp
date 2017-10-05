@@ -461,7 +461,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     idx_input.close();
 
 
-    std::ifstream learn_input("/sata2/dbaranchuk/bigann/bigann_learn.bvecs", ios::binary);
+    std::ifstream learn_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
     int nt = 1000000;
     std::vector<float> trainvecs(nt * vecdim);
 
