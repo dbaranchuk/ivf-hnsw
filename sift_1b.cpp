@@ -447,32 +447,34 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     Index<dist_t, vtype> *index = new Index<dist_t, vtype>(vecdim, 1000000, M_PQ, 8);
     index->buildQuantizer(l2space, "/sata2/dbaranchuk/bigann/bigann_learn.bvecs", path_info, path_edges);
 
-    std::cout << "Assigning base elements\n";
+//    std::cout << "Assigning base elements\n";
     size_t batch_size = 1000000;
-    FILE *fout = fopen("/sata2/dbaranchuk/precomputed_idxs.ivecs", "wb");
+//    FILE *fout = fopen("/sata2/dbaranchuk/precomputed_idxs.ivecs", "wb");
+//
+//    std::ifstream input(path_data, ios::binary);
+//
+//    vtype *batch = new vtype[batch_size * vecdim];
+//    idx_t *precomputed_idx = new idx_t[batch_size];
+//    for (int i = 0; i < vecsize / batch_size; i++) {
+//        std::cout << "Batch number: " << i+1 << " of " << vecsize / batch_size << std::endl;
+//
+//        readXvec(input, batch, vecdim, batch_size);
+//        index->assign(batch_size, batch, precomputed_idx);
+//
+//        fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
+//        fwrite(precomputed_idx, sizeof(idx_t), batch_size, fout);
+//    }
+//    delete precomputed_idx;
+//    delete batch;
+//
+//    input.close();
+//    fclose(fout);
 
     std::ifstream input(path_data, ios::binary);
-
-    vtype *batch = new vtype[batch_size * vecdim];
-    idx_t *precomputed_idx = new idx_t[batch_size];
-    for (int i = 0; i < vecsize / batch_size; i++) {
-        std::cout << "Batch number: " << i+1 << " of " << vecsize / batch_size << std::endl;
-
-        readXvec(input, batch, vecdim, batch_size);
-        index->assign(batch_size, batch, precomputed_idx);
-
-        fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
-        fwrite(precomputed_idx, sizeof(idx_t), batch_size, fout);
-    }
-    delete precomputed_idx;
-    delete batch;
-
-    input.close();
-    //fclose(fin);
-    fclose(fout);
-    //idx_t *precomputed_idx = new idx_t[vecsize];
+    idx_t *precomputed_idx = new idx_t[vecsize];
+    readXvec(input, precomputed_idx, batch_size, vecsize/batch_size);
     //index->assign(path_data, precomputed_idx, vecsize);
-
+    input.close()
 
     //appr_alg->printListsize();
     //appr_alg->reorder_graph();
