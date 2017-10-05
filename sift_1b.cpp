@@ -454,24 +454,37 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 //    input.close();
 //    fclose(fout);
 
-    std::ifstream idx_input("/sata2/dbaranchuk/precomputed_idxs.ivecs", ios::binary);
-    idx_t *precomputed_idx = new idx_t[vecsize];
-    readXvec(idx_input, precomputed_idx, batch_size, vecsize/batch_size);
-    //index->assign(path_data, precomputed_idx, vecsize);
-    idx_input.close();
+    {
+        std::ifstream learn_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
+        int nt = 1000000;
+        std::vector<float> trainvecs(nt * vecdim);
 
+        readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
+        index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
+        index->code_size = index->pq.code_size;
+        index->verbose = true;
+        index->train_residual(nt, trainvecs.data());
+    }
 
-    std::ifstream learn_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
-    int nt = 1000000;
-    std::vector<float> trainvecs(nt * vecdim);
+    {
+        std::ifstream base_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
+        std::ifstream idx_input("/sata2/dbaranchuk/precomputed_idxs.ivecs", ios::binary);
+        std::vector<float> batch(batch_size * vecdim);
+        std::vector<idx_t> idx_batch(batch_size);
+        std::vector<idx_t> ids(vecsize);
 
-    readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
-    index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
-    index->code_size = index->pq.code_size;
-    index->verbose = true;
-    index->train_residual(nt, trainvecs.data());
+        for (int b = 0; b < (vecsize / batch_size); b++) {
+            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+            readXvec<float>(base_input, batch.data(), vecdim, batch_size);
+            for (size_t i = 0; i < batch_size; i++)
+                ids[batch_size*b + i] = batch_size*b + i;
 
-
+            printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
+            index->add(batch_size, batch.data(), ids.data() + batch_size*b, idx_batch.data());
+        }
+        idx_input.close();
+        base_input.close();
+    }
     //appr_alg->printListsize();
     //appr_alg->reorder_graph();
     //appr_alg->check_connectivity(massQA, qsize);
