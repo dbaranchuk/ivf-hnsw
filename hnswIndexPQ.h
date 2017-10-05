@@ -243,7 +243,7 @@ namespace hnswlib {
 		}
 
 
-        void train_residual(idx_t n, const float *x)
+        void train_residual(idx_t n, float *x)
         {
             const float *trainset;
             float *residuals;
