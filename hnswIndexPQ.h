@@ -154,7 +154,7 @@ namespace hnswlib {
 
 		void add(idx_t n, const float * x, const idx_t *xids, const idx_t *precomputed_idx)
 		{
-			const long * idx = precomputed_idx;
+			const idx_t * idx = precomputed_idx;
 
 			uint8_t * xcodes = new uint8_t [n * code_size];
 			uint8_t *norm_codes = new uint8_t[n];
@@ -214,12 +214,12 @@ namespace hnswlib {
 			compute_query_tables(x_residual, nx*nprobe);
 
 			for (int i = 0; i < nx; i++){
-				std::priority_queue<std::pair<dist_t, idx_t>> topResults;
+				std::priority_queue<std::pair<float, idx_t>> topResults;
 				for (int j = 0; j < nprobe; j++){
 					size_t left_border = thresholds[centroids[i*nprobe + j]];
 					size_t right_border = thresholds[centroids[i*nprobe + j]+1];
 					for (int id = left_border; id < right_border; id++){
-						dist_t dist = fstdistfunc(i, codes[id]);
+						float dist = fstdistfunc(i, codes[id]);
 						topResults.insert({dist, id});
 					}
 				}
