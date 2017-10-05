@@ -41,6 +41,7 @@ namespace hnswlib {
 		faiss::ProductQuantizer norm_pq;
 
 		bool by_residual = true;
+        bool is_trained = false;
 
 		size_t code_size;
 		std::vector < std::vector<uint8_t> > codes;
@@ -57,9 +58,7 @@ namespace hnswlib {
 		Index(SpaceInterface<dist_t> *l2space, size_t dim, size_t ncentroids,
 			  size_t bytes_per_code, size_t nbits_per_idx):
 				d(dim), csize(ncentroids), pq (dim, bytes_per_code, nbits_per_idx)
-		{
-			quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, {{csize, {16, 32}}}, 240);
-		}
+		{}
 
 
 		~Index() {
@@ -68,10 +67,14 @@ namespace hnswlib {
 				delete dis_tables;
 		}
 
-		void loadQuantizer(const char *path_info, const char *path_edges) {};
-
 		void buildQuantizer(const char *path_clusters, const char *path_info, const char *path_edges)
 		{
+            if (exists_test(path_info) && exists_test(path_edges)) {
+                quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, path_info, path_clusters, path_edges);
+            }
+
+            quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, {{csize, {16, 32}}}, 240);
+
 			std::cout << "Constructing quantizer\n";
 			int j1 = 0;
 			std::ifstream input(path_clusters, ios::binary);
@@ -95,6 +98,7 @@ namespace hnswlib {
 			input.close();
 			quantizer->SaveInfo(path_info);
 			quantizer->SaveEdges(path_edges);
+            is_trained = true;
 		}
 
 
