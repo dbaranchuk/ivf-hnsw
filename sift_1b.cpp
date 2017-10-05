@@ -467,11 +467,6 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         index->train_residual(nt, trainvecs.data());
     }
 
-    // Preprocess
-    index->codes.reserve(vecsize);
-    for (int i = 1; i < ncentroids; i++)
-        index->thresholds[i] += index->thresholds[i-1];
-
     {
         std::ifstream base_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
         std::ifstream idx_input("/sata2/dbaranchuk/precomputed_idxs.ivecs", ios::binary);
@@ -487,7 +482,6 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 
             printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
             index->add(batch_size, batch.data(), ids.data() + batch_size*b, idx_batch.data());
-            printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
         }
         idx_input.close();
         base_input.close();

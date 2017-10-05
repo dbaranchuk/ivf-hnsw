@@ -49,12 +49,11 @@ namespace hnswlib {
 
 		size_t code_size;
 		std::vector < std::vector<uint8_t> > codes;
+        std::vector < std::vector<idx_t> > ids;
 
 		/** Query members **/
 		size_t nprobe = 16;
 		float *dis_tables;
-
-        std::vector<idx_t> thresholds;
 
 		HierarchicalNSW<float, float> *quantizer;
 		faiss::ProductQuantizer pq;
@@ -64,8 +63,8 @@ namespace hnswlib {
 			  size_t bytes_per_code, size_t nbits_per_idx):
 				d(dim), csize(ncentroids), pq (dim, bytes_per_code, nbits_per_idx)
 		{
-            for (int i = 0; i < csize; i++)
-                thresholds.push_back(0);
+            codes.reserve(ncentroids);
+            ids.reserve(ncentroids);
         }
 
 
@@ -136,19 +135,6 @@ namespace hnswlib {
 			}
 
 			//input.close();
-
-			//Fill thresholds
-			//count number of elements per cluster
-			for(int i = 0; i < n; i++){
-				thresholds[precomputed_idx[i]]++;
-			}
-			//for (int i = 1; i < csize; i++)
-			//	thresholds[i] += thresholds[i-1];
-
-			//if (thresholds.back() != vecsize){
-			//	std::cout << "Something Wrong\n";
-			//	exit(1);
-			//}
 		}
 
 
@@ -179,8 +165,8 @@ namespace hnswlib {
 
 			for (size_t i = 0; i < n; i++) {
 				idx_t key = idx[i];
-				//idx_t id = xids[i];
-				//ids[key].push_back(id);
+				idx_t id = xids[i];
+				ids[key].push_back(id);
 				uint8_t *code = xcodes + i * code_size;
 				for (size_t j = 0; j < code_size; j++)
 					codes[key].push_back (code[j]);
