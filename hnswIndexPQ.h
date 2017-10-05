@@ -152,7 +152,7 @@ namespace hnswlib {
 			uint8_t *norm_codes = new uint8_t[n];
 
 			const float *to_encode = nullptr;
-			float *norm_to_encode = new float[n];
+			float *norm_to_encode = nullptr;
 
 			if (by_residual) {
 				float *residuals = new float [n * d];
@@ -166,8 +166,10 @@ namespace hnswlib {
 
 			pq.compute_codes (to_encode, xcodes, n);
 
+			float *norm = new float[n];
 			for (size_t i = 0; i < n; i++)
-				norm_to_encode[i]  = compute_norm(x + i * d);
+				norm[i]  = compute_norm(x + i * d);
+			norm_to_encode = norm;
 			norm_pq.compute_code(norm_to_encode, norm_codes, n);
 
 			for (size_t i = 0; i < n; i++) {
@@ -212,14 +214,14 @@ namespace hnswlib {
 					size_t right_border = thresholds[centroids[i*nprobe + j].second+1];
 					for (int id = left_border; id < right_border; id++){
 						dist_t dist = fstdistfunc(i, codes[id]);
-						topResults.insert({dist, id});''
+						topResults.insert({dist, id});
 					}
 				}
 				while (topResults.size() > k)
 					topResults.pop();
 				for (int j = k-1; j >= 0; j--) {
 					results[i * k + j] = topResults.top().second;
-					topResults.top();
+					topResults.pop();
 				}
 			}
 
