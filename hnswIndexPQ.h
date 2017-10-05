@@ -225,7 +225,7 @@ namespace hnswlib {
 
 		void compute_distance_tables(float *massQ, size_t qsize)
 		{
-			int ksub = pq.ksum;
+			int ksub = pq.ksub;
 			dis_tables = new float[qsize*ksub*code_size];
 			pq.compute_distance_tables(qsize, massQ, dis_tables);
 		}
