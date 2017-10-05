@@ -497,11 +497,11 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     index->compute_centroid_norm_table();
 
     idx_t *results = new idx_t[k*qsize];
-    index->search(qsize, massQ, k, results);
+    //index->search(qsize, massQ, k, results);
 
     for (int i = 0; i < qsize; i++)
         std::cout << results[i] << std::endl;
-    
+
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
 
     cout << "Parsing gt:\n";
@@ -512,6 +512,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     //test_vs_recall<dist_t, vtype>(massQ, qsize, *appr_alg, vecdim, answers, k, PQ);
     //cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
+    delete results;
     delete index;
     delete massQA;
     delete l2space;
