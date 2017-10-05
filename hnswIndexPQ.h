@@ -77,7 +77,7 @@ namespace hnswlib {
 			std::ifstream input(path_clusters, ios::binary);
 
 			dist_t mass[d];
-			readXvec<dist_t>(input, mass, d);
+			readXvec<vtype>(input, mass, d);
 			quantizer->addPoint((void *) (mass), j1);
 
 			size_t report_every = 100000;
@@ -86,7 +86,7 @@ namespace hnswlib {
 				dist_t mass[d];
 		#pragma omp critical
 				{
-					readXvec<dist_t>(input, mass, d);
+					readXvec<vtype>(input, mass, d);
 					if (++j1 % report_every == 0)
 						std::cout << j1 / (0.01 * csize) << " %\n";
 				}
