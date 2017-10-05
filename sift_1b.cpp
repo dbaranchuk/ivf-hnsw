@@ -474,7 +474,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     idx_t *precomputed_idx = new idx_t[vecsize];
     readXvec(input, precomputed_idx, batch_size, vecsize/batch_size);
     //index->assign(path_data, precomputed_idx, vecsize);
-    input.close()
+    input.close();
 
     //appr_alg->printListsize();
     //appr_alg->reorder_graph();
