@@ -21,32 +21,19 @@ inline bool exists_test(const std::string& name) {
 }
 
 template <typename format>
-static void readXvec(std::ifstream &input, format *mass, const int d)
+static void readXvec(std::ifstream &input, format *mass, const int d, const int n = 1)
 {
 	int in = 0;
-	input.read((char *) &in, sizeof(int));
-	if (in != d) {
-		std::cout << "file error\n";
-		exit(1);
-	}
-	input.read((char *) mass, in * sizeof(format));
-}
-
-void readFvec(FILE *fin, std::vector<float> &data, int d, int n)
-{
-    int dim, ret;
-
     for (int i = 0; i < n; i++) {
-        ret = fread((int *) &dim, sizeof(int), 1, fin);
-        if (ret == 0) printf("Huin9\n");
-
-        if (dim != d) {
-            printf("Wrong dim\n");
+        input.read((char *) &in, sizeof(int));
+        if (in != d) {
+            std::cout << "file error\n";
             exit(1);
         }
-        ret = fread((float *) (data.data() + i*d), sizeof(float), d, fin);
+        input.read((char *)(mass+i*d), in * sizeof(format));
     }
 }
+
 
 namespace hnswlib {
 

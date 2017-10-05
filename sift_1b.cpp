@@ -448,22 +448,27 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     index->buildQuantizer(l2space, "/sata2/dbaranchuk/bigann/bigann_learn.bvecs", path_info, path_edges);
 
     size_t batch_size = 1000000;
-    FILE *fin = fopen("/sata2/dbaranchuk/bigann/bigann_base.bvecs", "rb");
+    //FILE *fin = fopen("/sata2/dbaranchuk/bigann/bigann_base.bvecs", "rb");
     FILE *fout = fopen("/sata2/dbaranchuk/precomputed_idxs.ivecs", "wb");
 
-    std::vector<vtype> batch(batch_size * vecdim);
+    std::ifstream input(path_data, ios::binary);
+    vtype *batch = new vtype[batch_size * vecdim];
+
     idx_t *precomputed_idx = new idx_t[batch_size];
     for (int i = 0; i < vecsize / batch_size; i++) {
         std::cout << "Batch number: " << i << std::endl;
 
-        readFvec(fin, batch, vecdim, batch_size);
-        index->assign(batch_size, batch.data(), precomputed_idx);
+        readXvec(input, batch, vecdim, batch_size);
+        index->assign(batch_size, batch, precomputed_idx);
 
         fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
         fwrite(precomputed_idx, sizeof(idx_t), batch_size, fout);
     }
     delete precomputed_idx;
-    fclose(fin);
+    delete batch;
+    
+    input.close();
+    //fclose(fin);
     fclose(fout);
     //idx_t *precomputed_idx = new idx_t[vecsize];
     //index->assign(path_data, precomputed_idx, vecsize);
