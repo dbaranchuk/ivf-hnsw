@@ -156,13 +156,12 @@ namespace hnswlib {
 		{
 			const idx_t * idx = precomputed_idx;
 
-            printf("H\n");
 			uint8_t * xcodes = new uint8_t [n * code_size];
 			//uint8_t *norm_codes = new uint8_t[n];
 
 			const float *to_encode = nullptr;
 			//float *norm_to_encode = new float[n];
-            printf("H\n");
+
 			if (by_residual) {
 				float *residuals = new float [n * d];
 				for (size_t i = 0; i < n; i++)
@@ -179,7 +178,6 @@ namespace hnswlib {
 			//	norm_to_encode[i]  = compute_norm(x + i * d);
 			//norm_pq.compute_codes(norm_to_encode, norm_codes, n);
 
-            printf("H\n");
 			for (size_t i = 0; i < n; i++) {
 				idx_t key = idx[i];
 				//idx_t id = xids[i];
@@ -189,7 +187,6 @@ namespace hnswlib {
 					codes[key].push_back (code[j]);
 				//codes[key].push_back(norm_codes[i]);
 			}
-            printf("H\n");
 			delete xcodes;
 			//delete norm_to_encode;
 			//delete norm_codes;

@@ -415,6 +415,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
                           const int vecdim, const int efConstruction, const int M)
 {
     const int M_PQ = 16;
+    const int ncentroids = 1000000;
 
     cout << "Loading GT:\n";
     const int gt_dim = 1000;
@@ -428,7 +429,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     SpaceInterface<float> *l2space = new L2Space(vecdim);
 
 
-    Index *index = new Index(vecdim, 1000000, M_PQ, 8);
+    Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
     index->buildQuantizer(l2space, "/sata2/dbaranchuk/deep/deep_base_1m_clusters.fvecs", path_info, path_edges);
 
 
@@ -465,6 +466,11 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         index->verbose = true;
         index->train_residual(nt, trainvecs.data());
     }
+
+    // Preprocess
+    index->codes.reserve(vecsize);
+    for (int i = 1; i < ncentroids; i++)
+        index->thresholds[i] += index->thresholds[i-1];
 
     {
         std::ifstream base_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
