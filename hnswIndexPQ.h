@@ -254,13 +254,15 @@ namespace hnswlib {
 
         void train_norm_pq(idx_t n, float *x)
         {
-            const idx_t nsub = 65536;
-            float *trainset = new float[nsub];
-            faiss::fvec_norms_L2sqr (trainset, x, d, nsub);
+            //const idx_t nsub = 65536;
+            float *trainset = new float[n];
+            faiss::fvec_norms_L2sqr (trainset, x, d, n);
 
-            std::cout << trainset[0] << std::endl;
+            for (int i = 0; i < n; i++) {
+                std::cout << trainset[i] << std::endl;
+            }
             norm_pq.verbose = verbose;
-            norm_pq.train (nsub, trainset);
+            norm_pq.train (n, trainset);
 
             delete trainset;
         }
