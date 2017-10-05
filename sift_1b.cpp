@@ -498,7 +498,5 @@ void ___hnsw_test(const char *l2space_type,
                   const int k, const int vecsize, const int qsize,
                   const int vecdim, const int efConstruction, const int M, bool one_layer)
 {
-    if (!strcmp (l2space_type, "float"))
-        ____hnsw_test(path_data, path_q, path_gt, path_info, path_edges,
-                      k, vecsize, qsize, vecdim, efConstruction, M);
+    ____hnsw_test(path_data, path_q, path_gt, path_info, path_edges, k, vecsize, qsize, vecdim, efConstruction, M);
 }
