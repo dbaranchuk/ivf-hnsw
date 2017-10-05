@@ -410,10 +410,9 @@ void hnsw_test(const char *l2space_type,
 
 
 static void ____hnsw_test(const char *path_data, const char *path_q,
-                       const char *path_gt, const char *path_info, const char *path_edges,
-                       L2SpaceType l2SpaceType,
-                       const int k, const int vecsize, const int qsize,
-                       const int vecdim, const int efConstruction, const int M)
+                          const char *path_gt, const char *path_info, const char *path_edges,
+                          const int k, const int vecsize, const int qsize,
+                          const int vecdim, const int efConstruction, const int M)
 {
     const int M_PQ = 16;
 
@@ -500,6 +499,6 @@ void ___hnsw_test(const char *l2space_type,
                   const int vecdim, const int efConstruction, const int M, bool one_layer)
 {
     if (!strcmp (l2space_type, "float"))
-        ____hnsw_test<float, float>(path_data, path_q, path_gt, path_info, path_edges,
-                                    L2SpaceType::Float, k, vecsize, qsize, vecdim, efConstruction, M);
+        ____hnsw_test(path_data, path_q, path_gt, path_info, path_edges,
+                      k, vecsize, qsize, vecdim, efConstruction, M);
 }
