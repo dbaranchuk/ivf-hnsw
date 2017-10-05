@@ -56,6 +56,7 @@ namespace hnswlib {
 		size_t nprobe = 16;
 		float *dis_tables;
         float *q_norm_table;
+        float *c_norm_table;
 
 		HierarchicalNSW<float, float> *quantizer;
 		faiss::ProductQuantizer pq;
@@ -63,7 +64,9 @@ namespace hnswlib {
 
 		Index(size_t dim, size_t ncentroids,
 			  size_t bytes_per_code, size_t nbits_per_idx):
-				d(dim), csize(ncentroids), pq (dim, bytes_per_code, nbits_per_idx)
+				d(dim), csize(ncentroids),
+                pq (dim, bytes_per_code, nbits_per_idx),
+                norm_pq (1, 1, nbits_per_idx)
 		{
             codes.reserve(ncentroids);
             ids.reserve(ncentroids);
@@ -76,6 +79,8 @@ namespace hnswlib {
 				delete dis_tables;
             if (q_norm_table)
                 delete q_norm_table;
+            if (c_norm_table)
+                delete c_norm_table;
 		}
 
 		void buildQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
@@ -163,8 +168,7 @@ namespace hnswlib {
 			}
 			pq.compute_codes (to_encode, xcodes, n);
 
-			for (size_t i = 0; i < n; i++)
-				norm_to_encode[i]  = compute_norm(x + i * d);
+            faiss::fvec_norms_L2sqr (norm_to_encode, x, d, n);
 			norm_pq.compute_codes(norm_to_encode, norm_codes, n);
 
 			for (size_t i = 0; i < n; i++) {
@@ -181,47 +185,50 @@ namespace hnswlib {
 			delete norm_codes;
 		}
 
-//		void search (size_t nx, float *x, idx_t k, idx_t *results)
-//		{
-//			float *x_residual = new float[nx*nprobe*d];
-//			idx_t *centroids = new idx_t[nx*nprobe];
-//
-//			for (int i = 0; i < nx; i++) {
-//				auto coarse = quantizer->searchKnn(x+i*d, nprobe);
-//				// add from the end because coarse is a max_heap
-//				for (int j = nprobe - 1; j >= 0; j--)
-//				{
-//					auto elem = coarse.top();
-//					compute_residual(x+i*d, x_residual + (nprobe*i + j)*d, elem.second);
-//					centroids[nprobe*i + j] = elem.second;
-//					coarse.pop();
-//				}
-//			}
-//
-//			compute_query_tables(x_residual, nx*nprobe);
-//
-//			for (int i = 0; i < nx; i++){
-//				std::priority_queue<std::pair<float, idx_t>> topResults;
-//				for (int j = 0; j < nprobe; j++){
-//					size_t left_border = thresholds[centroids[i*nprobe + j]];
-//					size_t right_border = thresholds[centroids[i*nprobe + j]+1];
-//					for (int id = left_border; id < right_border; id++){
-//						float dist = fstdistfunc(i, codes[id]);
-//						topResults.emplace(std::make_pair(dist, id));
-//					}
-//				}
-//				while (topResults.size() > k)
-//					topResults.pop();
-//				for (int j = k-1; j >= 0; j--) {
-//					results[i * k + j] = topResults.top().second;
-//					topResults.pop();
-//				}
-//			}
-//
-//
-//			delete centroids;
-//			delete x_residual;
-//		}
+		void search (size_t nx, float *x, idx_t k, idx_t *results)
+		{
+			float *x_residual = new float[nx*nprobe*d];
+			idx_t *centroids = new idx_t[nx*nprobe];
+
+            float *q_minus_c_table = new float[nx*nprobe];
+
+			for (int i = 0; i < nx; i++) {
+				auto coarse = quantizer->searchKnn(x+i*d, nprobe);
+				// add from the end because coarse is a max_heap
+				for (int j = nprobe - 1; j >= 0; j--)
+				{
+					auto elem = coarse.top();
+					q_minus_c_table[nprobe*i + j] = elem.first;
+                    centroids[nprobe*i + j] = elem.second;
+					coarse.pop();
+				}
+			}
+
+
+			for (int i = 0; i < nx; i++){
+				std::priority_queue<std::pair<float, idx_t>> topResults;
+				for (int j = 0; j < nprobe; j++){
+                    idxt_t key = centroid[i*nprobe + j];
+                    std::vector<uint8_t> code = codes[key];
+
+
+					for (int id = left_border; id < right_border; id++){
+						float dist = fstdistfunc(i, codes[id]);
+						topResults.emplace(std::make_pair(dist, id));
+					}
+				}
+				while (topResults.size() > k)
+					topResults.pop();
+				for (int j = k-1; j >= 0; j--) {
+					results[i * k + j] = topResults.top().second;
+					topResults.pop();
+				}
+			}
+
+
+			delete centroids;
+			delete x_residual;
+		}
 
 		void compute_distance_tables(float *massQ, size_t qsize)
 		{
@@ -236,7 +243,28 @@ namespace hnswlib {
             faiss::fvec_norms_L2sqr (q_norm_table, massQ, d, qsize);
         }
 
-        void train_residual(idx_t n, float *x)
+        void compute_centroid_norm_table()
+        {
+            c_norm_table = new float[сsize];
+            for (int i = 0; i < csize; i++){
+                float *c = quantizer->getDataByInternalId(i);
+                faiss::fvec_norms_L2sqr (c_norm_table+i, c, d, 1);
+            }
+        }
+
+        void train_norm_pq(idx_t n, float *x)
+        {
+            const idx_t nsub = 65536;
+            float *trainset = new float[nsub];
+            faiss::fvec_norms_L2sqr (trainset, x, d, nsub);
+
+            norm_pq.verbose = verbose;
+            norm_pq.train (nsub, trainset);
+
+            delete trainset;
+        }
+
+        void train_residual_pq(idx_t n, float *x)
         {
             const float *trainset;
             float *residuals;
