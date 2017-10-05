@@ -108,7 +108,7 @@ namespace hnswlib {
 
 		void assign(const char *path_base, idx_t *precomputed_idx, size_t vecsize)
 		{
-            quantizer->ef_ = 160;
+            quantizer->ef_ = 40;
 			std::cout << "Assigning base elements\n";
 			int j1 = 0;
 			std::ifstream input(path_base, ios::binary);
@@ -116,7 +116,7 @@ namespace hnswlib {
 			vtype mass[d];
 			readXvec<vtype>(input, mass, d);
 			precomputed_idx[j1] = quantizer->searchKnn(mass, 1).top().second;
-            
+
 			size_t report_every = 1000000;
 		#pragma omp parallel for num_threads(32)
 			for (int i = 1; i < vecsize; i++) {
