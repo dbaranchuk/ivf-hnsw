@@ -43,8 +43,6 @@ namespace hnswlib {
 		int d;
 		size_t csize;
 
-		std::vector<idx_t> thresholds;
-
 		faiss::ProductQuantizer norm_pq;
 
 		bool by_residual = true;
@@ -57,6 +55,8 @@ namespace hnswlib {
 		dist_t *dis_tables;
 
 	public:
+        std::vector<idx_t> thresholds;
+        
 		HierarchicalNSW<dist_t, vtype> *quantizer;
 		faiss::ProductQuantizer pq;
 
@@ -64,7 +64,10 @@ namespace hnswlib {
 		Index(size_t dim, size_t ncentroids,
 			  size_t bytes_per_code, size_t nbits_per_idx):
 				d(dim), csize(ncentroids), pq (dim, bytes_per_code, nbits_per_idx)
-		{}
+		{
+            for (int i = 0; i < csize; i++)
+                thresholds.push_back(0);
+        }
 
 
 		~Index() {
@@ -82,6 +85,7 @@ namespace hnswlib {
             }
 
             quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, {{csize, {16, 32}}}, 240);
+            quantizer->ef_ = 60;
 
 			std::cout << "Constructing quantizer\n";
 			int j1 = 0;
@@ -106,16 +110,11 @@ namespace hnswlib {
 			input.close();
 			quantizer->SaveInfo(path_info);
 			quantizer->SaveEdges(path_edges);
-
-            for (int i = 0; i < csize; i++)
-                thresholds.push_back(0);
 		}
 
 
 		void assign(size_t n, vtype *data, idx_t *precomputed_idx)
 		{
-            quantizer->ef_ = 20;
-			std::cout << "Assigning base elements\n";
 			//int j1 = 0;
 			//std::ifstream input(path_base, ios::binary);
 
@@ -141,9 +140,9 @@ namespace hnswlib {
 
 			//Fill thresholds
 			//count number of elements per cluster
-			//for(int i = 0; i < n; i++){
-			//	thresholds[precomputed_idx[i]]++;
-			//}
+			for(int i = 0; i < n; i++){
+				thresholds[precomputed_idx[i]]++;
+			}
 			//for (int i = 1; i < csize; i++)
 			//	thresholds[i] += thresholds[i-1];
 

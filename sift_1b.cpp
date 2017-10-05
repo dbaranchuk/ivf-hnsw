@@ -447,6 +447,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     Index<dist_t, vtype> *index = new Index<dist_t, vtype>(vecdim, 1000000, M_PQ, 8);
     index->buildQuantizer(l2space, "/sata2/dbaranchuk/bigann/bigann_learn.bvecs", path_info, path_edges);
 
+    std::cout << "Assigning base elements\n";
     size_t batch_size = 1000000;
     //FILE *fin = fopen("/sata2/dbaranchuk/bigann/bigann_base.bvecs", "rb");
     FILE *fout = fopen("/sata2/dbaranchuk/precomputed_idxs.ivecs", "wb");
