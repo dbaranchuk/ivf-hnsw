@@ -189,9 +189,7 @@ namespace hnswlib {
 
 		void search (size_t nx, float *x, idx_t k, idx_t *results)
 		{
-			float *x_residual = new float[nx*nprobe*d];
 			idx_t *centroids = new idx_t[nx*nprobe];
-
             float *q_minus_c_table = new float[nx*nprobe];
 
 			for (int i = 0; i < nx; i++) {
@@ -208,19 +206,21 @@ namespace hnswlib {
 
 			for (int i = 0; i < nx; i++){
 				std::priority_queue<std::pair<float, idx_t>> topResults;
-                float q_r = 0.;
-                for (int m = 0; m < code_size; m++)
-                    q_r += dis_tables[pq.ksub * (i*code_size + m) + code[m]];
 
 				for (int j = 0; j < nprobe; j++){
                     idx_t key = centroid[i*nprobe + j];
-                    float q_c = q_minus_c_table[i*nprobe + j];
-                    float c = c_norm_table[key];
                     std::vector<uint8_t> code = codes[key];
 
+                    float c = c_norm_table[key];
+                    float q_c = q_minus_c_table[i*nprobe + j];
+                    float q_r = 0.;
+
                     for (int cd = 0; cd < code.size()/(code_size+1); cd+=code_size+1){
+                        for (int m = 0; m < code_size; m++)
+                            q_r += dis_tables[pq.ksub * (i*code_size + m) + code[cd*(code_size + 1) + m]];
+
                         float norm;
-                        norm_pq.decode(code.data()+cd*code_size + code_size, &norm);
+                        norm_pq.decode(code.data()+cd*(code_size+1) + code_size, &norm);
                         float dist = q_c - c - 2*q_r + norm;
                         idx_t label = ids[key][cd];
                         topResults.emplace({dist, label});
@@ -228,7 +228,7 @@ namespace hnswlib {
                     if (topResults.size() > max_codes)
                         break;
 				}
-                
+
 				while (topResults.size() > k)
 					topResults.pop();
 				for (int j = k-1; j >= 0; j--) {
@@ -238,7 +238,7 @@ namespace hnswlib {
 			}
 
 			delete centroids;
-			delete x_residual;
+            delete q_minus_c_table;
 		}
 
 		void compute_distance_tables(float *massQ, size_t qsize)
