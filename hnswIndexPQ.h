@@ -34,7 +34,7 @@ namespace hnswlib {
 	class Index
 	{
 		int d;
-		size_t size;
+		size_t clustersize;
 
 		std::vector<idx_t> thresholds;
 
@@ -58,7 +58,7 @@ namespace hnswlib {
 			  size_t bytes_per_code, size_t nbits_per_idx):
 				d(dim), size(ncentroids), pq (dim, bytes_per_code, nbits_per_idx)
 		{
-			quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, {{size, {16, 32}}}, 240);
+			quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, {{clustersize, {16, 32}}}, 240);
 		}
 
 
@@ -70,8 +70,7 @@ namespace hnswlib {
 
 		void loadQuantizer(const char *path_info, const char *path_edges) {};
 
-		void buildQuantizer(const char *path_clusters, const char *path_info,
-							const char *path_edges)
+		void buildQuantizer(const char *path_clusters, const char *path_info, const char *path_edges)
 		{
 			std::cout << "Constructing quantizer\n";
 			int j1 = 0;
@@ -83,7 +82,7 @@ namespace hnswlib {
 
 			size_t report_every = 1000000;
 		#pragma omp parallel for num_threads(32)
-			for (int i = 1; i < size; i++) {
+			for (int i = 1; i < clustersize; i++) {
 				dist_t mass[d];
 		#pragma omp critical
 				{
