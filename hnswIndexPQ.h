@@ -262,7 +262,7 @@ namespace hnswlib {
 
             uint8_t * xcodes = new uint8_t [n * code_size];
             pq.compute_codes (residuals, xcodes, n);
-            pq.decode(xcode, residuals, n);
+            pq.decode(xcodes, residuals, n);
 
             float *decoded_x = new float[n*d];
             for (idx_t i = 0; i < n; i++) {
@@ -276,7 +276,7 @@ namespace hnswlib {
             delete xcodes;
 
             float *trainset = new float[n];
-            faiss::fvec_norms_L2sqr (trainset, decodes_x, d, n);
+            faiss::fvec_norms_L2sqr (trainset, decoded_x, d, n);
 
             for (int i = 0; i < n; i++)
                 std::cout << trainset[i] << std::endl;
