@@ -474,7 +474,6 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         std::vector<idx_t> ids(vecsize);
 
         for (int b = 0; b < (vecsize / batch_size); b++) {
-            printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
             readXvec<float>(base_input, batch.data(), vecdim, batch_size);
             for (size_t i = 0; i < batch_size; i++)
