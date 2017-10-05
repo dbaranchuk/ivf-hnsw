@@ -245,7 +245,7 @@ namespace hnswlib {
 
         void compute_centroid_norm_table()
         {
-            c_norm_table = new float[сsize];
+            c_norm_table = new float[csize];
             for (int i = 0; i < csize; i++){
                 float *c = (float *)quantizer->getDataByInternalId(i);
                 faiss::fvec_norms_L2sqr (c_norm_table+i, c, d, 1);
