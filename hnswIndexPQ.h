@@ -247,7 +247,7 @@ namespace hnswlib {
         {
             c_norm_table = new float[сsize];
             for (int i = 0; i < csize; i++){
-                float *c = quantizer->getDataByInternalId(i);
+                float *c = (float *)quantizer->getDataByInternalId(i);
                 faiss::fvec_norms_L2sqr (c_norm_table+i, c, d, 1);
             }
         }
