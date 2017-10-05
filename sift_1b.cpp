@@ -470,11 +470,22 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 //    input.close();
 //    fclose(fout);
 
-    std::ifstream input("/sata2/dbaranchuk/precomputed_idxs.ivecs", ios::binary);
+    std::ifstream idx_input("/sata2/dbaranchuk/precomputed_idxs.ivecs", ios::binary);
     idx_t *precomputed_idx = new idx_t[vecsize];
-    readXvec(input, precomputed_idx, batch_size, vecsize/batch_size);
+    readXvec(idx_input, precomputed_idx, batch_size, vecsize/batch_size);
     //index->assign(path_data, precomputed_idx, vecsize);
-    input.close();
+    idx_input.close();
+
+
+    std::ifstream learn_input("/sata2/dbaranchuk/bigann/bigann_learn.bvecs", ios::binary);
+    int nt = 1000000;
+    std::vector<vtype> trainvecs(nt * vecdim);
+    readXvec<vtype>(learn_input, trainvecs.data(), vecdim, nt);
+    index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
+    index->code_size = index->pq.code_size;
+    index->verbose = true;
+    index->train_residual(nt, trainvecs.data());
+
 
     //appr_alg->printListsize();
     //appr_alg->reorder_graph();

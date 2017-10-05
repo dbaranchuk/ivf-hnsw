@@ -38,7 +38,7 @@ static void readXvec(std::ifstream &input, format *mass, const int d, const int 
 namespace hnswlib {
 
 	template<typename dist_t, typename vtype>
-	class Index
+	struct Index
 	{
 		int d;
 		size_t csize;
@@ -46,6 +46,7 @@ namespace hnswlib {
 		faiss::ProductQuantizer norm_pq;
 
 		bool by_residual = true;
+        bool verbose = true;
 
 		size_t code_size;
 		std::vector < std::vector<uint8_t> > codes;
@@ -54,7 +55,6 @@ namespace hnswlib {
 		size_t nprobe = 16;
 		dist_t *dis_tables;
 
-	public:
         std::vector<idx_t> thresholds;
 
 		HierarchicalNSW<dist_t, vtype> *quantizer;
@@ -243,6 +243,39 @@ namespace hnswlib {
 			dis_tables = new dist_t[qsize*ksub*code_size];
 			pq.compute_distance_tables(qsize, massQ, dis_tables);
 		}
+
+
+        void train_residual(idx_t n, const float *x)
+        {
+            const float *trainset;
+            float *residuals;
+            idx_t * assign;
+
+            if (by_residual) {
+                if(verbose) printf("computing residuals\n");
+                assign = new idx_t [n]; // assignement to coarse centroids
+                this->assign (n, x, assign);
+
+                residuals = new float [n * d];
+                for (idx_t i = 0; i < n; i++)
+                    this->compute_residual (x + i * d, residuals+i*d, assign[i]);
+
+                trainset = residuals;
+            } else {
+                trainset = x;
+            }
+            if (verbose)
+                printf ("training %zdx%zd product quantizer on %ld vectors in %dD\n",
+                        pq.M, pq.ksub, n, d);
+            pq.verbose = verbose;
+            pq.train (n, trainset);
+
+            //if (by_residual) {
+            //    precompute_table ();
+            //}
+            delete assign;
+            delete residuals;
+        }
 
 	private:
 		void compute_residual(const float *x, float *residual, idx_t key)
