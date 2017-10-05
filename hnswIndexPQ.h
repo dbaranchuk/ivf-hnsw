@@ -12,9 +12,13 @@
 #include "hnswalg.h"
 #include <faiss/ProductQuantizer.h>
 
-typedef unsigned int labeltype;
 typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
+
+inline bool exists_test(const std::string& name) {
+    std::ifstream f(name.c_str());
+    return f.good();
+}
 
 template <typename format>
 static void readXvec(std::ifstream &input, format *mass, const int d)

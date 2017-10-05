@@ -237,10 +237,6 @@ static void test_vs_recall(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, v
     cout << "Average distance from 0 level entry point to query: " << appr_alg.nev9zka << endl;
 }
 
-inline bool exists_test(const std::string& name) {
-	ifstream f(name.c_str());
-	return f.good();
-}
 
 /**
  * Main SIFT Test Function
