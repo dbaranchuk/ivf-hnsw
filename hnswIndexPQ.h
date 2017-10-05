@@ -151,7 +151,7 @@ namespace hnswlib {
 			uint8_t *norm_codes = new uint8_t[n];
 
 			const float *to_encode = nullptr;
-			float *norm_to_encode = nullptrnew float[n];
+			float *norm_to_encode = new float[n];
 
 			if (by_residual) {
 				float *residuals = new float [n * d];
@@ -188,7 +188,7 @@ namespace hnswlib {
 					 idx_t *results) const
 		{
 			float *x_residual = new float[nx*nprobe*d];
-			idx_t centroids = new idx_t[nx*nprobe];
+			idx_t *centroids = new idx_t[nx*nprobe];
 
 			for (int i = 0; i < nx; i++) {
 				auto coarse = quantizer->searchKnn(x+i*d, nprobe);
