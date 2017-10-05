@@ -451,7 +451,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     FILE *fin = fopen("/sata2/dbaranchuk/bigann/bigann_base.bvecs", "rb");
     FILE *fout = fopen("/sata2/dbaranchuk/precomputed_idxs.ivecs", "wb");
 
-    std::vector<float> batch(batch_size * vecdim);
+    std::vector<vtype> batch(batch_size * vecdim);
     idx_t *precomputed_idx = new idx_t[batch_size];
     for (int i = 0; i < vecsize / batch_size; i++) {
         std::cout << "Batch number: " << i << std::endl;
