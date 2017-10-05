@@ -45,7 +45,6 @@ namespace hnswlib {
 		faiss::ProductQuantizer norm_pq;
 
 		bool by_residual = true;
-        bool is_trained = false;
 
 		size_t code_size;
 		std::vector < std::vector<uint8_t> > codes;
@@ -76,6 +75,7 @@ namespace hnswlib {
 		{
             if (exists_test(path_info) && exists_test(path_edges)) {
                 quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, path_info, path_clusters, path_edges);
+                return;
             }
 
             quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, {{csize, {16, 32}}}, 240);
@@ -103,7 +103,6 @@ namespace hnswlib {
 			input.close();
 			quantizer->SaveInfo(path_info);
 			quantizer->SaveEdges(path_edges);
-            is_trained = true;
 		}
 
 
