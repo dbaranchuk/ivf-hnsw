@@ -193,7 +193,7 @@ namespace hnswlib {
 			delete norm_codes;
 		}
 
-		void search (size_t nx, const float *x, idx_t k,
+		void search (size_t nx, float *x, idx_t k,
 					 idx_t *results) const
 		{
 			float *x_residual = new float[nx*nprobe*d];
@@ -220,7 +220,7 @@ namespace hnswlib {
 					size_t right_border = thresholds[centroids[i*nprobe + j]+1];
 					for (int id = left_border; id < right_border; id++){
 						float dist = fstdistfunc(i, codes[id]);
-						topResults.insert({dist, id});
+						topResults.emplace({dist, id});
 					}
 				}
 				while (topResults.size() > k)
@@ -248,16 +248,16 @@ namespace hnswlib {
         {
             const float *trainset;
             float *residuals;
-            idx_t * assign;
+            idx_t * assigned;
 
             if (by_residual) {
                 if(verbose) printf("computing residuals\n");
-                assign = new idx_t [n]; // assignement to coarse centroids
-                this->assign (n, x, assign);
+                assigned = new idx_t [n]; // assignement to coarse centroids
+                this->assign (n, x, assigned);
 
                 residuals = new float [n * d];
                 for (idx_t i = 0; i < n; i++)
-                    this->compute_residual (x + i * d, residuals+i*d, assign[i]);
+                    this->compute_residual (x + i * d, residuals+i*d, assigned[i]);
 
                 trainset = residuals;
             } else {
@@ -272,14 +272,14 @@ namespace hnswlib {
             //if (by_residual) {
             //    precompute_table ();
             //}
-            delete assign;
+            delete assigned;
             delete residuals;
         }
 
 	private:
 		void compute_residual(const float *x, float *residual, idx_t key)
 		{
-			float *centroid = quantizer->getDataByInternalId(key);
+			float *centroid = (float *) quantizer->getDataByInternalId(key);
 			for (int i = 0; i < d; i++){
 				residual[i] = x[i] - centroid[i];
 			}
