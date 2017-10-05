@@ -465,7 +465,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         index->code_size = index->pq.code_size;
         index->verbose = true;
         index->train_residual_pq(nt, trainvecs.data());
-        index->train_norm_pq(nt, trainvecs.data());
+        index->train_norm_pq(65536, trainvecs.data());
     }
 
     {
