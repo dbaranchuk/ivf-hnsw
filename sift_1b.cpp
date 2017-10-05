@@ -491,6 +491,9 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     //appr_alg->check_connectivity(massQA, qsize);
     //appr_alg->printNumElements();
 
+    index->compute_distance_tables(massQ, qsize);
+    index->compute_query_norm_table(massQ, qsize);
+
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
 
     cout << "Parsing gt:\n";

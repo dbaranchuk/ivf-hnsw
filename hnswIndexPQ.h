@@ -11,6 +11,7 @@
 #include "brutoforce.h"
 #include "hnswalg.h"
 #include <faiss/ProductQuantizer.h>
+#include <faiss/utils.h>
 
 typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
@@ -54,6 +55,7 @@ namespace hnswlib {
 		/** Query members **/
 		size_t nprobe = 16;
 		float *dis_tables;
+        float *q_norm_table;
 
 		HierarchicalNSW<float, float> *quantizer;
 		faiss::ProductQuantizer pq;
@@ -72,6 +74,8 @@ namespace hnswlib {
 			delete quantizer;
 			if (dis_tables)
 				delete dis_tables;
+            if (q_norm_table)
+                delete q_norm_table;
 		}
 
 		void buildQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
@@ -219,13 +223,18 @@ namespace hnswlib {
 //			delete x_residual;
 //		}
 
-		void compute_query_tables(float *massQ, size_t qsize)
+		void compute_distance_tables(float *massQ, size_t qsize)
 		{
-			int ksub = 256;
+			int ksub = pq.ksum;
 			dis_tables = new float[qsize*ksub*code_size];
 			pq.compute_distance_tables(qsize, massQ, dis_tables);
 		}
 
+        void compute_query_norm_table(float *massQ, size_t qsize)
+        {
+            q_norm_table = new float[qsize];
+            faiss::fvec_norms_L2sqr (q_norm_table, massQ, d, qsize);
+        }
 
         void train_residual(idx_t n, float *x)
         {
