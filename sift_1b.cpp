@@ -494,11 +494,19 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 
     index->compute_distance_tables(massQ, qsize);
     index->compute_query_norm_table(massQ, qsize);
+    index->compute_centroid_norm_table();
 
+    idx_t *results = new idx_t[k*qsize];
+    index->search(qsize, massQ, k, results);
+
+    for (int i = 0; i < qsize; i++)
+        std::cout << results[i] << std::endl;
+    
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
 
     cout << "Parsing gt:\n";
     get_gt<float>(massQA, qsize, answers, gt_dim);
+
 
     //cout << "Loaded gt\n";
     //test_vs_recall<dist_t, vtype>(massQ, qsize, *appr_alg, vecdim, answers, k, PQ);
