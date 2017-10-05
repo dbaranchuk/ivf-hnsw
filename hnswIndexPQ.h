@@ -207,8 +207,8 @@ namespace hnswlib {
 			for (int i = 0; i < nx; i++){
 				std::priority_queue<std::pair<dist_t, idx_t>> topResults;
 				for (int j = 0; j < nprobe; j++){
-					size_t left_border = thresholds[centroids[i*nprobe + j].second];
-					size_t right_border = thresholds[centroids[i*nprobe + j].second+1];
+					size_t left_border = thresholds[centroids[i*nprobe + j]];
+					size_t right_border = thresholds[centroids[i*nprobe + j]+1];
 					for (int id = left_border; id < right_border; id++){
 						dist_t dist = fstdistfunc(i, codes[id]);
 						topResults.insert({dist, id});
@@ -229,7 +229,7 @@ namespace hnswlib {
 
 		void compute_query_tables(vtype *massQ, size_t qsize)
 		{
-			int ksub = 256
+			int ksub = 256;
 			dis_tables = new dist_t[qsize*ksub*code_size];
 			pq.compute_distance_tables(qsize, massQ, dis_tables);
 		}
