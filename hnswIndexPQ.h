@@ -58,7 +58,8 @@ namespace hnswlib {
 			  size_t bytes_per_code, size_t nbits_per_idx):
 				d(dim), size(ncentroids), pq (dim, bytes_per_code, nbits_per_idx)
 		{
-			quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, {size, {16, 32}}, 240);
+            const std::map<size_t, std::pair<size_t, size_t>> M_map = {size, {16, 32}};
+			quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, M_map, 240);
 		}
 
 
