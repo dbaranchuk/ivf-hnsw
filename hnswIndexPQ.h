@@ -32,6 +32,22 @@ static void readXvec(std::ifstream &input, format *mass, const int d)
 	input.read((char *) mass, in * sizeof(format));
 }
 
+void readFvec(FILE *fin, std::vector<float> &data, int d, int n)
+{
+    int dim, ret;
+
+    for (int i = 0; i < n; i++) {
+        ret = fread((int *) &dim, sizeof(int), 1, fin);
+        if (ret == 0) printf("Huin9\n");
+
+        if (dim != d) {
+            printf("Wrong dim\n");
+            exit(1);
+        }
+        ret = fread((float *) (data.data() + i*d), sizeof(float), d, fin);
+    }
+}
+
 namespace hnswlib {
 
 	template<typename dist_t, typename vtype>
@@ -103,49 +119,51 @@ namespace hnswlib {
 			input.close();
 			quantizer->SaveInfo(path_info);
 			quantizer->SaveEdges(path_edges);
+
+            for (int i = 0; i < csize; i++)
+                thresholds.push_back(0);
 		}
 
 
-		void assign(const char *path_base, idx_t *precomputed_idx, size_t vecsize)
+		void assign(size_t n, const vtype *data, idx_t *precomputed_idx,)
 		{
             quantizer->ef_ = 40;
 			std::cout << "Assigning base elements\n";
-			int j1 = 0;
-			std::ifstream input(path_base, ios::binary);
+			//int j1 = 0;
+			//std::ifstream input(path_base, ios::binary);
 
-			vtype mass[d];
-			readXvec<vtype>(input, mass, d);
-			precomputed_idx[j1] = quantizer->searchKnn(mass, 1).top().second;
 
-			size_t report_every = 1000000;
+			//vtype *ma
+			//readXvec<vtype>(input, mass, d);
+			precomputed_idx[j1] = quantizer->searchKnn(data, 1).top().second;
+
+			//size_t report_every = 1000000;
 		#pragma omp parallel for num_threads(32)
-			for (int i = 1; i < vecsize; i++) {
-				vtype mass[d];
-		#pragma omp critical
-				{
-					readXvec<vtype>(input, mass, d);
-					if (++j1 % report_every == 0)
-						std::cout << j1 / (0.01 * vecsize) << " %\n";
-				}
-				precomputed_idx[j1] = quantizer->searchKnn(mass, 1).top().second;
+			for (int i = 1; i < n; i++) {
+			//	vtype mass[d];
+		//#pragma omp critical
+			//	{
+			//		readXvec<vtype>(input, mass, d);
+			//		if (++j1 % report_every == 0)
+			//			std::cout << j1 / (0.01 * vecsize) << " %\n";
+			//	}
+				precomputed_idx[i] = quantizer->searchKnn((data + i*d), 1).top().second;
 			}
 
-			input.close();
+			//input.close();
 
 			//Fill thresholds
 			//count number of elements per cluster
-			for (int i = 0; i < csize; i++)
-				thresholds.push_back(0);
-			for(int i = 0; i < vecsize; i++){
+			for(int i = 0; i < n; i++){
 				thresholds[precomputed_idx[i]]++;
 			}
-			for (int i = 1; i < csize; i++)
-				thresholds[i] += thresholds[i-1];
+			//for (int i = 1; i < csize; i++)
+			//	thresholds[i] += thresholds[i-1];
 
-			if (thresholds.back() != vecsize){
-				std::cout << "Something Wrong\n";
-				exit(1);
-			}
+			//if (thresholds.back() != vecsize){
+			//	std::cout << "Something Wrong\n";
+			//	exit(1);
+			//}
 		}
 
 
