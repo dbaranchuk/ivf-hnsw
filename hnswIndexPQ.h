@@ -34,7 +34,7 @@ namespace hnswlib {
 	class Index
 	{
 		int d;
-		size_t clustersize;
+		size_t csize;
 
 		std::vector<idx_t> thresholds;
 
@@ -56,9 +56,9 @@ namespace hnswlib {
 
 		Index(SpaceInterface<dist_t> *l2space, size_t dim, size_t ncentroids,
 			  size_t bytes_per_code, size_t nbits_per_idx):
-				d(dim), size(ncentroids), pq (dim, bytes_per_code, nbits_per_idx)
+				d(dim), csize(ncentroids), pq (dim, bytes_per_code, nbits_per_idx)
 		{
-			quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, {{clustersize, {16, 32}}}, 240);
+			quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, {{csize, {16, 32}}}, 240);
 		}
 
 
@@ -82,13 +82,13 @@ namespace hnswlib {
 
 			size_t report_every = 100000;
 		#pragma omp parallel for num_threads(32)
-			for (int i = 1; i < clustersize; i++) {
+			for (int i = 1; i < csize; i++) {
 				dist_t mass[d];
 		#pragma omp critical
 				{
 					readXvec<dist_t>(input, mass, d);
 					if (++j1 % report_every == 0)
-						std::cout << j1 / (0.01 * clustersize) << " %\n";
+						std::cout << j1 / (0.01 * csize) << " %\n";
 				}
 				quantizer->addPoint((void *) (mass), (size_t) j1);
 			}
@@ -127,12 +127,12 @@ namespace hnswlib {
 
 			//Fill thresholds
 			//count number of elements per cluster
-			for (int i = 0; i < clustersize; i++)
+			for (int i = 0; i < csize; i++)
 				thresholds.push_back(0);
 			for(int i = 0; i < vecsize; i++){
 				thresholds[precomputed_idx[i]]++;
 			}
-			for (int i = 1; i < clustersize; i++)
+			for (int i = 1; i < csize; i++)
 				thresholds[i] += thresholds[i-1];
 
 			if (thresholds.back() != vecsize){
