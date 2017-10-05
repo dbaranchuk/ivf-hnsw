@@ -54,6 +54,8 @@ namespace hnswlib {
 
 		/** Query members **/
 		size_t nprobe = 16;
+        size_t max_codes = 10000;
+
 		float *dis_tables;
         float *q_norm_table;
         float *c_norm_table;
@@ -211,7 +213,7 @@ namespace hnswlib {
                     q_r += dis_tables[pq.ksub * (i*code_size + m) + code[m]];
 
 				for (int j = 0; j < nprobe; j++){
-                    idxt_t key = centroid[i*nprobe + j];
+                    idx_t key = centroid[i*nprobe + j];
                     float q_c = q_minus_c_table[i*nprobe + j];
                     float c = c_norm_table[key];
                     std::vector<uint8_t> code = codes[key];
@@ -223,9 +225,10 @@ namespace hnswlib {
                         idx_t label = ids[key][cd];
                         topResults.emplace({dist, label});
                     }
-                    if (topResults.size() > max_code)
+                    if (topResults.size() > max_codes)
                         break;
 				}
+                
 				while (topResults.size() > k)
 					topResults.pop();
 				for (int j = k-1; j >= 0; j--) {
@@ -233,7 +236,7 @@ namespace hnswlib {
 					topResults.pop();
 				}
 			}
-            
+
 			delete centroids;
 			delete x_residual;
 		}
