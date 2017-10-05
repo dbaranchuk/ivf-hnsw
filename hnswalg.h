@@ -361,7 +361,7 @@ namespace hnswlib {
                 bool good = true;
                 for (std::pair<dist_t, tableint> curen2 : returnlist) {
                     dist_t curdist = space->fstdistfunc(getDataByInternalId(curen2.second), getDataByInternalId(curen.second));
-                    if (curdist < dist_to_query) { // 75 gradus
+                    if (curdist < dist_to_query) {
                         good = false;
                         break;
                     }
@@ -521,7 +521,7 @@ namespace hnswlib {
 
             auto curParam = getParametersByInternalId(cur_c);
             memset((char *) get_linklist0(cur_c), 0, curParam[i_size_data_per_element]);
-//
+
 //            // Initialisation of the data and label
 //            //memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
             memcpy(getDataByInternalId(cur_c), datapoint, data_size_);
@@ -564,7 +564,6 @@ namespace hnswlib {
 
                     std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
                                                                                                     level, efConstruction_);
-                                                                                                  //(cur_c < params[i_threshold]) ? 240 : 500);
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
                 }
 

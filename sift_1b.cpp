@@ -155,7 +155,7 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
                    size_t gt_dim, size_t k = 1)
 {
 	(vector<std::priority_queue< std::pair<dist_t, labeltype >>>(qsize)).swap(answers);
-    cout << qsize << "\n";
+    std::cout << qsize << "\n";
 	for (int i = 0; i < qsize; i++) {
 		for (int j = 0; j < k; j++) {
 			answers[i].emplace(0.0f, massQA[gt_dim*i + j]);
