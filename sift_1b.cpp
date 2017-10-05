@@ -470,7 +470,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 //    input.close();
 //    fclose(fout);
 
-    std::ifstream input(path_data, ios::binary);
+    std::ifstream input("/sata2/dbaranchuk/precomputed_idxs.ivecs", ios::binary);
     idx_t *precomputed_idx = new idx_t[vecsize];
     readXvec(input, precomputed_idx, batch_size, vecsize/batch_size);
     //index->assign(path_data, precomputed_idx, vecsize);
