@@ -105,9 +105,8 @@ namespace hnswlib {
 			std::ifstream input(path_base, ios::binary);
 
 			vtype mass[d];
-			std::priority_queue <std::pair<dist_t, labeltype >> result;
 			readXvec<vtype>(input, mass, d);
-			precomputed_idx[j1] = quantizer->searchKnn(mass, 1).second;
+			precomputed_idx[j1] = quantizer->searchKnn(mass, 1).top().second;
 
 			size_t report_every = 1000000;
 		#pragma omp parallel for num_threads(32)
@@ -120,7 +119,7 @@ namespace hnswlib {
 					if (++j1 % report_every == 0)
 						std::cout << j1 / (0.01 * vecsize) << " %\n";
 				}
-				precomputed_idx[j1] = quantizer->searchKnn(mass, 1).second;
+				precomputed_idx[j1] = quantizer->searchKnn(mass, 1).top().second;
 			}
 
 			input.close();

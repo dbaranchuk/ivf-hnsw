@@ -453,7 +453,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 
     idx_t *precomputed_idx = new idx_t[vecsize];
     index->assign(path_data, precomputed_idx, vecsize);
-    
+
 
     //appr_alg->printListsize();
     //appr_alg->reorder_graph();
