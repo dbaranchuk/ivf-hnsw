@@ -429,7 +429,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 
 
     Index<float, float> *index = new Index<float, float>(vecdim, 1000000, M_PQ, 8);
-    index->buildQuantizer(l2space, "/sata2/dbaranchuk/deep/deep_10M.fvecs", path_info, path_edges);
+    index->buildQuantizer(l2space, "/sata2/dbaranchuk/deep/deep_base_1m_clusters.fvecs", path_info, path_edges);
 
 //    std::cout << "Assigning base elements\n";
     size_t batch_size = 1000000;

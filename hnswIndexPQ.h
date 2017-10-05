@@ -37,7 +37,6 @@ static void readXvec(std::ifstream &input, format *mass, const int d, const int 
 
 namespace hnswlib {
 
-	template<typename dist_t, typename vtype>
 	struct Index
 	{
 		int d;
@@ -53,11 +52,11 @@ namespace hnswlib {
 
 		/** Query members **/
 		size_t nprobe = 16;
-		dist_t *dis_tables;
+		float *dis_tables;
 
         std::vector<idx_t> thresholds;
 
-		HierarchicalNSW<dist_t, vtype> *quantizer;
+		HierarchicalNSW<float, float> *quantizer;
 		faiss::ProductQuantizer pq;
 
 
@@ -76,32 +75,32 @@ namespace hnswlib {
 				delete dis_tables;
 		}
 
-		void buildQuantizer(SpaceInterface<dist_t> *l2space, const char *path_clusters,
+		void buildQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                             const char *path_info, const char *path_edges)
 		{
             if (exists_test(path_info) && exists_test(path_edges)) {
-                quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, path_info, path_clusters, path_edges);
+                quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
                 return;
             }
 
-            quantizer = new HierarchicalNSW<dist_t, vtype>(l2space, {{csize, {16, 32}}}, 240);
+            quantizer = new HierarchicalNSW<float, float>(l2space, {{csize, {16, 32}}}, 240);
             quantizer->ef_ = 60;
 
 			std::cout << "Constructing quantizer\n";
 			int j1 = 0;
 			std::ifstream input(path_clusters, ios::binary);
 
-			vtype mass[d];
-			readXvec<vtype>(input, mass, d);
+			float mass[d];
+			readXvec<float>(input, mass, d);
 			quantizer->addPoint((void *) (mass), j1);
 
 			size_t report_every = 100000;
 		#pragma omp parallel for num_threads(32)
 			for (int i = 1; i < csize; i++) {
-				vtype mass[d];
+				float mass[d];
 		#pragma omp critical
 				{
-					readXvec<vtype>(input, mass, d);
+					readXvec<float>(input, mass, d);
 					if (++j1 % report_every == 0)
 						std::cout << j1 / (0.01 * csize) << " %\n";
 				}
@@ -113,7 +112,7 @@ namespace hnswlib {
 		}
 
 
-		void assign(size_t n, vtype *data, idx_t *precomputed_idx)
+		void assign(size_t n, float *data, idx_t *precomputed_idx)
 		{
 			//int j1 = 0;
 			//std::ifstream input(path_base, ios::binary);
@@ -300,9 +299,9 @@ namespace hnswlib {
 			return result;
 		}
 
-		dist_t fstdistfunc(const size_t q_idx, const uint8_t *y)
+		float fstdistfunc(const size_t q_idx, const uint8_t *y)
 		{
-			dist_t res = 0;
+			float res = 0.;
 			int ksub = pq.ksub;
 			int dim = code_size >> 3;
 
