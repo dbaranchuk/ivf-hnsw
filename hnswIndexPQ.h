@@ -208,7 +208,7 @@ namespace hnswlib {
 				std::priority_queue<std::pair<float, idx_t>> topResults;
 
 				for (int j = 0; j < nprobe; j++){
-                    idx_t key = centroid[i*nprobe + j];
+                    idx_t key = centroids[i*nprobe + j];
                     std::vector<uint8_t> code = codes[key];
 
                     float c = c_norm_table[key];
@@ -223,7 +223,7 @@ namespace hnswlib {
                         norm_pq.decode(code.data()+cd*(code_size+1) + code_size, &norm);
                         float dist = q_c - c - 2*q_r + norm;
                         idx_t label = ids[key][cd];
-                        topResults.emplace({dist, label});
+                        topResults.emplace(std::make_pair(dist, label));
                     }
                     if (topResults.size() > max_codes)
                         break;
