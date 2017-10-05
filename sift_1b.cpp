@@ -409,11 +409,6 @@ void hnsw_test(const char *l2space_type,
 
 
 
-
-
-
-
-template<typename dist_t, typename vtype>
 static void ____hnsw_test(const char *path_data, const char *path_q,
                        const char *path_gt, const char *path_info, const char *path_edges,
                        L2SpaceType l2SpaceType,
@@ -428,68 +423,54 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     loadXvecs<unsigned int>(path_gt, massQA, qsize, gt_dim);
 
     cout << "Loading queries:\n";
-    vtype massQ[qsize * vecdim];
-    loadXvecs<vtype>(path_q, massQ, qsize, vecdim);
+    float massQ[qsize * vecdim];
+    loadXvecs<float>(path_q, massQ, qsize, vecdim);
 
-    SpaceInterface<dist_t> *l2space;
+    SpaceInterface<float> *l2space = new L2Space(vecdim);
 
-    switch(l2SpaceType) {
-        case L2SpaceType::PQ:
-            break;
-        case L2SpaceType::Float:
-            l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2Space(vecdim));
-            break;
-        case L2SpaceType::Int:
-            l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2SpaceI(vecdim));
-            break;
-    }
 
-    Index<dist_t, vtype> *index = new Index<dist_t, vtype>(vecdim, 1000000, M_PQ, 8);
-    index->buildQuantizer(l2space, "/sata2/dbaranchuk/bigann/bigann_learn.bvecs", path_info, path_edges);
+    Index<float, float> *index = new Index<float, float>(vecdim, 1000000, M_PQ, 8);
+    index->buildQuantizer(l2space, "/sata2/dbaranchuk/deep/deep_10M.fvecs", path_info, path_edges);
 
 //    std::cout << "Assigning base elements\n";
     size_t batch_size = 1000000;
-//    FILE *fout = fopen("/sata2/dbaranchuk/precomputed_idxs.ivecs", "wb");
-//
-//    std::ifstream input(path_data, ios::binary);
-//
-//    vtype *batch = new vtype[batch_size * vecdim];
-//    idx_t *precomputed_idx = new idx_t[batch_size];
-//    for (int i = 0; i < vecsize / batch_size; i++) {
-//        std::cout << "Batch number: " << i+1 << " of " << vecsize / batch_size << std::endl;
-//
-//        readXvec(input, batch, vecdim, batch_size);
-//        index->assign(batch_size, batch, precomputed_idx);
-//
-//        fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
-//        fwrite(precomputed_idx, sizeof(idx_t), batch_size, fout);
-//    }
-//    delete precomputed_idx;
-//    delete batch;
-//
-//    input.close();
-//    fclose(fout);
+    FILE *fout = fopen("/sata2/dbaranchuk/precomputed_idxs.ivecs", "wb");
 
-    std::ifstream idx_input("/sata2/dbaranchuk/precomputed_idxs.ivecs", ios::binary);
-    idx_t *precomputed_idx = new idx_t[vecsize];
-    readXvec(idx_input, precomputed_idx, batch_size, vecsize/batch_size);
-    //index->assign(path_data, precomputed_idx, vecsize);
-    idx_input.close();
+    std::ifstream input(path_data, ios::binary);
 
+    float *batch = new float[batch_size * vecdim];
+    idx_t *precomputed_idx = new idx_t[batch_size];
+    for (int i = 0; i < vecsize / batch_size; i++) {
+        std::cout << "Batch number: " << i+1 << " of " << vecsize / batch_size << std::endl;
 
-    std::ifstream learn_input("/sata2/dbaranchuk/bigann/bigann_learn.bvecs", ios::binary);
-    int nt = 1000000;
-    std::vector<vtype> vtype_trainvecs(nt * vecdim);
-    std::vector<float> trainvecs(nt * vecdim);
+        readXvec(input, batch, vecdim, batch_size);
+        index->assign(batch_size, batch, precomputed_idx);
 
-    readXvec<vtype>(learn_input, vtype_trainvecs.data(), vecdim, nt);
-    for (int i = 0; i < nt; i++){
-        trainvecs[i] = vtype_trainvecs[i];
+        fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
+        fwrite(precomputed_idx, sizeof(idx_t), batch_size, fout);
     }
-    index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
-    index->code_size = index->pq.code_size;
-    index->verbose = true;
-    index->train_residual(nt, trainvecs.data());
+    delete precomputed_idx;
+    delete batch;
+
+    input.close();
+    fclose(fout);
+
+//    std::ifstream idx_input("/sata2/dbaranchuk/precomputed_idxs.ivecs", ios::binary);
+//    //idx_t *precomputed_idx = new idx_t[vecsize];
+//    readXvec(idx_input, precomputed_idx, batch_size, vecsize/batch_size);
+//    //index->assign(path_data, precomputed_idx, vecsize);
+//    idx_input.close();
+//
+//
+//    std::ifstream learn_input("/sata2/dbaranchuk/bigann/bigann_learn.bvecs", ios::binary);
+//    int nt = 1000000;
+//    std::vector<float> trainvecs(nt * vecdim);
+//
+//    readXvec<vtype>(learn_input, trainvecs.data(), vecdim, nt);
+//    index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
+//    index->code_size = index->pq.code_size;
+//    index->verbose = true;
+//    index->train_residual(nt, trainvecs.data());
 
 
     //appr_alg->printListsize();
@@ -497,10 +478,10 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     //appr_alg->check_connectivity(massQA, qsize);
     //appr_alg->printNumElements();
 
-    vector<std::priority_queue< std::pair<dist_t, labeltype >>> answers;
+    vector<std::priority_queue< std::pair<float, labeltype >>> answers;
 
     cout << "Parsing gt:\n";
-    get_gt<dist_t>(massQA, qsize, answers, gt_dim);
+    get_gt<float>(massQA, qsize, answers, gt_dim);
 
     //cout << "Loaded gt\n";
     //test_vs_recall<dist_t, vtype>(massQ, qsize, *appr_alg, vecdim, answers, k, PQ);
@@ -518,10 +499,7 @@ void ___hnsw_test(const char *l2space_type,
                   const int k, const int vecsize, const int qsize,
                   const int vecdim, const int efConstruction, const int M, bool one_layer)
 {
-    if (!strcmp (l2space_type, "int")) {
-        ____hnsw_test<int, unsigned char>(path_data, path_q, path_gt, path_info, path_edges,
-                                          L2SpaceType::Int, k, vecsize, qsize, vecdim, efConstruction, M);
-    } else if (!strcmp (l2space_type, "float"))
+    if (!strcmp (l2space_type, "float"))
         ____hnsw_test<float, float>(path_data, path_q, path_gt, path_info, path_edges,
                                     L2SpaceType::Float, k, vecsize, qsize, vecdim, efConstruction, M);
 }
