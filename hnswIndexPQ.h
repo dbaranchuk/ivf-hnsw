@@ -125,7 +125,7 @@ namespace hnswlib {
 		}
 
 
-		void assign(size_t n, const vtype *data, idx_t *precomputed_idx,)
+		void assign(size_t n, const vtype *data, idx_t *precomputed_idx)
 		{
             quantizer->ef_ = 40;
 			std::cout << "Assigning base elements\n";
@@ -135,11 +135,11 @@ namespace hnswlib {
 
 			//vtype *ma
 			//readXvec<vtype>(input, mass, d);
-			precomputed_idx[j1] = quantizer->searchKnn(data, 1).top().second;
+			//precomputed_idx[0] = quantizer->searchKnn(data, 1).top().second;
 
 			//size_t report_every = 1000000;
 		#pragma omp parallel for num_threads(32)
-			for (int i = 1; i < n; i++) {
+			for (int i = 0; i < n; i++) {
 			//	vtype mass[d];
 		//#pragma omp critical
 			//	{
