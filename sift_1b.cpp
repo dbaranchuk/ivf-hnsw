@@ -479,8 +479,13 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 
     std::ifstream learn_input("/sata2/dbaranchuk/bigann/bigann_learn.bvecs", ios::binary);
     int nt = 1000000;
-    std::vector<vtype> trainvecs(nt * vecdim);
-    readXvec<vtype>(learn_input, trainvecs.data(), vecdim, nt);
+    std::vector<vtype> vtype_trainvecs(nt * vecdim);
+    std::vector<float> trainvecs(nt * vecdim);
+
+    readXvec<vtype>(learn_input, vtype_trainvecs.data(), vecdim, nt);
+    for (int i = 0; i < nt; i++){
+        trainvecs[i] = vtype_trainvecs[i];
+    }
     index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
     index->code_size = index->pq.code_size;
     index->verbose = true;
