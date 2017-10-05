@@ -428,7 +428,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     SpaceInterface<float> *l2space = new L2Space(vecdim);
 
 
-    Index<float, float> *index = new Index<float, float>(vecdim, 1000000, M_PQ, 8);
+    Index *index = new Index(vecdim, 1000000, M_PQ, 8);
     index->buildQuantizer(l2space, "/sata2/dbaranchuk/deep/deep_base_1m_clusters.fvecs", path_info, path_edges);
 
 

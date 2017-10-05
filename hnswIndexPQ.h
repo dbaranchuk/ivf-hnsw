@@ -236,10 +236,10 @@ namespace hnswlib {
 			delete x_residual;
 		}
 
-		void compute_query_tables(vtype *massQ, size_t qsize)
+		void compute_query_tables(float *massQ, size_t qsize)
 		{
 			int ksub = 256;
-			dis_tables = new dist_t[qsize*ksub*code_size];
+			dis_tables = new float[qsize*ksub*code_size];
 			pq.compute_distance_tables(qsize, massQ, dis_tables);
 		}
 
