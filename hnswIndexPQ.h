@@ -254,13 +254,33 @@ namespace hnswlib {
 
         void train_norm_pq(idx_t n, float *x)
         {
-            //const idx_t nsub = 65536;
-            float *trainset = new float[n];
-            faiss::fvec_norms_L2sqr (trainset, x, d, n);
+            idx_t *assigned = new idx_t [n]; // assignement to coarse centroids
+            this->assign (n, x, assigned);
+            float *residuals = new float [n * d];
+            for (idx_t i = 0; i < n; i++)
+                compute_residual (x + i * d, residuals+i*d, assigned[i]);
 
-            for (int i = 0; i < n; i++) {
-                std::cout << trainset[i] << std::endl;
+            uint8_t * xcodes = new uint8_t [n * code_size];
+            pq.compute_codes (residuals, xcodes, n);
+            pq.decode(xcode, residuals, n);
+
+            float *decoded_x = new float[n*d];
+            for (idx_t i = 0; i < n; i++) {
+                float *centroid = (float *) quantizer->getDataByInternalId(assigned[i]);
+                for (int j = 0; j < d; j++)
+                    decoded_x[i*d + j] = centroid[j] + residuals[i*d + j];
+
             }
+            delete residuals;
+            delete assigned;
+            delete xcodes;
+
+            float *trainset = new float[n];
+            faiss::fvec_norms_L2sqr (trainset, decodes_x, d, n);
+
+            for (int i = 0; i < n; i++)
+                std::cout << trainset[i] << std::endl;
+
             norm_pq.verbose = verbose;
             norm_pq.train (n, trainset);
 
