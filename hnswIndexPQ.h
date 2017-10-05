@@ -114,7 +114,7 @@ namespace hnswlib {
 
 		void assign(size_t n, vtype *data, idx_t *precomputed_idx)
 		{
-            quantizer->ef_ = 40;
+            quantizer->ef_ = 20;
 			std::cout << "Assigning base elements\n";
 			//int j1 = 0;
 			//std::ifstream input(path_base, ios::binary);
@@ -141,9 +141,9 @@ namespace hnswlib {
 
 			//Fill thresholds
 			//count number of elements per cluster
-			for(int i = 0; i < n; i++){
-				thresholds[precomputed_idx[i]]++;
-			}
+			//for(int i = 0; i < n; i++){
+			//	thresholds[precomputed_idx[i]]++;
+			//}
 			//for (int i = 1; i < csize; i++)
 			//	thresholds[i] += thresholds[i-1];
 
