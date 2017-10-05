@@ -258,6 +258,7 @@ namespace hnswlib {
             float *trainset = new float[nsub];
             faiss::fvec_norms_L2sqr (trainset, x, d, nsub);
 
+            std::cout << trainset[0] << std::endl;
             norm_pq.verbose = verbose;
             norm_pq.train (nsub, trainset);
 
