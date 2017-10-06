@@ -215,6 +215,9 @@ namespace hnswlib {
                     float q_r = 0.;
 
                     int ncodes = code.size()/(code_size+1);
+                    if (ncodes == 0){
+                        std::cout << i << std::endl;
+                    }
                     for (int cd = 0; cd < ncodes; cd++){
                         for (int m = 0; m < code_size; m++)
                             q_r += dis_tables[pq.ksub * (i*code_size + m) + code[cd*(code_size + 1) + m]];
