@@ -315,7 +315,7 @@ namespace hnswlib {
                 std::cout << "Batch number: " << i+1 << " of " << n / batch_size << std::endl;
 
                 readXvec(input, batch, d, batch_size);
-                index->assign(batch_size, batch, precomputed_idx);
+                assign(batch_size, batch, precomputed_idx);
 
                 fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
                 fwrite(precomputed_idx, sizeof(idx_t), batch_size, fout);
