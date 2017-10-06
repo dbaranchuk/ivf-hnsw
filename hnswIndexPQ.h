@@ -90,12 +90,12 @@ namespace hnswlib {
 		{
             if (exists_test(path_info) && exists_test(path_edges)) {
                 quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
-                quantizer->ef_ = 100;
+                quantizer->ef_ = 80;
                 return;
             }
 
             quantizer = new HierarchicalNSW<float, float>(l2space, {{csize, {16, 32}}}, 240);
-            quantizer->ef_ = 100;
+            quantizer->ef_ = 80;
 
 			std::cout << "Constructing quantizer\n";
 			int j1 = 0;

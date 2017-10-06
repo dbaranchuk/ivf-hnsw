@@ -515,21 +515,24 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     get_gt<float>(massQA, qsize, answers, gt_dim);
 
 
-//    for (int i = 0; i < qsize; i++) {
-//        std::cout << results[i] << std::endl;
-//        std::priority_queue<std::pair<dist_t, labeltype >> gt(answers[i]);
-//        unordered_set<labeltype> g;
-//
-//        float dist2gt = appr_alg.space->fstdistfunc(
-//                (void *) (massQ + vecdim * i),//appr_alg.getDataByInternalId(gt.top().second),
-//                appr_alg.getDataByInternalId(appr_alg.enterpoint0));
-//        appr_alg.nev9zka += dist2gt / qsize;
-//
-//        while (gt.size()) {
-//            g.insert(gt.top().second);
-//            gt.pop();
-//        }
-//    }
+    int correct = 0;
+    for (int i = 0; i < qsize; i++) {
+        std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
+        unordered_set<labeltype> g;
+
+        while (gt.size()) {
+            g.insert(gt.top().second);
+            gt.pop();
+        }
+
+        for (int j = 0; j < k; j++){
+            if (g.count(results[i*k + j]) != 0){
+                correct++;
+                break;
+            }
+        }
+    }
+    std::cout << "Recall@" << k << ": " << 1.0f*correct / qsize << std::endl;
 
     //cout << "Loaded gt\n";
     //test_vs_recall<dist_t, vtype>(massQ, qsize, *appr_alg, vecdim, answers, k, PQ);
