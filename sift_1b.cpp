@@ -227,9 +227,6 @@ static void test_vs_recall(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, v
         appr_alg.hops = 0.0;
         appr_alg.hops0 = 0.0;
 		StopW stopw = StopW();
-        if (pq)
-            dynamic_cast<L2SpacePQ *>(appr_alg.space)->compute_query_tables((unsigned char *)massQ, qsize);
-
 		float recall = test_approx<dist_t, vtype>(massQ, qsize, appr_alg, vecdim, answers, k, pq);
 		float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
 		float avr_dist_count = appr_alg.dist_calc*1.f / qsize;
@@ -238,8 +235,6 @@ static void test_vs_recall(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, v
 			cout << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\n";
 			break;
 		}
-        if (pq)
-            delete dynamic_cast<L2SpacePQ *>(appr_alg.space)->queryTables;
     }
     cout << "Average hops on levels 1+: " << appr_alg.hops << endl;
     cout << "Average distance from 0 level entry point to query: " << appr_alg.nev9zka << endl;
