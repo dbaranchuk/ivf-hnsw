@@ -203,7 +203,6 @@ namespace hnswlib {
 				}
 			}
 
-
 			for (int i = 0; i < nx; i++){
 				std::priority_queue<std::pair<float, idx_t>> topResults;
 
@@ -215,7 +214,8 @@ namespace hnswlib {
                     float q_c = q_minus_c_table[i*nprobe + j];
                     float q_r = 0.;
 
-                    for (int cd = 0; cd < code.size()/(code_size+1); cd+=code_size+1){
+                    int ncodes = code.size()/(code_size+1);
+                    for (int cd = 0; cd < ncodes; cd++){
                         for (int m = 0; m < code_size; m++)
                             q_r += dis_tables[pq.ksub * (i*code_size + m) + code[cd*(code_size + 1) + m]];
 
