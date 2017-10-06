@@ -269,9 +269,10 @@ namespace hnswlib {
 
         std::vector<float *> codebooks;
         std::vector<int *> constructionTables;
-        std::vector<int *> queryTables;
 
     public:
+        int *queryTables;
+
         L2SpacePQ(const size_t dim, const size_t m, const size_t k):
                 dim_(dim), m_(m), k_(k)
         {
@@ -289,8 +290,9 @@ namespace hnswlib {
             for (int i = 0; i < constructionTables.size(); i++)
                 free(constructionTables[i]);
 
-            for (int i = 0; i < queryTables.size(); i++)
-                free(queryTables[i]);
+            if (queryTables)
+            //for (int i = 0; i < queryTables.size(); i++)
+                delete queryTables;
 
             for (int i = 0; i < codebooks.size(); i++)
                 free(codebooks[i]);
@@ -336,9 +338,11 @@ namespace hnswlib {
             unsigned char *q, *x;
             float *y;
 
-            queryTables = std::vector<int *> (m_);
-            for (int i = 0; i < m_; i++)
-                queryTables[i] = (int *) calloc(sizeof(int), k_ * qsize);
+            queryTables = new int [m_ * k_ * qsize];
+
+            //        std::vector<int *> (m_);
+            //for (int i = 0; i < m_; i++)
+            //    queryTables[i] = (int *) calloc(sizeof(int), k_ * qsize);
 
             for (size_t q_idx = 0; q_idx < qsize; q_idx++) {
                 q = massQ + q_idx * dim_;
@@ -351,11 +355,12 @@ namespace hnswlib {
                             int t = x[j] - y[j];
                             res += t * t;
                         }
-                        queryTables[m][q_idx*k_ + k] = res;
+                        queryTables[k_*(q_idx*m_ + m) + k] = res;
                     }
                 }
             }
         }
+
 
         size_t get_data_size() { return data_size_; }
         size_t get_data_dim() { return m_; }
@@ -389,14 +394,21 @@ namespace hnswlib {
 
             int n = 0;
             for (int i = 0; i < dim; ++i) {
-                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+//                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+//                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+//                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+//                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+//                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+//                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+//                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
             }
             return res;
         };

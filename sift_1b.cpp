@@ -236,6 +236,8 @@ static void test_vs_recall(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, v
 			cout << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\n";
 			break;
 		}
+        if (pq)
+            delete dynamic_cast<L2SpacePQ *>(appr_alg.space)->queryTables;
     }
     cout << "Average hops on levels 1+: " << appr_alg.hops << endl;
     cout << "Average distance from 0 level entry point to query: " << appr_alg.nev9zka << endl;
