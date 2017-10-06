@@ -474,8 +474,8 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         index->train_residual_pq(nt, trainvecs.data());
         index->train_norm_pq(65536, trainvecs.data());
 
-        faiss::write_ProductQuantizer (&index->norm_pq, "/sata2/dbaranchuk/deep_norm_pq");
-        faiss::write_ProductQuantizer (&index->pq, "/sata2/dbaranchuk/deep_pq_16");
+        faiss::write_ProductQuantizer (&index->norm_pq, path_norm_pq);
+        faiss::write_ProductQuantizer (&index->pq, path_pq);
     }
 
     {
@@ -509,14 +509,27 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     idx_t *results = new idx_t[k*qsize];
     index->search(qsize, massQ, k, results);
 
-    for (int i = 0; i < qsize; i++)
-        std::cout << results[i] << std::endl;
 
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
-
-    cout << "Parsing gt:\n";
+    std::cout << "Parsing gt:\n";
     get_gt<float>(massQA, qsize, answers, gt_dim);
 
+
+//    for (int i = 0; i < qsize; i++) {
+//        std::cout << results[i] << std::endl;
+//        std::priority_queue<std::pair<dist_t, labeltype >> gt(answers[i]);
+//        unordered_set<labeltype> g;
+//
+//        float dist2gt = appr_alg.space->fstdistfunc(
+//                (void *) (massQ + vecdim * i),//appr_alg.getDataByInternalId(gt.top().second),
+//                appr_alg.getDataByInternalId(appr_alg.enterpoint0));
+//        appr_alg.nev9zka += dist2gt / qsize;
+//
+//        while (gt.size()) {
+//            g.insert(gt.top().second);
+//            gt.pop();
+//        }
+//    }
 
     //cout << "Loaded gt\n";
     //test_vs_recall<dist_t, vtype>(massQ, qsize, *appr_alg, vecdim, answers, k, PQ);
