@@ -169,16 +169,13 @@ namespace hnswlib {
 		void search (float *x, idx_t k, idx_t *results)
 		{
             idx_t keys[nprobe];
-            float dist[nprobe];
+            float q_c[nprobe];
 
             float * dis_tables = new float [pq.ksub * pq.M];
             pq.compute_distance_tables (1, x, dis_tables);
 
             std::priority_queue<std::pair<float, idx_t>> topResults;
-            auto coarse = quantizer->searchKnn(x+i*d, nprobe);
-
-            idx_t keys[nprobe];
-            float q_c[nprobe];
+            auto coarse = quantizer->searchKnn(x, nprobe);
 
             for (int i = nprobe - 1; i >= 0; i--) {
                 auto elem = coarse.top();
