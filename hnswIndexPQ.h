@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <vector>
 #include <queue>
-
+#include <limits>
 
 
 #include "L2space.h"
@@ -215,9 +215,7 @@ namespace hnswlib {
                     float q_r = 0.;
 
                     int ncodes = code.size()/(code_size+1);
-                    if (ncodes == 0){
-                        std::cout << i << std::endl;
-                    }
+
                     for (int cd = 0; cd < ncodes; cd++){
                         for (int m = 0; m < code_size; m++)
                             q_r += dis_tables[pq.ksub * (i*code_size + m) + code[cd*(code_size + 1) + m]];
@@ -232,11 +230,14 @@ namespace hnswlib {
                         break;
 				}
 
-				std::cout << i << std:: endl;
 				while (topResults.size() > k)
 					topResults.pop();
 
-				std::cout << topResults.size() << std:: endl;
+                if (topResults.size() < k) {
+                    for (int j = topResults.size(); j < k; j++)
+                        topResults.emplace(std::make_pair(std::numeric_limits<float>::max(), 0));
+                    std::cout << i << std::endl;
+                }
 				for (int j = k-1; j >= 0; j--) {
 					results[i * k + j] = topResults.top().second;
 					topResults.pop();
