@@ -53,7 +53,7 @@ namespace hnswlib {
         std::vector < std::vector<idx_t> > ids;
 
 		/** Query members **/
-		size_t nprobe = 1024;
+		size_t nprobe = 65536;
         size_t max_codes = 10000;
 
 		float *dis_tables;
