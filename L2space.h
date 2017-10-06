@@ -303,7 +303,7 @@ namespace hnswlib {
 
         void set_query_table(unsigned char *q)
         {
-            unsigned char *q, *x;
+            unsigned char *x;
             float *y;
 
             for (size_t m = 0; m < m_; m++) {
@@ -355,33 +355,33 @@ namespace hnswlib {
             fclose(fin);
         }
 
-        void compute_query_tables(unsigned char *massQ, size_t qsize)
-        {
-            unsigned char *q, *x;
-            float *y;
-
-            queryTables = new int [m_ * k_ * qsize];
-
-            //        std::vector<int *> (m_);
-            //for (int i = 0; i < m_; i++)
-            //    queryTables[i] = (int *) calloc(sizeof(int), k_ * qsize);
-
-            for (size_t q_idx = 0; q_idx < qsize; q_idx++) {
-                q = massQ + q_idx * dim_;
-                for (size_t m = 0; m < m_; m++) {
-                    x = q + m * vocab_dim_;
-                    for (size_t k = 0; k < k_; k++){
-                        int res = 0;
-                        y = codebooks[m] + k * vocab_dim_;
-                        for (int j = 0; j < vocab_dim_; j++) {
-                            int t = x[j] - y[j];
-                            res += t * t;
-                        }
-                        queryTables[k_*(q_idx*m_ + m) + k] = res;
-                    }
-                }
-            }
-        }
+//        void compute_query_tables(unsigned char *massQ, size_t qsize)
+//        {
+//            unsigned char *q, *x;
+//            float *y;
+//
+//            queryTables = new int [m_ * k_ * qsize];
+//
+//            //        std::vector<int *> (m_);
+//            //for (int i = 0; i < m_; i++)
+//            //    queryTables[i] = (int *) calloc(sizeof(int), k_ * qsize);
+//
+//            for (size_t q_idx = 0; q_idx < qsize; q_idx++) {
+//                q = massQ + q_idx * dim_;
+//                for (size_t m = 0; m < m_; m++) {
+//                    x = q + m * vocab_dim_;
+//                    for (size_t k = 0; k < k_; k++){
+//                        int res = 0;
+//                        y = codebooks[m] + k * vocab_dim_;
+//                        for (int j = 0; j < vocab_dim_; j++) {
+//                            int t = x[j] - y[j];
+//                            res += t * t;
+//                        }
+//                        queryTables[k_*(q_idx*m_ + m) + k] = res;
+//                    }
+//                }
+//            }
+//        }
 
 
         size_t get_data_size() { return data_size_; }
@@ -441,7 +441,7 @@ namespace hnswlib {
             int dim = m_ >> 3;
             unsigned char *y = (unsigned char *)y_code;
 
-            int n = 0;
+            int m = 0;
             for (int i = 0; i < dim; ++i) {
                 res += query_table[k_ * m + y[m]]; ++m;
                 res += query_table[k_ * m + y[m]]; ++m;

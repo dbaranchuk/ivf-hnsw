@@ -175,10 +175,11 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
 	//#pragma omp parallel for
 	for (int i = 0; i < qsize; i++) {
 		std::priority_queue< std::pair<dist_t, labeltype >> result;
-        dynamic_cast<L2SpacePQ *>(appr_alg.space)->set_query_table(massQ + vecdim*i);
 
-        if (pq)
-            result = appr_alg.searchKnn(massQ + vecdim*i, k, i);
+        if (pq) {
+            dynamic_cast<L2SpacePQ *>(appr_alg.space)->set_query_table((unsigned char *) (massQ + vecdim * i));
+            result = appr_alg.searchKnn(massQ + vecdim * i, k, i);
+        }
         else
             result = appr_alg.searchKnn(massQ + vecdim*i, k);
 
