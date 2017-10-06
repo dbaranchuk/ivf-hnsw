@@ -432,29 +432,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 
     Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
     index->buildQuantizer(l2space, "/sata2/dbaranchuk/deep/deep10M_clusters_10k.fvecs", path_info, path_edges);
-
-
-    size_t batch_size = 1000000;
-//    FILE *fout = fopen("/sata2/dbaranchuk/precomputed_idxs.ivecs", "wb");
-//
-//    std::ifstream input(path_data, ios::binary);
-//
-//    float *batch = new float[batch_size * vecdim];
-//    idx_t *precomputed_idx = new idx_t[batch_size];
-//    for (int i = 0; i < vecsize / batch_size; i++) {
-//        std::cout << "Batch number: " << i+1 << " of " << vecsize / batch_size << std::endl;
-//
-//        readXvec(input, batch, vecdim, batch_size);
-//        index->assign(batch_size, batch, precomputed_idx);
-//
-//        fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
-//        fwrite(precomputed_idx, sizeof(idx_t), batch_size, fout);
-//    }
-//    delete precomputed_idx;
-//    delete batch;
-//
-//    input.close();
-//    fclose(fout);
+    index->precompute_idx(path_data, "/sata2/dbaranchuk/precomputed_idxs_10k.ivecs");
 
     const char *path_pq = "/sata2/dbaranchuk/deep_pq_16";
     const char *path_norm_pq = "/sata2/dbaranchuk/deep_norm_pq";

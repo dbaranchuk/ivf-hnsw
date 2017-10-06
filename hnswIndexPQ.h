@@ -298,6 +298,35 @@ namespace hnswlib {
             delete residuals;
         }
 
+
+        void precompute_idx(const char *path_data, const char *fo_name)
+        {
+            if (exists_test(fo_name))
+                return;
+
+            size_t batch_size = 1000000;
+            FILE *fout = fopen(fo_name, "wb");
+
+            std::ifstream input(path_data, ios::binary);
+
+            float *batch = new float[batch_size * vecdim];
+            idx_t *precomputed_idx = new idx_t[batch_size];
+            for (int i = 0; i < vecsize / batch_size; i++) {
+                std::cout << "Batch number: " << i+1 << " of " << vecsize / batch_size << std::endl;
+
+                readXvec(input, batch, vecdim, batch_size);
+                index->assign(batch_size, batch, precomputed_idx);
+
+                fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
+                fwrite(precomputed_idx, sizeof(idx_t), batch_size, fout);
+            }
+            delete precomputed_idx;
+            delete batch;
+
+            input.close();
+            fclose(fout);
+        }
+
 	private:
 		void compute_residual(const float *x, float *residual, idx_t key)
 		{
