@@ -90,12 +90,12 @@ namespace hnswlib {
 		{
             if (exists_test(path_info) && exists_test(path_edges)) {
                 quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
-                quantizer->ef_ = 240;
+                quantizer->ef_ = 60;
                 return;
             }
 
             quantizer = new HierarchicalNSW<float, float>(l2space, {{csize, {16, 32}}}, 240);
-            quantizer->ef_ = 100;
+            quantizer->ef_ = 60;
 
 			std::cout << "Constructing quantizer\n";
 			int j1 = 0;
@@ -344,39 +344,39 @@ namespace hnswlib {
 			}
 		}
 
-		float compute_norm(const float *x)
-		{
-			float result = 0.;
-			int dim = d >> 2;
+//		float compute_norm(const float *x)
+//		{
+//			float result = 0.;
+//			int dim = d >> 2;
+//
+//			for (int i = 0; i < dim; i++){
+//				result += (*x)*(*x); x++;
+//				result += (*x)*(*x); x++;
+//				result += (*x)*(*x); x++;
+//				result += (*x)*(*x); x++;
+//			}
+//			return result;
+//		}
 
-			for (int i = 0; i < dim; i++){
-				result += (*x)*(*x); x++;
-				result += (*x)*(*x); x++;
-				result += (*x)*(*x); x++;
-				result += (*x)*(*x); x++;
-			}
-			return result;
-		}
-
-		float fstdistfunc(const size_t q_idx, const uint8_t *y)
-		{
-			float res = 0.;
-			int ksub = pq.ksub;
-			int dim = code_size >> 3;
-
-			int n = 0;
-			for (int i = 0; i < dim; ++i) {
-				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-			}
-			return res;
-		};
+//		float fstdistfunc(const size_t q_idx, const uint8_t *y)
+//		{
+//			float res = 0.;
+//			int ksub = pq.ksub;
+//			int dim = code_size >> 3;
+//
+//			int n = 0;
+//			for (int i = 0; i < dim; ++i) {
+//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
+//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
+//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
+//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
+//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
+//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
+//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
+//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
+//			}
+//			return res;
+//		};
 	};
 
 }
