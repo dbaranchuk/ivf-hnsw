@@ -299,7 +299,7 @@ namespace hnswlib {
         }
 
 
-        void precompute_idx(const char *path_data, const char *fo_name)
+        void precompute_idx(size_t n, const char *path_data, const char *fo_name)
         {
             if (exists_test(fo_name))
                 return;
@@ -309,12 +309,12 @@ namespace hnswlib {
 
             std::ifstream input(path_data, ios::binary);
 
-            float *batch = new float[batch_size * vecdim];
+            float *batch = new float[batch_size * d];
             idx_t *precomputed_idx = new idx_t[batch_size];
-            for (int i = 0; i < vecsize / batch_size; i++) {
-                std::cout << "Batch number: " << i+1 << " of " << vecsize / batch_size << std::endl;
+            for (int i = 0; i < n / batch_size; i++) {
+                std::cout << "Batch number: " << i+1 << " of " << n / batch_size << std::endl;
 
-                readXvec(input, batch, vecdim, batch_size);
+                readXvec(input, batch, d, batch_size);
                 index->assign(batch_size, batch, precomputed_idx);
 
                 fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
