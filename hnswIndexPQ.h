@@ -183,14 +183,16 @@ namespace hnswlib {
                 q_c[i] = elem.first;
                 keys[i] = elem.second;
                 coarse.pop();
+                std::cout << keys[i] << " ";
             }
+            std::cout << std::endl;
             for (int i = 0; i < nprobe; i++){
                 idx_t key = keys[i];
                 std::vector<uint8_t> code = codes[key];
                 float c = c_norm_table[key];
 
                 int ncodes = code.size()/(code_size+1);
-                std::cout << code.size() << std::endl;
+                //std::cout << code.size() << std::endl;
 
                 for (int j = 0; j < ncodes; j++){
                     float q_r = 0.;
