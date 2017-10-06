@@ -53,8 +53,8 @@ namespace hnswlib {
         std::vector < std::vector<idx_t> > ids;
 
 		/** Query members **/
-		size_t nprobe = 1024;
-        size_t max_codes = 10000;
+		size_t nprobe = 128;
+        size_t max_codes = 30000;
 
         float *q_norm_table;
         float *c_norm_table;
@@ -188,11 +188,12 @@ namespace hnswlib {
                 idx_t key = keys[i];
                 std::vector<uint8_t> code = codes[key];
                 float c = c_norm_table[key];
-                float q_r = 0.;
 
                 int ncodes = code.size()/(code_size+1);
+                std::cout << code.size() << std::endl;
 
                 for (int j = 0; j < ncodes; j++){
+                    float q_r = 0.;
                     for (int m = 0; m < code_size; m++)
                         q_r += dis_tables[pq.ksub * m + code[j*(code_size + 1) + m]];
 
