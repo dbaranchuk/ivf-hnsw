@@ -271,7 +271,7 @@ namespace hnswlib {
         std::vector<int *> constructionTables;
 
     public:
-        int *queryTables;
+        //int *queryTables;
         int *query_table;
 
         L2SpacePQ(const size_t dim, const size_t m, const size_t k):
@@ -443,6 +443,10 @@ namespace hnswlib {
 
             int m = 0;
             for (int i = 0; i < dim; ++i) {
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
                 res += query_table[k_ * m + y[m]]; ++m;
                 res += query_table[k_ * m + y[m]]; ++m;
                 res += query_table[k_ * m + y[m]]; ++m;
