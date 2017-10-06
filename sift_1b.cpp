@@ -419,7 +419,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     const int ncentroids = 1000000;
 
     cout << "Loading GT:\n";
-    const int gt_dim = 1000;
+    const int gt_dim = 1;
     unsigned int *massQA = new unsigned int[qsize * gt_dim];
     loadXvecs<unsigned int>(path_gt, massQA, qsize, gt_dim);
 
