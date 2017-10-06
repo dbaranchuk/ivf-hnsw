@@ -54,7 +54,7 @@ namespace hnswlib {
 
 		/** Query members **/
 		size_t nprobe = 32;
-        size_t max_codes = 30000;
+        size_t max_codes = 10000;
 
         float *q_norm_table;
         float *c_norm_table;
@@ -172,7 +172,6 @@ namespace hnswlib {
             float q_c[nprobe];
 
             float * dis_tables = new float [pq.ksub * pq.M];
-            //pq.compute_distance_table(x, dis_tables);
             pq.compute_inner_prod_table(x, dis_tables);
 
             std::priority_queue<std::pair<float, idx_t>> topResults;
@@ -183,16 +182,13 @@ namespace hnswlib {
                 q_c[i] = elem.first;
                 keys[i] = elem.second;
                 coarse.pop();
-                std::cout << keys[i] << " ";
             }
-            std::cout << std::endl;
             for (int i = 0; i < nprobe; i++){
                 idx_t key = keys[i];
                 std::vector<uint8_t> code = codes[key];
                 float c = c_norm_table[key];
 
                 int ncodes = code.size()/(code_size+1);
-                //std::cout << code.size() << std::endl;
 
                 for (int j = 0; j < ncodes; j++){
                     float q_r = 0.;
