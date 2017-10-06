@@ -474,8 +474,8 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         index->train_residual_pq(nt, trainvecs.data());
         index->train_norm_pq(65536, trainvecs.data());
 
-        faiss::write_ProductQuantizer (&index->norm_pq, path_norm_pq);
-        faiss::write_ProductQuantizer (&index->pq, path_pq);
+        //faiss::write_ProductQuantizer (&index->norm_pq, path_norm_pq);
+        //faiss::write_ProductQuantizer (&index->pq, path_pq);
     }
 
     {
