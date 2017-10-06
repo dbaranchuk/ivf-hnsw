@@ -431,7 +431,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 
 
     Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
-    index->buildQuantizer(l2space, "/sata2/dbaranchuk/deep/deep_base_1m_clusters.fvecs", path_info, path_edges);
+    index->buildQuantizer(l2space, "/sata2/dbaranchuk/deep/deep10M_clusters_10k.fvecs", path_info, path_edges);
 
 
     size_t batch_size = 1000000;
