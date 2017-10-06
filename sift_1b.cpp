@@ -537,7 +537,6 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     //test_vs_recall<dist_t, vtype>(massQ, qsize, *appr_alg, vecdim, answers, k, PQ);
     //cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
 
-    delete results;
     delete index;
     delete massQA;
     delete l2space;
