@@ -497,7 +497,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     index->compute_centroid_norm_table();
 
     idx_t *results = new idx_t[k*qsize];
-    //index->search(qsize, massQ, k, results);
+    index->search(qsize, massQ, k, results);
 
     for (int i = 0; i < qsize; i++)
         std::cout << results[i] << std::endl;
