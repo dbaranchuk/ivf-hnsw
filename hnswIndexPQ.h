@@ -53,7 +53,7 @@ namespace hnswlib {
         std::vector < std::vector<idx_t> > ids;
 
 		/** Query members **/
-		size_t nprobe = 16;
+		size_t nprobe = 32;
         size_t max_codes = 10000;
 
 		float *dis_tables;
@@ -203,6 +203,8 @@ namespace hnswlib {
 				}
 			}
 
+			std::cout << "HUI" << std:: endl;
+
 			for (int i = 0; i < nx; i++){
 				std::priority_queue<std::pair<float, idx_t>> topResults;
 
@@ -225,12 +227,16 @@ namespace hnswlib {
                         idx_t label = ids[key][cd];
                         topResults.emplace(std::make_pair(dist, label));
                     }
+					std::cout << "PIZDA" << std:: endl;
                     if (topResults.size() > max_codes)
                         break;
 				}
 
+				std::cout << i << std:: endl;
 				while (topResults.size() > k)
 					topResults.pop();
+
+				std::cout << topResults.size() << std:: endl;
 				for (int j = k-1; j >= 0; j--) {
 					results[i * k + j] = topResults.top().second;
 					topResults.pop();
