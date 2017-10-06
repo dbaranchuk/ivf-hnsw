@@ -455,7 +455,13 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 //    input.close();
 //    fclose(fout);
 
-    {
+    const char *path_pq = "/sata2/dbaranchuk/deep_pq_16";
+    const char *path_norm_pq = "/sata2/dbaranchuk/deep_norm_pq";
+
+    if (exists_test(path_pq) && exists_test(path_norm_pq)) {
+        index->pq = *(faiss::read_ProductQuantizer (path_pq));
+        index->norm_pq = *(faiss::read_ProductQuantizer (path_norm_pq));
+    } else {
         std::ifstream learn_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
         int nt = 1000000;
         std::vector<float> trainvecs(nt * vecdim);
@@ -466,6 +472,9 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         index->verbose = true;
         index->train_residual_pq(nt, trainvecs.data());
         index->train_norm_pq(65536, trainvecs.data());
+
+        faiss::write_ProductQuantizer (&(index->norm_pq), "/sata2/dbaranchuk/deep_norm_pq");
+        faiss::write_ProductQuantizer (&(index->pq), "/sata2/dbaranchuk/deep_pq_16");
     }
 
     {
