@@ -514,7 +514,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     idx_t results[k];
 
     for (int i = 0; i < qsize; i++) {
-        index->search(massQ+i*d, k, results);
+        index->search(massQ+i*vecdim, k, results);
 
         std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
         unordered_set<labeltype> g;
