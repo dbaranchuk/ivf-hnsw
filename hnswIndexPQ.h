@@ -172,7 +172,8 @@ namespace hnswlib {
             float q_c[nprobe];
 
             float * dis_tables = new float [pq.ksub * pq.M];
-            pq.compute_distance_tables (1, x, dis_tables);
+            //pq.compute_distance_table(x, dis_tables);
+            pq.compute_inner_prod_table(x, dis_tables);
 
             std::priority_queue<std::pair<float, idx_t>> topResults;
             auto coarse = quantizer->searchKnn(x, nprobe);
@@ -190,7 +191,6 @@ namespace hnswlib {
                 float q_r = 0.;
 
                 int ncodes = code.size()/(code_size+1);
-                std::cout << ncodes << std::endl;
 
                 for (int j = 0; j < ncodes; j++){
                     for (int m = 0; m < code_size; m++)
@@ -198,7 +198,7 @@ namespace hnswlib {
 
                     float norm;
                     norm_pq.decode(code.data()+j*(code_size+1) + code_size, &norm);
-                    float dist = q_c[i] - c - 2*q_r;// + norm;
+                    float dist = q_c[i] - c - 2*q_r + norm;
                     idx_t label = ids[key][j];
                     topResults.emplace(std::make_pair(dist, label));
                 }
