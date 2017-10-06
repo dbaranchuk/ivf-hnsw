@@ -416,7 +416,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
                           const int vecdim, const int efConstruction, const int M)
 {
     const int M_PQ = 16;
-    const int ncentroids = 1000000;
+    const int ncentroids = 10000;
 
     cout << "Loading GT:\n";
     const int gt_dim = 1;
