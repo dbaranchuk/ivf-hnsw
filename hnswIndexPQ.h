@@ -56,7 +56,6 @@ namespace hnswlib {
 		size_t nprobe = 10000;
         size_t max_codes = 10000;
 
-		float *dis_tables;
         float *q_norm_table;
         float *c_norm_table;
 
@@ -77,8 +76,6 @@ namespace hnswlib {
 
 		~Index() {
 			delete quantizer;
-			if (dis_tables)
-				delete dis_tables;
             if (q_norm_table)
                 delete q_norm_table;
             if (c_norm_table)
@@ -125,28 +122,9 @@ namespace hnswlib {
 
 		void assign(size_t n, float *data, idx_t *precomputed_idx)
 		{
-			//int j1 = 0;
-			//std::ifstream input(path_base, ios::binary);
-
-
-			//vtype *ma
-			//readXvec<vtype>(input, mass, d);
-			//precomputed_idx[0] = quantizer->searchKnn(data, 1).top().second;
-
-			//size_t report_every = 1000000;
 		#pragma omp parallel for num_threads(32)
-			for (int i = 0; i < n; i++) {
-			//	vtype mass[d];
-		//#pragma omp critical
-			//	{
-			//		readXvec<vtype>(input, mass, d);
-			//		if (++j1 % report_every == 0)
-			//			std::cout << j1 / (0.01 * vecsize) << " %\n";
-			//	}
+			for (int i = 0; i < n; i++)
 				precomputed_idx[i] = quantizer->searchKnn((data + i*d), 1).top().second;
-			}
-
-			//input.close();
 		}
 
 
@@ -188,72 +166,60 @@ namespace hnswlib {
 			delete norm_codes;
 		}
 
-		void search (size_t nx, float *x, idx_t k, idx_t *results)
+		void search (float *x, idx_t k, idx_t *results)
 		{
-			idx_t *centroids = new idx_t[nx*nprobe];
-            float *q_minus_c_table = new float[nx*nprobe];
+            idx_t keys[nprobe];
+            float dist[nprobe];
 
-			for (int i = 0; i < nx; i++) {
-				auto coarse = quantizer->searchKnn(x+i*d, nprobe);
-				// add from the end because coarse is a max_heap
-				for (int j = nprobe - 1; j >= 0; j--) {
-					auto elem = coarse.top();
-					q_minus_c_table[nprobe*i + j] = elem.first;
-                    centroids[nprobe*i + j] = elem.second;
-					coarse.pop();
-				}
-			}
+            float * dis_tables = new float [pq.ksub * pq.M];
+            pq.compute_distance_tables (1, x, dis_tables);
 
-			for (int i = 0; i < nx; i++){
-				std::priority_queue<std::pair<float, idx_t>> topResults;
+            std::priority_queue<std::pair<float, idx_t>> topResults;
+            auto coarse = quantizer->searchKnn(x+i*d, nprobe);
 
-				for (int j = 0; j < nprobe; j++){
-                    idx_t key = centroids[i*nprobe + j];
-                    std::vector<uint8_t> code = codes[key];
+            idx_t keys[nprobe];
+            float q_c[nprobe];
 
-                    float c = c_norm_table[key];
-                    float q_c = q_minus_c_table[i*nprobe + j];
-                    float q_r = 0.;
+            for (int i = nprobe - 1; i >= 0; i--) {
+                auto elem = coarse.top();
+                q_c[i] = elem.first;
+                keys[i] = elem.second;
+                coarse.pop();
+            }
+            for (int i = 0; i < nprobe; i--){
+                idx_t key = keys[i];
+                std::vector<uint8_t> code = codes[key];
+                float c = c_norm_table[key];
+                float q_r = 0.;
 
-                    int ncodes = code.size()/(code_size+1);
+                int ncodes = code.size()/(code_size+1);
 
-                    for (int cd = 0; cd < ncodes; cd++){
-                        for (int m = 0; m < code_size; m++)
-                            q_r += dis_tables[pq.ksub * (i*code_size + m) + code[cd*(code_size + 1) + m]];
+                for (int j = 0; j < ncodes; j++){
+                    for (int m = 0; m < code_size; m++)
+                        q_r += dis_tables[pq.ksub * m + code[j*(code_size + 1) + m]];
 
-                        float norm;
-                        norm_pq.decode(code.data()+cd*(code_size+1) + code_size, &norm);
-                        float dist = q_c - c - 2*q_r + norm;
-                        idx_t label = ids[key][cd];
-                        topResults.emplace(std::make_pair(dist, label));
-                    }
-                    if (topResults.size() > max_codes)
-                        break;
-				}
-
-				while (topResults.size() > k)
-					topResults.pop();
-
-                if (topResults.size() < k) {
-                    for (int j = topResults.size(); j < k; j++)
-                        topResults.emplace(std::make_pair(std::numeric_limits<float>::max(), 0));
-                    std::cout << i << std::endl;
+                    float norm;
+                    norm_pq.decode(code.data()+j*(code_size+1) + code_size, &norm);
+                    float dist = q_c[i] - c - 2*q_r + norm;
+                    idx_t label = ids[key][j];
+                    topResults.emplace(std::make_pair(dist, label));
                 }
-				for (int j = k-1; j >= 0; j--) {
-					results[i * k + j] = topResults.top().second;
-					topResults.pop();
-				}
-			}
+                if (topResults.size() > max_codes)
+                    break;
+            }
 
-			delete centroids;
-            delete q_minus_c_table;
-		}
+            while (topResults.size() > k)
+                topResults.pop();
 
-		void compute_distance_tables(float *massQ, size_t qsize)
-		{
-			int ksub = pq.ksub;
-			dis_tables = new float[qsize*ksub*code_size];
-			pq.compute_distance_tables(qsize, massQ, dis_tables);
+            if (topResults.size() < k) {
+                for (int j = topResults.size(); j < k; j++)
+                    topResults.emplace(std::make_pair(std::numeric_limits<float>::max(), 0));
+                std::cout << "Ignored query" << std:: endl;
+            }
+            for (int j = k-1; j >= 0; j--) {
+                results[j] = topResults.top().second;
+                topResults.pop();
+            }
 		}
 
         void compute_query_norm_table(float *massQ, size_t qsize)

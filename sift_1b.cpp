@@ -502,21 +502,20 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     //appr_alg->check_connectivity(massQA, qsize);
     //appr_alg->printNumElements();
 
-    index->compute_distance_tables(massQ, qsize);
     index->compute_query_norm_table(massQ, qsize);
     index->compute_centroid_norm_table();
-
-    idx_t *results = new idx_t[k*qsize];
-    index->search(qsize, massQ, k, results);
-
-
+    
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
     std::cout << "Parsing gt:\n";
     get_gt<float>(massQA, qsize, answers, gt_dim);
 
 
     int correct = 0;
+    idx_t results[k];
+
     for (int i = 0; i < qsize; i++) {
+        index->search(massQ, k, results);
+
         std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
         unordered_set<labeltype> g;
 
@@ -526,7 +525,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         }
 
         for (int j = 0; j < k; j++){
-            if (g.count(results[i*k + j]) != 0){
+            if (g.count(results[j]) != 0){
                 correct++;
                 break;
             }
