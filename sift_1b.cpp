@@ -457,8 +457,9 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     }
 
     {
+        size_t batch_size = 1000000;
         std::ifstream base_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
-        std::ifstream idx_input("/sata2/dbaranchuk/precomputed_idxs.ivecs", ios::binary);
+        std::ifstream idx_input("/sata2/dbaranchuk/precomputed_idxs_10k.ivecs", ios::binary);
         std::vector<float> batch(batch_size * vecdim);
         std::vector<idx_t> idx_batch(batch_size);
         std::vector<idx_t> ids(vecsize);
