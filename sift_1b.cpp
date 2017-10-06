@@ -6,6 +6,7 @@
 #include <chrono>
 #include "hnswlib.h"
 #include <faiss/ProductQuantizer.h>
+#include <faiss/index_io.h>
 #include "hnswIndexPQ.h"
 
 #include <map>
@@ -473,8 +474,8 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         index->train_residual_pq(nt, trainvecs.data());
         index->train_norm_pq(65536, trainvecs.data());
 
-        faiss::write_ProductQuantizer (&(index->norm_pq), "/sata2/dbaranchuk/deep_norm_pq");
-        faiss::write_ProductQuantizer (&(index->pq), "/sata2/dbaranchuk/deep_pq_16");
+        faiss::write_ProductQuantizer (&index->norm_pq, "/sata2/dbaranchuk/deep_norm_pq");
+        faiss::write_ProductQuantizer (&index->pq, "/sata2/dbaranchuk/deep_pq_16");
     }
 
     {
