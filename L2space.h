@@ -293,9 +293,6 @@ namespace hnswlib {
                 free(constructionTables[i]);
 
             delete query_table;
-            if (queryTables)
-            //for (int i = 0; i < queryTables.size(); i++)
-                delete queryTables;
 
             for (int i = 0; i < codebooks.size(); i++)
                 free(codebooks[i]);
