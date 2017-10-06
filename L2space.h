@@ -224,7 +224,7 @@ namespace hnswlib {
             return (res);
             #endif
         }
-        float fstdistfuncST(const size_t q_idx, const void *y_code) { return 0.0; }
+        float fstdistfuncST(const void *y_code) { return 0.0; }
 	};
 
 
@@ -256,7 +256,7 @@ namespace hnswlib {
             }
             return res;
         }
-        int fstdistfuncST(const size_t q_idx, const void *y_code) { return 0; }
+        int fstdistfuncST(const void *y_code) { return 0; }
 	};
 
     class L2SpacePQ: public SpaceInterface<int>
@@ -272,6 +272,7 @@ namespace hnswlib {
 
     public:
         int *queryTables;
+        int *query_table;
 
         L2SpacePQ(const size_t dim, const size_t m, const size_t k):
                 dim_(dim), m_(m), k_(k)
@@ -283,6 +284,7 @@ namespace hnswlib {
                 std::cerr << "M is not multiply of D" << std::endl;
                 exit(1);
             }
+            query_table = new int [m_*k_];
         }
 
         virtual ~L2SpacePQ()
@@ -290,12 +292,32 @@ namespace hnswlib {
             for (int i = 0; i < constructionTables.size(); i++)
                 free(constructionTables[i]);
 
+            delete query_table;
             if (queryTables)
             //for (int i = 0; i < queryTables.size(); i++)
                 delete queryTables;
 
             for (int i = 0; i < codebooks.size(); i++)
                 free(codebooks[i]);
+        }
+
+        void set_query_table(unsigned char *q)
+        {
+            unsigned char *q, *x;
+            float *y;
+
+            for (size_t m = 0; m < m_; m++) {
+                x = q + m * vocab_dim_;
+                for (size_t k = 0; k < k_; k++){
+                    int res = 0;
+                    y = codebooks[m] + k * vocab_dim_;
+                    for (int j = 0; j < vocab_dim_; j++) {
+                        int t = x[j] - y[j];
+                        res += t * t;
+                    }
+                    query_table[k_*m + k] = res;
+                }
+            }
         }
 
         void set_codebooks(const char *codebooksFilename)
@@ -386,7 +408,34 @@ namespace hnswlib {
             return res;
         };
 
-        int fstdistfuncST(const size_t q_idx, const void *y_code)
+//        int fstdistfuncST(const size_t q_idx, const void *y_code)
+//        {
+//            int res = 0;
+//            int dim = m_ >> 3;
+//            unsigned char *y = (unsigned char *)y_code;
+//
+//            int n = 0;
+//            for (int i = 0; i < dim; ++i) {
+//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
+////                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+////                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+////                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+////                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+////                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+////                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+////                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+//            }
+//            return res;
+//        };
+
+        int fstdistfuncST(const void *y_code)
         {
             int res = 0;
             int dim = m_ >> 3;
@@ -394,21 +443,10 @@ namespace hnswlib {
 
             int n = 0;
             for (int i = 0; i < dim; ++i) {
-                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-//                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-//                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-//                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-//                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-//                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-//                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-//                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
             }
             return res;
         };

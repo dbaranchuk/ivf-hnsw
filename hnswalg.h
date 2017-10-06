@@ -276,7 +276,7 @@ namespace hnswlib {
 
             dist_t dist;
             if (q_idx != -1)
-                dist = space->fstdistfuncST(q_idx, getDataByInternalId(ep));
+                dist = space->fstdistfuncST(getDataByInternalId(ep));
             else
                 dist = space->fstdistfunc(datapoint, getDataByInternalId(ep));
 
@@ -317,7 +317,7 @@ namespace hnswlib {
 
                         dist_t dist;
                         if (q_idx != -1)
-                            dist = space->fstdistfuncST(q_idx, getDataByInternalId(tnum));
+                            dist = space->fstdistfuncST(getDataByInternalId(tnum));
                         else
                             dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
 
@@ -586,7 +586,7 @@ namespace hnswlib {
             dist_t curdist;
 
             if (q_idx != -1)
-                curdist = space->fstdistfuncST(q_idx, getDataByInternalId(enterpoint_node));
+                curdist = space->fstdistfuncST(getDataByInternalId(enterpoint_node));
             else
                 curdist = space->fstdistfunc(query_data, getDataByInternalId(enterpoint_node));
 
@@ -605,7 +605,7 @@ namespace hnswlib {
 
                         dist_t d;
                         if (q_idx != -1)
-                            d = space->fstdistfuncST(q_idx, getDataByInternalId(cand));
+                            d = space->fstdistfuncST(getDataByInternalId(cand));
                         else
                             d = space->fstdistfunc(query_data, getDataByInternalId(cand));
 
