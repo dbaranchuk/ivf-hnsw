@@ -203,8 +203,6 @@ namespace hnswlib {
 				}
 			}
 
-			std::cout << "HUI" << std:: endl;
-
 			for (int i = 0; i < nx; i++){
 				std::priority_queue<std::pair<float, idx_t>> topResults;
 
@@ -227,7 +225,6 @@ namespace hnswlib {
                         idx_t label = ids[key][cd];
                         topResults.emplace(std::make_pair(dist, label));
                     }
-					std::cout << "PIZDA" << std:: endl;
                     if (topResults.size() > max_codes)
                         break;
 				}
