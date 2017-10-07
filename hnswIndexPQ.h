@@ -28,7 +28,7 @@
 #define WRITEVECTOR(vec, f) {                     \
         size_t size = (vec).size();            \
         WRITEANDCHECK (&size, 1, f);              \
-        WRITEANDCHECK ((vec).data(), size);    \
+        WRITEANDCHECK ((vec).data(), size, f);    \
     }
 
 #define READVECTOR(vec, f) {                       \

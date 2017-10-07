@@ -38,8 +38,9 @@ void write_VectorTransform (const VectorTransform *vt, const char *fname);
 VectorTransform *read_VectorTransform (const char *fname);
 
 ProductQuantizer * read_ProductQuantizer (const char*fname);
+    void read_ProductQuantizer (ProductQuantizer *pq, FILE *f);
 void write_ProductQuantizer (const ProductQuantizer*pq, const char *fname);
-
+    void write_ProductQuantizer (const ProductQuantizer*pq, FILE *f);
 
 
 /* cloning functions */
