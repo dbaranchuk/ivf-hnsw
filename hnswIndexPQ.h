@@ -16,12 +16,10 @@
 
 #define WRITEANDCHECK(ptr, n, f) {                                 \
         size_t ret = fwrite (ptr, sizeof (* (ptr)), n, f);         \
-        FAISS_THROW_IF_NOT_MSG (ret == (n), "write error");        \
     }
 
 #define READANDCHECK(ptr, n, f) {                                  \
         size_t ret = fread (ptr, sizeof (* (ptr)), n, f);          \
-        FAISS_THROW_IF_NOT_MSG (ret == (n), "read error");         \
     }
 
 #define WRITE1(x, f) WRITEANDCHECK(&(x), 1, f)
@@ -36,7 +34,6 @@
 #define READVECTOR(vec, f) {                       \
         long size;                            \
         READANDCHECK (&size, 1, f);                \
-        FAISS_THROW_IF_NOT (size >= 0 && size < (1L << 40));  \
         (vec).resize (size);                    \
         READANDCHECK ((vec).data(), size, f);     \
     }
@@ -63,8 +60,6 @@ static void readXvec(std::ifstream &input, format *mass, const int d, const int 
         input.read((char *)(mass+i*d), in * sizeof(format));
     }
 }
-
-using namespace faiss;
 
 namespace hnswlib {
 
@@ -365,8 +360,8 @@ namespace hnswlib {
             WRITE1 (max_codes, fout);
             WRITE1 (by_residual, fout);
 
-            write_ProductQuantizer (&pq, fout);
-            write_ProductQuantizer (&norm_pq, fout);
+            faiss::write_ProductQuantizer (&pq, fout);
+            faiss::write_ProductQuantizer (&norm_pq, fout);
 
             for (size_t i = 0; i < csize; i++)
                 WRITEVECTOR (ids[i], fout);
@@ -387,8 +382,8 @@ namespace hnswlib {
             READ1 (max_codes, fout);
             READ1 (by_residual, fout);
 
-            read_ProductQuantizer (&pq, fin);
-            read_ProductQuantizer (&norm_pq, fin);
+            faiss::read_ProductQuantizer (&pq, fin);
+            faiss::read_ProductQuantizer (&norm_pq, fin);
 
             ids = std::vector<std::vector<idx_t>>(csize);
             codes = std::vector<std::vector<uint8_t>>(csize);
