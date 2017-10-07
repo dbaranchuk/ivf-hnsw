@@ -14,31 +14,31 @@
 #include <faiss/utils.h>
 #include <faiss/index_io.h>
 
-#define WRITEANDCHECK(ptr, n) {                                 \
-        size_t ret = fwrite (ptr, sizeof (* (ptr)), n, f);      \
-        FAISS_THROW_IF_NOT_MSG (ret == (n), "write error");     \
+#define WRITEANDCHECK(ptr, n, f) {                                 \
+        size_t ret = fwrite (ptr, sizeof (* (ptr)), n, f);         \
+        FAISS_THROW_IF_NOT_MSG (ret == (n), "write error");        \
     }
 
-#define READANDCHECK(ptr, n) {                                  \
-        size_t ret = fread (ptr, sizeof (* (ptr)), n, f);       \
-        FAISS_THROW_IF_NOT_MSG (ret == (n), "read error");      \
+#define READANDCHECK(ptr, n, f) {                                  \
+        size_t ret = fread (ptr, sizeof (* (ptr)), n, f);          \
+        FAISS_THROW_IF_NOT_MSG (ret == (n), "read error");         \
     }
 
-#define WRITE1(x) WRITEANDCHECK(&(x), 1)
-#define READ1(x)  READANDCHECK(&(x), 1)
+#define WRITE1(x, f) WRITEANDCHECK(&(x), 1, f)
+#define READ1(x, f)  READANDCHECK(&(x), 1, f)
 
-#define WRITEVECTOR(vec) {                      \
-        size_t size = (vec).size ();            \
-        WRITEANDCHECK (&size, 1);               \
-        WRITEANDCHECK ((vec).data (), size);    \
+#define WRITEVECTOR(vec, f) {                     \
+        size_t size = (vec).size();            \
+        WRITEANDCHECK (&size, 1, f);              \
+        WRITEANDCHECK ((vec).data(), size);    \
     }
 
-#define READVECTOR(vec) {                       \
+#define READVECTOR(vec, f) {                       \
         long size;                            \
-        READANDCHECK (&size, 1);                \
+        READANDCHECK (&size, 1, f);                \
         FAISS_THROW_IF_NOT (size >= 0 && size < (1L << 40));  \
         (vec).resize (size);                    \
-        READANDCHECK ((vec).data (), size);     \
+        READANDCHECK ((vec).data(), size, f);     \
     }
 
 
@@ -359,20 +359,20 @@ namespace hnswlib {
         {
             FILE *fout = fopen(path_index, "wb");
 
-            WRITE1 (d);
-            WRITE1 (csize);
-            WRITE1 (nprobe);
-            WRITE1 (max_codes);
-            WRITE1 (by_residual);
+            WRITE1 (d, fout);
+            WRITE1 (csize, fout);
+            WRITE1 (nprobe, fout);
+            WRITE1 (max_codes, fout);
+            WRITE1 (by_residual, fout);
 
             write_ProductQuantizer (&pq, fout);
             write_ProductQuantizer (&norm_pq, fout);
 
             for (size_t i = 0; i < csize; i++)
-                WRITEVECTOR (ids[i]);
+                WRITEVECTOR (ids[i], fout);
 
             for(int i = 0; i < codes.size(); i++)
-                WRITEVECTOR (codes[i]);
+                WRITEVECTOR (codes[i], fout);
 
             close(fout);
         }
@@ -381,11 +381,11 @@ namespace hnswlib {
         {
             FILE *fin = fopen(path_index, "rb");
 
-            READ1 (d);
-            READ1 (csize);
-            READ1 (nprobe);
-            READ1 (max_codes);
-            READ1 (by_residual);
+            READ1 (d, fout);
+            READ1 (csize, fout);
+            READ1 (nprobe, fout);
+            READ1 (max_codes, fout);
+            READ1 (by_residual, fout);
 
             read_ProductQuantizer (&pq, fin);
             read_ProductQuantizer (&norm_pq, fin);
@@ -393,10 +393,10 @@ namespace hnswlib {
             ids = std::vector<std::vector<idx_t>>(csize);
             codes = std::vector<std::vector<uint8_t>>(csize);
             for (size_t i = 0; i < csize; i++)
-                READVECTOR (ids[i]);
+                READVECTOR (ids[i], fout);
 
             for(int i = 0; i < codes.size(); i++)
-                READVECTOR (codes[i]);
+                READVECTOR (codes[i], fout);
 
             close(fin);
         }
