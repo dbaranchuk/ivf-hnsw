@@ -434,7 +434,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 
     Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
     index->buildQuantizer(l2space, "/sata2/dbaranchuk/deep/deep10M_clusters_10k.fvecs", path_info, path_edges);
-    //index->precompute_idx(vecsize, path_data, "/sata2/dbaranchuk/precomputed_idxs_10k.ivecs");
+    index->precompute_idx(vecsize, path_data, "/sata2/dbaranchuk/precomputed_idxs_10k.ivecs");
 
     const char *path_pq = "/sata2/dbaranchuk/deep_pq_16";
     const char *path_norm_pq = "/sata2/dbaranchuk/deep_norm_pq";

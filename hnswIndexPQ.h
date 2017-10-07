@@ -14,6 +14,34 @@
 #include <faiss/utils.h>
 #include <faiss/index_io.h>
 
+#define WRITEANDCHECK(ptr, n) {                                 \
+        size_t ret = fwrite (ptr, sizeof (* (ptr)), n, f);      \
+        FAISS_THROW_IF_NOT_MSG (ret == (n), "write error");     \
+    }
+
+#define READANDCHECK(ptr, n) {                                  \
+        size_t ret = fread (ptr, sizeof (* (ptr)), n, f);       \
+        FAISS_THROW_IF_NOT_MSG (ret == (n), "read error");      \
+    }
+
+#define WRITE1(x) WRITEANDCHECK(&(x), 1)
+#define READ1(x)  READANDCHECK(&(x), 1)
+
+#define WRITEVECTOR(vec) {                      \
+        size_t size = (vec).size ();            \
+        WRITEANDCHECK (&size, 1);               \
+        WRITEANDCHECK ((vec).data (), size);    \
+    }
+
+#define READVECTOR(vec) {                       \
+        long size;                            \
+        READANDCHECK (&size, 1);                \
+        FAISS_THROW_IF_NOT (size >= 0 && size < (1L << 40));  \
+        (vec).resize (size);                    \
+        READANDCHECK ((vec).data (), size);     \
+    }
+
+
 typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
 
@@ -77,8 +105,6 @@ namespace hnswlib {
 
 		~Index() {
 			delete quantizer;
-            if (q_norm_table)
-                delete q_norm_table;
             if (c_norm_table)
                 delete c_norm_table;
 		}
