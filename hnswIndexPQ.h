@@ -241,12 +241,6 @@ namespace hnswlib {
             }
 		}
 
-        void compute_query_norm_table(float *massQ, size_t qsize)
-        {
-            q_norm_table = new float[qsize];
-            faiss::fvec_norms_L2sqr (q_norm_table, massQ, d, qsize);
-        }
-
         void compute_centroid_norm_table()
         {
             c_norm_table = new float[csize];
@@ -369,18 +363,18 @@ namespace hnswlib {
             for(int i = 0; i < codes.size(); i++)
                 WRITEVECTOR (codes[i], fout);
 
-            close(fout);
+            fclose(fout);
         }
 
         void read(const char *path_index)
         {
             FILE *fin = fopen(path_index, "rb");
 
-            READ1 (d, fout);
-            READ1 (csize, fout);
-            READ1 (nprobe, fout);
-            READ1 (max_codes, fout);
-            READ1 (by_residual, fout);
+            READ1 (d, fin);
+            READ1 (csize, fin);
+            READ1 (nprobe, fin);
+            READ1 (max_codes, fin);
+            READ1 (by_residual, fin);
 
             faiss::read_ProductQuantizer (&pq, fin);
             faiss::read_ProductQuantizer (&norm_pq, fin);
@@ -388,12 +382,12 @@ namespace hnswlib {
             ids = std::vector<std::vector<idx_t>>(csize);
             codes = std::vector<std::vector<uint8_t>>(csize);
             for (size_t i = 0; i < csize; i++)
-                READVECTOR (ids[i], fout);
+                READVECTOR (ids[i], fin);
 
             for(int i = 0; i < codes.size(); i++)
-                READVECTOR (codes[i], fout);
+                READVECTOR (codes[i], fin);
 
-            close(fin);
+            fclose(fin);
         }
 
 	private:
