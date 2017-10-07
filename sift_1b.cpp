@@ -434,19 +434,20 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 
     Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
     index->buildQuantizer(l2space, "/sata2/dbaranchuk/deep/deep10M_clusters_10k.fvecs", path_info, path_edges);
-    index->precompute_idx(vecsize, path_data, "/sata2/dbaranchuk/precomputed_idxs_10k.ivecs");
+    //index->precompute_idx(vecsize, path_data, "/sata2/dbaranchuk/precomputed_idxs_10k.ivecs");
 
     const char *path_pq = "/sata2/dbaranchuk/deep_pq_16";
     const char *path_norm_pq = "/sata2/dbaranchuk/deep_norm_pq";
+    const char *path_index = "/sata2/dbaranchuk/test.index";
 
-    if (exists_test(path_pq) && exists_test(path_norm_pq)) {
-        index->pq = *(faiss::read_ProductQuantizer (path_pq));
-        index->norm_pq = *(faiss::read_ProductQuantizer (path_norm_pq));
+    if (exists_test(path_index)){
+        index->read(path_index);
     } else {
         std::ifstream learn_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
         int nt = 1000000;
         std::vector<float> trainvecs(nt * vecdim);
 
+        /** Train PQ **/
         readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
         index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
         index->code_size = index->pq.code_size;
@@ -454,11 +455,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         index->train_residual_pq(nt, trainvecs.data());
         index->train_norm_pq(65536, trainvecs.data());
 
-        //faiss::write_ProductQuantizer (&index->norm_pq, path_norm_pq);
-        //faiss::write_ProductQuantizer (&index->pq, path_pq);
-    }
-
-    {
+        /** Add elements **/
         size_t batch_size = 1000000;
         std::ifstream base_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
         std::ifstream idx_input("/sata2/dbaranchuk/precomputed_idxs_10k.ivecs", ios::binary);
@@ -477,19 +474,14 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         }
         idx_input.close();
         base_input.close();
-    }
-    //appr_alg->printListsize();
-    //appr_alg->reorder_graph();
-    //appr_alg->check_connectivity(massQA, qsize);
-    //appr_alg->printNumElements();
 
-    index->compute_query_norm_table(massQ, qsize);
+        index->write(path_index);
+    }
     index->compute_centroid_norm_table();
 
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
     std::cout << "Parsing gt:\n";
     get_gt<float>(massQA, qsize, answers, gt_dim);
-
 
     int correct = 0;
     idx_t results[k];

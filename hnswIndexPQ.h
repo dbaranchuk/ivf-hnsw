@@ -12,6 +12,7 @@
 #include "hnswalg.h"
 #include <faiss/ProductQuantizer.h>
 #include <faiss/utils.h>
+#include <faiss/index_io.h>
 
 typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
@@ -35,6 +36,7 @@ static void readXvec(std::ifstream &input, format *mass, const int d, const int 
     }
 }
 
+using namespace faiss;
 
 namespace hnswlib {
 
@@ -44,6 +46,7 @@ namespace hnswlib {
 		size_t csize;
 
 		faiss::ProductQuantizer norm_pq;
+        faiss::ProductQuantizer pq;
 
 		bool by_residual = true;
         bool verbose = true;
@@ -56,11 +59,9 @@ namespace hnswlib {
 		size_t nprobe = 32;
         size_t max_codes = 10000;
 
-        float *q_norm_table;
         float *c_norm_table;
 
 		HierarchicalNSW<float, float> *quantizer;
-		faiss::ProductQuantizer pq;
 
 
 		Index(size_t dim, size_t ncentroids,
@@ -327,6 +328,53 @@ namespace hnswlib {
             fclose(fout);
         }
 
+
+        void write(const char *path_index)
+        {
+            FILE *fout = fopen(path_index, "wb");
+
+            WRITE1 (d);
+            WRITE1 (csize);
+            WRITE1 (nprobe);
+            WRITE1 (max_codes);
+            WRITE1 (by_residual);
+
+            write_ProductQuantizer (&pq, fout);
+            write_ProductQuantizer (&norm_pq, fout);
+
+            for (size_t i = 0; i < csize; i++)
+                WRITEVECTOR (ids[i]);
+
+            for(int i = 0; i < codes.size(); i++)
+                WRITEVECTOR (codes[i]);
+
+            close(fout);
+        }
+
+        void read(const char *path_index)
+        {
+            FILE *fin = fopen(path_index, "rb");
+
+            READ1 (d);
+            READ1 (csize);
+            READ1 (nprobe);
+            READ1 (max_codes);
+            READ1 (by_residual);
+
+            read_ProductQuantizer (&pq, fin);
+            read_ProductQuantizer (&norm_pq, fin);
+
+            ids = std::vector<std::vector<idx_t>>(csize);
+            codes = std::vector<std::vector<uint8_t>>(csize);
+            for (size_t i = 0; i < csize; i++)
+                READVECTOR (ids[i]);
+
+            for(int i = 0; i < codes.size(); i++)
+                READVECTOR (codes[i]);
+
+            close(fin);
+        }
+
 	private:
 		void compute_residual(const float *x, float *residual, idx_t key)
 		{
@@ -335,40 +383,6 @@ namespace hnswlib {
 				residual[i] = x[i] - centroid[i];
 			}
 		}
-
-//		float compute_norm(const float *x)
-//		{
-//			float result = 0.;
-//			int dim = d >> 2;
-//
-//			for (int i = 0; i < dim; i++){
-//				result += (*x)*(*x); x++;
-//				result += (*x)*(*x); x++;
-//				result += (*x)*(*x); x++;
-//				result += (*x)*(*x); x++;
-//			}
-//			return result;
-//		}
-
-//		float fstdistfunc(const size_t q_idx, const uint8_t *y)
-//		{
-//			float res = 0.;
-//			int ksub = pq.ksub;
-//			int dim = code_size >> 3;
-//
-//			int n = 0;
-//			for (int i = 0; i < dim; ++i) {
-//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-//				res += dis_tables[ksub * (code_size * q_idx + n) + y[n]]; ++n;
-//			}
-//			return res;
-//		};
 	};
 
 }

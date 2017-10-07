@@ -9,10 +9,10 @@ void hnsw_test( const char *l2space_type,
                 const char *, const char *, const char *,
                 const int, const int, const int, const int, const int, const int, bool);
 
-//void ___hnsw_test( const char *l2space_type,
-//                const char *, const char *, const char *, const char *,
-//                const char *, const char *, const char *,
-//                const int, const int, const int, const int, const int, const int, bool);
+void ___hnsw_test( const char *l2space_type,
+                const char *, const char *, const char *, const char *,
+                const char *, const char *, const char *,
+                const int, const int, const int, const int, const int, const int, bool);
 
 
 void usage(const char * cmd)
@@ -136,13 +136,13 @@ int main(int argc, char **argv) {
     //    exit(1);
     //}
 
-    hnsw_test(l2space_type, path_codebooks, path_tables, path_data, path_q,
-              path_gt, path_info, path_edges,
-              k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
+//    hnsw_test(l2space_type, path_codebooks, path_tables, path_data, path_q,
+//              path_gt, path_info, path_edges,
+//              k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
 
-    //___hnsw_test("float", path_codebooks, path_tables, path_data, path_q,
-    //             path_gt, path_info, path_edges,
-    //             k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
+    ___hnsw_test("float", path_codebooks, path_tables, path_data, path_q,
+                 path_gt, path_info, path_edges,
+                 k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
 
     return 0;  
 };

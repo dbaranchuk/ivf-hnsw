@@ -269,10 +269,9 @@ namespace hnswlib {
 
         std::vector<float *> codebooks;
         std::vector<int *> constructionTables;
+        int *query_table;
 
     public:
-        //int *queryTables;
-        int *query_table;
 
         L2SpacePQ(const size_t dim, const size_t m, const size_t k):
                 dim_(dim), m_(m), k_(k)
