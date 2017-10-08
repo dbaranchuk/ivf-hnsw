@@ -154,9 +154,9 @@ namespace hnswlib {
         float fstdistfunc(const void *x, const void *y) {
             float *pVect1 = (float *) x;
             float *pVect2 = (float *) y;
-            float PORTABLE_ALIGN32 TmpRes[8];
+            float PORTABLE_ALIGN32 TmpRes[16];
             #ifdef USE_AVX
-            size_t qty16 = qty >> 5;
+            size_t qty16 = dim_ >> 5;
 
             const float *pEnd1 = pVect1 + (qty16 << 5);
 
