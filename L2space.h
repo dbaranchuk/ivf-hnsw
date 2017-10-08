@@ -18,7 +18,9 @@
 #include <cmath>
 #include "hnswlib.h"
 #include <faiss/utils.h>
-
+#include <immintrin.h>
+#include <smmintrin.h>
+#include <zmmintrin.h>
 namespace hnswlib {
 	using namespace std;
     /**= Prev fstdistfunc =**/
