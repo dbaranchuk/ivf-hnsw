@@ -125,7 +125,7 @@ namespace hnswlib {
 			quantizer->addPoint((void *) (mass), j1);
 
 			size_t report_every = 100000;
-		#pragma omp parallel for num_threads(32)
+		#pragma omp parallel for num_threads(26)
 			for (int i = 1; i < csize; i++) {
 				float mass[d];
 		#pragma omp critical
@@ -144,7 +144,7 @@ namespace hnswlib {
 
 		void assign(size_t n, float *data, idx_t *precomputed_idx)
 		{
-		#pragma omp parallel for num_threads(32)
+		#pragma omp parallel for num_threads(26)
 			for (int i = 0; i < n; i++)
 				precomputed_idx[i] = quantizer->searchKnn((data + i*d), 1).top().second;
 		}
@@ -372,6 +372,12 @@ namespace hnswlib {
             READ1 (nprobe, fin);
             READ1 (max_codes, fin);
             READ1 (by_residual, fin);
+
+            std::cout << d << std::endl;
+            std::cout << csize << std::endl;
+            std::cout << nprobe << std::endl;
+            std::cout << max_codes << std::endl;
+            std::cout << by_residual << std::endl;
 
             faiss::read_ProductQuantizer (&pq, fin);
             faiss::read_ProductQuantizer (&norm_pq, fin);
