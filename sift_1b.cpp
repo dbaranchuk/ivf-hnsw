@@ -441,6 +441,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     const char *path_index = "/sata2/dbaranchuk/test.index";
 
     if (exists_test(path_index)){
+        std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
     } else {
         std::ifstream learn_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
@@ -475,6 +476,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         idx_input.close();
         base_input.close();
 
+        std::cout << "Saving index to " << path_index << std::endl;
         index->write(path_index);
     }
     index->compute_centroid_norm_table();

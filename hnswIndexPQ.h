@@ -307,9 +307,6 @@ namespace hnswlib {
             pq.verbose = verbose;
             pq.train (n, trainset);
 
-            //if (by_residual) {
-            //    precompute_table ();
-            //}
             delete assigned;
             delete residuals;
         }
@@ -360,7 +357,7 @@ namespace hnswlib {
             for (size_t i = 0; i < csize; i++)
                 WRITEVECTOR (ids[i], fout);
 
-            for(int i = 0; i < codes.size(); i++)
+            for(int i = 0; i < csize; i++)
                 WRITEVECTOR (codes[i], fout);
 
             fclose(fout);
@@ -384,7 +381,7 @@ namespace hnswlib {
             for (size_t i = 0; i < csize; i++)
                 READVECTOR (ids[i], fin);
 
-            for(int i = 0; i < codes.size(); i++)
+            for(int i = 0; i < csize; i++)
                 READVECTOR (codes[i], fin);
 
             fclose(fin);
