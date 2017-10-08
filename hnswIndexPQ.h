@@ -125,7 +125,7 @@ namespace hnswlib {
 			quantizer->addPoint((void *) (mass), j1);
 
 			size_t report_every = 100000;
-		#pragma omp parallel for num_threads(26)
+		#pragma omp parallel for num_threads(24)
 			for (int i = 1; i < csize; i++) {
 				float mass[d];
 		#pragma omp critical
@@ -144,7 +144,7 @@ namespace hnswlib {
 
 		void assign(size_t n, float *data, idx_t *precomputed_idx)
 		{
-		#pragma omp parallel for num_threads(26)
+		#pragma omp parallel for num_threads(24)
 			for (int i = 0; i < n; i++)
 				precomputed_idx[i] = quantizer->searchKnn((data + i*d), 1).top().second;
 		}
