@@ -156,9 +156,9 @@ namespace hnswlib {
             float *pVect2 = (float *) y;
             float PORTABLE_ALIGN32 TmpRes[8];
             #ifdef USE_AVX
-            size_t qty16 = dim_ >> 5;
+            size_t qty16 = dim_ >> 4;
 
-            const float *pEnd1 = pVect1 + (qty16 << 5);
+            const float *pEnd1 = pVect1 + (qty16 << 4);
 
             __m256 diff, v1, v2;
             __m256 sum = _mm256_set1_ps(0);
@@ -178,19 +178,19 @@ namespace hnswlib {
                 diff = _mm256_sub_ps(v1, v2);
                 sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
 
-                v1 = _mm256_loadu_ps(pVect1);
-                pVect1 += 8;
-                v2 = _mm256_loadu_ps(pVect2);
-                pVect2 += 8;
-                diff = _mm256_sub_ps(v1, v2);
-                sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
-
-                v1 = _mm256_loadu_ps(pVect1);
-                pVect1 += 8;
-                v2 = _mm256_loadu_ps(pVect2);
-                pVect2 += 8;
-                diff = _mm256_sub_ps(v1, v2);
-                sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
+//                v1 = _mm256_loadu_ps(pVect1);
+//                pVect1 += 8;
+//                v2 = _mm256_loadu_ps(pVect2);
+//                pVect2 += 8;
+//                diff = _mm256_sub_ps(v1, v2);
+//                sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
+//
+//                v1 = _mm256_loadu_ps(pVect1);
+//                pVect1 += 8;
+//                v2 = _mm256_loadu_ps(pVect2);
+//                pVect2 += 8;
+//                diff = _mm256_sub_ps(v1, v2);
+//                sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
             }
 
             _mm256_store_ps(TmpRes, sum);
