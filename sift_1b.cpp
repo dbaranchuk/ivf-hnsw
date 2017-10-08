@@ -433,13 +433,16 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 
 
     Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
-    index->buildQuantizer(l2space, "/sata2/dbaranchuk/deep/deep10M_clusters_10k.fvecs", path_info, path_edges);
-    index->precompute_idx(vecsize, path_data, "/sata2/dbaranchuk/precomputed_idxs_10k.ivecs");
+//    index->buildQuantizer(l2space, "/sata2/dbaranchuk/deep/deep10M_clusters_10k.fvecs", path_info, path_edges);
+//    index->precompute_idx(vecsize, path_data, "/sata2/dbaranchuk/precomputed_idxs_10k.ivecs");
+    index->buildQuantizer(l2space, "/home/arbabenko/Bigann/centers999475.fvecs", path_info, path_edges);
+    index->precompute_idx(vecsize, path_data, "/home/dbaranchuk/precomputed_idxs_999475.ivecs");
 
-    const char *path_index = "/sata2/dbaranchuk/test.index";
-
+//    const char *path_index = "/sata2/dbaranchuk/test.index";
+    const char *path_index = "/home/dbaranchuk/baseline_PQ16.index";
     /** Train PQ **/
-    std::ifstream learn_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
+//    std::ifstream learn_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
+    std::ifstream learn_input("/home/arbabenko/Bigann/deep1B_learn.fvecs", ios::binary);
     int nt = 100000;
     std::vector<float> trainvecs(nt * vecdim);
 
@@ -457,8 +460,10 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     } else {
         /** Add elements **/
         size_t batch_size = 1000000;
-        std::ifstream base_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
-        std::ifstream idx_input("/sata2/dbaranchuk/precomputed_idxs_10k.ivecs", ios::binary);
+//        std::ifstream base_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
+//        std::ifstream idx_input("/sata2/dbaranchuk/precomputed_idxs_10k.ivecs", ios::binary);
+        std::ifstream base_input("/home/arbabenko/Bigann/deep1B_base.fvecs", ios::binary);
+        std::ifstream idx_input("/home/dbaranchuk/precomputed_idxs_999475.ivecs", ios::binary);
         std::vector<float> batch(batch_size * vecdim);
         std::vector<idx_t> idx_batch(batch_size);
         std::vector<idx_t> ids(vecsize);
