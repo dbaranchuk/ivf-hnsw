@@ -317,6 +317,7 @@ namespace hnswlib {
             if (exists_test(fo_name))
                 return;
 
+            std::cout << "Precomputing indexes" << std::endl;
             size_t batch_size = 1000000;
             FILE *fout = fopen(fo_name, "wb");
 
