@@ -154,37 +154,28 @@ namespace hnswlib {
         float fstdistfunc(const void *x, const void *y) {
             float *pVect1 = (float *) x;
             float *pVect2 = (float *) y;
-            float PORTABLE_ALIGN32 TmpRes[8];
+            float PORTABLE_ALIGN32 TmpRes[16];
             #ifdef USE_AVX
             size_t qty16 = dim_ >> 4;
 
             const float *pEnd1 = pVect1 + (qty16 << 4);
 
-            __m256 diff, v1, v2;
-            __m256 sum = _mm256_set1_ps(0);
+            __m512 diff, v1, v2;
+            __m512 sum = _mm512_set1_ps(0);
 
             while (pVect1 < pEnd1) {
-                v1 = _mm256_loadu_ps(pVect1);
-                pVect1 += 8;
-                v2 = _mm256_loadu_ps(pVect2);
-                pVect2 += 8;
-                diff = _mm256_sub_ps(v1, v2);
-                sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
-
-                v1 = _mm256_loadu_ps(pVect1);
-                pVect1 += 8;
-                v2 = _mm256_loadu_ps(pVect2);
-                pVect2 += 8;
-                diff = _mm256_sub_ps(v1, v2);
-                sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
-
 //                v1 = _mm256_loadu_ps(pVect1);
 //                pVect1 += 8;
 //                v2 = _mm256_loadu_ps(pVect2);
 //                pVect2 += 8;
 //                diff = _mm256_sub_ps(v1, v2);
 //                sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
-//
+                v1 = _mm512_loadu_ps(pVect1);
+                pVect1 += 16;
+                v2 = _mm512_loadu_ps(pVect2);
+                pVect2 += 16;
+                diff = _mm512_sub_ps(v1, v2);
+                sum = _mm512_add_ps(sum, _mm512_mul_ps(diff, diff));
 //                v1 = _mm256_loadu_ps(pVect1);
 //                pVect1 += 8;
 //                v2 = _mm256_loadu_ps(pVect2);
@@ -195,7 +186,7 @@ namespace hnswlib {
 
             _mm256_store_ps(TmpRes, sum);
             float res = TmpRes[0] + TmpRes[1] + TmpRes[2] + TmpRes[3] + TmpRes[4] + TmpRes[5] + TmpRes[6] + TmpRes[7];
-//            res += TmpRes[8] + TmpRes[9] + TmpRes[10] + TmpRes[11] + TmpRes[12] + TmpRes[13] + TmpRes[14] + TmpRes[15];
+            res += TmpRes[8] + TmpRes[9] + TmpRes[10] + TmpRes[11] + TmpRes[12] + TmpRes[13] + TmpRes[14] + TmpRes[15];
 
             return (res);
             #else
