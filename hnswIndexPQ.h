@@ -351,9 +351,6 @@ namespace hnswlib {
             WRITE1 (max_codes, fout);
             WRITE1 (by_residual, fout);
 
-            faiss::write_ProductQuantizer (&pq, fout);
-            faiss::write_ProductQuantizer (&norm_pq, fout);
-
             for (size_t i = 0; i < csize; i++)
                 WRITEVECTOR (ids[i], fout);
 
@@ -372,15 +369,6 @@ namespace hnswlib {
             READ1 (nprobe, fin);
             READ1 (max_codes, fin);
             READ1 (by_residual, fin);
-
-            std::cout << d << std::endl;
-            std::cout << csize << std::endl;
-            std::cout << nprobe << std::endl;
-            std::cout << max_codes << std::endl;
-            std::cout << by_residual << std::endl;
-
-            faiss::read_ProductQuantizer (&pq, fin);
-            faiss::read_ProductQuantizer (&norm_pq, fin);
 
             ids = std::vector<std::vector<idx_t>>(csize);
             codes = std::vector<std::vector<uint8_t>>(csize);

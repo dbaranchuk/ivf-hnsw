@@ -436,40 +436,25 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     index->buildQuantizer(l2space, "/sata2/dbaranchuk/deep/deep10M_clusters_10k.fvecs", path_info, path_edges);
     index->precompute_idx(vecsize, path_data, "/sata2/dbaranchuk/precomputed_idxs_10k.ivecs");
 
-    const char *path_pq = "/sata2/dbaranchuk/deep_pq_16";
-    const char *path_norm_pq = "/sata2/dbaranchuk/deep_norm_pq";
     const char *path_index = "/sata2/dbaranchuk/test.index";
+    
+    /** Train PQ **/
+    std::ifstream learn_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
+    int nt = 100000;
+    std::vector<float> trainvecs(nt * vecdim);
+
+    readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
+    index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
+    index->code_size = index->pq.code_size;
+    index->verbose = true;
+    index->train_residual_pq(nt, trainvecs.data());
+    index->train_norm_pq(65536, trainvecs.data());
+    learn_input.close();
 
     if (exists_test(path_index)){
         std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
-
-        std::ifstream learn_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
-        int nt = 1000000;
-        std::vector<float> trainvecs(nt * vecdim);
-
-        /** Train PQ **/
-        readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
-        index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
-        index->code_size = index->pq.code_size;
-        index->verbose = true;
-        index->train_residual_pq(nt, trainvecs.data());
-        index->train_norm_pq(65536, trainvecs.data());
-        learn_input.close();
     } else {
-        std::ifstream learn_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
-        int nt = 1000000;
-        std::vector<float> trainvecs(nt * vecdim);
-
-        /** Train PQ **/
-        readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
-        index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
-        index->code_size = index->pq.code_size;
-        index->verbose = true;
-        index->train_residual_pq(nt, trainvecs.data());
-        index->train_norm_pq(65536, trainvecs.data());
-        learn_input.close();
-
         /** Add elements **/
         size_t batch_size = 1000000;
         std::ifstream base_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
