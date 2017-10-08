@@ -285,10 +285,10 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     const bool PQ = (path_codebooks && path_tables);
 
     const int specsize = 5000000;//101917929;
-    //const map<size_t, pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
+    const map<size_t, pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
-    const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}}, {200000000, {12, 24}}, {400000000, {8, 16}},
-                                                     {500000000, {6, 10}}, {900000000, {5, 7}}, {vecsize, {5, 5}}};
+    //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}}, {200000000, {12, 24}}, {400000000, {8, 16}},
+    //                                                 {500000000, {6, 10}}, {900000000, {5, 7}}, {vecsize, {5, 5}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{50000000, {18, 32}}, {100000000, {16, 28}}, {150000000, {14, 24}},
     //                                                 {200000000, {10, 16}}, {vecsize, {6, 8}}};
     //                                                 {800000000, {4, 8}}, {900000000, {4, 6}}, {1000000000, {4, 4}}};
