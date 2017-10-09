@@ -1002,5 +1002,6 @@ namespace hnswlib {
             recursive_reorder(labels, maxelements_);
             delete labels;
         }
+
     };
 }
