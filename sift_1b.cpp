@@ -492,6 +492,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     int correct = 0;
     idx_t results[k];
 
+    StopW stopw = StopW();
     for (int i = 0; i < qsize; i++) {
         index->search(massQ+i*vecdim, k, results);
 
@@ -510,11 +511,9 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
             }
         }
     }
+    float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
     std::cout << "Recall@" << k << ": " << 1.0f*correct / qsize << std::endl;
-
-    //cout << "Loaded gt\n";
-    //test_vs_recall<dist_t, vtype>(massQ, qsize, *appr_alg, vecdim, answers, k, PQ);
-    //cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
+    std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
 
     delete index;
     delete massQA;
