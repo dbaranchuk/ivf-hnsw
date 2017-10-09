@@ -80,7 +80,7 @@ namespace hnswlib {
 
 		/** Query members **/
 		size_t nprobe = 32;
-        size_t max_codes = 10000;
+        size_t max_codes = 30000;
 
         float *c_norm_table;
 
