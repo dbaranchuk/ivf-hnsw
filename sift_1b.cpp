@@ -492,6 +492,10 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     int correct = 0;
     idx_t results[k];
 
+
+    index->max_codes = 30000;
+    index->nprobe = 32;
+    
     StopW stopw = StopW();
     for (int i = 0; i < qsize; i++) {
         index->search(massQ+i*vecdim, k, results);
