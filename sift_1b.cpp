@@ -435,7 +435,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
 //    index->buildQuantizer(l2space, "/sata2/dbaranchuk/deep/deep10M_clusters_10k.fvecs", path_info, path_edges);
 //    index->precompute_idx(vecsize, path_data, "/sata2/dbaranchuk/precomputed_idxs_10k.ivecs");
-    index->buildQuantizer(l2space, "/home/arbabenko/Bigann/centers999475.fvecs", path_info, path_edges);
+    index->buildQuantizer(l2space, "/home/dbaranchuk/data/centroids1M.fvecs", path_info, path_edges);
     index->precompute_idx(vecsize, path_data, "/home/dbaranchuk/precomputed_idxs_999973.ivecs");
 
 //    const char *path_index = "/sata2/dbaranchuk/test.index";
