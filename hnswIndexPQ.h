@@ -150,7 +150,7 @@ namespace hnswlib {
 		}
 
 
-		void add(idx_t n, const float * x, const idx_t *xids, const idx_t *precomputed_idx)
+		void add(idx_t n, float * x, const idx_t *xids, const idx_t *precomputed_idx)
 		{
 			const idx_t * idx = precomputed_idx;
 
