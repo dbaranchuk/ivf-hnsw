@@ -157,14 +157,13 @@ namespace hnswlib {
 			uint8_t * xcodes = new uint8_t [n * code_size];
 			uint8_t *norm_codes = new uint8_t[n];
 
-			const float *to_encode = nullptr;
+			float *to_encode = nullptr;
 			float *norm_to_encode = new float[n];
 
 			if (by_residual) {
 				float *residuals = new float [n * d];
 				for (size_t i = 0; i < n; i++)
 					compute_residual(x + i * d, residuals + i * d, idx[i]);
-
 				to_encode = residuals;
 			} else {
 				to_encode = x;
@@ -183,6 +182,8 @@ namespace hnswlib {
 					codes[key].push_back (code[j]);
 				codes[key].push_back(norm_codes[i]);
 			}
+            if (to_encode != x)
+                delete to_encode;
 			delete xcodes;
 			delete norm_to_encode;
 			delete norm_codes;
