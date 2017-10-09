@@ -463,7 +463,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 //        std::ifstream base_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
 //        std::ifstream idx_input("/sata2/dbaranchuk/precomputed_idxs_10k.ivecs", ios::binary);
         std::ifstream base_input(path_data, ios::binary);
-        std::ifstream idx_input("/home/dbaranchuk/precomputed_idxs_999475.ivecs", ios::binary);
+        std::ifstream idx_input("/home/dbaranchuk/precomputed_idxs_999973.ivecs", ios::binary);
         std::vector<float> batch(batch_size * vecdim);
         std::vector<idx_t> idx_batch(batch_size);
         std::vector<idx_t> ids(vecsize);
