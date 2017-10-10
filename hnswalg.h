@@ -1003,5 +1003,30 @@ namespace hnswlib {
             delete labels;
         }
 
+        void count_repeated_edges()
+        {
+            labeltype *idxs = new labeltype[1000000000];
+
+            for (int i = 0; i < 1000000000; i++)
+                idxs[i] = 0;
+
+            for (int i = 0; i < 1000000000; i++){
+                linklistsizeint *ll_cur = get_linklist0(i);
+                linklistsizeint size = *ll_cur;
+                tableint *data = (tableint *) (ll_cur + 1);
+
+                for (tableint l = 0; l < size; l++) {
+                    idxs[data[l]]++;
+            }
+
+            int counter = 0;
+            for (int i = 0; i < 1000000000; i++)
+                if (idxs[i] > 1 ) {
+                    std::cout << i << ": " << idxs[i] << std::endl;
+                    counter += idxs[i];
+                }
+            std::cout << "Num of repeated edges: " << counter << std::endl;
+            delete idxs;
+        }
     };
 }
