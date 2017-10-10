@@ -386,7 +386,7 @@ namespace hnswlib {
 
         void compute_average_distance(const char *path_data) const
         {
-            float average = 0.0;
+            double average = 0.0;
             size_t batch_size = 1000000;
             std::ifstream base_input(path_data, ios::binary);
             std::ifstream idx_input("/home/dbaranchuk/precomputed_idxs_999973.ivecs", ios::binary);
@@ -401,13 +401,13 @@ namespace hnswlib {
 
                 for (int i = 0; i < batch_size; i++) {
                     float *centroid = (float *) quantizer->getDataByInternalId(idx_batch[i]);
-                    average += faiss::fvec_L2sqr (batch.data() + i*d, centroid, d) / batch_size;
+                    average += faiss::fvec_L2sqr (batch.data() + i*d, centroid, d);
                 }
             }
             idx_input.close();
             base_input.close();
 
-            std::cout << "Average distance " << average / 1000 << std::endl;
+            std::cout << "Average distance " << average / 1000000000 << std::endl;
         }
 
 	private:
