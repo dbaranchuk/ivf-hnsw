@@ -393,7 +393,7 @@ namespace hnswlib {
             std::vector<float> batch(batch_size * d);
             std::vector<idx_t> idx_batch(batch_size);
 
-            for (int b = 0; b < (vecsize / batch_size); b++) {
+            for (int b = 0; b < 1000; b++) {
                 readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
                 readXvec<float>(base_input, batch.data(), d, batch_size);
 
