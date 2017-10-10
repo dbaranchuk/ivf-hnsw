@@ -1020,7 +1020,7 @@ namespace hnswlib {
                     idxs[data[l]]++;
             }
 
-            int counter = 0;
+            unsigned long counter = 0;
             for (int i = 0; i < 1000000000; i++)
                 if (idxs[i] > 1 ) {
                     std::cout << i << ": " << idxs[i] << std::endl;

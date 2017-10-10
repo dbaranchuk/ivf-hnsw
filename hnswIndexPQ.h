@@ -79,8 +79,8 @@ namespace hnswlib {
         std::vector < std::vector<idx_t> > ids;
 
 		/** Query members **/
-		size_t nprobe = 64;
-        size_t max_codes = 30000;
+		size_t nprobe = 16;
+        size_t max_codes = 10000;
 
         float *c_norm_table;
 
@@ -109,12 +109,12 @@ namespace hnswlib {
 		{
             if (exists_test(path_info) && exists_test(path_edges)) {
                 quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
-                quantizer->ef_ = 80;
+                quantizer->ef_ = 140;
                 return;
             }
 
             quantizer = new HierarchicalNSW<float, float>(l2space, {{csize, {16, 32}}}, 240);
-            quantizer->ef_ = 80;
+            quantizer->ef_ = 140;
 
 			std::cout << "Constructing quantizer\n";
 			int j1 = 0;
