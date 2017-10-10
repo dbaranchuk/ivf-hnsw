@@ -401,7 +401,7 @@ namespace hnswlib {
 
                 for (int i = 0; i < batch_size; i++) {
                     float *centroid = (float *) quantizer->getDataByInternalId(idx_batch[i]);
-                    average += fvec_L2sqr (batch + i*d, centroid, d) / batch_size;
+                    average += fvec_L2sqr (batch.data() + i*d, centroid, d) / batch_size;
                 }
             }
             idx_input.close();
