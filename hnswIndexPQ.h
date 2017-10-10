@@ -383,6 +383,33 @@ namespace hnswlib {
             fclose(fin);
         }
 
+
+        void compute_average_distance(const char *path_data) const
+        {
+            float average = 0.0;
+            size_t batch_size = 1000000;
+            std::ifstream base_input(path_data, ios::binary);
+            std::ifstream idx_input("/home/dbaranchuk/precomputed_idxs_999973.ivecs", ios::binary);
+            std::vector<float> batch(batch_size * d);
+            std::vector<idx_t> idx_batch(batch_size);
+
+            for (int b = 0; b < (vecsize / batch_size); b++) {
+                readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+                readXvec<float>(base_input, batch.data(), d, batch_size);
+
+                printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
+
+                for (int i = 0; i < batch_size; i++) {
+                    float *centroid = (float *) quantizer->getDataByInternalId(idx_batch[i]);
+                    average += fvec_L2sqr (batch + i*d, centroid, d) / batch_size;
+                }
+            }
+            idx_input.close();
+            base_input.close();
+
+            std::cout << "Average distance " << average / 1000 << std::endl;
+        }
+
 	private:
 		void compute_residual(const float *x, float *residual, idx_t key)
 		{
