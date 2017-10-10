@@ -1010,6 +1010,7 @@ namespace hnswlib {
             for (int i = 0; i < 1000000000; i++)
                 idxs[i] = 0;
 
+            #pragma omp parallel for num_threads(24)
             for (int i = 0; i < 1000000000; i++){
                 linklistsizeint *ll_cur = get_linklist0(i);
                 linklistsizeint size = *ll_cur;
