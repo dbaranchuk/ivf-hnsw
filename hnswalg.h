@@ -1015,7 +1015,7 @@ namespace hnswlib {
                 linklistsizeint size = *ll_cur;
                 tableint *data = (tableint *) (ll_cur + 1);
 
-                for (tableint l = 0; l < size; l++) {
+                for (tableint l = 0; l < size; l++)
                     idxs[data[l]]++;
             }
 
