@@ -397,7 +397,7 @@ namespace hnswlib {
                 readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
                 readXvec<float>(base_input, batch.data(), d, batch_size);
 
-                printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
+                printf("%.1f %c \n", (100.*b)/1000, '%');
 
                 for (int i = 0; i < batch_size; i++) {
                     float *centroid = (float *) quantizer->getDataByInternalId(idx_batch[i]);
