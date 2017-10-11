@@ -396,8 +396,8 @@ namespace hnswlib {
             for(int i = 0; i < csize; i++)
                 READVECTOR (codes[i], fin);
 
-            read_ProductQuantizer (&pq, fin);
-            read_ProductQuantizer (&norm_pq, fin);
+            //read_ProductQuantizer (&pq, fin);
+            //read_ProductQuantizer (&norm_pq, fin);
             fclose(fin);
         }
 
