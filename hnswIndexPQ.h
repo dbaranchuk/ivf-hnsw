@@ -399,6 +399,16 @@ namespace hnswlib {
         }
 
 
+	private:
+		void compute_residual(const float *x, float *residual, idx_t key)
+		{
+			float *centroid = (float *) quantizer->getDataByInternalId(key);
+			for (int i = 0; i < d; i++){
+				residual[i] = x[i] - centroid[i];
+			}
+		}
+
+
         void compute_average_distance(const char *path_data) const
         {
             double average = 0.0;
@@ -424,15 +434,6 @@ namespace hnswlib {
 
             std::cout << "Average distance " << average / 1000000000 << std::endl;
         }
-
-	private:
-		void compute_residual(const float *x, float *residual, idx_t key)
-		{
-			float *centroid = (float *) quantizer->getDataByInternalId(key);
-			for (int i = 0; i < d; i++){
-				residual[i] = x[i] - centroid[i];
-			}
-		}
 	};
 
 }
