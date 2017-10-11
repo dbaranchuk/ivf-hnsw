@@ -484,7 +484,6 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         std::cout << "Saving index to " << path_index << std::endl;
         index->write(path_index);
     }
-    index->compute_average_distance(path_data);
     index->compute_centroid_norm_table();
 
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
@@ -493,7 +492,6 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 
     int correct = 0;
     idx_t results[k];
-
 
     index->max_codes = 10000;
     index->nprobe = 16;
