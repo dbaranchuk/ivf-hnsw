@@ -172,6 +172,9 @@ namespace hnswlib {
 
             faiss::fvec_norms_L2sqr (norm_to_encode, x, d, n);
 			norm_pq.compute_codes(norm_to_encode, norm_codes, n);
+            for (int i = 0; i < n; i++){
+                std::cout << norm_to_encode[i] << " " << (int)norm_codes[i] << std::endl;
+            }
 
 			for (size_t i = 0; i < n; i++) {
 				idx_t key = idx[i];
@@ -222,7 +225,7 @@ namespace hnswlib {
                     norm_pq.decode(code.data()+j*(code_size+1) + code_size, &norm);
                     float dist = q_c[i] - c - 2*q_r + norm;
 
-                    std::cout << q_c[i] << " " << c << " " << q_r << " " << code[j*(code_size+1) + code_size] << norm << std::endl;
+                    //std::cout << q_c[i] << " " << c << " " << q_r << " " << code[j*(code_size+1) + code_size] << norm << std::endl;
                     idx_t label = ids[key][j];
                     topResults.emplace(std::make_pair(dist, label));
                 }
