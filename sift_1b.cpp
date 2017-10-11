@@ -443,17 +443,17 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     const char *path_index = "/home/dbaranchuk/baseline_PQ16.index";
     /** Train PQ **/
 //    std::ifstream learn_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
-    std::ifstream learn_input("/home/arbabenko/Bigann/deep1B_learn.fvecs", ios::binary);
-    int nt = 65536;
-    std::vector<float> trainvecs(nt * vecdim);
-
-    readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
-    index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
-    index->code_size = index->pq.code_size;
-    index->verbose = true;
-    index->train_residual_pq(nt, trainvecs.data());
-    index->train_norm_pq(65536, trainvecs.data());
-    learn_input.close();
+//    std::ifstream learn_input("/home/arbabenko/Bigann/deep1B_learn.fvecs", ios::binary);
+//    int nt = 65536;
+//    std::vector<float> trainvecs(nt * vecdim);
+//
+//    readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
+//    index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
+//    index->code_size = index->pq.code_size;
+//    index->verbose = true;
+//    index->train_residual_pq(nt, trainvecs.data());
+//    index->train_norm_pq(65536, trainvecs.data());
+//    learn_input.close();
 
     if (exists_test(path_index)){
         std::cout << "Loading index from " << path_index << std::endl;

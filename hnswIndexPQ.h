@@ -143,7 +143,7 @@ namespace hnswlib {
 
 		void assign(size_t n, float *data, idx_t *precomputed_idx)
 		{
-		#pragma omp parallel for num_threads(16)
+		    //#pragma omp parallel for num_threads(16)
 			for (int i = 0; i < n; i++)
 				precomputed_idx[i] = quantizer->searchKnn((data + i*d), 1).top().second;
 		}
@@ -373,8 +373,8 @@ namespace hnswlib {
             for(int i = 0; i < csize; i++)
                 WRITEVECTOR (codes[i], fout);
 
-            //write_ProductQuantizer (&pq, fout);
-            //write_ProductQuantizer (&norm_pq, fout);
+            write_ProductQuantizer (&pq, fout);
+            write_ProductQuantizer (&norm_pq, fout);
             fclose(fout);
         }
 
@@ -396,6 +396,8 @@ namespace hnswlib {
             for(int i = 0; i < csize; i++)
                 READVECTOR (codes[i], fin);
 
+            read_ProductQuantizer (&pq, fin);
+            read_ProductQuantizer (&norm_pq, fin);
             fclose(fin);
         }
 
