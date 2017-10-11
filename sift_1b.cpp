@@ -440,7 +440,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     index->precompute_idx(vecsize, path_data, "/home/dbaranchuk/precomputed_idxs_999973.ivecs");
 
 //    const char *path_index = "/sata2/dbaranchuk/test.index";
-    const char *path_index = "/home/dbaranchuk/baseline_PQ16.index";
+    const char *path_index = "/home/dbaranchuk/baseline_PQ16_break.index";
     /** Train PQ **/
 //    std::ifstream learn_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
     std::ifstream learn_input("/home/arbabenko/Bigann/deep1B_learn.fvecs", ios::binary);

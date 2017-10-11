@@ -109,7 +109,7 @@ namespace hnswlib {
 		{
             if (exists_test(path_info) && exists_test(path_edges)) {
                 quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
-                quantizer->ef_ = 500;
+                quantizer->ef_ = 150;
                 return;
             }
 
