@@ -170,8 +170,18 @@ namespace hnswlib {
 			}
 			pq.compute_codes (to_encode, xcodes, n);
 
-            faiss::fvec_norms_L2sqr (norm_to_encode, x, d, n);
+
+            float *decoded_x = new float[n*d];
+            pq.decode(xcodes, decoded_x, n);
+            for (idx_t i = 0; i < n; i++) {
+                float *centroid = (float *) quantizer->getDataByInternalId(precomputed_idx[i]);
+                for (int j = 0; j < d; j++)
+                    decoded_x[i*d + j] += centroid[j];
+
+            }
+            faiss::fvec_norms_L2sqr (norm_to_encode, decoded_x, d, n);
 			norm_pq.compute_codes(norm_to_encode, norm_codes, n);
+
             for (int i = 0; i < n; i++){
                 std::cout << norm_to_encode[i] << " " << (int)norm_codes[i] << std::endl;
             }
@@ -187,6 +197,8 @@ namespace hnswlib {
 			}
             if (to_encode != x)
                 delete to_encode;
+
+            delete decoded_x;
 			delete xcodes;
 			delete norm_to_encode;
 			delete norm_codes;
