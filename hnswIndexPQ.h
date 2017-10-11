@@ -233,7 +233,7 @@ namespace hnswlib {
                     norm_pq.decode(code.data()+j*(code_size+1) + code_size, &norm);
                     float dist = q_c[i] - c - 2*q_r + norm;
 
-                    //std::cout << q_c[i] << " " << c << " " << q_r << " " << code[j*(code_size+1) + code_size] << norm << std::endl;
+                    std::cout << q_c[i] << " " << c << " " << q_r << " " << (int)code[j*(code_size+1) + code_size] << norm << std::endl;
                     idx_t label = ids[key][j];
                     topResults.emplace(std::make_pair(dist, label));
                 }
