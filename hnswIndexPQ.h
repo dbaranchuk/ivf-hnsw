@@ -109,12 +109,12 @@ namespace hnswlib {
 		{
             if (exists_test(path_info) && exists_test(path_edges)) {
                 quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
-                quantizer->ef_ = 140;
+                quantizer->ef_ = 240;
                 return;
             }
 
             quantizer = new HierarchicalNSW<float, float>(l2space, {{csize, {16, 32}}}, 240);
-            quantizer->ef_ = 140;
+            quantizer->ef_ = 240;
 
 			std::cout << "Constructing quantizer\n";
 			int j1 = 0;
@@ -125,7 +125,7 @@ namespace hnswlib {
 			quantizer->addPoint((void *) (mass), j1);
 
 			size_t report_every = 100000;
-		#pragma omp parallel for num_threads(24)
+		#pragma omp parallel for num_threads(16)
 			for (int i = 1; i < csize; i++) {
 				float mass[d];
 		#pragma omp critical
@@ -144,7 +144,7 @@ namespace hnswlib {
 
 		void assign(size_t n, float *data, idx_t *precomputed_idx)
 		{
-		#pragma omp parallel for num_threads(24)
+		#pragma omp parallel for num_threads(16)
 			for (int i = 0; i < n; i++)
 				precomputed_idx[i] = quantizer->searchKnn((data + i*d), 1).top().second;
 		}
@@ -233,7 +233,6 @@ namespace hnswlib {
                     norm_pq.decode(code.data()+j*(code_size+1) + code_size, &norm);
                     float dist = q_c[i] - c - 2*q_r + norm;
 
-                    //std::cout << q_c[i] << " " << c << " " << q_r << " " << (int)code[j*(code_size+1) + code_size] << norm << std::endl;
                     idx_t label = ids[key][j];
                     topResults.emplace(std::make_pair(dist, label));
                 }
@@ -372,8 +371,8 @@ namespace hnswlib {
             for(int i = 0; i < csize; i++)
                 WRITEVECTOR (codes[i], fout);
 
-            write_ProductQuantizer (&pq, fout);
-            write_ProductQuantizer (&norm_pq, fout);
+            //write_ProductQuantizer (&pq, fout);
+            //write_ProductQuantizer (&norm_pq, fout);
             fclose(fout);
         }
 

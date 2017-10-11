@@ -458,6 +458,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     if (exists_test(path_index)){
         std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
+        std::cout << "Index loaded" << std::endl;
     } else {
         /** Add elements **/
         size_t batch_size = 1000000;
@@ -493,7 +494,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     int correct = 0;
     idx_t results[k];
 
-    index->max_codes = 10000;
+    index->max_codes = 30000;
     index->nprobe = 64;
     
     StopW stopw = StopW();
