@@ -182,10 +182,6 @@ namespace hnswlib {
             faiss::fvec_norms_L2sqr (norm_to_encode, decoded_x, d, n);
 			norm_pq.compute_codes(norm_to_encode, norm_codes, n);
 
-            for (int i = 0; i < n; i++){
-                std::cout << norm_to_encode[i] << " " << (int)norm_codes[i] << std::endl;
-            }
-
 			for (size_t i = 0; i < n; i++) {
 				idx_t key = idx[i];
 				idx_t id = xids[i];
@@ -376,6 +372,8 @@ namespace hnswlib {
             for(int i = 0; i < csize; i++)
                 WRITEVECTOR (codes[i], fout);
 
+            write_ProductQuantizer (&pq, fout);
+            write_ProductQuantizer (&norm_pq, fout);
             fclose(fout);
         }
 

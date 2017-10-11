@@ -444,7 +444,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     /** Train PQ **/
 //    std::ifstream learn_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
     std::ifstream learn_input("/home/arbabenko/Bigann/deep1B_learn.fvecs", ios::binary);
-    int nt = 100000;
+    int nt = 65536;
     std::vector<float> trainvecs(nt * vecdim);
 
     readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
