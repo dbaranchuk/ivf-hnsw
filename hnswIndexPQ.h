@@ -220,9 +220,11 @@ namespace hnswlib {
                 idx_t key = keys[i];
                 std::vector<uint8_t> code = codes[key];
                 float c = c_norm_table[key];
-
+                float term1 = q_c[i] - c;
                 int ncodes = code.size()/(code_size+1);
 
+                if (i < 4)
+                    std::cout << q_c[i] << " " << c << std::endl;
                 for (int j = 0; j < ncodes; j++){
                     float q_r = 0.;
                     for (int m = 0; m < code_size; m++)
@@ -230,8 +232,9 @@ namespace hnswlib {
 
                     float norm;
                     norm_pq.decode(code.data()+j*(code_size+1) + code_size, &norm);
-                    float dist = q_c[i] - c - 2*q_r + norm;
+                    float dist = term1 - 2*q_r + norm;
 
+                    // << " " << q_r << " " << norm << std::endl;
                     idx_t label = ids[key][j];
                     topResults.emplace(std::make_pair(dist, label));
                 }
