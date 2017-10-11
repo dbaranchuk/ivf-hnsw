@@ -455,7 +455,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     index->train_norm_pq(65536, trainvecs.data());
     learn_input.close();
 
-    if (!exists_test(path_index)){
+    if (exists_test(path_index)){
         std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
     } else {
