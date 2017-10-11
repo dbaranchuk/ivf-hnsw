@@ -494,7 +494,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     int correct = 0;
     idx_t results[k];
 
-    index->max_codes = 30000;
+    index->max_codes = 10000;
     index->nprobe = 64;
     
     StopW stopw = StopW();
