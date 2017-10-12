@@ -23,10 +23,6 @@ inline bool exists_test(const std::string& name) {
 	return f.good();
 }
 
-#include "L2space.h"
-#include "brutoforce.h"
-#include "hnswalg.h"
-
 namespace hnswlib {
 	//typedef float(*DISTFUNC) (const void *, const void *, const void *);
 	template<typename MTYPE>
@@ -52,3 +48,6 @@ namespace hnswlib {
         virtual dist_t fstdistfuncST(const void *) = 0;
     };
 }
+#include "L2space.h"
+#include "brutoforce.h"
+#include "hnswalg.h"

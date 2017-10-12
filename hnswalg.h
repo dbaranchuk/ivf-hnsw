@@ -2,8 +2,8 @@
 
 #include <sparsehash/dense_hash_map>
 
-#include "visited_list_pool.h"
 #include "hnswlib.h"
+#include "visited_list_pool.h"
 #include <random>
 #include <iostream>
 #include <fstream>
