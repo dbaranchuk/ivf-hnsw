@@ -182,18 +182,19 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
 }
 
 
-static void gibrid_test(const char *path_pq, const char *path_norm_pq,
-                        const char *path_learn, const char *path_data, const char *path_q,
-                        const char *path_gt, const char *path_info, const char *path_edges,
-                        const int k, const int vecsize, const int qsize,
-                        const int vecdim, const int efConstruction, const int M)
+void gibrid_test(const char *path_index, const char *precomputed_idxs,
+                 const char *path_pq, const char *path_norm_pq,
+                 const char *path_learn, const char *path_data, const char *path_q,
+                 const char *path_gt, const char *path_info, const char *path_edges,
+                 const int k, const int vecsize, const int qsize,
+                 const int vecdim, const int efConstruction, const int M)
 {
-    const char *path_pq = "/home/dbaranchuk/pq.pq";
-    const char *path_norm_pq = "/home/dbaranchuk/norm_pq.pq";
+    path_pq = "/home/dbaranchuk/pq.pq";
+    path_norm_pq = "/home/dbaranchuk/norm_pq.pq";
     const char *path_centroids = "/home/dbaranchuk/data/centroids1M.fvecs";
-    const char *path_precomputed_idxs = "/home/dbaranchuk/precomputed_idxs_999973.ivecs";
-    const char *path_index = "/home/dbaranchuk/baseline_PQ16_new.index";
-    const char *path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
+    path_precomputed_idxs = "/home/dbaranchuk/precomputed_idxs_999973.ivecs";
+    path_index = "/home/dbaranchuk/baseline_PQ16_new.index";
+    path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
 
     const int M_PQ = 16;
     const int ncentroids = 999973;

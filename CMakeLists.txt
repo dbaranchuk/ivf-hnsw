@@ -8,7 +8,7 @@ project(HNSW)
 
 set(SOURCE_EXE main.cpp)            
 
-set(SOURCE_LIB1 gibtid.cpp)
+set(SOURCE_LIB1 gibrid.cpp)
 set(SOURCE_LIB2 sift_1b.cpp)
 
 add_library(gibrid_test STATIC ${SOURCE_LIB1})

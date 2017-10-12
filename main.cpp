@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
     const char *path_info = NULL;
 
     const char *path_index = NULL;
-    const char *path_precomputed_idx = NULL;
+    const char *path_precomputed_idxs = NULL;
     const char *path_pq = NULL;
     const char *path_norm_pq = NULL;
     const char *path_learn = NULL;
@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
             path_norm_pq = argv[++i];
         }
         else if (!strcmp (a, "-path_precomputed_idx") && i+1 < argc) {
-            path_precomputed_idx = argv[++i];
+            path_precomputed_idxs = argv[++i];
         }
         else if (!strcmp (a, "-path_index") && i+1 < argc) {
             path_index = argv[++i];
@@ -160,7 +160,7 @@ int main(int argc, char **argv) {
 //              path_gt, path_info, path_edges,
 //              k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
 
-    gibrid_test(path_index, path_precomputed_idx,
+    gibrid_test(path_index, path_precomputed_idxs,
                 path_pq, path_norm_pq,
                 path_learn, path_data, path_q,
                 path_gt, path_info, path_edges,
