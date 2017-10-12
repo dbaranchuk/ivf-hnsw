@@ -277,9 +277,7 @@ namespace hnswlib {
         std::vector<float *> codebooks;
         std::vector<int *> constructionTables;
         int *query_table;
-
     public:
-
         L2SpacePQ(const size_t dim, const size_t m, const size_t k):
                 dim_(dim), m_(m), k_(k)
         {
@@ -291,6 +289,7 @@ namespace hnswlib {
                 exit(1);
             }
             query_table = new int [m_*k_];
+
         }
 
         virtual ~L2SpacePQ()
@@ -358,34 +357,6 @@ namespace hnswlib {
             fclose(fin);
         }
 
-//        void compute_query_tables(unsigned char *massQ, size_t qsize)
-//        {
-//            unsigned char *q, *x;
-//            float *y;
-//
-//            queryTables = new int [m_ * k_ * qsize];
-//
-//            //        std::vector<int *> (m_);
-//            //for (int i = 0; i < m_; i++)
-//            //    queryTables[i] = (int *) calloc(sizeof(int), k_ * qsize);
-//
-//            for (size_t q_idx = 0; q_idx < qsize; q_idx++) {
-//                q = massQ + q_idx * dim_;
-//                for (size_t m = 0; m < m_; m++) {
-//                    x = q + m * vocab_dim_;
-//                    for (size_t k = 0; k < k_; k++){
-//                        int res = 0;
-//                        y = codebooks[m] + k * vocab_dim_;
-//                        for (int j = 0; j < vocab_dim_; j++) {
-//                            int t = x[j] - y[j];
-//                            res += t * t;
-//                        }
-//                        queryTables[k_*(q_idx*m_ + m) + k] = res;
-//                    }
-//                }
-//            }
-//        }
-
 
         size_t get_data_size() { return data_size_; }
         size_t get_data_dim() { return m_; }
@@ -411,33 +382,6 @@ namespace hnswlib {
             return res;
         };
 
-//        int fstdistfuncST(const size_t q_idx, const void *y_code)
-//        {
-//            int res = 0;
-//            int dim = m_ >> 3;
-//            unsigned char *y = (unsigned char *)y_code;
-//
-//            int n = 0;
-//            for (int i = 0; i < dim; ++i) {
-//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-//                res += queryTables[k_ * (m_* q_idx + n) + y[n]]; ++n;
-////                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-////                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-////                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-////                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-////                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-////                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-////                res += queryTables[n][k_ * q_idx + y[n]]; ++n;
-//            }
-//            return res;
-//        };
-
         int fstdistfuncST(const void *y_code)
         {
             int res = 0;
@@ -459,4 +403,208 @@ namespace hnswlib {
         };
     };
 
+    class NewL2SpacePQ: public SpaceInterface<float>
+    {
+        size_t data_size_;
+        size_t dim_;
+        size_t m_;
+        size_t k_;
+        size_t vocab_dim_;
+
+        float *query_table;
+        faiss::ProductQuantizer *pq;
+
+    public:
+        NewL2SpacePQ(const size_t dim, const size_t m, const size_t k,
+                  const char *path_pq, const char *path_learn):
+                dim_(dim), m_(m), k_(k)
+        {
+            vocab_dim_ = (dim_ % m_ == 0) ? dim_ / m_ : -1;
+            data_size_ = m_ * sizeof(float);
+
+            if (vocab_dim_ == -1) {
+                std::cerr << "M is not multiply of D" << std::endl;
+                exit(1);
+            }
+
+            query_table = new float [m_*k_];
+            pq = new faiss::ProductQuantizer(dim_, m_, 8);
+
+            if (exists_test(path_pq))
+                read_pq(path_pq, pq);
+            else {
+                std::ifstream learn_input(path_learn, ios::binary);
+                int nt = 65536;
+                std::vector<uint8_t> trainvecs(nt * vecdim);
+
+                readXvec<uint8_t>(learn_input, trainvecs.data(), vecdim, nt);
+                learn_input.close();
+
+                pq->verbose = true;
+                pq->train(nt, trainvecs.data());
+                write_pq(path_pq, pq);
+            }
+            pq->compute_sdc_table();
+        }
+
+        virtual ~NewL2SpacePQ()
+        {
+            delete construction_table;
+            delete query_table;
+            delete pq;
+        }
+
+        void set_query_table(const float *q) {
+            pq->compute_distance_table(q, query_table);
+        }
+
+
+        size_t get_data_size() { return data_size_; }
+        size_t get_data_dim() { return m_; }
+
+        float fstdistfunc(const void *x_code, const void *y_code)
+        {
+            float res = 0;
+            int dim = m_ >> 3;
+            unsigned char *x = (unsigned char *)x_code;
+            unsigned char *y = (unsigned char *)y_code;
+
+            int m = 0;
+            float *table = pq->sdc_table.data();
+            for (int i = 0; i < dim; ++i) {
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+            }
+            return res;
+        };
+
+        float fstdistfuncST(const void *y_code)
+        {
+            float res = 0.;
+            int dim = m_ >> 3;
+            unsigned char *y = (unsigned char *)y_code;
+
+            int m = 0;
+            for (int i = 0; i < dim; ++i) {
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+            }
+            return res;
+        };
+    };
+
+
+    class NewL2SpaceIPQ: public SpaceInterface<int>
+    {
+        size_t data_size_;
+        size_t dim_;
+        size_t m_;
+        size_t k_;
+        size_t vocab_dim_;
+
+        float *query_table;
+        faiss::ProductQuantizer *pq;
+
+    public:
+        NewL2SpaceIPQ(const size_t dim, const size_t m, const size_t k,
+                     const char *path_pq, const char *path_learn):
+                dim_(dim), m_(m), k_(k)
+        {
+            vocab_dim_ = (dim_ % m_ == 0) ? dim_ / m_ : -1;
+            data_size_ = m_ * sizeof(unsigned char);
+
+            if (vocab_dim_ == -1) {
+                std::cerr << "M is not multiply of D" << std::endl;
+                exit(1);
+            }
+            query_table = new int [m_*k_];
+
+            pq = new faiss::ProductQuantizer(dim_, m_, 8);
+            if (exists_test(path_pq))
+                read_pq(path_pq, pq);
+            else {
+                std::ifstream learn_input(path_learn, ios::binary);
+                int nt = 65536;
+                std::vector<uint8_t> trainvecs(nt * vecdim);
+
+                readXvec<uint8_t>(learn_input, trainvecs.data(), vecdim, nt);
+                learn_input.close();
+
+                pq->verbose = true;
+                pq->train(nt, trainvecs.data());
+                write_pq(path_pq, pq);
+            }
+            pq->compute_sdc_table();
+        }
+
+        virtual ~NewL2SpaceIPQ()
+        {
+            delete construction_table;
+            delete query_table;
+            delete pq;
+        }
+
+        void set_query_table(const uint8_t *q) {
+            float float_q = *q;
+            pq->compute_distance_table(&float_q, query_table);
+        }
+
+
+        size_t get_data_size() { return data_size_; }
+        size_t get_data_dim() { return m_; }
+
+        int fstdistfunc(const void *x_code, const void *y_code)
+        {
+            int res = 0;
+            int dim = m_ >> 3;
+            unsigned char *x = (unsigned char *)x_code;
+            unsigned char *y = (unsigned char *)y_code;
+
+            int m = 0;
+            float *table = pq->sdc_table.data();
+            for (int i = 0; i < dim; ++i) {
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+            }
+            return res;
+        };
+
+        float fstdistfuncST(const void *y_code)
+        {
+            int res = 0;
+            int dim = m_ >> 3;
+            unsigned char *y = (unsigned char *)y_code;
+
+            int m = 0;
+            for (int i = 0; i < dim; ++i) {
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+                res += query_table[k_ * m + y[m]]; ++m;
+            }
+            return res;
+        };
+    };
 };

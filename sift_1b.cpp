@@ -284,7 +284,10 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     const int M_PQ = 16;
     const bool PQ = (path_codebooks && path_tables);
 
-    const int specsize = 5000000;//101917929;
+    const char *path_pq = "/home/dbaranchuk/data/bigann/pq16.pq";
+    //const char *path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
+    const char *path_learn = "/home/dbaranchuk/data/bigann/bigann_learn.bvecs";
+
     const map<size_t, pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}}, {200000000, {12, 24}}, {400000000, {8, 16}},
@@ -310,9 +313,9 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
 
     switch(l2SpaceType) {
         case L2SpaceType::PQ:
-            l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2SpacePQ(vecdim, M_PQ, 256));
-            dynamic_cast<L2SpacePQ *>(l2space)->set_codebooks(path_codebooks);
-            dynamic_cast<L2SpacePQ *>(l2space)->set_construction_tables(path_tables);
+            l2space = dynamic_cast<SpaceInterface<dist_t> *>(new NewL2SpacePQ(vecdim, M_PQ, 256, path_pq, path_learn));
+            //dynamic_cast<L2SpacePQ *>(l2space)->set_codebooks(path_codebooks);
+            //dynamic_cast<L2SpacePQ *>(l2space)->set_construction_tables(path_tables);
             break;
         case L2SpaceType::Float:
             l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2Space(vecdim));
@@ -343,7 +346,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         appr_alg->addPoint((void *) (mass), j1);
 
         size_t report_every = 1000000;
-#pragma omp parallel for num_threads(30)
+#pragma omp parallel for num_threads(24)
         for (int i = 1; i < vecsize; i++) {
             vtype mass[PQ ? M_PQ : vecdim];
 #pragma omp critical
@@ -363,7 +366,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         appr_alg->SaveInfo(path_info);
         appr_alg->SaveEdges(path_edges);
     }
-    appr_alg->count_repeated_edges();
+    //appr_alg->count_repeated_edges();
     //appr_alg->printListsize();
     //appr_alg->reorder_graph();
     //appr_alg->check_connectivity(massQA, qsize);
@@ -575,12 +578,15 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 }
 
 
-void ___hnsw_test(const char *l2space_type,
-                  const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_q,
+void ___hnsw_test(const char *path_pq, const char *path_norm_pq,
+                  const char *path_learn, const char *path_data, const char *path_q,
                   const char *path_gt, const char *path_info, const char *path_edges,
                   const int k, const int vecsize, const int qsize,
                   const int vecdim, const int efConstruction, const int M, bool one_layer)
 {
 
-    ____hnsw_test(path_data, path_q, path_gt, path_info, path_edges, k, vecsize, qsize, vecdim, efConstruction, M);
+    ____hnsw_test(path_pq, path_norm_pq,
+            path_learn, path_data, path_q,
+                  path_gt, path_info, path_edges,
+                  k, vecsize, qsize, vecdim, efConstruction, M);
 }

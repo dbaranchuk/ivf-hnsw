@@ -2,14 +2,14 @@
 #include <cstring>
 #include <cassert>
 
-//void sift_test1B();
+void gibrid_test(const char *, const char *,
+                 const char *, const char *,
+                 const char *, const char *, const char *,
+                 const char *, const char *, const char *,
+                 const int, const int, const int, const int, const int, const int, bool);
+
 //void deep_test10M();
 void hnsw_test( const char *l2space_type,
-                const char *, const char *, const char *, const char *,
-                const char *, const char *, const char *,
-                const int, const int, const int, const int, const int, const int, bool);
-
-void ___hnsw_test( const char *l2space_type,
                 const char *, const char *, const char *, const char *,
                 const char *, const char *, const char *,
                 const int, const int, const int, const int, const int, const int, bool);
@@ -58,6 +58,12 @@ int main(int argc, char **argv) {
     const char *path_edges = NULL;
     const char *path_info = NULL;
 
+    const char *path_index = NULL;
+    const char *path_precomputed_idx = NULL;
+    const char *path_pq = NULL;
+    const char *path_norm_pq = NULL;
+    const char *path_learn = NULL;
+
     const char *l2space_type = NULL; //{int, float}
     int k = 1, ret, ep;
     bool one_layer = false;
@@ -92,6 +98,21 @@ int main(int argc, char **argv) {
         else if (!strcmp (a, "-path_gt") && i+1 < argc) {
             path_gt = argv[++i];
         }
+        else if (!strcmp (a, "-path_pq") && i+1 < argc) {
+            path_pq = argv[++i];
+        }
+        else if (!strcmp (a, "-path_norm_pq") && i+1 < argc) {
+            path_norm_pq = argv[++i];
+        }
+        else if (!strcmp (a, "-path_precomputed_idx") && i+1 < argc) {
+            path_precomputed_idx = argv[++i];
+        }
+        else if (!strcmp (a, "-path_index") && i+1 < argc) {
+            path_index = argv[++i];
+        }
+        else if (!strcmp (a, "-path_learn") && i+1 < argc) {
+            path_learn = argv[++i];
+        }
         else if (!strcmp (a, "-k") && i+1 < argc) {
             ret = sscanf (argv[++i], "%d", &k);
             assert (ret);
@@ -124,7 +145,6 @@ int main(int argc, char **argv) {
         }
 
     }
-    //assert(argc == 18);
 
     if ((!path_codebooks && path_tables) || (path_codebooks && !path_tables)) {
         std::cerr << "Enter path_codebooks and path_tables to use PQ" << std::endl;
@@ -140,9 +160,11 @@ int main(int argc, char **argv) {
 //              path_gt, path_info, path_edges,
 //              k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
 
-    ___hnsw_test("float", path_codebooks, path_tables, path_data, path_q,
-                 path_gt, path_info, path_edges,
-                 k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
+    gibrid_test(path_index, path_precomputed_idx,
+                path_pq, path_norm_pq,
+                path_learn, path_data, path_q,
+                path_gt, path_info, path_edges,
+                k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
 
     return 0;  
 };
