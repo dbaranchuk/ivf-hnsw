@@ -418,18 +418,19 @@ void hnsw_test(const char *l2space_type,
                const int k, const int vecsize, const int qsize,
                const int vecdim, const int efConstruction, const int M)
 {
-    if (!strcmp (l2space_type, "int")) {
+    if (!strcmp (l2space_type, "int"))
         _hnsw_test<int, unsigned char>(path_codebooks, path_tables, path_data, path_q,
                         path_gt, path_info, path_edges,
                         (path_codebooks && path_tables) ? L2SpaceType::NewPQ : L2SpaceType::Int,
                         k, vecsize, qsize, vecdim, efConstruction, M);
-    } else if (!strcmp (l2space_type, "float"))
+    else if (!strcmp (l2space_type, "float"))
         _hnsw_test<float, float>(path_codebooks, path_tables, path_data, path_q,
                           path_gt, path_info, path_edges,
                           L2SpaceType::Float,
                           k, vecsize, qsize, vecdim, efConstruction, M);
-    else if (!strcmp (l2space_type, "new_pq")) {
+    else if (!strcmp (l2space_type, "new_pq"))
         _hnsw_test<float, unsigned char>(path_codebooks, path_tables, path_data, path_q,
-                                       path_gt, path_info, path_edges, L2SpaceType::NewPQ,
-                                       k, vecsize, qsize, vecdim, efConstruction, M);
+                                         path_gt, path_info, path_edges, L2SpaceType::NewPQ,
+                                         k, vecsize, qsize, vecdim, efConstruction, M);
+
 }
