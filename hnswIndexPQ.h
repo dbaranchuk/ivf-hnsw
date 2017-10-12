@@ -214,10 +214,10 @@ namespace hnswlib {
                 compute_residual(x + i * d, residuals + i * d, idx[i]);
             to_encode = residuals;
 
-			pq.compute_codes (to_encode, xcodes, n);
+			pq->compute_codes (to_encode, xcodes, n);
 
             float *decoded_x = new float[n*d];
-            pq.decode(xcodes, decoded_x, n);
+            pq->decode(xcodes, decoded_x, n);
             for (idx_t i = 0; i < n; i++) {
                 float *centroid = (float *) quantizer->getDataByInternalId(precomputed_idx[i]);
                 for (int j = 0; j < d; j++)
@@ -225,7 +225,7 @@ namespace hnswlib {
 
             }
             faiss::fvec_norms_L2sqr (norm_to_encode, decoded_x, d, n);
-			norm_pq.compute_codes(norm_to_encode, norm_codes, n);
+			norm_pq->compute_codes(norm_to_encode, norm_codes, n);
 
 			for (size_t i = 0; i < n; i++) {
 				idx_t key = idx[i];
@@ -249,8 +249,8 @@ namespace hnswlib {
             idx_t keys[nprobe];
             float q_c[nprobe];
 
-            float * dis_tables = new float [pq.ksub * pq.M];
-            pq.compute_inner_prod_table(x, dis_tables);
+            float * dis_tables = new float [pq->ksub * pq->M];
+            pq->compute_inner_prod_table(x, dis_tables);
 
             std::priority_queue<std::pair<float, idx_t>> topResults;
             auto coarse = quantizer->searchKnn(x, nprobe);
@@ -275,7 +275,7 @@ namespace hnswlib {
                         q_r += dis_tables[pq.ksub * m + code[j*(code_size + 1) + m]];
 
                     float norm;
-                    norm_pq.decode(code.data()+j*(code_size+1) + code_size, &norm);
+                    norm_pq->decode(code.data()+j*(code_size+1) + code_size, &norm);
                     float dist = term1 - 2*q_r + norm;
 
                     // << " " << q_r << " " << norm << std::endl;
@@ -318,8 +318,8 @@ namespace hnswlib {
                 compute_residual (x + i * d, residuals+i*d, assigned[i]);
 
             uint8_t * xcodes = new uint8_t [n * code_size];
-            pq.compute_codes (residuals, xcodes, n);
-            pq.decode(xcodes, residuals, n);
+            pq->compute_codes (residuals, xcodes, n);
+            pq->decode(xcodes, residuals, n);
 
             float *decoded_x = new float[n*d];
             for (idx_t i = 0; i < n; i++) {
@@ -335,8 +335,8 @@ namespace hnswlib {
             float *trainset = new float[n];
             faiss::fvec_norms_L2sqr (trainset, decoded_x, d, n);
 
-            norm_pq.verbose = verbose;
-            norm_pq.train (n, trainset);
+            norm_pq->verbose = true;
+            norm_pq->train (n, trainset);
 
             delete trainset;
         }
@@ -358,9 +358,9 @@ namespace hnswlib {
             trainset = residuals;
 
             printf ("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
-                    pq.M, pq.ksub, n, d);
-            pq.verbose = verbose;
-            pq.train (n, trainset);
+                    pq->M, pq->ksub, n, d);
+            pq->verbose = true;
+            pq->train (n, trainset);
 
             delete assigned;
             delete residuals;
