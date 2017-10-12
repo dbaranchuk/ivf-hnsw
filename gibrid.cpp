@@ -164,19 +164,19 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
     }
 }
 
-template <typename format>
-static void readXvec(std::ifstream &input, format *mass, const int d, const int n = 1)
-{
-    int in = 0;
-    for (int i = 0; i < n; i++) {
-        input.read((char *) &in, sizeof(int));
-        if (in != d) {
-            std::cout << "file error\n";
-            exit(1);
-        }
-        input.read((char *)(mass+i*d), in * sizeof(format));
-    }
-}
+//template <typename format>
+//static void readXvec(std::ifstream &input, format *mass, const int d, const int n = 1)
+//{
+//    int in = 0;
+//    for (int i = 0; i < n; i++) {
+//        input.read((char *) &in, sizeof(int));
+//        if (in != d) {
+//            std::cout << "file error\n";
+//            exit(1);
+//        }
+//        input.read((char *)(mass+i*d), in * sizeof(format));
+//    }
+//}
 
 template <typename format>
 static void loadXvecs(const char *path, format *mass, const int n, const int d)
