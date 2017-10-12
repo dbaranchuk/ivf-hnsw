@@ -124,8 +124,9 @@ namespace hnswlib {
 		faiss::ProductQuantizer *norm_pq;
         faiss::ProductQuantizer *pq;
 
-		std::vector < std::vector<uint8_t> > codes;
         std::vector < std::vector<idx_t> > ids;
+        std::vector < std::vector<uint8_t> > codes;
+		std::vector < std::vector<uint8_t> > norm_codes;
 
         float *c_norm_table;
 		HierarchicalNSW<float, float> *quantizer;
@@ -137,6 +138,7 @@ namespace hnswlib {
 				d(dim), csize(ncentroids)
 		{
             codes.reserve(ncentroids);
+            norm_codes.reserve(ncentroids);
             ids.reserve(ncentroids);
 
             pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
@@ -161,7 +163,7 @@ namespace hnswlib {
                 quantizer->ef_ = efSearch;
                 return;
             }
-            quantizer = new HierarchicalNSW<float, float>(l2space, {{csize, {16, 32}}}, 240);
+            quantizer = new HierarchicalNSW<float, float>(l2space, {{csize, {16, 32}}}, 500);
             quantizer->ef_ = efSearch;
 
 			std::cout << "Constructing quantizer\n";
@@ -202,27 +204,21 @@ namespace hnswlib {
 		{
             float *residuals = new float [n * d];
             compute_residuals(n, x, residuals, idx);
-            std::cout << "H" << std::endl;
 
             uint8_t * xcodes = new uint8_t [n * code_size];
 			pq->compute_codes (residuals, xcodes, n);
-            std::cout << "H" << std::endl;
 
             float *decoded_residuals = new float[n * d];
             pq->decode(xcodes, decoded_residuals, n);
-            std::cout << "H" << std::endl;
 
             float *reconstructed_x = new float[n * d];
             reconstruct(n, reconstructed_x, decoded_residuals, idx);
-            std::cout << "H" << std::endl;
 
-            float *norm_to_encode = new float[n];
-            faiss::fvec_norms_L2sqr (norm_to_encode, reconstructed_x, d, n);
-            std::cout << "H" << std::endl;
+            float *norms = new float[n];
+            faiss::fvec_norms_L2sqr (norms, reconstructed_x, d, n);
 
-            uint8_t *norm_codes = new uint8_t[n];
-            norm_pq->compute_codes(norm_to_encode, norm_codes, n);
-            std::cout << "H" << std::endl;
+            uint8_t *xnorm_codes = new uint8_t[n];
+            norm_pq->compute_codes(norms, xnorm_codes, n);
 
 			for (size_t i = 0; i < n; i++) {
 				idx_t key = idx[i];
@@ -231,7 +227,8 @@ namespace hnswlib {
 				uint8_t *code = xcodes + i * code_size;
 				for (size_t j = 0; j < code_size; j++)
 					codes[key].push_back(code[j]);
-				codes[key].push_back(norm_codes[i]);
+
+				norm_codes[key].push_back(xnorm_codes[i]);
 			}
 
             delete residuals;
@@ -239,7 +236,7 @@ namespace hnswlib {
             delete decoded_residuals;
             delete reconstructed_x;
 			delete norm_to_encode;
-			delete norm_codes;
+			delete xnorm_codes;
 		}
 
 		void search (float *x, idx_t k, idx_t *results)
@@ -259,30 +256,39 @@ namespace hnswlib {
                 keys[i] = elem.second;
                 coarse.pop();
             }
+
+            int max_ncodes = 0;
             for (int i = 0; i < nprobe; i++){
                 idx_t key = keys[i];
                 std::vector<uint8_t> code = codes[key];
+                std::vector<uint8_t> norm_code = norm_codes[key];
                 float term1 = q_c[i] - c_norm_table[key];
-                int ncodes = code.size()/(code_size+1);
+                int ncodes = norm_code.size();
 
-                //if (i < 1)
-                //    std::cout << q_c[i] << " " << c << std::endl;
+                if (ncodes > max_ncodes)
+                    max_ncodes = ncodes;
+
+                float *norms = new float[ncodes];
+                norm_pq->decode(norm_code.data(), norms, ncodes);
+
                 for (int j = 0; j < ncodes; j++){
                     float q_r = 0.;
                     for (int m = 0; m < code_size; m++)
-                        q_r += dis_tables[pq->ksub * m + code[j*(code_size + 1) + m]];
+                        q_r += dis_tables[pq->ksub * m + code[j*code_size + m]];
 
-                    float norm;
-                    norm_pq->decode(code.data()+j*(code_size+1) + code_size, &norm);
-                    float dist = term1 - 2*q_r + norm;
+                    //float norm;
+                    //norm_pq->decode(code.data()+j*(code_size+1) + code_size, &norm);
+                    float dist = term1 - 2*q_r + norms[j];
 
                     // << " " << q_r << " " << norm << std::endl;
                     idx_t label = ids[key][j];
                     topResults.emplace(std::make_pair(dist, label));
                 }
+                delete norms;
                 if (topResults.size() > max_codes)
                     break;
             }
+            std::cout << "Max ncodes: " << max_ncodes << std::endl;
 
             while (topResults.size() > k)
                 topResults.pop();
@@ -401,6 +407,12 @@ namespace hnswlib {
                 fwrite(codes[i].data(), sizeof(uint8_t), size, fout);
             }
 
+            for(int i = 0; i < csize; i++) {
+                size = norm_codes[i].size();
+                fwrite(&size, sizeof(size_t), 1, fout);
+                fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
+            }
+
             write_pq(path_pq, pq);
             write_pq(path_norm_pq, norm_pq);
             fclose(fout);
@@ -430,6 +442,12 @@ namespace hnswlib {
                 fread(&size, sizeof(size_t), 1, fin);
                 codes[i].resize(size);
                 fread(codes[i].data(), sizeof(uint8_t), size, fin);
+            }
+
+            for(size_t i = 0; i < csize; i++){
+                fread(&size, sizeof(size_t), 1, fin);
+                norm_codes[i].resize(size);
+                fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
             }
 
             read_pq (path_pq, pq);
