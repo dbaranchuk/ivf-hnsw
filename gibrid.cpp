@@ -224,19 +224,6 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
 
     SpaceInterface<float> *l2space = new L2Space(vecdim);
 
-
-//    /** Train PQ **/
-//    std::ifstream learn_input("/home/arbabenko/Bigann/deep1B_learn.fvecs", ios::binary);
-//    int nt = 65536;
-//    std::vector<float> trainvecs(nt * vecdim);
-//
-//    readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
-//    index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
-//    index->code_size = index->pq->code_size;
-//    index->train_residual_pq(nt, trainvecs.data());
-//    index->train_norm_pq(nt, trainvecs.data());
-//    learn_input.close();
-
     /** Create Index **/
     Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
     index->buildQuantizer(l2space, path_centroids, path_info, path_edges, efSearch);
@@ -249,6 +236,7 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
 
     readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
     learn_input.close();
+    
     /** Train residual PQ **/
     if (exists_test(path_pq)) {
         std::cout << "Loading PQ codebook from " << path_pq << std::endl;
