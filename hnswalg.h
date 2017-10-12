@@ -64,7 +64,7 @@ namespace hnswlib {
             LoadEdges(edgeLocation);
         }
 
-        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::map<size_t, pair<size_t, size_t>> &M_map, size_t efConstruction = 200)
+        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::map<size_t, std::pair<size_t, size_t>> &M_map, size_t efConstruction = 200)
         {
             space = s;
             data_size_ = s->get_data_size();
@@ -1001,33 +1001,6 @@ namespace hnswlib {
             }
             recursive_reorder(labels, maxelements_);
             delete labels;
-        }
-
-        void count_repeated_edges()
-        {
-            labeltype *idxs = new labeltype[1000000000];
-
-            for (int i = 0; i < 1000000000; i++)
-                idxs[i] = 0;
-
-            #pragma omp parallel for num_threads(24)
-            for (int i = 0; i < 1000000000; i++){
-                linklistsizeint *ll_cur = get_linklist0(i);
-                linklistsizeint size = *ll_cur;
-                tableint *data = (tableint *) (ll_cur + 1);
-
-                for (tableint l = 0; l < size; l++)
-                    idxs[data[l]]++;
-            }
-
-            unsigned long counter = 0;
-            for (int i = 0; i < 1000000000; i++)
-                if (idxs[i] > 1 ) {
-                    std::cout << i << ": " << idxs[i] << std::endl;
-                    counter += idxs[i];
-                }
-            std::cout << "Num of repeated edges: " << counter << std::endl;
-            delete idxs;
         }
     };
 }
