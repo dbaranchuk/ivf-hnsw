@@ -245,7 +245,7 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
     /** Train norm PQ **/
     if (exists_test(path_norm_pq)) {
         std::cout << "Loading norm PQ codebook from " << path_norm_pq << std::endl;
-        read_pq(path_pq, index->norm_pq);
+        read_pq(path_norm_pq, index->norm_pq);
     }
     else {
         index->train_norm_pq(nt, trainvecs.data());
