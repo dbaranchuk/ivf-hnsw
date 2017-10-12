@@ -327,9 +327,6 @@ namespace hnswlib {
                     decoded_x[i*d + j] = centroid[j] + residuals[i*d + j];
 
             }
-            delete residuals;
-            delete assigned;
-            delete xcodes;
 
             float *trainset = new float[n];
             faiss::fvec_norms_L2sqr (trainset, decoded_x, d, n);
@@ -337,6 +334,9 @@ namespace hnswlib {
             norm_pq->verbose = true;
             norm_pq->train (n, trainset);
 
+            delete residuals;
+            delete assigned;
+            delete xcodes;
             delete trainset;
         }
 
@@ -359,7 +359,7 @@ namespace hnswlib {
             printf ("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
                     pq->M, pq->ksub, n, d);
             pq->verbose = true;
-            pq->train (n, trainset);
+            pq->train (n, residuals);
 
             delete assigned;
             delete residuals;
