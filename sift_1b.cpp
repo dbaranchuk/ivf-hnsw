@@ -459,7 +459,11 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         std::cout << "Loading index from " << path_index << std::endl;
         index = new Index(vecdim, ncentroids, M_PQ, 8);
         index->read(path_index);
+
+        std::cout << "Loading PQ codebook from " << path_pq << std::endl;
         read_pq(path_pq, index->pq);
+
+        std::cout << "Loading norm PQ codebook from " << path_norm_pq << std::endl;
         read_pq(path_norm_pq, index->norm_pq);
 
         index->buildQuantizer(l2space, path_centroids, path_info, path_edges, efSearch);
@@ -478,11 +482,15 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         std::vector<float> trainvecs(nt * vecdim);
 
         readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
+
+        /** Train residual PQ **/
         index->train_residual_pq(nt, trainvecs.data());
-        index->code_size = index->pq->code_size;
+        std::cout << "Saving PQ codebook to " << path_pq << std::endl;
         write_pq(path_pq, index->pq);
 
+        /** Train norm PQ **/
         index->train_norm_pq(nt, trainvecs.data());
+        std::cout << "Saving norm PQ codebook to " << path_norm_pq << std::endl;
         write_pq(path_norm_pq, index->norm_pq);
 
         learn_input.close();
