@@ -72,7 +72,7 @@ namespace hnswlib {
         fwrite (&size, sizeof(size_t), 1, fout);
 
         float *centroids = _pq->centroids.data();
-        fwrite(_pq->centroids.data(), sizeof(float), size, fout);
+        fwrite(centroids, sizeof(float), size, fout);
 
         fclose(fout);
     }
@@ -395,6 +395,7 @@ namespace hnswlib {
 
             ids = std::vector<std::vector<idx_t>>(csize);
             codes = std::vector<std::vector<uint8_t>>(csize);
+            norm_codes = std::vector<std::vector<uint8_t>>(csize);
 
             size_t size;
             for (size_t i = 0; i < csize; i++) {

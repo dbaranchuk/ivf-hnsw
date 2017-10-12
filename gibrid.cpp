@@ -237,53 +237,47 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
 //    index->train_norm_pq(nt, trainvecs.data());
 //    learn_input.close();
 
-    Index *index;
-    if (exists_test(path_index)){
-        /** Load Index **/
-        index = new Index(vecdim, ncentroids, M_PQ, 8);
-        index->buildQuantizer(l2space, path_centroids, path_info, path_edges, efSearch);
-        index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
+    /** Create Index **/
+    Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
+    index->buildQuantizer(l2space, path_centroids, path_info, path_edges, efSearch);
+    index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
 
+    /** Train PQ **/
+    std::ifstream learn_input(path_learn, ios::binary);
+    int nt = 65536;
+    std::vector<float> trainvecs(nt * vecdim);
+
+    readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
+    learn_input.close();
+    /** Train residual PQ **/
+    if (exists_test(path_pq)) {
         std::cout << "Loading PQ codebook from " << path_pq << std::endl;
         read_pq(path_pq, index->pq);
+    }
+    else {
+        index->train_residual_pq(nt, trainvecs.data());
+        std::cout << "Saving PQ codebook to " << path_pq << std::endl;
+        write_pq(path_pq, index->pq);
+    }
 
+    /** Train norm PQ **/
+    if (exists_test(path_pq)) {
         std::cout << "Loading norm PQ codebook from " << path_norm_pq << std::endl;
-        read_pq(path_norm_pq, index->norm_pq);
+        read_pq(path_pq, index->pq);
+    }
+    else {
+        index->train_norm_pq(nt, trainvecs.data());
+        std::cout << "Saving norm PQ codebook to " << path_norm_pq << std::endl;
+        write_pq(path_norm_pq, index->norm_pq);
+    }
 
+
+    
+    if (exists_test(path_index)){
+        /** Load Index **/
         std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
     } else {
-        /** Create Index **/
-        index = new Index(vecdim, ncentroids, M_PQ, 8);
-        index->buildQuantizer(l2space, path_centroids, path_info, path_edges, efSearch);
-        index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
-
-        /** Train PQ **/
-        std::ifstream learn_input(path_learn, ios::binary);
-        int nt = 65536;
-        std::vector<float> trainvecs(nt * vecdim);
-
-        readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
-
-        /** Train residual PQ **/
-        if (exists_test(path_pq))
-            read_pq(path_pq, index->pq);
-        else {
-            index->train_residual_pq(nt, trainvecs.data());
-            std::cout << "Saving PQ codebook to " << path_pq << std::endl;
-            write_pq(path_pq, index->pq);
-        }
-
-        /** Train norm PQ **/
-        if (exists_test(path_pq))
-            read_pq(path_pq, index->pq);
-        else {
-            index->train_norm_pq(nt, trainvecs.data());
-            std::cout << "Saving norm PQ codebook to " << path_norm_pq << std::endl;
-            write_pq(path_norm_pq, index->norm_pq);
-        }
-        learn_input.close();
-
         /** Add elements **/
         size_t batch_size = 1000000;
         std::ifstream base_input(path_data, ios::binary);
