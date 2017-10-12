@@ -319,6 +319,8 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         case L2SpaceType::Int:
             l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2SpaceI(vecdim));
             break;
+        case L2SpaceType ::NewPQ:
+            break;
     }
 
     HierarchicalNSW<dist_t, vtype> *appr_alg;

@@ -23,10 +23,8 @@
 #include "hnswIndexPQ.h"
 
 namespace hnswlib {
-	using namespace std;
     /**= Prev fstdistfunc =**/
-                    static float
-                    L2SqrSIMD16Ext(const void *pVect1v, const void *pVect2v, const void *qty_ptr)
+    static float L2SqrSIMD16Ext(const void *pVect1v, const void *pVect2v, const void *qty_ptr)
                 {
                     float *pVect1 = (float *)pVect1v;
                     float *pVect2 = (float *)pVect2v;
@@ -139,7 +137,7 @@ namespace hnswlib {
                 };
 	/**====================**/
 
-    enum class L2SpaceType { Int, Float, PQ };
+    enum class L2SpaceType { Int, Float, PQ, NewPQ};
 
 	class L2Space : public SpaceInterface<float>
     {
@@ -548,9 +546,9 @@ namespace hnswlib {
                 float *trainvecs_float = new float[nt * dim_];
                 for (int i = 0; i < nt * dim_; i++)
                     trainvecs_float[i] = trainvecs[i];
-                
+
                 pq->verbose = true;
-                pq->train(nt, trainvecs_float.data());
+                pq->train(nt, trainvecs_float);
                 write_pq(path_pq, pq);
 
                 delete trainvecs_float;
