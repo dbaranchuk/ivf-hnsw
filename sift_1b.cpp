@@ -243,6 +243,20 @@ static void test_vs_recall(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, v
 */
 
 template <typename format>
+static void readXvec(std::ifstream &input, format *mass, const int d, const int n = 1)
+{
+    int in = 0;
+    for (int i = 0; i < n; i++) {
+        input.read((char *) &in, sizeof(int));
+        if (in != d) {
+            std::cout << "file error\n";
+            exit(1);
+        }
+        input.read((char *)(mass+i*d), in * sizeof(format));
+    }
+}
+
+template <typename format>
 static void loadXvecs(const char *path, format *mass, const int n, const int d)
 {
     ifstream input(path, ios::binary);
@@ -258,17 +272,6 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
     input.close();
 }
 
-//template <typename format>
-//static void readXvec(ifstream &input, format *mass, const int d)
-//{
-//    int in = 0;
-//    input.read((char *) &in, sizeof(int));
-//    if (in != d) {
-//        cout << "file error\n";
-//        exit(1);
-//    }
-//    input.read((char *) mass, in * sizeof(format));
-//}
 
 template<typename dist_t, typename vtype>
 static void _hnsw_test(const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_q,

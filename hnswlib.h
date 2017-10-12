@@ -18,34 +18,19 @@ typedef unsigned int labeltype;
 using namespace std;
 
 
+inline bool exists_test(const std::string& name) {
+	std::ifstream f(name.c_str());
+	return f.good();
+}
+
+
 namespace hnswlib {
 	//typedef float(*DISTFUNC) (const void *, const void *, const void *);
 	template<typename MTYPE>
 	using DISTFUNC = MTYPE(*) (const void *, const void *, const void *);
 
 
-	typedef unsigned int idx_t;
-	typedef unsigned char uint8_t;
 
-	inline bool exists_test(const std::string& name) {
-		std::ifstream f(name.c_str());
-		return f.good();
-	}
-
-	template <typename format>
-	void readXvec(std::ifstream &input, format *mass, const int d, const int n = 1)
-	{
-		int in = 0;
-		for (int i = 0; i < n; i++) {
-			input.read((char *) &in, sizeof(int));
-			if (in != d) {
-				std::cout << "file error\n";
-				exit(1);
-			}
-			input.read((char *)(mass+i*d), in * sizeof(format));
-		}
-	}
-	
 //	template<typename MTYPE>
 //	class SpaceInterface {
 //	public:
