@@ -202,12 +202,12 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
                  const int k, const int vecsize, const int qsize,
                  const int vecdim, const int efConstruction, const int M)
 {
-    path_pq = "/home/dbaranchuk/pq.pq";
-    path_norm_pq = "/home/dbaranchuk/norm_pq.pq";
+    //path_pq = "/home/dbaranchuk/pq.pq";
+    //path_norm_pq = "/home/dbaranchuk/norm_pq.pq";
     const char *path_centroids = "/home/dbaranchuk/data/centroids1M.fvecs";
-    path_precomputed_idxs = "/home/dbaranchuk/precomputed_idxs_999973.ivecs";
-    path_index = "/home/dbaranchuk/baseline_PQ16_new.index";
-    path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
+    //path_precomputed_idxs = "/home/dbaranchuk/precomputed_idxs_999973.ivecs";
+    //path_index = "/home/dbaranchuk/baseline_PQ16_new.index";
+    //path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
 
     const int M_PQ = 16;
     const int ncentroids = 999973;
@@ -272,7 +272,7 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
     }
 
 
-    
+
     if (exists_test(path_index)){
         /** Load Index **/
         std::cout << "Loading index from " << path_index << std::endl;
