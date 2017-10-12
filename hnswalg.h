@@ -3,7 +3,7 @@
 #include <sparsehash/dense_hash_map>
 
 #include "visited_list_pool.h"
-//#include "hnswlib.h"
+#include "hnswlib.h"
 #include <random>
 #include <iostream>
 #include <fstream>
@@ -18,6 +18,7 @@
 #include <queue>
 #include "L2space.h"
 
+using hnswlib::NewL2SpacePQ;
 using google::dense_hash_map;
 using google::dense_hash_set;
 
