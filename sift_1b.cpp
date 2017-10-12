@@ -279,7 +279,8 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
 
 
 template<typename dist_t, typename vtype>
-static void _hnsw_test(const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_q,
+static void _hnsw_test(const char *path_codebooks, const char *path_tables,
+                       const char *path_data, const char *path_q,
                        const char *path_gt, const char *path_info, const char *path_edges,
                        L2SpaceType l2SpaceType,
                        const int k, const int vecsize, const int qsize,
