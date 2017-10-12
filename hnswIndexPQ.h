@@ -190,11 +190,11 @@ namespace hnswlib {
 		}
 
 
-		void assign(size_t n, float *data, idx_t *precomputed_idx)
+		void assign(size_t n, float *data, idx_t *idxs)
 		{
 		    //#pragma omp parallel for num_threads(16)
 			for (int i = 0; i < n; i++)
-				precomputed_idx[i] = quantizer->searchKnn((data + i*d), 1).top().second;
+				idxs[i] = quantizer->searchKnn((data + i*d), 1).top().second;
 		}
 
 
@@ -202,29 +202,20 @@ namespace hnswlib {
 		{
 			const idx_t * idx = precomputed_idx;
 
-			uint8_t * xcodes = new uint8_t [n * code_size];
-			uint8_t *norm_codes = new uint8_t[n];
-
-			float *to_encode = nullptr;
-			float *norm_to_encode = new float[n];
-
             float *residuals = new float [n * d];
-            for (size_t i = 0; i < n; i++)
-                compute_residual(x + i * d, residuals + i * d, idx[i]);
-            to_encode = residuals;
+            compute_residuals(n, x, residuals, idx);
 
-			pq->compute_codes (to_encode, xcodes, n);
+            uint8_t * xcodes = new uint8_t [n * code_size];
+			pq->compute_codes (residuals, xcodes, n);
 
-            float *decoded_x = new float[n*d];
-            pq->decode(xcodes, decoded_x, n);
-            for (idx_t i = 0; i < n; i++) {
-                float *centroid = (float *) quantizer->getDataByInternalId(precomputed_idx[i]);
-                for (int j = 0; j < d; j++)
-                    decoded_x[i*d + j] += centroid[j];
+            float *reconstructed_x = new float[n*d];
+            reconstruct(n, reconstructed_x, xcodes, idx);
 
-            }
-            faiss::fvec_norms_L2sqr (norm_to_encode, decoded_x, d, n);
-			norm_pq->compute_codes(norm_to_encode, norm_codes, n);
+            float *norm_to_encode = new float[n];
+            faiss::fvec_norms_L2sqr (norm_to_encode, reconstructed_x, d, n);
+
+            uint8_t *norm_codes = new uint8_t[n];
+            norm_pq->compute_codes(norm_to_encode, norm_codes, n);
 
 			for (size_t i = 0; i < n; i++) {
 				idx_t key = idx[i];
@@ -236,8 +227,8 @@ namespace hnswlib {
 				codes[key].push_back(norm_codes[i]);
 			}
 
-            delete to_encode;
-            delete decoded_x;
+            delete residuals;
+            delete reconstructed_x;
 			delete xcodes;
 			delete norm_to_encode;
 			delete norm_codes;
@@ -299,41 +290,27 @@ namespace hnswlib {
             }
 		}
 
-        void compute_centroid_norm_table()
-        {
-            c_norm_table = new float[csize];
-            for (int i = 0; i < csize; i++){
-                float *c = (float *)quantizer->getDataByInternalId(i);
-                faiss::fvec_norms_L2sqr (c_norm_table+i, c, d, 1);
-            }
-        }
-
         void train_norm_pq(idx_t n, float *x)
         {
             idx_t *assigned = new idx_t [n]; // assignement to coarse centroids
             assign (n, x, assigned);
+
             float *residuals = new float [n * d];
-            for (idx_t i = 0; i < n; i++)
-                compute_residual (x + i * d, residuals+i*d, assigned[i]);
+            compute_residuals (n, x, residuals, assigned);
 
             uint8_t * xcodes = new uint8_t [n * code_size];
             pq->compute_codes (residuals, xcodes, n);
-            pq->decode(xcodes, residuals, n);
 
-            float *decoded_x = new float[n*d];
-            for (idx_t i = 0; i < n; i++) {
-                float *centroid = (float *) quantizer->getDataByInternalId(assigned[i]);
-                for (int j = 0; j < d; j++)
-                    decoded_x[i*d + j] = centroid[j] + residuals[i*d + j];
-
-            }
+            float *reconstructed_x = new float[n*d];
+            reconstruct_x(n, reconstructed_x, xcodes, assigned);
 
             float *trainset = new float[n];
-            faiss::fvec_norms_L2sqr (trainset, decoded_x, d, n);
+            faiss::fvec_norms_L2sqr (trainset, reconstructed_x, d, n);
 
             norm_pq->verbose = true;
             norm_pq->train (n, trainset);
 
+            delete reconstructed_x;
             delete residuals;
             delete assigned;
             delete xcodes;
@@ -342,19 +319,11 @@ namespace hnswlib {
 
         void train_residual_pq(idx_t n, float *x)
         {
-            const float *trainset;
-            float *residuals;
-            idx_t * assigned;
-
-            printf("Computing residuals\n");
-            assigned = new idx_t [n]; // assignement to coarse centroids
+            idx_t *assigned = new idx_t [n];
             assign (n, x, assigned);
 
-            residuals = new float [n * d];
-            for (idx_t i = 0; i < n; i++)
-                compute_residual (x + i * d, residuals+i*d, assigned[i]);
-
-            trainset = residuals;
+            float *residuals = new float [n * d];
+            compute_residuals (n, x, residuals, assigned);
 
             printf ("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
                     pq->M, pq->ksub, n, d);
@@ -455,13 +424,37 @@ namespace hnswlib {
             fclose(fin);
         }
 
+        void compute_centroid_norm_table()
+        {
+            c_norm_table = new float[csize];
+            for (int i = 0; i < csize; i++){
+                float *c = (float *)quantizer->getDataByInternalId(i);
+                faiss::fvec_norms_L2sqr (c_norm_table+i, c, d, 1);
+            }
+        }
+
 	private:
-		void compute_residual(const float *x, float *residual, idx_t key)
+        void reconstruct(size_t n, float *x, uint8_t *xcodes, idx_t *keys)
+        {
+            float *decoded_residuals = new float[n*d];
+            pq->decode(xcodes, decoded_residuals, n);
+
+            for (idx_t i = 0; i < n; i++) {
+                float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
+                for (int j = 0; j < d; j++)
+                    x[i*d + j] = centroid[j] + decoded_residuals[i*d + j];
+            }
+            delete decoded_residuals;
+        }
+
+		void compute_residuals(size_t n, const float *x, float *residuals, idx_t *keys)
 		{
-			float *centroid = (float *) quantizer->getDataByInternalId(key);
-			for (int i = 0; i < d; i++){
-				residual[i] = x[i] - centroid[i];
-			}
+            for (idx_t i = 0; i < n; i++) {
+                float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
+                for (int j = 0; j < d; i++) {
+                    residuals[i*d + j] = x[i*d + j] - centroid[j];
+                }
+            }
 		}
 
 
