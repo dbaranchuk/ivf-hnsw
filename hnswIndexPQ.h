@@ -206,27 +206,21 @@ namespace hnswlib {
 		{
             float *residuals = new float [n * d];
             compute_residuals(n, x, residuals, idx);
-            std::cout << "H" << std:: endl;
 
             uint8_t *xcodes = new uint8_t [n * code_size];
 			pq->compute_codes (residuals, xcodes, n);
-            std::cout << "H" << std:: endl;
 
             float *decoded_residuals = new float[n * d];
             pq->decode(xcodes, decoded_residuals, n);
-            std::cout << "H" << std:: endl;
 
             float *reconstructed_x = new float[n * d];
             reconstruct(n, reconstructed_x, decoded_residuals, idx);
-            std::cout << "H" << std:: endl;
 
             float *norms = new float[n];
             faiss::fvec_norms_L2sqr (norms, reconstructed_x, d, n);
-            std::cout << "H" << std:: endl;
 
             uint8_t *xnorm_codes = new uint8_t[n];
             norm_pq->compute_codes(norms, xnorm_codes, n);
-            std::cout << "H" << std:: endl;
 
 			for (size_t i = 0; i < n; i++) {
 				idx_t key = idx[i];
@@ -238,7 +232,6 @@ namespace hnswlib {
 
 				norm_codes[key].push_back(xnorm_codes[i]);
 			}
-            std::cout << "H" << std:: endl;
 
             delete residuals;
             delete xcodes;
