@@ -77,6 +77,7 @@ int main(int argc, char **argv) {
         if (!strcmp (a, "-h") || !strcmp (a, "--help"))
             usage (argv[0]);
 
+        /** Paths **/
         if (!strcmp (a, "-path_codebooks") && i+1 < argc) {
             path_codebooks = argv[++i];
         }
@@ -113,6 +114,7 @@ int main(int argc, char **argv) {
         else if (!strcmp (a, "-path_learn") && i+1 < argc) {
             path_learn = argv[++i];
         }
+        /** Int Parameters **/
         else if (!strcmp (a, "-k") && i+1 < argc) {
             ret = sscanf (argv[++i], "%d", &k);
             assert (ret);
@@ -140,10 +142,6 @@ int main(int argc, char **argv) {
         else if (!strcmp (a, "-l2space") && i+1 < argc) {
             l2space_type = argv[++i];
         }
-        else if (!strcmp (a, "-1layer")) {
-            one_layer = true;
-        }
-
     }
 
     if ((!path_codebooks && path_tables) || (path_codebooks && !path_tables)) {
@@ -158,7 +156,7 @@ int main(int argc, char **argv) {
 
 //    hnsw_test(l2space_type, path_codebooks, path_tables, path_data, path_q,
 //              path_gt, path_info, path_edges,
-//              k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
+//              k, vecsize, qsize, vecdim, efConstruction, M);
 
     gibrid_test(path_index, path_precomputed_idxs,
                 path_pq, path_norm_pq,

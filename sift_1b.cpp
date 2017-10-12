@@ -275,7 +275,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
                        const char *path_gt, const char *path_info, const char *path_edges,
                        L2SpaceType l2SpaceType,
                        const int k, const int vecsize, const int qsize,
-                       const int vecdim, const int efConstruction, const int M, bool one_layer)
+                       const int vecdim, const int efConstruction, const int M)
 {
     const int M_PQ = 16;
     const bool PQ = (path_codebooks && path_tables);
@@ -284,7 +284,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     //const char *path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
     const char *path_learn = "/home/dbaranchuk/data/bigann/bigann_learn.bvecs";
 
-    const map<size_t, pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
+    const std::map<size_t, std::pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}}, {200000000, {12, 24}}, {400000000, {8, 16}},
     //                                                 {500000000, {6, 10}}, {900000000, {5, 7}}, {vecsize, {5, 5}}};
@@ -294,12 +294,12 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}},{200000000, {12, 24}},{400000000, {8, 16}},{vecsize, {6, 10}}};
                                                      //{600000000, {5, 10}},{800000000, {5, 10}},{900000000, {5, 7}},{vecsize, {5, 6}}};
     //
-    const vector<size_t> elements_per_level;// = {100000000, 5000000, 250000, 12500, 625, 32};
+    const std::vector<size_t> elements_per_level;// = {100000000, 5000000, 250000, 12500, 625, 32};
     //const map<size_t, pair<size_t, size_t>> M_map = {{5263157, {16, 32}}, {vecsize, {M, 2*M}}};
     cout << "Loading GT:\n";
     const int gt_dim = 1000;
-    unsigned int *massQA = new unsigned int[qsize * gt_dim];
-    loadXvecs<unsigned int>(path_gt, massQA, qsize, gt_dim);
+    uint8_t *massQA = new uint8_t[qsize * gt_dim];
+    loadXvecs<uint8_t >(path_gt, massQA, qsize, gt_dim);
 
     cout << "Loading queries:\n";
     vtype massQ[qsize * vecdim];
@@ -329,7 +329,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         cout << "Building index:\n";
         size_t j1 = 0;
         appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, M_map, efConstruction);
-        appr_alg->setElementLevels(elements_per_level, one_layer);
+        appr_alg->setElementLevels(elements_per_level, true);
 
         StopW stopw = StopW();
         StopW stopw_full = StopW();
@@ -385,16 +385,16 @@ void hnsw_test(const char *l2space_type,
                const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_q,
                const char *path_gt, const char *path_info, const char *path_edges,
                const int k, const int vecsize, const int qsize,
-               const int vecdim, const int efConstruction, const int M, bool one_layer)
+               const int vecdim, const int efConstruction, const int M)
 {
     if (!strcmp (l2space_type, "int")) {
         _hnsw_test<int, unsigned char>(path_codebooks, path_tables, path_data, path_q,
                         path_gt, path_info, path_edges,
                         (path_codebooks && path_tables) ? L2SpaceType::PQ : L2SpaceType::Int,
-                        k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
+                        k, vecsize, qsize, vecdim, efConstruction, M);
     } else if (!strcmp (l2space_type, "float"))
         _hnsw_test<float, float>(path_codebooks, path_tables, path_data, path_q,
                           path_gt, path_info, path_edges,
                           L2SpaceType::Float,
-                          k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
+                          k, vecsize, qsize, vecdim, efConstruction, M);
 }
