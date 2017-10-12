@@ -17,6 +17,13 @@ typedef unsigned int labeltype;
 
 using namespace std;
 
+
+inline bool exists_test(const std::string& name) {
+	std::ifstream f(name.c_str());
+	return f.good();
+}
+
+
 namespace hnswlib {
 	//typedef void *labeltype;
 	//typedef float(*DISTFUNC) (const void *, const void *, const void *);
