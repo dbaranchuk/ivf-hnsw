@@ -134,14 +134,13 @@ namespace hnswlib {
     public:
 		Index(size_t dim, size_t ncentroids,
 			  size_t bytes_per_code, size_t nbits_per_idx):
-				d(dim), csize(ncentroids),
-                norm_pq (1, 1, (long) nbits_per_idx)
+				d(dim), csize(ncentroids)
 		{
             codes.reserve(ncentroids);
             ids.reserve(ncentroids);
 
             pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
-            norm_pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
+            norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
         }
 
 
