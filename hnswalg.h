@@ -16,7 +16,6 @@
 #include <map>
 #include <cmath>
 #include <queue>
-#include "L2space.h"
 
 using hnswlib::NewL2SpacePQ;
 using google::dense_hash_map;
