@@ -511,7 +511,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         std::cout << "Saving index to " << path_index << std::endl;
         std::cout << "       pq to " << path_pq << std::endl;
         std::cout << "       norm pq to " << path_norm_pq << std::endl;
-        index->write(path_index, path_pq, path_norm_pq);
+        index->write(path_index);
     }
     /** Compute centroid norms **/
     std::cout << "Computing centroid norms"<< std::endl;
