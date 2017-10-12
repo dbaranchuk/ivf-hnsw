@@ -16,6 +16,7 @@
 #include <map>
 #include <cmath>
 #include <queue>
+#include "L2space.h"
 
 using google::dense_hash_map;
 using google::dense_hash_set;
@@ -799,7 +800,7 @@ namespace hnswlib {
                 for (int j = 0; j < D; j++)
                     massf[j] = (1.0)*mass[j];
 
-                dynamic_cast<NewL2SpacePQ<dist_t> *>(space)->pq->compute_code(massf, mass_code);
+                dynamic_cast<NewL2SpacePQ *>(space)->pq->compute_code(massf, mass_code);
 
                 // Initialisation of the data and label
                 //memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
