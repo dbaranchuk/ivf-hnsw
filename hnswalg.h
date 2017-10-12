@@ -35,7 +35,7 @@ enum ParameterIndex{
 
 
 template<typename T>
-void writeBinaryPOD(std::ostream &out, const T &podRef) {
+static void writeBinaryPOD(std::ostream &out, const T &podRef) {
     out.write((char *) &podRef, sizeof(T));
 }
 

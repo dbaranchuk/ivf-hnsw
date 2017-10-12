@@ -7,7 +7,6 @@
 #include <limits>
 
 #include "L2space.h"
-#include "brutoforce.h"
 #include "hnswalg.h"
 #include <faiss/ProductQuantizer.h>
 #include <faiss/utils.h>

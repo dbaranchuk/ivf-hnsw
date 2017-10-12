@@ -20,7 +20,64 @@
 #include <faiss/utils.h>
 #include <faiss/ProductQuantizer.h>
 #include <faiss/index_io.h>
-#include "hnswIndexPQ.h"
+
+template <typename format>
+static void readXvec(std::ifstream &input, format *mass, const int d, const int n = 1)
+{
+    int in = 0;
+    for (int i = 0; i < n; i++) {
+        input.read((char *) &in, sizeof(int));
+        if (in != d) {
+            std::cout << "file error\n";
+            exit(1);
+        }
+        input.read((char *)(mass+i*d), in * sizeof(format));
+    }
+}
+
+static void read_pq(const char *path, faiss::ProductQuantizer *_pq)
+{
+    if (!_pq) {
+        std::cout << "PQ object does not exists" << std::endl;
+        return;
+    }
+    FILE *fin = fopen(path, "rb");
+
+    fread(&_pq->d, sizeof(size_t), 1, fin);
+    fread(&_pq->M, sizeof(size_t), 1, fin);
+    fread(&_pq->nbits, sizeof(size_t), 1, fin);
+    _pq->set_derived_values ();
+
+    size_t size;
+    fread (&size, sizeof(size_t), 1, fin);
+    _pq->centroids.resize(size);
+
+    float *centroids = _pq->centroids.data();
+    fread(_pq->centroids.data(), sizeof(float), size, fin);
+
+    fclose(fin);
+}
+
+static void write_pq(const char *path, faiss::ProductQuantizer *_pq)
+{
+    if (!_pq){
+        std::cout << "PQ object does not exist" << std::endl;
+        return;
+    }
+    FILE *fout = fopen(path, "wb");
+
+    fwrite(&_pq->d, sizeof(size_t), 1, fout);
+    fwrite(&_pq->M, sizeof(size_t), 1, fout);
+    fwrite(&_pq->nbits, sizeof(size_t), 1, fout);
+
+    size_t size = _pq->centroids.size();
+    fwrite (&size, sizeof(size_t), 1, fout);
+
+    float *centroids = _pq->centroids.data();
+    fwrite(_pq->centroids.data(), sizeof(float), size, fout);
+
+    fclose(fout);
+}
 
 namespace hnswlib {
     /**= Prev fstdistfunc =**/
