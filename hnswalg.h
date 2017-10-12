@@ -64,7 +64,7 @@ namespace hnswlib {
             LoadEdges(edgeLocation);
         }
 
-        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::map<size_t, const std::pair<size_t, size_t>> &M_map, size_t efConstruction = 200)
+        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::map<size_t, std::pair<size_t, size_t>> &M_map, size_t efConstruction = 200)
         {
             space = s;
             cout << "Test" << "\n";
