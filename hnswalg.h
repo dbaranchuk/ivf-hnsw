@@ -67,10 +67,12 @@ namespace hnswlib {
         HierarchicalNSW(SpaceInterface<dist_t> *s, const std::map<size_t, const std::pair<size_t, size_t>> &M_map, size_t efConstruction = 200)
         {
             space = s;
+            cout << "Test" << "\n";
             data_size_ = s->get_data_size();
+            cout << "Test" << "\n";
 
             efConstruction_ = efConstruction;
-
+            cout << "Test" << "\n";
             total_size = 0;
             maxelements_ = 0;
             parts_num = M_map.size();
@@ -94,7 +96,7 @@ namespace hnswlib {
                 i++;
             }
             elementLevels = vector<char>(maxelements_);
-
+            cout << "Test" << "\n";
             std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
             data_level0_memory_ = (char *) malloc(total_size);
             std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
@@ -155,7 +157,6 @@ namespace hnswlib {
 
         size_t data_size_;
         size_t total_size;
-        //size_t label_offset_;
         std::default_random_engine generator = std::default_random_engine(100);
 
 
