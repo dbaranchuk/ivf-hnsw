@@ -18,6 +18,9 @@
 #include <cmath>
 #include "hnswlib.h"
 #include <faiss/utils.h>
+#include <faiss/ProductQuantizer.h>
+#include <faiss/index_io.h>
+#include "hnswIndexPQ.h"
 
 namespace hnswlib {
 	using namespace std;
