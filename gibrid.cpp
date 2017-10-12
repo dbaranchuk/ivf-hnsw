@@ -7,6 +7,7 @@
 #include <faiss/ProductQuantizer.h>
 #include <faiss/index_io.h>
 #include "hnswIndexPQ.h"
+#include "hnswlib.h"
 
 #include <map>
 #include <unordered_set>
