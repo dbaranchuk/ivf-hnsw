@@ -190,7 +190,7 @@ namespace hnswlib {
 		}
 
 
-		void assign(size_t n, const float *data, idx_t *idxs)
+		void assign(size_t n, float *data, idx_t *idxs)
 		{
 		    #pragma omp parallel for num_threads(16)
 			for (int i = 0; i < n; i++)
