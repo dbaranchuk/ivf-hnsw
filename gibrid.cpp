@@ -202,12 +202,7 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
                  const int k, const int vecsize, const int qsize,
                  const int vecdim, const int efConstruction, const int M)
 {
-    //path_pq = "/home/dbaranchuk/pq.pq";
-    //path_norm_pq = "/home/dbaranchuk/norm_pq.pq";
     const char *path_centroids = "/home/dbaranchuk/data/centroids1M.fvecs";
-    //path_precomputed_idxs = "/home/dbaranchuk/precomputed_idxs_999973.ivecs";
-    //path_index = "/home/dbaranchuk/baseline_PQ16_new.index";
-    //path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
 
     const int M_PQ = 16;
     const int ncentroids = 999973;
@@ -222,8 +217,6 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
     float massQ[qsize * vecdim];
     loadXvecs<float>(path_q, massQ, qsize, vecdim);
 
-    SpaceInterface<float> *l2space = new L2Space(vecdim);
-
     /** Create Index **/
     Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
     index->buildQuantizer(l2space, path_centroids, path_info, path_edges, efSearch);
@@ -236,7 +229,7 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
 
     readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
     learn_input.close();
-    
+
     /** Train residual PQ **/
     if (exists_test(path_pq)) {
         std::cout << "Loading PQ codebook from " << path_pq << std::endl;

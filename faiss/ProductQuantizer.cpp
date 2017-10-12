@@ -388,7 +388,7 @@ void ProductQuantizer::compute_codes (const float * x,
 {
     if (dsub < 16) { // simple direct computation
 
-#pragma omp parallel for num_threads(16)
+#pragma omp parallel for num_threads(24)
         for (size_t i = 0; i < n; i++)
             compute_code (x + i * d, codes + i * code_size);
 
@@ -397,7 +397,7 @@ void ProductQuantizer::compute_codes (const float * x,
         ScopeDeleter<float> del (dis_tables);
         compute_distance_tables (n, x, dis_tables);
 
-#pragma omp parallel for num_threads(16)
+#pragma omp parallel for num_threads(24)
         for (size_t i = 0; i < n; i++) {
             uint8_t * code = codes + i * code_size;
             const float * tab = dis_tables + i * ksub * M;
