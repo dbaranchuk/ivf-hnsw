@@ -277,6 +277,37 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
     input.close();
 }
 
+template<typename dist_t, typename vtype>
+static void encode_dataset(size_t n, NewL2SpacePQ *space,
+                    const char *path_src, const char *path_target)
+{
+    if (exists_test(path_target)){
+        std::cout << "Dataset is already encoded" << std::endl;
+        return;
+    }
+
+    int d = space->get_data_dim();
+    int m = space->get_data_size();
+    size_t batch_size = 1000000;
+    size_t nb = n / batch_size;
+
+    ifstream input(path_src, ios::binary);
+    FILE *fout = fopen(path_target, "wb");
+
+    vtype *batch = new vtype[batch_size * d];
+    unsigned char *batch_code = unsigned char *[batch_size * m];
+
+    for (int b = 0; b < nb; b++){
+        readXvec<vtype>(input, batch, d, batch_size);
+        dynamic_cast<NewL2SpacePQ *>(space)->pq->compute_codes(batch, batch_code, batch_size);
+
+        for (int i = 0; i < batch_size; i++){
+            fwrite(&m, sizeof(int), 1, fout);
+            fwrite(batch_code + i*m, sizeof(unsigned char), m, fout);
+        }
+    }
+    input.close();
+}
 
 template<typename dist_t, typename vtype>
 static void _hnsw_test(const char *path_codebooks, const char *path_tables,
@@ -331,8 +362,11 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables,
             break;
         case L2SpaceType ::NewPQ:
             l2space = dynamic_cast<SpaceInterface<dist_t> *>(new NewL2SpacePQ(vecdim, M_PQ, 256, path_pq, path_learn));
+            encode_dataset(vecsize, dynamic_cast<NewL2SpacePQ *>(l2space),
+                           path_data, "/sata2/dbaranchuk/test_pq.bvecs");
             break;
     }
+    const char *path_data_pq = "/sata2/dbaranchuk/test_pq.bvecs";
 
     HierarchicalNSW<dist_t, vtype> *appr_alg;
     if (exists_test(path_info) && exists_test(path_edges)) {
@@ -348,37 +382,20 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables,
         StopW stopw_full = StopW();
 
         cout << "Adding elements\n";
-        ifstream input(path_data, ios::binary);
+        ifstream input(PQ ? path_data_pq : path_data, ios::binary);
 
-        vtype mass[vecdim];
-        float massf[vecdim];
-        unsigned char mass_code[M_PQ];
-        for (int i = 0; i < vecdim; i++)
-            massf[i] = (1.0)*mass[i];
+        vtype mass[PQ ? M_PQ : vecdim];
+        readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
 
-        readXvec<vtype>(input, mass, vecdim);
-        dynamic_cast<NewL2SpacePQ *>(l2space)->pq->compute_code(massf, mass_code);
-
-        //vtype mass[PQ ? M_PQ : vecdim];
-        //readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
-
-        appr_alg->addPoint((void *) (mass_code), j1);
+        appr_alg->addPoint((void *) mass, j1);
 
         size_t report_every = 1000000;
 #pragma omp parallel for num_threads(32)
         for (int i = 1; i < vecsize; i++) {
-            //vtype mass[PQ ? M_PQ : vecdim];
-            vtype mass[vecdim];
-            float massf[vecdim];
-            unsigned char mass_code[M_PQ];
+            vtype mass[PQ ? M_PQ : vecdim];
 #pragma omp critical
             {
-                //readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
-                readXvec<vtype>(input, mass, vecdim);
-                for (int i = 0; i < vecdim; i++)
-                    massf[i] = (1.0)*mass[i];
-                dynamic_cast<NewL2SpacePQ *>(l2space)->pq->compute_code(massf, mass_code);
-
+                readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
                 if (++j1 % report_every == 0) {
                     cout << j1 / (0.01 * vecsize) << " %, "
                          << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
@@ -386,7 +403,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables,
                     stopw.reset();
                 }
             }
-            appr_alg->addPoint((void *) (mass_code), (size_t) j1);
+            appr_alg->addPoint((void *) (mass), (size_t) j1);
         }
         input.close();
         cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";

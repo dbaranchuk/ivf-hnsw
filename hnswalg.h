@@ -787,8 +787,6 @@ namespace hnswlib {
             int dim;
             const int D = space->get_data_dim();
             vtype mass[D];
-            float massf[D];
-            unsigned char mass_code[data_size_];
 
             for (tableint i = 0; i < maxelements_; i++) {
                 fread((int *) &dim, sizeof(int), 1, fin);
@@ -796,13 +794,7 @@ namespace hnswlib {
                     cerr << "Wront data dim" << endl;
 
                 fread((vtype *)mass, sizeof(vtype), dim, fin);
-                for (int j = 0; j < D; j++)
-                    massf[j] = (1.0)*mass[j];
-
-                dynamic_cast<NewL2SpacePQ *>(space)->pq->compute_code(massf, mass_code);
-
                 // Initialisation of the data and label
-                //memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
                 memset((char *) get_linklist0(i), 0, getParametersByInternalId(i)[i_size_data_per_element]);
                 memcpy(getDataByInternalId(i), mass_code, data_size_);
             }
