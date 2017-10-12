@@ -1,7 +1,7 @@
 #pragma once
 #include <string.h>
 namespace hnswlib {
-	template <typename dist_t> class BruteforceSearch : public AlgorithmInterface<dist_t> {
+	template <typename dist_t> class BruteforceSearch {
 	public:
 		BruteforceSearch(SpaceInterface<dist_t> *s) {
 

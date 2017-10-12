@@ -50,7 +50,7 @@ namespace hnswlib {
     typedef unsigned char linklistsizeint;
 
     template<typename dist_t, typename vtype>
-    class HierarchicalNSW : public AlgorithmInterface<dist_t>
+    class HierarchicalNSW
     {
     public:
         HierarchicalNSW(SpaceInterface<dist_t> *s) {}
