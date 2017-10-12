@@ -798,7 +798,7 @@ namespace hnswlib {
                 fread((vtype *)mass, sizeof(vtype), dim, fin);
                 for (int j = 0; j < D; j++)
                     massf[j] = (1.0)*mass[j];
-                dynamic_cast<NewL2SpacePQ *>(s)->pq->compute_code(massf, mass_code);
+                dynamic_cast<NewL2SpacePQ *>(space)->pq->compute_code(massf, mass_code);
 
                 // Initialisation of the data and label
                 //memcpy(getExternalLabelPointer(cur_c), &label, sizeof(labeltype));
