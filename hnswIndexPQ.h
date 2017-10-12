@@ -53,7 +53,13 @@ namespace hnswlib {
         float *centroids = _pq->centroids.data();
         fread(centroids, sizeof(float), size, fin);
 
-        std::cout << _pq->d << " " << _pq->M << " " << _pq->nbits << " " << _pq->bytes_per_idx << " " << size << " " << centroids[0] << std::endl;
+        size_t dsub;           ///< dimensionality of each subvector
+        size_t byte_per_idx;   ///< nb bytes per code component (1 or 2)
+        size_t code_size;      ///< byte per indexed vector
+        size_t ksub;
+
+        std::cout << _pq->d << " " << _pq->M << " " << _pq->nbits << " " << _pq->byte_per_idx << " " << _pq->dsub << " "
+                  << _pq->code_size << " " << _pq->ksub << " " << size << " " << centroids[0] << std::endl;
         fclose(fin);
     }
 
@@ -75,7 +81,8 @@ namespace hnswlib {
         float *centroids = _pq->centroids.data();
         fwrite(centroids, sizeof(float), size, fout);
 
-        std::cout << _pq->d << " " << _pq->M << " " << _pq->nbits << " " << _pq->bytes_per_idx << " " << size << " " << centroids[0] << std::endl;
+        std::cout << _pq->d << " " << _pq->M << " " << _pq->nbits << " " << _pq->byte_per_idx << " " << _pq->dsub << " "
+                  << _pq->code_size << " " << _pq->ksub << " " << size << " " << centroids[0] << std::endl;
         fclose(fout);
     }
 
