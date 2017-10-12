@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <queue>
 #include <chrono>
-#include "hnswlib.h"
 #include <faiss/ProductQuantizer.h>
 #include <faiss/index_io.h>
 #include "hnswIndexPQ.h"

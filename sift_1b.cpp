@@ -5,10 +5,6 @@
 #include <queue>
 #include <chrono>
 #include "hnswlib.h"
-#include <faiss/ProductQuantizer.h>
-#include <faiss/index_io.h>
-#include "hnswIndexPQ.h"
-
 #include <map>
 #include <unordered_set>
 using namespace std;
