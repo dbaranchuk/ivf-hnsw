@@ -6,7 +6,6 @@
 #include <queue>
 #include <limits>
 
-
 #include "L2space.h"
 #include "brutoforce.h"
 #include "hnswalg.h"
@@ -14,30 +13,7 @@
 #include <faiss/utils.h>
 #include <faiss/index_io.h>
 
-#define WRITEANDCHECK(ptr, n, f) {                                 \
-        size_t ret = fwrite (ptr, sizeof (* (ptr)), n, f);         \
-    }
-
-#define READANDCHECK(ptr, n, f) {                                  \
-        size_t ret = fread (ptr, sizeof (* (ptr)), n, f);          \
-    }
-
-#define WRITE1(x, f) WRITEANDCHECK(&(x), 1, f)
-#define READ1(x, f)  READANDCHECK(&(x), 1, f)
-
-#define WRITEVECTOR(vec, f) {                     \
-        size_t size = (vec).size();            \
-        WRITEANDCHECK (&size, 1, f);              \
-        WRITEANDCHECK ((vec).data(), size, f);    \
-    }
-
-#define READVECTOR(vec, f) {                       \
-        long size;                            \
-        READANDCHECK (&size, 1, f);                \
-        (vec).resize (size);                    \
-        READANDCHECK ((vec).data(), size, f);     \
-    }
-
+using namespace std;
 
 typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
