@@ -9,7 +9,7 @@ void gibrid_test(const char *, const char *,
                  const int, const int, const int, const int, const int, const int, bool);
 
 //void deep_test10M();
-void hnsw_test( const char *l2space_type,
+void hnsw_test( const char *,
                 const char *, const char *, const char *, const char *,
                 const char *, const char *, const char *,
                 const int, const int, const int, const int, const int, const int, bool);

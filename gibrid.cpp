@@ -182,7 +182,7 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
 }
 
 
-void gibrid_test(const char *path_index, const char *precomputed_idxs,
+void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
                  const char *path_pq, const char *path_norm_pq,
                  const char *path_learn, const char *path_data, const char *path_q,
                  const char *path_gt, const char *path_info, const char *path_edges,
