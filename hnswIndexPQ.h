@@ -235,7 +235,8 @@ namespace hnswlib {
             delete xcodes;
             delete decoded_residuals;
             delete reconstructed_x;
-			delete norm_to_encode;
+
+			delete norms;
 			delete xnorm_codes;
 		}
 
