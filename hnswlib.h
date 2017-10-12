@@ -14,6 +14,9 @@ typedef unsigned int labeltype;
 #else
 #define PORTABLE_ALIGN32 __declspec(align(32))
 #endif
+
+using namespace std;
+
 namespace hnswlib {
 	//typedef void *labeltype;
 	//typedef float(*DISTFUNC) (const void *, const void *, const void *);
