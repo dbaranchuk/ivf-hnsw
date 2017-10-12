@@ -6,7 +6,7 @@ void gibrid_test(const char *, const char *,
                  const char *, const char *,
                  const char *, const char *, const char *,
                  const char *, const char *, const char *,
-                 const int, const int, const int, const int, const int, const int, bool);
+                 const int, const int, const int, const int, const int, const int);
 
 //void deep_test10M();
 void hnsw_test( const char *,
@@ -164,7 +164,7 @@ int main(int argc, char **argv) {
                 path_pq, path_norm_pq,
                 path_learn, path_data, path_q,
                 path_gt, path_info, path_edges,
-                k, vecsize, qsize, vecdim, efConstruction, M, one_layer);
+                k, vecsize, qsize, vecdim, efConstruction, M);
 
     return 0;  
 };
