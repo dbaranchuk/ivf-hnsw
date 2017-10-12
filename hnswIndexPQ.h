@@ -190,9 +190,9 @@ namespace hnswlib {
 		}
 
 
-		void assign(size_t n, float *data, idx_t *idxs)
+		void assign(size_t n, const float *data, idx_t *idxs)
 		{
-		    //#pragma omp parallel for num_threads(16)
+		    #pragma omp parallel for num_threads(16)
 			for (int i = 0; i < n; i++)
 				idxs[i] = quantizer->searchKnn((data + i*d), 1).top().second;
 		}
@@ -288,7 +288,7 @@ namespace hnswlib {
             }
 		}
 
-        void train_norm_pq(idx_t n, float *x)
+        void train_norm_pq(idx_t n, const float *x)
         {
             idx_t *assigned = new idx_t [n]; // assignement to coarse centroids
             assign (n, x, assigned);
@@ -315,7 +315,7 @@ namespace hnswlib {
             delete trainset;
         }
 
-        void train_residual_pq(idx_t n, float *x)
+        void train_residual_pq(idx_t n, const float *x)
         {
             idx_t *assigned = new idx_t [n];
             assign (n, x, assigned);
@@ -449,6 +449,7 @@ namespace hnswlib {
 		{
             for (idx_t i = 0; i < n; i++) {
                 float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
+                std::cout << i << std::endl;
                 for (int j = 0; j < d; i++) {
                     residuals[i*d + j] = x[i*d + j] - centroid[j];
                 }
