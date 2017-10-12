@@ -330,5 +330,4 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
 
     delete index;
     delete massQA;
-    delete l2space;
 }
