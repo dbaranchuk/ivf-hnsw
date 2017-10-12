@@ -203,7 +203,6 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
                  const int vecdim, const int efConstruction, const int M)
 {
     const char *path_centroids = "/home/dbaranchuk/data/centroids1M.fvecs";
-
     const int M_PQ = 16;
     const int ncentroids = 999973;
     const int efSearch = 500;
@@ -216,6 +215,8 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
     cout << "Loading queries:\n";
     float massQ[qsize * vecdim];
     loadXvecs<float>(path_q, massQ, qsize, vecdim);
+
+    SpaceInterface<float> *l2space = new L2Space(vecdim);
 
     /** Create Index **/
     Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
@@ -330,4 +331,5 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
 
     delete index;
     delete massQA;
+    delete l2space;
 }
