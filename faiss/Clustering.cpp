@@ -134,7 +134,7 @@ void Clustering::train (idx_t nx, const float *x_in, Index & index) {
             std::vector<int> perm (nx);
 
             rand_perm (perm.data(), nx, seed + 1 + redo * 15486557L);
-#pragma omp parallel for num_threads(24)
+#pragma omp parallel for num_threads(16)
             for (int i = 0; i < k ; i++)
                 memcpy (&cur_centroids[i * d], x + perm[i] * d,
                         d * sizeof (float));
