@@ -458,7 +458,10 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         /** Load Index **/
         std::cout << "Loading index from " << path_index << std::endl;
         index = new Index(vecdim, ncentroids, M_PQ, 8);
-        index->read(path_index, path_pq, path_norm_pq);
+        index->read(path_index);
+        read_pq(path_pq, index->pq);
+        read_pq(path_norm_pq, index->norm_pq);
+
         index->buildQuantizer(l2space, path_centroids, path_info, path_edges, efSearch);
         index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
         std::cout << "Index loaded" << std::endl;
@@ -475,10 +478,13 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         std::vector<float> trainvecs(nt * vecdim);
 
         readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
-        //index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
-        index->code_size = index->pq->code_size;
         index->train_residual_pq(nt, trainvecs.data());
+        index->code_size = index->pq->code_size;
+        write_pq(path_pq, index->pq);
+
         index->train_norm_pq(nt, trainvecs.data());
+        write_pq(path_norm_pq, index->norm_pq);
+
         learn_input.close();
 
         /** Add elements **/

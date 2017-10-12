@@ -204,21 +204,27 @@ namespace hnswlib {
 		{
             float *residuals = new float [n * d];
             compute_residuals(n, x, residuals, idx);
+            std::cout << "H" << std:: endl;
 
-            uint8_t * xcodes = new uint8_t [n * code_size];
+            uint8_t *xcodes = new uint8_t [n * code_size];
 			pq->compute_codes (residuals, xcodes, n);
+            std::cout << "H" << std:: endl;
 
             float *decoded_residuals = new float[n * d];
             pq->decode(xcodes, decoded_residuals, n);
+            std::cout << "H" << std:: endl;
 
             float *reconstructed_x = new float[n * d];
             reconstruct(n, reconstructed_x, decoded_residuals, idx);
+            std::cout << "H" << std:: endl;
 
             float *norms = new float[n];
             faiss::fvec_norms_L2sqr (norms, reconstructed_x, d, n);
+            std::cout << "H" << std:: endl;
 
             uint8_t *xnorm_codes = new uint8_t[n];
             norm_pq->compute_codes(norms, xnorm_codes, n);
+            std::cout << "H" << std:: endl;
 
 			for (size_t i = 0; i < n; i++) {
 				idx_t key = idx[i];
@@ -230,6 +236,7 @@ namespace hnswlib {
 
 				norm_codes[key].push_back(xnorm_codes[i]);
 			}
+            std::cout << "H" << std:: endl;
 
             delete residuals;
             delete xcodes;
@@ -385,8 +392,7 @@ namespace hnswlib {
         }
 
 
-        void write(const char *path_index, const char *path_pq,
-                   const char *path_norm_pq)
+        void write(const char *path_index)
         {
             FILE *fout = fopen(path_index, "wb");
 
@@ -413,14 +419,10 @@ namespace hnswlib {
                 fwrite(&size, sizeof(size_t), 1, fout);
                 fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
             }
-
-            write_pq(path_pq, pq);
-            write_pq(path_norm_pq, norm_pq);
             fclose(fout);
         }
 
-        void read(const char *path_index, const char *path_pq,
-                  const char *path_norm_pq)
+        void read(const char *path_index)
         {
             FILE *fin = fopen(path_index, "rb");
 
@@ -450,9 +452,6 @@ namespace hnswlib {
                 norm_codes[i].resize(size);
                 fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
             }
-
-            read_pq (path_pq, pq);
-            read_pq (path_norm_pq, norm_pq);
             fclose(fin);
         }
 
