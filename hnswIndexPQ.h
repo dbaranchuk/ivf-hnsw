@@ -202,18 +202,27 @@ namespace hnswlib {
 		{
             float *residuals = new float [n * d];
             compute_residuals(n, x, residuals, idx);
+            std::cout << "H" << std::endl;
 
             uint8_t * xcodes = new uint8_t [n * code_size];
 			pq->compute_codes (residuals, xcodes, n);
+            std::cout << "H" << std::endl;
 
-            float *reconstructed_x = new float[n*d];
-            reconstruct(n, reconstructed_x, xcodes, idx);
+            float *decoded_residuals = new float[n * d];
+            pq->decode(xcodes, decoded_residuals, n);
+            std::cout << "H" << std::endl;
+
+            float *reconstructed_x = new float[n * d];
+            reconstruct(n, reconstructed_x, decoded_residuals, idx);
+            std::cout << "H" << std::endl;
 
             float *norm_to_encode = new float[n];
             faiss::fvec_norms_L2sqr (norm_to_encode, reconstructed_x, d, n);
+            std::cout << "H" << std::endl;
 
             uint8_t *norm_codes = new uint8_t[n];
             norm_pq->compute_codes(norm_to_encode, norm_codes, n);
+            std::cout << "H" << std::endl;
 
 			for (size_t i = 0; i < n; i++) {
 				idx_t key = idx[i];
@@ -221,13 +230,14 @@ namespace hnswlib {
 				ids[key].push_back(id);
 				uint8_t *code = xcodes + i * code_size;
 				for (size_t j = 0; j < code_size; j++)
-					codes[key].push_back (code[j]);
+					codes[key].push_back(code[j]);
 				codes[key].push_back(norm_codes[i]);
 			}
 
             delete residuals;
+            delete xcodes;
+            delete decoded_residuals;
             delete reconstructed_x;
-			delete xcodes;
 			delete norm_to_encode;
 			delete norm_codes;
 		}
@@ -277,11 +287,12 @@ namespace hnswlib {
             while (topResults.size() > k)
                 topResults.pop();
 
-            if (topResults.size() < k) {
-                for (int j = topResults.size(); j < k; j++)
-                    topResults.emplace(std::make_pair(std::numeric_limits<float>::max(), 0));
-                std::cout << "Ignored query" << std:: endl;
-            }
+//            if (topResults.size() < k) {
+//                for (int j = topResults.size(); j < k; j++)
+//                    topResults.emplace(std::make_pair(std::numeric_limits<float>::max(), 0));
+//                std::cout << "Ignored query" << std:: endl;
+//            }
+
             for (int j = k-1; j >= 0; j--) {
                 results[j] = topResults.top().second;
                 topResults.pop();
@@ -299,8 +310,11 @@ namespace hnswlib {
             uint8_t * xcodes = new uint8_t [n * code_size];
             pq->compute_codes (residuals, xcodes, n);
 
-            float *reconstructed_x = new float[n*d];
-            reconstruct(n, reconstructed_x, xcodes, assigned);
+            float *decoded_residuals = new float[n * d];
+            pq->decode(xcodes, decoded_residuals, n);
+
+            float *reconstructed_x = new float[n * d];
+            reconstruct(n, reconstructed_x, decoded_residuals, assigned);
 
             float *trainset = new float[n];
             faiss::fvec_norms_L2sqr (trainset, reconstructed_x, d, n);
@@ -308,10 +322,11 @@ namespace hnswlib {
             norm_pq->verbose = true;
             norm_pq->train (n, trainset);
 
-            delete reconstructed_x;
-            delete residuals;
             delete assigned;
+            delete residuals;
             delete xcodes;
+            delete decoded_residuals;
+            delete reconstructed_x;
             delete trainset;
         }
 
@@ -432,17 +447,13 @@ namespace hnswlib {
         }
 
 	private:
-        void reconstruct(size_t n, float *x, uint8_t *xcodes, const idx_t *keys)
+        void reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys)
         {
-            float *decoded_residuals = new float[n*d];
-            pq->decode(xcodes, decoded_residuals, n);
-
             for (idx_t i = 0; i < n; i++) {
                 float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
                 for (int j = 0; j < d; j++)
                     x[i*d + j] = centroid[j] + decoded_residuals[i*d + j];
             }
-            delete decoded_residuals;
         }
 
 		void compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys)
