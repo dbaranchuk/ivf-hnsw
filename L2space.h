@@ -35,51 +35,52 @@ static void readXvec(std::ifstream &input, format *mass, const int d, const int 
     }
 }
 
-static void read_pq(const char *path, faiss::ProductQuantizer *_pq)
-{
-    if (!_pq) {
-        std::cout << "PQ object does not exists" << std::endl;
-        return;
-    }
-    FILE *fin = fopen(path, "rb");
-
-    fread(&_pq->d, sizeof(size_t), 1, fin);
-    fread(&_pq->M, sizeof(size_t), 1, fin);
-    fread(&_pq->nbits, sizeof(size_t), 1, fin);
-    _pq->set_derived_values ();
-
-    size_t size;
-    fread (&size, sizeof(size_t), 1, fin);
-    _pq->centroids.resize(size);
-
-    float *centroids = _pq->centroids.data();
-    fread(_pq->centroids.data(), sizeof(float), size, fin);
-
-    fclose(fin);
-}
-
-static void write_pq(const char *path, faiss::ProductQuantizer *_pq)
-{
-    if (!_pq){
-        std::cout << "PQ object does not exist" << std::endl;
-        return;
-    }
-    FILE *fout = fopen(path, "wb");
-
-    fwrite(&_pq->d, sizeof(size_t), 1, fout);
-    fwrite(&_pq->M, sizeof(size_t), 1, fout);
-    fwrite(&_pq->nbits, sizeof(size_t), 1, fout);
-
-    size_t size = _pq->centroids.size();
-    fwrite (&size, sizeof(size_t), 1, fout);
-
-    float *centroids = _pq->centroids.data();
-    fwrite(_pq->centroids.data(), sizeof(float), size, fout);
-
-    fclose(fout);
-}
 
 namespace hnswlib {
+    static void read_pq(const char *path, faiss::ProductQuantizer *_pq)
+    {
+        if (!_pq) {
+            std::cout << "PQ object does not exists" << std::endl;
+            return;
+        }
+        FILE *fin = fopen(path, "rb");
+
+        fread(&_pq->d, sizeof(size_t), 1, fin);
+        fread(&_pq->M, sizeof(size_t), 1, fin);
+        fread(&_pq->nbits, sizeof(size_t), 1, fin);
+        _pq->set_derived_values ();
+
+        size_t size;
+        fread (&size, sizeof(size_t), 1, fin);
+        _pq->centroids.resize(size);
+
+        float *centroids = _pq->centroids.data();
+        fread(_pq->centroids.data(), sizeof(float), size, fin);
+
+        fclose(fin);
+    }
+
+    static void write_pq(const char *path, faiss::ProductQuantizer *_pq)
+    {
+        if (!_pq){
+            std::cout << "PQ object does not exist" << std::endl;
+            return;
+        }
+        FILE *fout = fopen(path, "wb");
+
+        fwrite(&_pq->d, sizeof(size_t), 1, fout);
+        fwrite(&_pq->M, sizeof(size_t), 1, fout);
+        fwrite(&_pq->nbits, sizeof(size_t), 1, fout);
+
+        size_t size = _pq->centroids.size();
+        fwrite (&size, sizeof(size_t), 1, fout);
+
+        float *centroids = _pq->centroids.data();
+        fwrite(_pq->centroids.data(), sizeof(float), size, fout);
+
+        fclose(fout);
+    }
+
     /**= Prev fstdistfunc =**/
     static float L2SqrSIMD16Ext(const void *pVect1v, const void *pVect2v, const void *qty_ptr)
                 {
@@ -593,12 +594,20 @@ namespace hnswlib {
             if (exists_test(path_pq))
                 read_pq(path_pq, pq);
             else {
-                std::ifstream learn_input(path_learn, ios::binary);
                 int nt = 65536;
                 std::vector<unsigned char> trainvecs(nt * dim_);
 
-                readXvec<unsigned char>(learn_input, trainvecs.data(), dim_, nt);
-                learn_input.close();
+                std::ifstream input(path_learn, ios::binary);
+                int in = 0;
+                for (int i = 0; i < nt; i++) {
+                    input.read((char *) &in, sizeof(int));
+                    if (in != dim_) {
+                        std::cout << "file error\n";
+                        exit(1);
+                    }
+                    input.read((char *)(mass+i*dim_), in);
+                }
+                input.close();
 
                 float *trainvecs_float = new float[nt * dim_];
                 for (int i = 0; i < nt * dim_; i++)
