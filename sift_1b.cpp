@@ -298,8 +298,8 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     //const map<size_t, pair<size_t, size_t>> M_map = {{5263157, {16, 32}}, {vecsize, {M, 2*M}}};
     cout << "Loading GT:\n";
     const int gt_dim = 1000;
-    uint8_t *massQA = new uint8_t[qsize * gt_dim];
-    loadXvecs<uint8_t >(path_gt, massQA, qsize, gt_dim);
+    unsigned int *massQA = new unsigned int[qsize * gt_dim];
+    loadXvecs<unsigned int>(path_gt, massQA, qsize, gt_dim);
 
     cout << "Loading queries:\n";
     vtype massQ[qsize * vecdim];
