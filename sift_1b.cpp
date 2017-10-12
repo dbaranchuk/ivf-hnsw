@@ -373,7 +373,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
 #pragma omp critical
             {
                 //readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
-                readXvec<vtype>(input, mass, vecdim));
+                readXvec<vtype>(input, mass, vecdim);
                 for (int i = 0; i < vecdim; i++)
                     massf[i] = (1.0)*mass[i];
                 dynamic_cast<NewL2SpacePQ *>(l2space)->pq->compute_code(massf, mass_code);
