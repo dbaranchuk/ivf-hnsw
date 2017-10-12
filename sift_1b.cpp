@@ -422,7 +422,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     const char *path_norm_pq = "/home/dbaranchuk/norm_pq.pq";
     const char *path_centroids = "/home/dbaranchuk/data/centroids1M.fvecs";
     const char *path_precomputed_idxs = "/home/dbaranchuk/precomputed_idxs_999973.ivecs";
-    const char *path_index = "/home/dbaranchuk/baseline_PQ16.index";
+    const char *path_index = "/home/dbaranchuk/baseline_PQ16_new.index";
     const char *path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
 
     const int M_PQ = 16;
@@ -461,8 +461,8 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         index->read(path_index, path_pq, path_norm_pq);
         index->buildQuantizer(l2space, path_centroids, path_info, path_edges, efSearch);
         index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
-
         std::cout << "Index loaded" << std::endl;
+
     } else {
         /** Create Index **/
         index = new Index(vecdim, ncentroids, M_PQ, 8);
@@ -501,15 +501,22 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         idx_input.close();
         base_input.close();
 
+        /** Save index, pq and norm_pq **/
         std::cout << "Saving index to " << path_index << std::endl;
+        std::cout << "       pq to " << path_pq << std::endl;
+        std::cout << "       norm pq to " << path_norm_pq << std::endl;
         index->write(path_index, path_pq, path_norm_pq);
     }
+    /** Compute centroid norms **/
+    std::cout << "Computing centroid norms"<< std::endl;
     index->compute_centroid_norm_table();
 
+    /** Parse groundtruth **/
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
     std::cout << "Parsing gt:\n";
     get_gt<float>(massQA, qsize, answers, gt_dim);
 
+    /** Set search parameters **/
     int correct = 0;
     idx_t results[k];
 
@@ -517,6 +524,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     index->nprobe = 64;
     index->quantizer->ef_ = 200;
 
+    /** Search **/
     StopW stopw = StopW();
     for (int i = 0; i < qsize; i++) {
         index->search(massQ+i*vecdim, k, results);
@@ -536,6 +544,8 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
             }
         }
     }
+
+    /**Represent results**/
     float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
     std::cout << "Recall@" << k << ": " << 1.0f*correct / qsize << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
