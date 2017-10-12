@@ -115,27 +115,27 @@ namespace hnswlib {
 	{
 		size_t d;
 		size_t csize;
+        size_t code_size;
+
+        /** Query members **/
+        size_t nprobe = 16;
+        size_t max_codes = 10000;
 
 		faiss::ProductQuantizer *norm_pq;
         faiss::ProductQuantizer *pq;
 
-		size_t code_size;
 		std::vector < std::vector<uint8_t> > codes;
         std::vector < std::vector<idx_t> > ids;
 
-		/** Query members **/
-		size_t nprobe = 16;
-        size_t max_codes = 10000;
-
         float *c_norm_table;
-
 		HierarchicalNSW<float, float> *quantizer;
 
 
+    public:
 		Index(size_t dim, size_t ncentroids,
 			  size_t bytes_per_code, size_t nbits_per_idx):
 				d(dim), csize(ncentroids),
-                norm_pq (1, 1, nbits_per_idx)
+                norm_pq (1, 1, (long) nbits_per_idx)
 		{
             codes.reserve(ncentroids);
             ids.reserve(ncentroids);
@@ -146,12 +146,12 @@ namespace hnswlib {
 
 
 		~Index() {
-			delete quantizer;
             if (c_norm_table)
                 delete c_norm_table;
 
-            delete norm_pq;
             delete pq;
+            delete norm_pq;
+            delete quantizer;
 		}
 
 		void buildQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
@@ -272,7 +272,7 @@ namespace hnswlib {
                 for (int j = 0; j < ncodes; j++){
                     float q_r = 0.;
                     for (int m = 0; m < code_size; m++)
-                        q_r += dis_tables[pq.ksub * m + code[j*(code_size + 1) + m]];
+                        q_r += dis_tables[pq->ksub * m + code[j*(code_size + 1) + m]];
 
                     float norm;
                     norm_pq->decode(code.data()+j*(code_size+1) + code_size, &norm);
