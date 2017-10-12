@@ -605,7 +605,7 @@ namespace hnswlib {
                         std::cout << "file error\n";
                         exit(1);
                     }
-                    input.read((char *)(mass+i*dim_), in);
+                    input.read(trainvecs.data()+i*dim_, in);
                 }
                 input.close();
 
