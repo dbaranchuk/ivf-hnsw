@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
     const char *path_norm_pq = NULL;
     const char *path_learn = NULL;
 
-    const char *l2space_type = NULL; //{int, float}
+    const char *l2space_type = NULL; //{int, float, new_pq}
     int k = 1, ret, ep;
     bool one_layer = false;
 
