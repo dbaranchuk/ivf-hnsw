@@ -532,7 +532,7 @@ namespace hnswlib {
                 std::cerr << "M is not multiply of D" << std::endl;
                 exit(1);
             }
-            query_table = new int [m_*k_];
+            query_table = new float [m_*k_];
 
             pq = new faiss::ProductQuantizer(dim_, m_, 8);
             if (exists_test(path_pq))
@@ -589,7 +589,7 @@ namespace hnswlib {
             return res;
         };
 
-        float fstdistfuncST(const void *y_code)
+        int fstdistfuncST(const void *y_code)
         {
             int res = 0;
             int dim = m_ >> 3;
