@@ -289,9 +289,9 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables,
     const int M_PQ = 16;
     const bool PQ = true;//(path_codebooks && path_tables);
 
-    const char *path_pq = "/home/dbaranchuk/data/bigann/pq16.pq";
+    const char *path_pq = "/sata2/dbaranchuk/pq16.pq";
     //const char *path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
-    const char *path_learn = "/home/dbaranchuk/data/bigann/bigann_learn.bvecs";
+    const char *path_learn = "/sata2/dbaranchuk/bigann/bigann_learn.bvecs";
 
     const std::map<size_t, std::pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
@@ -420,8 +420,8 @@ void hnsw_test(const char *l2space_type,
 {
     if (!strcmp (l2space_type, "int")) {
         _hnsw_test<int, unsigned char>(path_codebooks, path_tables, path_data, path_q,
-                        path_gt, path_info, path_edges,
-                        (path_codebooks && path_tables) ? L2SpaceType::NewPQ : L2SpaceType::Int,
+                        path_gt, path_info, path_edges, L2SpaceType::NewPQ,
+                        //(path_codebooks && path_tables) ? L2SpaceType::NewPQ : L2SpaceType::Int,
                         k, vecsize, qsize, vecdim, efConstruction, M);
     } else if (!strcmp (l2space_type, "float"))
         _hnsw_test<float, float>(path_codebooks, path_tables, path_data, path_q,
