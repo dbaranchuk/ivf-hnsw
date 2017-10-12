@@ -422,7 +422,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     const char *path_norm_pq = "/home/dbaranchuk/norm_pq.pq";
     const char *path_centroids = "/home/dbaranchuk/data/centroids1M.fvecs";
     const char *path_precomputed_idxs = "/home/dbaranchuk/precomputed_idxs_999973.ivecs";
-    const char *path_index = "/home/dbaranchuk/baseline_PQ16_new.index";
+    const char *path_index = "/home/dbaranchuk/baseline_PQ16.index";
     const char *path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
 
     const int M_PQ = 16;
