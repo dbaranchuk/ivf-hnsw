@@ -313,9 +313,9 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
 
     switch(l2SpaceType) {
         case L2SpaceType::PQ:
-            l2space = dynamic_cast<SpaceInterface<dist_t> *>(new NewL2SpacePQ(vecdim, M_PQ, 256, path_pq, path_learn));
-            //dynamic_cast<L2SpacePQ *>(l2space)->set_codebooks(path_codebooks);
-            //dynamic_cast<L2SpacePQ *>(l2space)->set_construction_tables(path_tables);
+            l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2SpacePQ(vecdim, M_PQ, 256, path_pq, path_learn));
+            dynamic_cast<L2SpacePQ *>(l2space)->set_codebooks(path_codebooks);
+            dynamic_cast<L2SpacePQ *>(l2space)->set_construction_tables(path_tables);
             break;
         case L2SpaceType::Float:
             l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2Space(vecdim));
