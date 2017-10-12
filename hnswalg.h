@@ -64,7 +64,7 @@ namespace hnswlib {
             LoadEdges(edgeLocation);
         }
 
-        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::map<size_t, std::pair<size_t, size_t>> &M_map, size_t efConstruction = 200)
+        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::map<size_t, const std::pair<size_t, size_t>> &M_map, size_t efConstruction = 200)
         {
             space = s;
             data_size_ = s->get_data_size();
@@ -93,7 +93,6 @@ namespace hnswlib {
                 maxelements_ += params[i*params_num + i_maxelements];
                 i++;
             }
-            offsetLevel0_ = 0;
             elementLevels = vector<char>(maxelements_);
 
             std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
@@ -144,7 +143,6 @@ namespace hnswlib {
         tableint enterpoint_node;
 
         size_t dist_calc;
-        size_t offsetLevel0_;
 
         char *data_level0_memory_;
         char **linkLists_;
@@ -191,8 +189,7 @@ namespace hnswlib {
             size_t *param = getParametersByInternalId(internal_id);
             tableint ref_id = (param == params) ? internal_id : internal_id - (param - params_num)[i_threshold];
 
-            return (linklistsizeint *) (data_level0_memory_ + param[i_partOffset] +
-                                        ref_id * param[i_size_data_per_element] + offsetLevel0_);
+            return (linklistsizeint *) (data_level0_memory_ + param[i_partOffset] + ref_id * param[i_size_data_per_element]);
         };
 
         inline linklistsizeint* get_linklist(tableint cur_c, int level)
