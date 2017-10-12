@@ -23,6 +23,19 @@ inline bool exists_test(const std::string& name) {
 	return f.good();
 }
 
+template <typename format>
+static void readXvec(std::ifstream &input, format *mass, const int d, const int n = 1)
+{
+	int in = 0;
+	for (int i = 0; i < n; i++) {
+		input.read((char *) &in, sizeof(int));
+		if (in != d) {
+			std::cout << "file error\n";
+			exit(1);
+		}
+		input.read((char *)(mass+i*d), in * sizeof(format));
+	}
+}
 
 namespace hnswlib {
 	//typedef void *labeltype;

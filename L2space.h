@@ -540,14 +540,20 @@ namespace hnswlib {
             else {
                 std::ifstream learn_input(path_learn, ios::binary);
                 int nt = 65536;
-                std::vector<uint8_t> trainvecs(nt * vecdim);
+                std::vector<unsigned char> trainvecs(nt * dim_);
 
-                readXvec<uint8_t>(learn_input, trainvecs.data(), vecdim, nt);
+                readXvec<unsigned char>(learn_input, trainvecs.data(), dim_, nt);
                 learn_input.close();
 
+                float *trainvecs_float = new float[nt * dim_];
+                for (int i = 0; i < nt * dim_; i++)
+                    trainvecs_float[i] = trainvecs[i];
+                
                 pq->verbose = true;
-                pq->train(nt, trainvecs.data());
+                pq->train(nt, trainvecs_float.data());
                 write_pq(path_pq, pq);
+
+                delete trainvecs_float;
             }
             pq->compute_sdc_table();
         }
