@@ -51,8 +51,9 @@ namespace hnswlib {
         _pq->centroids.resize(size);
 
         float *centroids = _pq->centroids.data();
-        fread(_pq->centroids.data(), sizeof(float), size, fin);
+        fread(centroids, sizeof(float), size, fin);
 
+        std::cout << _pq->d << " " << _pq->M << " " << _pq->nbits << " " << _pq->bytes_per_idx << " " << size << " " << centroids[0] << std::endl;
         fclose(fin);
     }
 
@@ -74,6 +75,7 @@ namespace hnswlib {
         float *centroids = _pq->centroids.data();
         fwrite(centroids, sizeof(float), size, fout);
 
+        std::cout << _pq->d << " " << _pq->M << " " << _pq->nbits << " " << _pq->bytes_per_idx << " " << size << " " << centroids[0] << std::endl;
         fclose(fout);
     }
 
