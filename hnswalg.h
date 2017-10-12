@@ -17,7 +17,6 @@
 #include <cmath>
 #include <queue>
 
-using hnswlib::L2SpacePQ;
 using google::dense_hash_map;
 using google::dense_hash_set;
 
