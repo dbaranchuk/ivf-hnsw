@@ -449,8 +449,7 @@ namespace hnswlib {
 		{
             for (idx_t i = 0; i < n; i++) {
                 float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
-                std::cout << i << std::endl;
-                for (int j = 0; j < d; i++) {
+                for (int j = 0; j < d; j++) {
                     residuals[i*d + j] = x[i*d + j] - centroid[j];
                 }
             }
