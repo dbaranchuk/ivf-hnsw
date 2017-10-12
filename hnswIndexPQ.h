@@ -198,10 +198,8 @@ namespace hnswlib {
 		}
 
 
-		void add(idx_t n, float * x, const idx_t *xids, const idx_t *precomputed_idx)
+		void add(idx_t n, float * x, const idx_t *xids, const idx_t *idx)
 		{
-			const idx_t * idx = precomputed_idx;
-
             float *residuals = new float [n * d];
             compute_residuals(n, x, residuals, idx);
 
@@ -302,7 +300,7 @@ namespace hnswlib {
             pq->compute_codes (residuals, xcodes, n);
 
             float *reconstructed_x = new float[n*d];
-            reconstruct_x(n, reconstructed_x, xcodes, assigned);
+            reconstruct(n, reconstructed_x, xcodes, assigned);
 
             float *trainset = new float[n];
             faiss::fvec_norms_L2sqr (trainset, reconstructed_x, d, n);
@@ -434,7 +432,7 @@ namespace hnswlib {
         }
 
 	private:
-        void reconstruct(size_t n, float *x, uint8_t *xcodes, idx_t *keys)
+        void reconstruct(size_t n, float *x, uint8_t *xcodes, const idx_t *keys)
         {
             float *decoded_residuals = new float[n*d];
             pq->decode(xcodes, decoded_residuals, n);
@@ -447,7 +445,7 @@ namespace hnswlib {
             delete decoded_residuals;
         }
 
-		void compute_residuals(size_t n, const float *x, float *residuals, idx_t *keys)
+		void compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys)
 		{
             for (idx_t i = 0; i < n; i++) {
                 float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
