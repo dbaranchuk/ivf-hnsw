@@ -554,7 +554,6 @@ namespace hnswlib {
 
         virtual ~NewL2SpaceIPQ()
         {
-            delete construction_table;
             delete query_table;
             delete pq;
         }
