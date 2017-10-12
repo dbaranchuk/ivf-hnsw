@@ -22,6 +22,66 @@
 #include <faiss/index_io.h>
 
 
+static void read_PQ(const char *path, faiss::ProductQuantizer *_pq)
+{
+    if (!_pq) {
+        std::cout << "PQ object does not exists" << std::endl;
+        return;
+    }
+    FILE *fin = fopen(path, "rb");
+
+    fread(&_pq->d, sizeof(size_t), 1, fin);
+    fread(&_pq->M, sizeof(size_t), 1, fin);
+    fread(&_pq->nbits, sizeof(size_t), 1, fin);
+    _pq->set_derived_values ();
+
+    size_t size;
+    fread (&size, sizeof(size_t), 1, fin);
+    _pq->centroids.resize(size);
+
+    float *centroids = _pq->centroids.data();
+    fread(_pq->centroids.data(), sizeof(float), size, fin);
+
+    fclose(fin);
+}
+
+/** Another is readXvec_ **/
+template <typename format>
+void readXvecs(std::ifstream &input, format *mass, const int d, const int n = 1)
+{
+    int in = 0;
+    for (int i = 0; i < n; i++) {
+        input.read((char *) &in, sizeof(int));
+        if (in != d) {
+            std::cout << "file error\n";
+            exit(1);
+        }
+        input.read((char *)(mass+i*d), in * sizeof(format));
+    }
+}
+
+static void write_PQ(const char *path, faiss::ProductQuantizer *_pq)
+{
+    if (!_pq){
+        std::cout << "PQ object does not exist" << std::endl;
+        return;
+    }
+    FILE *fout = fopen(path, "wb");
+
+    fwrite(&_pq->d, sizeof(size_t), 1, fout);
+    fwrite(&_pq->M, sizeof(size_t), 1, fout);
+    fwrite(&_pq->nbits, sizeof(size_t), 1, fout);
+
+    size_t size = _pq->centroids.size();
+    fwrite (&size, sizeof(size_t), 1, fout);
+
+    float *centroids = _pq->centroids.data();
+    fwrite(_pq->centroids.data(), sizeof(float), size, fout);
+
+    fclose(fout);
+}
+
+
 namespace hnswlib {
     enum class L2SpaceType { Int, Float, PQ, NewPQ};
 
@@ -290,109 +350,6 @@ namespace hnswlib {
         };
     };
 
-//    class NewL2SpacePQ: public SpaceInterface<float>
-//    {
-//        size_t data_size_;
-//        size_t dim_;
-//        size_t m_;
-//        size_t k_;
-//        size_t vocab_dim_;
-//
-//        float *query_table;
-//        faiss::ProductQuantizer *pq;
-//
-//    public:
-//        NewL2SpacePQ(const size_t dim, const size_t m, const size_t k,
-//                  const char *path_pq, const char *path_learn):
-//                dim_(dim), m_(m), k_(k)
-//        {
-//            vocab_dim_ = (dim_ % m_ == 0) ? dim_ / m_ : -1;
-//            data_size_ = m_ * sizeof(float);
-//
-//            if (vocab_dim_ == -1) {
-//                std::cerr << "M is not multiply of D" << std::endl;
-//                exit(1);
-//            }
-//
-//            query_table = new float [m_*k_];
-//            pq = new faiss::ProductQuantizer(dim_, m_, 8);
-//
-//            if (exists_test(path_pq))
-//                read_pq(path_pq, pq);
-//            else {
-//                std::ifstream learn_input(path_learn, ios::binary);
-//                int nt = 65536;
-//                std::vector<uint8_t> trainvecs(nt * vecdim);
-//
-//                readXvec<uint8_t>(learn_input, trainvecs.data(), vecdim, nt);
-//                learn_input.close();
-//
-//                pq->verbose = true;
-//                pq->train(nt, trainvecs.data());
-//                write_pq(path_pq, pq);
-//            }
-//            pq->compute_sdc_table();
-//        }
-//
-//        virtual ~NewL2SpacePQ()
-//        {
-//            delete construction_table;
-//            delete query_table;
-//            delete pq;
-//        }
-//
-//        void set_query_table(const float *q) {
-//            pq->compute_distance_table(q, query_table);
-//        }
-//
-//
-//        size_t get_data_size() { return data_size_; }
-//        size_t get_data_dim() { return m_; }
-//
-//        float fstdistfunc(const void *x_code, const void *y_code)
-//        {
-//            float res = 0;
-//            int dim = m_ >> 3;
-//            unsigned char *x = (unsigned char *)x_code;
-//            unsigned char *y = (unsigned char *)y_code;
-//
-//            int m = 0;
-//            float *table = pq->sdc_table.data();
-//            for (int i = 0; i < dim; ++i) {
-//                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
-//                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
-//                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
-//                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
-//                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
-//                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
-//                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
-//                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
-//            }
-//            return res;
-//        };
-//
-//        float fstdistfuncST(const void *y_code)
-//        {
-//            float res = 0.;
-//            int dim = m_ >> 3;
-//            unsigned char *y = (unsigned char *)y_code;
-//
-//            int m = 0;
-//            for (int i = 0; i < dim; ++i) {
-//                res += query_table[k_ * m + y[m]]; ++m;
-//                res += query_table[k_ * m + y[m]]; ++m;
-//                res += query_table[k_ * m + y[m]]; ++m;
-//                res += query_table[k_ * m + y[m]]; ++m;
-//                res += query_table[k_ * m + y[m]]; ++m;
-//                res += query_table[k_ * m + y[m]]; ++m;
-//                res += query_table[k_ * m + y[m]]; ++m;
-//                res += query_table[k_ * m + y[m]]; ++m;
-//            }
-//            return res;
-//        };
-//    };
-//
-//
     class NewL2SpaceIPQ: public SpaceInterface<int>
     {
         size_t data_size_;
@@ -420,21 +377,13 @@ namespace hnswlib {
 
             pq = new faiss::ProductQuantizer(dim_, m_, 8);
             if (exists_test(path_pq))
-                read_pq(path_pq, pq);
+                read_PQ(path_pq, pq);
             else {
                 int nt = 65536;
                 std::vector<unsigned char> trainvecs(nt * dim_);
 
                 std::ifstream input(path_learn, ios::binary);
-                int in = 0;
-                for (int i = 0; i < nt; i++) {
-                    input.read((char *) &in, sizeof(int));
-                    if (in != dim_) {
-                        std::cout << "file error\n";
-                        exit(1);
-                    }
-                    input.read((char *)(trainvecs.data()+i*dim_), in);
-                }
+                readXvecs(input, trainvecs.data(), dim_, nt);
                 input.close();
 
                 float *trainvecs_float = new float[nt * dim_];
@@ -443,7 +392,7 @@ namespace hnswlib {
 
                 pq->verbose = true;
                 pq->train(nt, trainvecs_float);
-                write_pq(path_pq, pq);
+                write_PQ(path_pq, pq);
 
                 delete trainvecs_float;
             }

@@ -33,8 +33,6 @@ void readXvec(std::ifstream &input, format *mass, const int d, const int n = 1)
 
 namespace hnswlib {
 
-
-
     void read_pq(const char *path, faiss::ProductQuantizer *_pq)
     {
         if (!_pq) {
