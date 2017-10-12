@@ -47,6 +47,9 @@ inline bool exists_test(const std::string& name) {
     return f.good();
 }
 
+
+
+
 template <typename format>
 static void readXvec(std::ifstream &input, format *mass, const int d, const int n = 1)
 {
@@ -63,16 +66,58 @@ static void readXvec(std::ifstream &input, format *mass, const int d, const int 
 
 namespace hnswlib {
 
-	struct Index
+    void read_pq(const char *path, faiss::ProductQuantizer *_pq)
+    {
+        if (!_pq) {
+            std::cout << "PQ object does not exists" << std::endl;
+            return;
+        }
+        FILE *fin = fopen(path, "rb");
+
+        fread(&_pq->d, sizeof(size_t), 1, fin);
+        fread(&_pq->M, sizeof(size_t), 1, fin);
+        fread(&_pq->nbits, sizeof(size_t), 1, fin);
+        _pq->set_derived_values ();
+
+        size_t size;
+        fread (&size, sizeof(size_t), 1, fin);
+        _pq->centroids.resize(size);
+
+        float *centroids = _pq->centroids.data();
+        fread(_pq->centroids.data(), sizeof(float), size, fin);
+
+        fclose(fin);
+    }
+
+    void write_pq(const char *path, faiss::ProductQuantizer *_pq)
+    {
+        if (!_pq){
+            std::cout << "PQ object does not exist" << std::endl;
+            return;
+        }
+        FILE *fout = fopen(path, "wb");
+
+        fwrite(&_pq->d, sizeof(size_t), 1, fout);
+        fwrite(&_pq->M, sizeof(size_t), 1, fout);
+        fwrite(&_pq->nbits, sizeof(size_t), 1, fout);
+
+        size_t size = _pq->centroids.size();
+        fwrite (&size, sizeof(size_t), 1, fout);
+
+        float *centroids = _pq->centroids.data();
+        fwrite(_pq->centroids.data(), sizeof(float), size, fout);
+
+        fclose(fout);
+    }
+
+
+    struct Index
 	{
-		int d;
+		size_t d;
 		size_t csize;
 
-		faiss::ProductQuantizer norm_pq;
-        faiss::ProductQuantizer pq;
-
-		bool by_residual = true;
-        bool verbose = true;
+		faiss::ProductQuantizer *norm_pq;
+        faiss::ProductQuantizer *pq;
 
 		size_t code_size;
 		std::vector < std::vector<uint8_t> > codes;
@@ -90,11 +135,13 @@ namespace hnswlib {
 		Index(size_t dim, size_t ncentroids,
 			  size_t bytes_per_code, size_t nbits_per_idx):
 				d(dim), csize(ncentroids),
-                pq (dim, bytes_per_code, nbits_per_idx),
                 norm_pq (1, 1, nbits_per_idx)
 		{
             codes.reserve(ncentroids);
             ids.reserve(ncentroids);
+
+            pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
+            norm_pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
         }
 
 
@@ -102,18 +149,21 @@ namespace hnswlib {
 			delete quantizer;
             if (c_norm_table)
                 delete c_norm_table;
+
+            delete norm_pq;
+            delete pq;
 		}
 
 		void buildQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
-                            const char *path_info, const char *path_edges)
+                            const char *path_info, const char *path_edges, int efSearch)
 		{
             if (exists_test(path_info) && exists_test(path_edges)) {
                 quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
-                quantizer->ef_ = 140;
+                quantizer->ef_ = efSearch;
                 return;
             }
-
             quantizer = new HierarchicalNSW<float, float>(l2space, {{csize, {16, 32}}}, 240);
+            quantizer->ef_ = efSearch;
 
 			std::cout << "Constructing quantizer\n";
 			int j1 = 0;
@@ -159,16 +209,12 @@ namespace hnswlib {
 			float *to_encode = nullptr;
 			float *norm_to_encode = new float[n];
 
-			if (by_residual) {
-				float *residuals = new float [n * d];
-				for (size_t i = 0; i < n; i++)
-					compute_residual(x + i * d, residuals + i * d, idx[i]);
-				to_encode = residuals;
-			} else {
-				to_encode = x;
-			}
-			pq.compute_codes (to_encode, xcodes, n);
+            float *residuals = new float [n * d];
+            for (size_t i = 0; i < n; i++)
+                compute_residual(x + i * d, residuals + i * d, idx[i]);
+            to_encode = residuals;
 
+			pq.compute_codes (to_encode, xcodes, n);
 
             float *decoded_x = new float[n*d];
             pq.decode(xcodes, decoded_x, n);
@@ -190,9 +236,8 @@ namespace hnswlib {
 					codes[key].push_back (code[j]);
 				codes[key].push_back(norm_codes[i]);
 			}
-            if (to_encode != x)
-                delete to_encode;
 
+            delete to_encode;
             delete decoded_x;
 			delete xcodes;
 			delete norm_to_encode;
@@ -219,12 +264,11 @@ namespace hnswlib {
             for (int i = 0; i < nprobe; i++){
                 idx_t key = keys[i];
                 std::vector<uint8_t> code = codes[key];
-                float c = c_norm_table[key];
-                float term1 = q_c[i] - c;
+                float term1 = q_c[i] - c_norm_table[key];
                 int ncodes = code.size()/(code_size+1);
 
-                if (i < 4)
-                    std::cout << q_c[i] << " " << c << std::endl;
+                //if (i < 1)
+                //    std::cout << q_c[i] << " " << c << std::endl;
                 for (int j = 0; j < ncodes; j++){
                     float q_r = 0.;
                     for (int m = 0; m < code_size; m++)
@@ -268,7 +312,7 @@ namespace hnswlib {
         void train_norm_pq(idx_t n, float *x)
         {
             idx_t *assigned = new idx_t [n]; // assignement to coarse centroids
-            this->assign (n, x, assigned);
+            assign (n, x, assigned);
             float *residuals = new float [n * d];
             for (idx_t i = 0; i < n; i++)
                 compute_residual (x + i * d, residuals+i*d, assigned[i]);
@@ -303,22 +347,18 @@ namespace hnswlib {
             float *residuals;
             idx_t * assigned;
 
-            if (by_residual) {
-                if(verbose) printf("computing residuals\n");
-                assigned = new idx_t [n]; // assignement to coarse centroids
-                this->assign (n, x, assigned);
+            printf("Computing residuals\n");
+            assigned = new idx_t [n]; // assignement to coarse centroids
+            assign (n, x, assigned);
 
-                residuals = new float [n * d];
-                for (idx_t i = 0; i < n; i++)
-                    this->compute_residual (x + i * d, residuals+i*d, assigned[i]);
+            residuals = new float [n * d];
+            for (idx_t i = 0; i < n; i++)
+                compute_residual (x + i * d, residuals+i*d, assigned[i]);
 
-                trainset = residuals;
-            } else {
-                trainset = x;
-            }
-            if (verbose)
-                printf ("training %zdx%zd product quantizer on %ld vectors in %dD\n",
-                        pq.M, pq.ksub, n, d);
+            trainset = residuals;
+
+            printf ("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
+                    pq.M, pq.ksub, n, d);
             pq.verbose = verbose;
             pq.train (n, trainset);
 
@@ -357,50 +397,64 @@ namespace hnswlib {
         }
 
 
-        void write(const char *path_index)
+        void write(const char *path_index, const char *path_pq,
+                   const char *path_norm_pq)
         {
             FILE *fout = fopen(path_index, "wb");
 
-            WRITE1 (d, fout);
-            WRITE1 (csize, fout);
-            WRITE1 (nprobe, fout);
-            WRITE1 (max_codes, fout);
-            WRITE1 (by_residual, fout);
+            fwrite(&d, sizeof(size_t), 1, fout);
+            fwrite(&csize, sizeof(size_t), 1, fout);
+            fwrite(&nprobe, sizeof(size_t), 1, fout);
+            fwrite(&max_codes, sizeof(size_t), 1, fout);
 
-            for (size_t i = 0; i < csize; i++)
-                WRITEVECTOR (ids[i], fout);
+            size_t size;
+            for (size_t i = 0; i < csize; i++) {
+                size = ids[i].size();
+                fwrite(&size, sizeof(size_t), 1, fout);
+                fwrite(ids[i].data(), sizeof(idx_t), size, fout);
+            }
 
-            for(int i = 0; i < csize; i++)
-                WRITEVECTOR (codes[i], fout);
+            for(int i = 0; i < csize; i++) {
+                size = codes[i].size();
+                fwrite(&size, sizeof(size_t), 1, fout);
+                fwrite(codes[i].data(), sizeof(uint8_t), size, fout);
+            }
 
-            write_ProductQuantizer (&pq, fout);
-            write_ProductQuantizer (&norm_pq, fout);
+            write_pq(path_pq, pq);
+            write_pq(path_norm_pq, norm_pq);
             fclose(fout);
         }
 
-        void read(const char *path_index)
+        void read(const char *path_index, const char *path_pq,
+                  const char *path_norm_pq)
         {
             FILE *fin = fopen(path_index, "rb");
 
-            READ1 (d, fin);
-            READ1 (csize, fin);
-            READ1 (nprobe, fin);
-            READ1 (max_codes, fin);
-            READ1 (by_residual, fin);
+            fread(&d, sizeof(size_t), 1, fin);
+            fread(&csize, sizeof(size_t), 1, fin);
+            fread(&nprobe, sizeof(size_t), 1, fin);
+            fread(&max_codes, sizeof(size_t), 1, fin);
 
             ids = std::vector<std::vector<idx_t>>(csize);
             codes = std::vector<std::vector<uint8_t>>(csize);
-            for (size_t i = 0; i < csize; i++)
-                READVECTOR (ids[i], fin);
 
-            for(int i = 0; i < csize; i++)
-                READVECTOR (codes[i], fin);
+            size_t size;
+            for (size_t i = 0; i < csize; i++) {
+                fread(&size, sizeof(size_t), 1, fin);
+                ids[i].resize(size);
+                fread(ids[i].data(), sizeof(idx_t), size, fin);
+            }
 
-            //read_ProductQuantizer (&pq, fin);
-            //read_ProductQuantizer (&norm_pq, fin);
+            for(size_t i = 0; i < csize; i++){
+                fread(&size, sizeof(size_t), 1, fin);
+                codes[i].resize(size);
+                fread(codes[i].data(), sizeof(uint8_t), size, fin);
+            }
+
+            read_pq (path_pq, pq);
+            read_pq (path_norm_pq, norm_pq);
             fclose(fin);
         }
-
 
 	private:
 		void compute_residual(const float *x, float *residual, idx_t key)

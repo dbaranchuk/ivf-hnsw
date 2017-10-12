@@ -418,13 +418,21 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
                           const int k, const int vecsize, const int qsize,
                           const int vecdim, const int efConstruction, const int M)
 {
+    const char *path_pq = "/home/dbaranchuk/pq.pq";
+    const char *path_norm_pq = "/home/dbaranchuk/norm_pq.pq";
+    const char *path_centroids = "/home/dbaranchuk/data/centroids1M.fvecs";
+    const char *path_precomputed_idxs = "/home/dbaranchuk/precomputed_idxs_999973.ivecs";
+    const char *path_index = "/home/dbaranchuk/baseline_PQ16.index";
+    const char *path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
+
     const int M_PQ = 16;
     const int ncentroids = 999973;
+    const int efSearch = 500;
 
     cout << "Loading GT:\n";
     const int gt_dim = 1;
-    unsigned int *massQA = new unsigned int[qsize * gt_dim];
-    loadXvecs<unsigned int>(path_gt, massQA, qsize, gt_dim);
+    idx_t *massQA = new idx_t[qsize * gt_dim];
+    loadXvecs<idx_t>(path_gt, massQA, qsize, gt_dim);
 
     cout << "Loading queries:\n";
     float massQ[qsize * vecdim];
@@ -433,38 +441,50 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
     SpaceInterface<float> *l2space = new L2Space(vecdim);
 
 
-    Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
-//    index->buildQuantizer(l2space, "/sata2/dbaranchuk/deep/deep10M_clusters_10k.fvecs", path_info, path_edges);
-//    index->precompute_idx(vecsize, path_data, "/sata2/dbaranchuk/precomputed_idxs_10k.ivecs");
-    index->buildQuantizer(l2space, "/home/dbaranchuk/data/centroids1M.fvecs", path_info, path_edges);
-    index->precompute_idx(vecsize, path_data, "/home/dbaranchuk/precomputed_idxs_999973.ivecs");
+//    /** Train PQ **/
+//    std::ifstream learn_input("/home/arbabenko/Bigann/deep1B_learn.fvecs", ios::binary);
+//    int nt = 65536;
+//    std::vector<float> trainvecs(nt * vecdim);
+//
+//    readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
+//    index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
+//    index->code_size = index->pq->code_size;
+//    index->train_residual_pq(nt, trainvecs.data());
+//    index->train_norm_pq(nt, trainvecs.data());
+//    learn_input.close();
 
-//    const char *path_index = "/sata2/dbaranchuk/test.index";
-    const char *path_index = "/home/dbaranchuk/baseline_PQ16.index";
-    /** Train PQ **/
-    std::ifstream learn_input("/home/arbabenko/Bigann/deep1B_learn.fvecs", ios::binary);
-    int nt = 65536;
-    std::vector<float> trainvecs(nt * vecdim);
-
-    readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
-    index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
-    index->code_size = index->pq.code_size;
-    index->verbose = true;
-    index->train_residual_pq(nt, trainvecs.data());
-    index->train_norm_pq(nt, trainvecs.data());
-    learn_input.close();
-
+    Index *index;
     if (exists_test(path_index)){
+        /** Load Index **/
         std::cout << "Loading index from " << path_index << std::endl;
-        index->read(path_index);
+        index = new Index(vecdim, ncentroids, M_PQ, 8);
+        index->read(path_index, path_pq, path_norm_pq);
+        index->buildQuantizer(l2space, path_centroids, path_info, path_edges, efSearch);
+        index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
+
         std::cout << "Index loaded" << std::endl;
     } else {
+        /** Create Index **/
+        index = new Index(vecdim, ncentroids, M_PQ, 8);
+        index->buildQuantizer(l2space, path_centroids, path_info, path_edges, efSearch);
+        index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
+
+        /** Train PQ **/
+        std::ifstream learn_input(path_learn, ios::binary);
+        int nt = 65536;
+        std::vector<float> trainvecs(nt * vecdim);
+
+        readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
+        //index->pq = faiss::ProductQuantizer(vecdim, M_PQ, 8);
+        index->code_size = index->pq->code_size;
+        index->train_residual_pq(nt, trainvecs.data());
+        index->train_norm_pq(nt, trainvecs.data());
+        learn_input.close();
+
         /** Add elements **/
         size_t batch_size = 1000000;
-//        std::ifstream base_input("/sata2/dbaranchuk/deep/deep10M.fvecs", ios::binary);
-//        std::ifstream idx_input("/sata2/dbaranchuk/precomputed_idxs_10k.ivecs", ios::binary);
         std::ifstream base_input(path_data, ios::binary);
-        std::ifstream idx_input("/home/dbaranchuk/precomputed_idxs_999973.ivecs", ios::binary);
+        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
         std::vector<float> batch(batch_size * vecdim);
         std::vector<idx_t> idx_batch(batch_size);
         std::vector<idx_t> ids(vecsize);
@@ -482,7 +502,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
         base_input.close();
 
         std::cout << "Saving index to " << path_index << std::endl;
-        index->write(path_index);
+        index->write(path_index, path_pq, path_norm_pq);
     }
     index->compute_centroid_norm_table();
 
@@ -495,7 +515,7 @@ static void ____hnsw_test(const char *path_data, const char *path_q,
 
     index->max_codes = 10000;
     index->nprobe = 64;
-    index->quantizer->ef_ = 500;
+    index->quantizer->ef_ = 200;
 
     StopW stopw = StopW();
     for (int i = 0; i < qsize; i++) {
