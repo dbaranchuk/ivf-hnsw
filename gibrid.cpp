@@ -254,7 +254,6 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
     }
 
 
-
     if (exists_test(path_index)){
         /** Load Index **/
         std::cout << "Loading index from " << path_index << std::endl;

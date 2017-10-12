@@ -350,7 +350,7 @@ namespace hnswlib {
         };
     };
 
-    class NewL2SpaceIPQ: public SpaceInterface<int>
+    class NewL2SpacePQ: public SpaceInterface<float>
     {
         size_t data_size_;
         size_t dim_;
@@ -359,10 +359,11 @@ namespace hnswlib {
         size_t vocab_dim_;
 
         float *query_table;
-        faiss::ProductQuantizer *pq;
 
     public:
-        NewL2SpaceIPQ(const size_t dim, const size_t m, const size_t k,
+        faiss::ProductQuantizer *pq;
+
+        NewL2SpacePQ(const size_t dim, const size_t m, const size_t k,
                      const char *path_pq, const char *path_learn):
                 dim_(dim), m_(m), k_(k)
         {
@@ -399,24 +400,23 @@ namespace hnswlib {
             pq->compute_sdc_table();
         }
 
-        virtual ~NewL2SpaceIPQ()
+        virtual ~NewL2SpacePQ()
         {
             delete query_table;
             delete pq;
         }
 
-        void set_query_table(const uint8_t *q) {
-            float float_q = *q;
-            pq->compute_distance_table(&float_q, query_table);
+        void set_query_table(const float *q) {
+            pq->compute_distance_table(q, query_table);
         }
 
 
         size_t get_data_size() { return data_size_; }
         size_t get_data_dim() { return m_; }
 
-        int fstdistfunc(const void *x_code, const void *y_code)
+        float fstdistfunc(const void *x_code, const void *y_code)
         {
-            int res = 0;
+            float res = 0;
             int dim = m_ >> 3;
             unsigned char *x = (unsigned char *)x_code;
             unsigned char *y = (unsigned char *)y_code;
@@ -436,7 +436,7 @@ namespace hnswlib {
             return res;
         };
 
-        int fstdistfuncST(const void *y_code)
+        float fstdistfuncST(const void *y_code)
         {
             int res = 0;
             int dim = m_ >> 3;

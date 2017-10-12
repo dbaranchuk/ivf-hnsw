@@ -167,14 +167,19 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
 {
 	size_t correct = 0;
 
+    float massfQ[qsize * vecdim];
+    for (int i = 0; i < qsize*vecdim; i++)
+        massfQ[i] = (1.0)*massQ[i];
+
 	//uncomment to test in parallel mode:
 	//#pragma omp parallel for
 	for (int i = 0; i < qsize; i++) {
 		std::priority_queue< std::pair<dist_t, labeltype >> result;
 
         if (pq) {
-            dynamic_cast<L2SpacePQ *>(appr_alg.space)->set_query_table((unsigned char *) (massQ + vecdim * i));
-            result = appr_alg.searchKnn(massQ + vecdim * i, k, i);
+            //dynamic_cast<L2SpacePQ *>(appr_alg.space)->set_query_table((unsigned char *) (massQ + vecdim * i));
+            dynamic_cast<NewL2SpacePQ *>(appr_alg.space)->set_query_table((massfQ + vecdim * i));
+            result = appr_alg.searchKnn(massfQ + vecdim * i, k, i);
         }
         else
             result = appr_alg.searchKnn(massQ + vecdim*i, k);
@@ -182,7 +187,7 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
 		std::priority_queue< std::pair<dist_t, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
 
-        float dist2gt = appr_alg.space->fstdistfunc((void*)(massQ + vecdim*i),//appr_alg.getDataByInternalId(gt.top().second),
+        float dist2gt = appr_alg.space->fstdistfunc((void*)(massfQ + vecdim*i),//appr_alg.getDataByInternalId(gt.top().second),
                                                      appr_alg.getDataByInternalId(appr_alg.enterpoint0));
         appr_alg.nev9zka += dist2gt / qsize;
 
@@ -281,7 +286,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
                        const int vecdim, const int efConstruction, const int M)
 {
     const int M_PQ = 16;
-    const bool PQ = (path_codebooks && path_tables);
+    const bool PQ = true;//(path_codebooks && path_tables);
 
     const char *path_pq = "/home/dbaranchuk/data/bigann/pq16.pq";
     //const char *path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
@@ -308,6 +313,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
     vtype massQ[qsize * vecdim];
     loadXvecs<vtype>(path_q, massQ, qsize, vecdim);
 
+
     SpaceInterface<dist_t> *l2space;
 
     switch(l2SpaceType) {
@@ -323,6 +329,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
             l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2SpaceI(vecdim));
             break;
         case L2SpaceType ::NewPQ:
+            l2space = dynamic_cast<SpaceInterface<dist_t> *>(new NewL2SpacePQ(vecdim, M_PQ, 256, path_pq, path_learn));
             break;
     }
 
@@ -342,17 +349,35 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
         cout << "Adding elements\n";
         ifstream input(path_data, ios::binary);
 
-        vtype mass[PQ ? M_PQ : vecdim];
-        readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
-        appr_alg->addPoint((void *) (mass), j1);
+        vtype mass[vecdim];
+        float massf[vecdim];
+        unsigned char mass_code[M_PQ];
+        for (int i = 0; i < vecdim; i++)
+            massf[i] = (1.0)*mass[i];
+
+        readXvec<vtype>(input, mass, vecdim);
+        dynamic_cast<NewL2SpacePQ *>(l2space)->pq->compute_code(massf, mass_code);
+
+        //vtype mass[PQ ? M_PQ : vecdim];
+        //readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
+
+        appr_alg->addPoint((void *) (mass_code), j1);
 
         size_t report_every = 1000000;
 #pragma omp parallel for num_threads(24)
         for (int i = 1; i < vecsize; i++) {
-            vtype mass[PQ ? M_PQ : vecdim];
+            //vtype mass[PQ ? M_PQ : vecdim];
+            vtype mass[vecdim];
+            float massf[vecdim];
+            unsigned char mass_code[M_PQ];
 #pragma omp critical
             {
-                readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
+                //readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
+                readXvec<vtype>(input, mass, vecdim));
+                for (int i = 0; i < vecdim; i++)
+                    massf[i] = (1.0)*mass[i];
+                dynamic_cast<NewL2SpacePQ *>(l2space)->pq->compute_code(massf, mass_code);
+
                 if (++j1 % report_every == 0) {
                     cout << j1 / (0.01 * vecsize) << " %, "
                          << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
@@ -360,7 +385,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables, cons
                     stopw.reset();
                 }
             }
-            appr_alg->addPoint((void *) (mass), (size_t) j1);
+            appr_alg->addPoint((void *) (mass_code), (size_t) j1);
         }
         input.close();
         cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
@@ -395,7 +420,7 @@ void hnsw_test(const char *l2space_type,
     if (!strcmp (l2space_type, "int")) {
         _hnsw_test<int, unsigned char>(path_codebooks, path_tables, path_data, path_q,
                         path_gt, path_info, path_edges,
-                        (path_codebooks && path_tables) ? L2SpaceType::PQ : L2SpaceType::Int,
+                        (path_codebooks && path_tables) ? L2SpaceType::NewPQ : L2SpaceType::Int,
                         k, vecsize, qsize, vecdim, efConstruction, M);
     } else if (!strcmp (l2space_type, "float"))
         _hnsw_test<float, float>(path_codebooks, path_tables, path_data, path_q,
