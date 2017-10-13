@@ -259,14 +259,14 @@ namespace hnswlib {
                     float q_r = fstdistfunc(code.data() + j*code_size);
                     float dist = term1 - 2*q_r + norms[j];
                     idx_t label = ids[key][j];
-                    topResults.emplace(std::make_pair(dist, label));
+                    topResults.emplace(std::make_pair(-dist, label));
                 }
                 if (topResults.size() > max_codes)
                     break;
             }
 
-            while (topResults.size() > k)
-                topResults.pop();
+            //while (topResults.size() > k)
+            //    topResults.pop();
 
 //            if (topResults.size() < k) {
 //                for (int j = topResults.size(); j < k; j++)
@@ -274,8 +274,8 @@ namespace hnswlib {
 //                std::cout << "Ignored query" << std:: endl;
 //            }
 
-            for (int j = k-1; j >= 0; j--) {
-                results[j] = topResults.top().second;
+            for (int i = 0; i < k; i++) {
+                results[i] = topResults.top().second;
                 topResults.pop();
             }
 		}
