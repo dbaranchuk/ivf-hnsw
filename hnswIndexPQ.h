@@ -222,7 +222,7 @@ namespace hnswlib {
 		{
             idx_t keys[nprobe];
             float q_c[nprobe];
-            float norms[16384];
+            float norms[32768];
 
             float * dis_tables = new float [pq->ksub * pq->M];
             pq->compute_inner_prod_table(x, dis_tables);
@@ -237,7 +237,6 @@ namespace hnswlib {
                 coarse.pop();
             }
 
-            int max_ncodes = 0;
             for (int i = 0; i < nprobe; i++){
                 idx_t key = keys[i];
                 std::vector<uint8_t> code = codes[key];
@@ -245,8 +244,8 @@ namespace hnswlib {
                 float term1 = q_c[i] - c_norm_table[key];
                 int ncodes = norm_code.size();
 
-                if (ncodes > max_ncodes)
-                    max_ncodes = ncodes;
+                if (ncodes > 16384)
+                    std::cout << ncodes;
 
                 norm_pq->decode(norm_code.data(), norms, ncodes);
 
