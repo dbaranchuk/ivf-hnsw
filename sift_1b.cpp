@@ -278,15 +278,13 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
 }
 
 template<typename dist_t, typename vtype>
-static void encode_dataset(size_t n, NewL2SpacePQ *space,
-                    const char *path_src, const char *path_target)
+static void encode_dataset(NewL2SpacePQ *space, const char *path_src, const char *path_target, size_t d, size_t n)
 {
     if (exists_test(path_target)){
         std::cout << "Dataset is already encoded" << std::endl;
         return;
     }
 
-    int d = space->get_data_dim();
     int m = space->get_data_size();
     size_t batch_size = 1000000;
     size_t nb = n / batch_size;
@@ -371,7 +369,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables,
             break;
         case L2SpaceType ::NewPQ:
             l2space = dynamic_cast<SpaceInterface<dist_t> *>(new NewL2SpacePQ(vecdim, M_PQ, 256, path_pq, path_learn));
-            encode_dataset<dist_t, vtype>(vecsize, dynamic_cast<NewL2SpacePQ *>(l2space), path_data, path_data_pq);
+            encode_dataset<dist_t, vtype>(dynamic_cast<NewL2SpacePQ *>(l2space), path_data, path_data_pq, vecdim, vecsize);
             break;
     }
 
