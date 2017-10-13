@@ -298,7 +298,7 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
     int correct = 0;
     idx_t results[k];
 
-    index->max_codes = 30000;
+    index->max_codes = 10000;
     index->nprobe = 64;
     index->quantizer->ef_ = 140;
 
