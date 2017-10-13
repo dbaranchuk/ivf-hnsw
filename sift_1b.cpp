@@ -295,11 +295,16 @@ static void encode_dataset(size_t n, NewL2SpacePQ *space,
     FILE *fout = fopen(path_target, "wb");
 
     vtype *batch = new vtype[batch_size * d];
-    unsigned char *batch_code = unsigned char *[batch_size * m];
+    unsigned char *batch_code = new unsigned char [batch_size * m];
+    float *batchf = new float[batch_size * d];
 
     for (int b = 0; b < nb; b++){
         readXvec<vtype>(input, batch, d, batch_size);
-        dynamic_cast<NewL2SpacePQ *>(space)->pq->compute_codes(batch, batch_code, batch_size);
+
+        for(int i = 0; i < batch_size; i++)
+            batchf[i] = (1.0)*batch[i];
+
+        space->pq->compute_codes(batchf, batch_code, batch_size);
 
         for (int i = 0; i < batch_size; i++){
             fwrite(&m, sizeof(int), 1, fout);
@@ -307,6 +312,8 @@ static void encode_dataset(size_t n, NewL2SpacePQ *space,
         }
     }
     input.close();
+    delete batch;
+    delete batch_code;
 }
 
 template<typename dist_t, typename vtype>
