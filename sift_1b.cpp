@@ -395,7 +395,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables,
 
         appr_alg->addPoint((void *) mass, j1);
 
-        size_t report_every = 1000000;
+        size_t report_every = 100000;
 #pragma omp parallel for num_threads(32)
         for (int i = 1; i < vecsize; i++) {
             vtype mass[PQ ? M_PQ : vecdim];
