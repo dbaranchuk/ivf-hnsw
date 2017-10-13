@@ -439,17 +439,17 @@ namespace hnswlib {
         float fstdistfunc(uint8_t *code)
         {
             float result = 0.;
-            int dim = code_size >> 3;
+            int dim = code_size;// >> 3;
             int m = 0;
             for (int i = 0; i < dim; i++) {
                 result += dis_table[pq->ksub * m + code[m]]; m++;
-                result += dis_table[pq->ksub * m + code[m]]; m++;
-                result += dis_table[pq->ksub * m + code[m]]; m++;
-                result += dis_table[pq->ksub * m + code[m]]; m++;
-                result += dis_table[pq->ksub * m + code[m]]; m++;
-                result += dis_table[pq->ksub * m + code[m]]; m++;
-                result += dis_table[pq->ksub * m + code[m]]; m++;
-                result += dis_table[pq->ksub * m + code[m]]; m++;
+//                result += dis_table[pq->ksub * m + code[m]]; m++;
+//                result += dis_table[pq->ksub * m + code[m]]; m++;
+//                result += dis_table[pq->ksub * m + code[m]]; m++;
+//                result += dis_table[pq->ksub * m + code[m]]; m++;
+//                result += dis_table[pq->ksub * m + code[m]]; m++;
+//                result += dis_table[pq->ksub * m + code[m]]; m++;
+//                result += dis_table[pq->ksub * m + code[m]]; m++;
             }
             return result;
         }
