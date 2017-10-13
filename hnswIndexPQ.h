@@ -222,7 +222,7 @@ namespace hnswlib {
 		{
             idx_t keys[nprobe];
             float q_c[nprobe];
-            float *norms = new float[32768];
+            float *norms = new float[65536];
 
             float * dis_tables = new float [pq->ksub * pq->M];
             pq->compute_inner_prod_table(x, dis_tables);
