@@ -267,7 +267,7 @@ namespace hnswlib {
                 if (topResults.size() > max_codes)
                     break;
             }
-            std::cout << "Max ncodes: " << max_ncodes << std::endl;
+            //std::cout << "Max ncodes: " << max_ncodes << std::endl;
 
             while (topResults.size() > k)
                 topResults.pop();
