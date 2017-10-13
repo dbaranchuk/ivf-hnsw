@@ -291,6 +291,7 @@ static void encode_dataset(size_t n, NewL2SpacePQ *space,
     size_t batch_size = 1000000;
     size_t nb = n / batch_size;
 
+    std::cout << d << " " << m << std::endl;
     ifstream input(path_src, ios::binary);
     FILE *fout = fopen(path_target, "wb");
 
@@ -327,6 +328,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables,
     const int M_PQ = 16;
     const bool PQ = true;//(path_codebooks && path_tables);
 
+    const char *path_data_pq = "/sata2/dbaranchuk/test_pq.bvecs";
     const char *path_pq = "/sata2/dbaranchuk/pq16.pq";
     //const char *path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
     const char *path_learn = "/sata2/dbaranchuk/bigann/bigann_learn.bvecs";
@@ -369,11 +371,9 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables,
             break;
         case L2SpaceType ::NewPQ:
             l2space = dynamic_cast<SpaceInterface<dist_t> *>(new NewL2SpacePQ(vecdim, M_PQ, 256, path_pq, path_learn));
-            encode_dataset<dist_t, vtype>(vecsize, dynamic_cast<NewL2SpacePQ *>(l2space),
-                           path_data, "/sata2/dbaranchuk/test_pq.bvecs");
+            encode_dataset<dist_t, vtype>(vecsize, dynamic_cast<NewL2SpacePQ *>(l2space), path_data, path_data_pq);
             break;
     }
-    const char *path_data_pq = "/sata2/dbaranchuk/test_pq.bvecs";
 
     HierarchicalNSW<dist_t, vtype> *appr_alg;
     if (exists_test(path_info) && exists_test(path_edges)) {
