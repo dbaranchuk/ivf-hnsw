@@ -312,6 +312,7 @@ static void encode_dataset(NewL2SpacePQ *space, const char *path_src, const char
     }
     input.close();
     delete batch;
+    delete batchf;
     delete batch_code;
 }
 
@@ -375,7 +376,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables,
 
     HierarchicalNSW<dist_t, vtype> *appr_alg;
     if (exists_test(path_info) && exists_test(path_edges)) {
-        appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, path_info, path_data, path_edges);
+        appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, path_info, path_data_pq, path_edges);
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
