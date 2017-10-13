@@ -438,7 +438,7 @@ namespace hnswlib {
 
         float fstdistfuncST(const void *y_code)
         {
-            int res = 0;
+            float res = 0;
             int dim = m_ >> 3;
             unsigned char *y = (unsigned char *)y_code;
 
