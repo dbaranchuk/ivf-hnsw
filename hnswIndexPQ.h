@@ -224,8 +224,8 @@ namespace hnswlib {
             float q_c[nprobe];
             float *norms = new float[65536];
 
-            float * dis_tables = new float [pq->ksub * pq->M];
-            pq->compute_inner_prod_table(x, dis_tables);
+            float * dis_table = new float [pq->ksub * pq->M];
+            pq->compute_inner_prod_table(x, dis_table);
 
             std::priority_queue<std::pair<float, idx_t>> topResults;
             auto coarse = quantizer->searchKnn(x, nprobe);
@@ -244,21 +244,11 @@ namespace hnswlib {
                 float term1 = q_c[i] - c_norm_table[key];
                 int ncodes = norm_code.size();
 
-                if (ncodes > 16384)
-                    std::cout << ncodes;
-
                 norm_pq->decode(norm_code.data(), norms, ncodes);
 
                 for (int j = 0; j < ncodes; j++){
-                    float q_r = 0.;
-                    for (int m = 0; m < code_size; m++)
-                        q_r += dis_tables[pq->ksub * m + code[j*code_size + m]];
-
-                    //float norm;
-                    //norm_pq->decode(code.data()+j*(code_size+1) + code_size, &norm);
+                    float q_r = fstdistfunc(code[j*code_size], dis_table);
                     float dist = term1 - 2*q_r + norms[j];
-
-                    // << " " << q_r << " " << norm << std::endl;
                     idx_t label = ids[key][j];
                     topResults.emplace(std::make_pair(dist, label));
                 }
@@ -436,6 +426,24 @@ namespace hnswlib {
         }
 
 	private:
+        float fstdistfunc(uint8_t *code)
+        {
+            float result = 0.;
+            int dim = code_size >> 3;
+            int m = 0;
+            for (int i = 0; i < dim; i++) {
+                result += dis_tables[pq->ksub * m + code[m]]; m++;
+                result += dis_tables[pq->ksub * m + code[m]]; m++;
+                result += dis_tables[pq->ksub * m + code[m]]; m++;
+                result += dis_tables[pq->ksub * m + code[m]]; m++;
+                result += dis_tables[pq->ksub * m + code[m]]; m++;
+                result += dis_tables[pq->ksub * m + code[m]]; m++;
+                result += dis_tables[pq->ksub * m + code[m]]; m++;
+                result += dis_tables[pq->ksub * m + code[m]]; m++;
+            }
+            return result;
+        }
+
         void reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys)
         {
             for (idx_t i = 0; i < n; i++) {
