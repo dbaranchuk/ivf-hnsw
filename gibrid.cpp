@@ -300,7 +300,7 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
 
     index->max_codes = 30000;
     index->nprobe = 64;
-    index->quantizer->ef_ = 200;
+    index->quantizer->ef_ = 140;
 
     /** Search **/
     StopW stopw = StopW();
