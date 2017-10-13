@@ -796,7 +796,7 @@ namespace hnswlib {
                 fread((vtype *)mass, sizeof(vtype), dim, fin);
                 // Initialisation of the data and label
                 memset((char *) get_linklist0(i), 0, getParametersByInternalId(i)[i_size_data_per_element]);
-                memcpy(getDataByInternalId(i), mass_code, data_size_);
+                memcpy(getDataByInternalId(i), mass, data_size_);
             }
 
 
