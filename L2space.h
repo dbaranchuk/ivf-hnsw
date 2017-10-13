@@ -40,8 +40,10 @@ static void read_PQ(const char *path, faiss::ProductQuantizer *_pq)
     _pq->centroids.resize(size);
 
     float *centroids = _pq->centroids.data();
-    fread(_pq->centroids.data(), sizeof(float), size, fin);
+    fread(centroids, sizeof(float), size, fin);
 
+    std::cout << _pq->d << " " << _pq->M << " " << _pq->nbits << " " << _pq->byte_per_idx << " " << _pq->dsub << " "
+              << _pq->code_size << " " << _pq->ksub << " " << size << " " << centroids[0] << std::endl;
     fclose(fin);
 }
 
@@ -76,8 +78,10 @@ static void write_PQ(const char *path, faiss::ProductQuantizer *_pq)
     fwrite (&size, sizeof(size_t), 1, fout);
 
     float *centroids = _pq->centroids.data();
-    fwrite(_pq->centroids.data(), sizeof(float), size, fout);
+    fwrite(centroids, sizeof(float), size, fout);
 
+    std::cout << _pq->d << " " << _pq->M << " " << _pq->nbits << " " << _pq->byte_per_idx << " " << _pq->dsub << " "
+              << _pq->code_size << " " << _pq->ksub << " " << size << " " << centroids[0] << std::endl;
     fclose(fout);
 }
 
@@ -389,7 +393,7 @@ namespace hnswlib {
 
                 float *trainvecs_float = new float[nt * dim_];
                 for (int i = 0; i < nt * dim_; i++)
-                    trainvecs_float[i] = trainvecs[i];
+                    trainvecs_float[i] = (1.0)*trainvecs[i];
 
                 pq->verbose = true;
                 pq->train(nt, trainvecs_float);
