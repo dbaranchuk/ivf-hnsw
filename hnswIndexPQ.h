@@ -222,6 +222,7 @@ namespace hnswlib {
 		{
             idx_t keys[nprobe];
             float q_c[nprobe];
+            float norms[16384];
 
             float * dis_tables = new float [pq->ksub * pq->M];
             pq->compute_inner_prod_table(x, dis_tables);
@@ -247,7 +248,6 @@ namespace hnswlib {
                 if (ncodes > max_ncodes)
                     max_ncodes = ncodes;
 
-                float *norms = new float[ncodes];
                 norm_pq->decode(norm_code.data(), norms, ncodes);
 
                 for (int j = 0; j < ncodes; j++){
@@ -263,7 +263,6 @@ namespace hnswlib {
                     idx_t label = ids[key][j];
                     topResults.emplace(std::make_pair(dist, label));
                 }
-                delete norms;
                 if (topResults.size() > max_codes)
                     break;
             }
