@@ -125,6 +125,12 @@ namespace hnswlib {
 
 
 		~Index() {
+            if (dis_table)
+                delete dis_table;
+
+            if (norms)
+                delete norms;
+
             if (c_norm_table)
                 delete c_norm_table;
 
@@ -222,9 +228,12 @@ namespace hnswlib {
 		{
             idx_t keys[nprobe];
             float q_c[nprobe];
-            float *norms = new float[65536];
 
-            float * dis_table = new float [pq->ksub * pq->M];
+            if (!norms)
+                norms = new float[65536];
+            if (!dis_table)
+                dis_table = new float [pq->ksub * pq->M];
+
             pq->compute_inner_prod_table(x, dis_table);
 
             std::priority_queue<std::pair<float, idx_t>> topResults;
@@ -255,8 +264,7 @@ namespace hnswlib {
                 if (topResults.size() > max_codes)
                     break;
             }
-            //std::cout << "Max ncodes: " << max_ncodes << std::endl;
-
+            
             while (topResults.size() > k)
                 topResults.pop();
 
@@ -270,7 +278,6 @@ namespace hnswlib {
                 results[j] = topResults.top().second;
                 topResults.pop();
             }
-            delete norms;
 		}
 
         void train_norm_pq(idx_t n, const float *x)
@@ -426,20 +433,23 @@ namespace hnswlib {
         }
 
 	private:
+        float *dis_table;
+        float *norms;
+
         float fstdistfunc(uint8_t *code)
         {
             float result = 0.;
             int dim = code_size >> 3;
             int m = 0;
             for (int i = 0; i < dim; i++) {
-                result += dis_tables[pq->ksub * m + code[m]]; m++;
-                result += dis_tables[pq->ksub * m + code[m]]; m++;
-                result += dis_tables[pq->ksub * m + code[m]]; m++;
-                result += dis_tables[pq->ksub * m + code[m]]; m++;
-                result += dis_tables[pq->ksub * m + code[m]]; m++;
-                result += dis_tables[pq->ksub * m + code[m]]; m++;
-                result += dis_tables[pq->ksub * m + code[m]]; m++;
-                result += dis_tables[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
             }
             return result;
         }
