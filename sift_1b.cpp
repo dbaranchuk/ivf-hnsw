@@ -362,7 +362,7 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables,
             break;
         case L2SpaceType ::NewPQ:
             l2space = dynamic_cast<SpaceInterface<dist_t> *>(new NewL2SpacePQ(vecdim, M_PQ, 256, path_pq, path_learn));
-            encode_dataset(vecsize, dynamic_cast<NewL2SpacePQ *>(l2space),
+            encode_dataset<dist_t, vtype>(vecsize, dynamic_cast<NewL2SpacePQ *>(l2space),
                            path_data, "/sata2/dbaranchuk/test_pq.bvecs");
             break;
     }
