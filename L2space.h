@@ -422,7 +422,7 @@ namespace hnswlib {
                 float *m_centroids = pq->centroids.data() + m*k_*vocab_dim_;
                 x = q + m * vocab_dim_;
                 for (size_t k = 0; k < k_; k++){
-                    y = m_centroids + i*vocab_dim_;
+                    y = m_centroids + k*vocab_dim_;
                     query_table[k_*m + k] = faiss::fvec_L2sqr (x, y, vocab_dim_);
                 }
             }
