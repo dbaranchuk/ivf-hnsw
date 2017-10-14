@@ -179,7 +179,7 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
         if (pq) {
             //dynamic_cast<L2SpacePQ *>(appr_alg.space)->set_query_table((unsigned char *) (massQ + vecdim * i));
             dynamic_cast<NewL2SpacePQ *>(appr_alg.space)->set_query_table((massfQ + vecdim * i));
-            result = appr_alg.searchKnn(massfQ + vecdim * i, k, i);
+            result = appr_alg.searchKnn(massQ + vecdim*i, k, i);
         }
         else
             result = appr_alg.searchKnn(massQ + vecdim*i, k);
