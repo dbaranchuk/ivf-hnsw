@@ -254,7 +254,7 @@ static void readXvec(std::ifstream &input, format *mass, const int d, const int 
     for (int i = 0; i < n; i++) {
         input.read((char *) &in, sizeof(int));
         if (in != d) {
-            std::cout << "file error\n";
+            std::cout << i << n << in << d << "file error\n";
             exit(1);
         }
         input.read((char *)(mass+i*d), in * sizeof(format));
@@ -317,20 +317,19 @@ static void encode_dataset(NewL2SpacePQ *space, const char *path_src, const char
 }
 
 template<typename dist_t, typename vtype>
-static void _hnsw_test(const char *path_codebooks, const char *path_tables,
+static void _hnsw_test(const char *path_pq, const char *path_learn,
+                       const char *path_codebooks, const char *path_tables,
                        const char *path_data, const char *path_q,
                        const char *path_gt, const char *path_info, const char *path_edges,
                        L2SpaceType l2SpaceType,
                        const int k, const int vecsize, const int qsize,
-                       const int vecdim, const int efConstruction, const int M)
+                       const int vecdim, const int efConstruction, const int M, const int M_PQ)
 {
-    const int M_PQ = 16;
-    const bool PQ = true;//(path_codebooks && path_tables);
+    //const int M_PQ = 16;
+    const bool PQ = (M_PQ != -1);//(path_codebooks && path_tables);
 
     const char *path_data_pq = "/sata2/dbaranchuk/bigann_test_pq.bvecs";
-    const char *path_pq = "/sata2/dbaranchuk/pq16_1m.pq";
     //const char *path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
-    const char *path_learn = "/sata2/dbaranchuk/bigann/bigann_learn.bvecs";
 
     const std::map<size_t, std::pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
@@ -435,24 +434,28 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables,
 }
 
 void hnsw_test(const char *l2space_type,
+               const char *path_pq, const char *path_learn,
                const char *path_codebooks, const char *path_tables, const char *path_data, const char *path_q,
                const char *path_gt, const char *path_info, const char *path_edges,
                const int k, const int vecsize, const int qsize,
-               const int vecdim, const int efConstruction, const int M)
+               const int vecdim, const int efConstruction, const int M, const int M_PQ)
 {
     if (!strcmp (l2space_type, "int"))
-        _hnsw_test<int, unsigned char>(path_codebooks, path_tables, path_data, path_q,
+        _hnsw_test<int, unsigned char>(path_pq, path_learn,
+                path_codebooks, path_tables, path_data, path_q,
                         path_gt, path_info, path_edges,
                         (path_codebooks && path_tables) ? L2SpaceType::NewPQ : L2SpaceType::Int,
-                        k, vecsize, qsize, vecdim, efConstruction, M);
+                        k, vecsize, qsize, vecdim, efConstruction, M, M_PQ);
     else if (!strcmp (l2space_type, "float"))
-        _hnsw_test<float, float>(path_codebooks, path_tables, path_data, path_q,
+        _hnsw_test<float, float>(path_pq, path_learn,
+                path_codebooks, path_tables, path_data, path_q,
                           path_gt, path_info, path_edges,
                           L2SpaceType::Float,
-                          k, vecsize, qsize, vecdim, efConstruction, M);
+                          k, vecsize, qsize, vecdim, efConstruction, M, M_PQ);
     else if (!strcmp (l2space_type, "new_pq"))
-        _hnsw_test<float, unsigned char>(path_codebooks, path_tables, path_data, path_q,
+        _hnsw_test<float, unsigned char>(path_pq, path_learn,
+                path_codebooks, path_tables, path_data, path_q,
                                          path_gt, path_info, path_edges, L2SpaceType::NewPQ,
-                                         k, vecsize, qsize, vecdim, efConstruction, M);
+                                         k, vecsize, qsize, vecdim, efConstruction, M, M_PQ);
 
 }

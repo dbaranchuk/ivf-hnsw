@@ -11,9 +11,10 @@ void gibrid_test(const char *, const char *, const char *,
 
 //void deep_test10M();
 void hnsw_test( const char *,
+                const char *, const char *,
                 const char *, const char *, const char *, const char *,
                 const char *, const char *, const char *,
-                const int, const int, const int, const int, const int, const int);
+                const int, const int, const int, const int, const int, const int, const int);
 
 
 void usage(const char * cmd)
@@ -184,9 +185,11 @@ int main(int argc, char **argv) {
     //    exit(1);
     //}
 
-    hnsw_test(l2space_type, path_codebooks, path_tables, path_data, path_q,
+    hnsw_test(l2space_type,
+              path_pq, path_learn,
+              path_codebooks, path_tables, path_data, path_q,
               path_gt, path_info, path_edges,
-              k, vecsize, qsize, vecdim, efConstruction, M);
+              k, vecsize, qsize, vecdim, efConstruction, M, M_PQ);
 
 //    gibrid_test(path_centroids, path_index, path_precomputed_idxs,
 //                path_pq, path_norm_pq, path_learn, path_data, path_q,
