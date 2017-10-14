@@ -411,10 +411,22 @@ namespace hnswlib {
             delete pq;
         }
 
-        void set_query_table(const float *q) {
-            pq->compute_distance_table(q, query_table);
-        }
+//        void set_query_table(const float *q) {
+//            pq->compute_distance_table(q, query_table);
+//        }
 
+        void set_query_table(const float *q)
+        {
+            const float *x, *y;
+            for (size_t m = 0; m < m_; m++) {
+                float *m_centroids = pq->centroids.data() + m*k_*vocab_dim_;
+                x = q + m * vocab_dim_;
+                for (size_t k = 0; k < k_; k++){
+                    y = m_centroids + i*vocab_dim_;
+                    query_table[k_*m + k] = faiss::fvec_L2sqr (x, y, vocab_dim_);
+                }
+            }
+        }
 
         size_t get_data_size() { return data_size_; }
         size_t get_data_dim() { return m_; }
@@ -439,7 +451,7 @@ namespace hnswlib {
 
         float fstdistfunc(const void *x_code, const void *y_code)
         {
-            float res = 0;
+            float res = 0.;
             int dim = m_ >> 3;
             unsigned char *x = (unsigned char *)x_code;
             unsigned char *y = (unsigned char *)y_code;
@@ -460,7 +472,7 @@ namespace hnswlib {
 
         float fstdistfuncST(const void *y_code)
         {
-            float res = 0;
+            float res = 0.;
             int dim = m_ >> 3;
             unsigned char *y = (unsigned char *)y_code;
 

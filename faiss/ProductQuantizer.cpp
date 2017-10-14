@@ -574,7 +574,6 @@ void ProductQuantizer::search_ip (const float * __restrict x,
     compute_inner_prod_tables (nx, x, dis_tables);
 
     if (byte_per_idx == 1) {
-
         pq_knn_search_with_tables<uint8_t, CMin<float, long> > (
              this, dis_tables, codes, ncodes, res, init_finalize_heap);
 
