@@ -212,9 +212,6 @@ void gibrid_test(const char *path_centroids,
                  const int nprobes,
                  const int max_codes)
 {
-    //const char *path_centroids = "/home/dbaranchuk/data/centroids1M.fvecs";
-    //const int ncentroids = 999973;
-
     cout << "Loading GT:\n";
     const int gt_dim = 1;
     idx_t *massQA = new idx_t[qsize * gt_dim];
