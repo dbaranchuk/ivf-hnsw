@@ -278,9 +278,8 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
 }
 
 template<typename vtype>
-static void encode_dataset(NewL2SpacePQ *space, const char *path_src, const char *path_target, size_t d, size_t n)
-{
-    if (exists_test(path_target)){
+static void encode_dataset(NewL2SpacePQ *space, const char *path_src, const char *path_target, size_t d, size_t n) {
+    if (exists_test(path_target)) {
         std::cout << "Dataset is already encoded" << std::endl;
         return;
     }
@@ -294,27 +293,28 @@ static void encode_dataset(NewL2SpacePQ *space, const char *path_src, const char
     FILE *fout = fopen(path_target, "wb");
 
     vtype *batch = new vtype[batch_size * d];
-    unsigned char *batch_code = new unsigned char [batch_size * m];
+    unsigned char *batch_code = new unsigned char[batch_size * m];
     float *batchf = new float[batch_size * d];
 
-    for (int b = 0; b < nb; b++){
+    for (int b = 0; b < nb; b++) {
         readXvec<vtype>(input, batch, d, batch_size);
 
-        for(int i = 0; i < batch_size*d; i++){
-            batchf[i] = (1.0)*batch[i];
+        for (int i = 0; i < batch_size * d; i++)
+            batchf[i] = (1.0) * batch[i];
 
         space->pq->compute_codes(batchf, batch_code, batch_size);
 
-        for (int i = 0; i < batch_size; i++){
+        for (int i = 0; i < batch_size; i++) {
             fwrite(&m, sizeof(int), 1, fout);
-            fwrite(batch_code + i*m, sizeof(unsigned char), m, fout);
+            fwrite(batch_code + i * m, sizeof(unsigned char), m, fout);
         }
+
+        input.close();
+        fclose(fout);
+        delete batch;
+        delete batchf;
+        delete batch_code;
     }
-    input.close();
-    fclose(fout);
-    delete batch;
-    delete batchf;
-    delete batch_code;
 }
 
 template<typename dist_t, typename vtype>
@@ -324,14 +324,15 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
                        const char *path_gt, const char *path_info, const char *path_edges,
                        L2SpaceType l2SpaceType,
                        const int k, const int vecsize, const int qsize,
-                       const int vecdim, const int efConstruction, const int M, const int M_PQ) {
+                       const int vecdim, const int efConstruction, const int M, const int M_PQ)
+{
     //const int M_PQ = 16;
     const bool PQ = (M_PQ != -1);//(path_codebooks && path_tables);
 
     const char *path_data_pq = "/sata2/dbaranchuk/bigann_test_pq.bvecs";
     //const char *path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
 
-    const std::map<size_t, std::pair<size_t, size_t>> M_map = {{vecsize, {M, 2 * M}}};
+    const std::map<size_t, std::pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}}, {200000000, {12, 24}}, {400000000, {8, 16}},
     //                                                 {500000000, {6, 10}}, {900000000, {5, 7}}, {vecsize, {5, 5}}};
@@ -339,7 +340,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
     //                                                 {200000000, {10, 16}}, {vecsize, {6, 8}}};
     //                                                 {800000000, {4, 8}}, {900000000, {4, 6}}, {1000000000, {4, 4}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}},{200000000, {12, 24}},{400000000, {8, 16}},{vecsize, {6, 10}}};
-    //{600000000, {5, 10}},{800000000, {5, 10}},{900000000, {5, 7}},{vecsize, {5, 6}}};
+                                                     //{600000000, {5, 10}},{800000000, {5, 10}},{900000000, {5, 7}},{vecsize, {5, 6}}};
     //
     const std::vector<size_t> elements_per_level;// = {100000000, 5000000, 250000, 12500, 625, 32};
     //const map<size_t, pair<size_t, size_t>> M_map = {{5263157, {16, 32}}, {vecsize, {M, 2*M}}};
@@ -354,7 +355,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
 
     SpaceInterface<dist_t> *l2space;
 
-    switch (l2SpaceType) {
+    switch(l2SpaceType) {
         case L2SpaceType::PQ:
             l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2SpacePQ(vecdim, M_PQ, 256));
             dynamic_cast<L2SpacePQ *>(l2space)->set_codebooks(path_codebooks);
@@ -366,10 +367,9 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
         case L2SpaceType::Int:
             l2space = dynamic_cast<SpaceInterface<dist_t> *>(new L2SpaceI(vecdim));
             break;
-        case L2SpaceType::NewPQ:
+        case L2SpaceType ::NewPQ:
             l2space = dynamic_cast<SpaceInterface<dist_t> *>(new NewL2SpacePQ(vecdim, M_PQ, 256, path_pq, path_learn));
-            encode_dataset<vtype>(dynamic_cast<NewL2SpacePQ *>(l2space), path_data, path_data_pq, vecdim,
-                                          vecsize);
+            encode_dataset<vtype>(dynamic_cast<NewL2SpacePQ *>(l2space), path_data, path_data_pq, vecdim, vecsize);
             break;
     }
 
@@ -405,8 +405,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
 
         size_t report_every = 100000;
 #pragma omp parallel for num_threads(32)
-        for (int i = 1; i < vecsize; i++)
-        {
+        for (int i = 1; i < vecsize; i++) {
             vtype mass[PQ ? M_PQ : vecdim];
 //            vtype massb[vecdim];
 //            float massf[vecdim];
@@ -438,7 +437,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
     //appr_alg->check_connectivity(massQA, qsize);
     //appr_alg->printNumElements();
 
-    vector<std::priority_queue<std::pair<dist_t, labeltype >>> answers;
+    vector<std::priority_queue< std::pair<dist_t, labeltype >>> answers;
 
     cout << "Parsing gt:\n";
     get_gt<dist_t>(massQA, qsize, answers, gt_dim);
