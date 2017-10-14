@@ -423,7 +423,7 @@ namespace hnswlib {
         void compute_distance_table()
         {
             dst_table = new float[m_ * k_ * k_];
-            float *centroids = pq->get_centroids();
+            float *centroids = pq->centroids.data();
 
             for (int m = 0; m < m_; m++) {
                 float *m_centroids = centroids + m*k_*vocab_dim_;
