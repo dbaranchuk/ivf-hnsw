@@ -456,6 +456,7 @@ namespace hnswlib {
                 res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
                 res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
             }
+            std::cout << "HUI" << std::endl;
             return res;
         };
 
