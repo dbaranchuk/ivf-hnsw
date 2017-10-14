@@ -311,6 +311,7 @@ static void encode_dataset(NewL2SpacePQ *space, const char *path_src, const char
         }
     }
     input.close();
+    fclose(fout);
     delete batch;
     delete batchf;
     delete batch_code;
