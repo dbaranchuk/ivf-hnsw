@@ -264,12 +264,12 @@ namespace hnswlib {
                 results[i] = topResults.top().second;
                 topResults.pop();
             }
-            
-            if (topResults.size() < k) {
-                for (int j = topResults.size(); j < k; j++)
-                    topResults.emplace(std::make_pair(std::numeric_limits<float>::max(), 0));
-                std::cout << "Ignored query" << std:: endl;
-            }
+
+//            if (topResults.size() < k) {
+//                for (int j = topResults.size(); j < k; j++)
+//                    topResults.emplace(std::make_pair(std::numeric_limits<float>::max(), 0));
+//                std::cout << "Ignored query" << std:: endl;
+//            }
 		}
 
         void train_norm_pq(idx_t n, const float *x)

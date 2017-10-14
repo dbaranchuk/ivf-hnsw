@@ -195,17 +195,25 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
 }
 
 
-void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
+void gibrid_test(const char *path_centroids,
+                 const char *path_index, const char *path_precomputed_idxs,
                  const char *path_pq, const char *path_norm_pq,
                  const char *path_learn, const char *path_data, const char *path_q,
                  const char *path_gt, const char *path_info, const char *path_edges,
-                 const int k, const int vecsize, const int qsize,
-                 const int vecdim, const int efConstruction, const int M)
+                 const int k,
+                 const int vecsize,
+                 const int ncentroids,
+                 const int qsize,
+                 const int vecdim,
+                 const int efConstruction,
+                 const int efSearch,
+                 const int M,
+                 const int M_PQ,
+                 const int nprobes,
+                 const int max_codes)
 {
-    const char *path_centroids = "/home/dbaranchuk/data/centroids1M.fvecs";
-    const int M_PQ = 16;
-    const int ncentroids = 999973;
-    const int efSearch = 500;
+    //const char *path_centroids = "/home/dbaranchuk/data/centroids1M.fvecs";
+    //const int ncentroids = 999973;
 
     cout << "Loading GT:\n";
     const int gt_dim = 1;
@@ -220,7 +228,7 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
 
     /** Create Index **/
     Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
-    index->buildQuantizer(l2space, path_centroids, path_info, path_edges, efSearch);
+    index->buildQuantizer(l2space, path_centroids, path_info, path_edges, 500);
     index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
 
     /** Train PQ **/
@@ -298,9 +306,9 @@ void gibrid_test(const char *path_index, const char *path_precomputed_idxs,
     int correct = 0;
     idx_t results[k];
 
-    index->max_codes = 30000;
-    index->nprobe = 64;
-    index->quantizer->ef_ = 140;
+    index->max_codes = max_codes;
+    index->nprobe = nprobes;
+    index->quantizer->ef_ = efSearch;
 
     /** Search **/
     StopW stopw = StopW();

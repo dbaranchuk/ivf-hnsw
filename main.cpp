@@ -2,11 +2,12 @@
 #include <cstring>
 #include <cassert>
 
-void gibrid_test(const char *, const char *,
+void gibrid_test(const char *, const char *, const char *,
                  const char *, const char *,
                  const char *, const char *, const char *,
                  const char *, const char *, const char *,
-                 const int, const int, const int, const int, const int, const int);
+                 const int, const int, const int, const int, const int, const int,
+                 const int, const int, const int, const int, const int);
 
 //void deep_test10M();
 void hnsw_test( const char *,
@@ -49,6 +50,12 @@ int main(int argc, char **argv) {
     size_t vecdim = 128;
     size_t M = 4;
     size_t efConstruction = 240;
+    size_t ncentroids;
+    size_t efSearch = 240;
+    size_t M_PQ = 16;
+    size_t nprobes = 64;
+    size_t max_codes = 10000;
+
 
     const char *path_gt = NULL;
     const char *path_q = NULL;
@@ -63,10 +70,10 @@ int main(int argc, char **argv) {
     const char *path_pq = NULL;
     const char *path_norm_pq = NULL;
     const char *path_learn = NULL;
+    const char *path_centroids = NULL;
 
     const char *l2space_type = NULL; //{int, float, new_pq}
     int k = 1, ret, ep;
-    bool one_layer = false;
 
     if (argc == 1)
         usage (argv[0]);
@@ -114,6 +121,9 @@ int main(int argc, char **argv) {
         else if (!strcmp (a, "-path_learn") && i+1 < argc) {
             path_learn = argv[++i];
         }
+        else if (!strcmp (a, "-path_centroids") && i+1 < argc) {
+            path_centroids = argv[++i];
+        }
         /** Int Parameters **/
         else if (!strcmp (a, "-k") && i+1 < argc) {
             ret = sscanf (argv[++i], "%d", &k);
@@ -142,6 +152,26 @@ int main(int argc, char **argv) {
         else if (!strcmp (a, "-l2space") && i+1 < argc) {
             l2space_type = argv[++i];
         }
+        else if (!strcmp (a, "-nc") && i+1 < argc) {
+            ret = sscanf (argv[++i], "%d", &ncentroids);
+            assert (ret);
+        }
+        else if (!strcmp (a, "-M_PQ") && i+1 < argc) {
+            ret = sscanf (argv[++i], "%d", &M_PQ);
+            assert (ret);
+        }
+        else if (!strcmp (a, "-efSearch") && i+1 < argc) {
+            ret = sscanf (argv[++i], "%d", &efSearch);
+            assert (ret);
+        }
+        else if (!strcmp (a, "-nprobes") && i+1 < argc) {
+            ret = sscanf (argv[++i], "%d", &nprobes);
+            assert (ret);
+        }
+        else if (!strcmp (a, "-max_codes") && i+1 < argc) {
+            ret = sscanf (argv[++i], "%d", &max_codes);
+            assert (ret);
+        }
     }
 
     if ((!path_codebooks && path_tables) || (path_codebooks && !path_tables)) {
@@ -158,11 +188,12 @@ int main(int argc, char **argv) {
 //              path_gt, path_info, path_edges,
 //              k, vecsize, qsize, vecdim, efConstruction, M);
 
-    gibrid_test(path_index, path_precomputed_idxs,
-                path_pq, path_norm_pq,
-                path_learn, path_data, path_q,
+    gibrid_test(path_centroids, path_index, path_precomputed_idxs,
+                path_pq, path_norm_pq, path_learn, path_data, path_q,
                 path_gt, path_info, path_edges,
-                k, vecsize, qsize, vecdim, efConstruction, M);
+                k, vecsize, ncentroids, qsize, vecdim, efConstruction, efSearch, M,
+                M_PQ, nprobes, max_codes);
+
 
     return 0;  
 };
