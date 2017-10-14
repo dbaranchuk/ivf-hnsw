@@ -260,18 +260,15 @@ namespace hnswlib {
                     break;
             }
 
-            //while (topResults.size() > k)
-            //    topResults.pop();
-
-//            if (topResults.size() < k) {
-//                for (int j = topResults.size(); j < k; j++)
-//                    topResults.emplace(std::make_pair(std::numeric_limits<float>::max(), 0));
-//                std::cout << "Ignored query" << std:: endl;
-//            }
-
             for (int i = 0; i < k; i++) {
                 results[i] = topResults.top().second;
                 topResults.pop();
+            }
+            
+            if (topResults.size() < k) {
+                for (int j = topResults.size(); j < k; j++)
+                    topResults.emplace(std::make_pair(std::numeric_limits<float>::max(), 0));
+                std::cout << "Ignored query" << std:: endl;
             }
 		}
 
@@ -434,13 +431,9 @@ namespace hnswlib {
         float fstdistfunc(uint8_t *code)
         {
             float result = 0.;
-            int dim = code_size >> 3;
+            int dim = code_size >> 2;
             int m = 0;
             for (int i = 0; i < dim; i++) {
-                result += dis_table[pq->ksub * m + code[m]]; m++;
-                result += dis_table[pq->ksub * m + code[m]]; m++;
-                result += dis_table[pq->ksub * m + code[m]]; m++;
-                result += dis_table[pq->ksub * m + code[m]]; m++;
                 result += dis_table[pq->ksub * m + code[m]]; m++;
                 result += dis_table[pq->ksub * m + code[m]]; m++;
                 result += dis_table[pq->ksub * m + code[m]]; m++;
