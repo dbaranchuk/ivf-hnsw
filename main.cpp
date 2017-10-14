@@ -184,15 +184,15 @@ int main(int argc, char **argv) {
     //    exit(1);
     //}
 
-//    hnsw_test(l2space_type, path_codebooks, path_tables, path_data, path_q,
-//              path_gt, path_info, path_edges,
-//              k, vecsize, qsize, vecdim, efConstruction, M);
+    hnsw_test(l2space_type, path_codebooks, path_tables, path_data, path_q,
+              path_gt, path_info, path_edges,
+              k, vecsize, qsize, vecdim, efConstruction, M);
 
-    gibrid_test(path_centroids, path_index, path_precomputed_idxs,
-                path_pq, path_norm_pq, path_learn, path_data, path_q,
-                path_gt, path_info, path_edges,
-                k, vecsize, ncentroids, qsize, vecdim, efConstruction, efSearch, M,
-                M_PQ, nprobes, max_codes);
+//    gibrid_test(path_centroids, path_index, path_precomputed_idxs,
+//                path_pq, path_norm_pq, path_learn, path_data, path_q,
+//                path_gt, path_info, path_edges,
+//                k, vecsize, ncentroids, qsize, vecdim, efConstruction, efSearch, M,
+//                M_PQ, nprobes, max_codes);
 
 
     return 0;  
