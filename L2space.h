@@ -445,18 +445,16 @@ namespace hnswlib {
             unsigned char *y = (unsigned char *)y_code;
 
             int m = 0;
-            float *table = pq->sdc_table.data();
             for (int i = 0; i < dim; ++i) {
-                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
-                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
-                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
-                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
-                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
-                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
-                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
-                res += table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += dst_table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += dst_table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += dst_table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += dst_table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += dst_table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += dst_table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += dst_table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
+                res += dst_table[k_ * (m * k_ + x[m]) + y[m]]; ++m;
             }
-            std::cout << "HUI" << std::endl;
             return res;
         };
 
