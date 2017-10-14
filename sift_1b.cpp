@@ -214,7 +214,7 @@ static void test_vs_recall(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, v
     if (k < 30) {
         for (int i = k; i < 30; i++) efs.push_back(i);
         for (int i = 30; i < 100; i += 10) efs.push_back(i);
-        for (int i = 100; i <= 900; i += 40) efs.push_back(i);
+        for (int i = 100; i <= 500; i += 40) efs.push_back(i);
     }
 	else if (k < 100) {
         for (int i = k; i < 100; i += 10) efs.push_back(i);
@@ -300,7 +300,7 @@ static void encode_dataset(NewL2SpacePQ *space, const char *path_src, const char
     for (int b = 0; b < nb; b++){
         readXvec<vtype>(input, batch, d, batch_size);
 
-        for(int i = 0; i < batch_size; i++)
+        for(int i = 0; i < batch_size*d; i++){
             batchf[i] = (1.0)*batch[i];
 
         space->pq->compute_codes(batchf, batch_code, batch_size);
@@ -369,7 +369,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
             break;
         case L2SpaceType ::NewPQ:
             l2space = dynamic_cast<SpaceInterface<dist_t> *>(new NewL2SpacePQ(vecdim, M_PQ, 256, path_pq, path_learn));
-            //encode_dataset<dist_t, vtype>(dynamic_cast<NewL2SpacePQ *>(l2space), path_data, path_data_pq, vecdim, vecsize);
+            encode_dataset<dist_t, vtype>(dynamic_cast<NewL2SpacePQ *>(l2space), path_data, path_data_pq, vecdim, vecsize);
             break;
     }
 
@@ -387,21 +387,21 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
         StopW stopw_full = StopW();
 
         cout << "Adding elements\n";
-        ifstream input(path_data, ios::binary);
-        vtype massb[vecdim];
-        float massf[vecdim];
-        unsigned char mass_code[M_PQ];
-        readXvecs<vtype>(input, massb, vecdim);
-        for (int i = 0; i < vecdim; i++)
-            massf[i] = (1.0)*massb[i];
-        dynamic_cast<NewL2SpacePQ *>(appr_alg->space)->pq->compute_code(massf, mass_code);
+//        ifstream input(path_data, ios::binary);
+//        vtype massb[vecdim];
+//        float massf[vecdim];
+//        unsigned char mass_code[M_PQ];
+//        readXvecs<vtype>(input, massb, vecdim);
+//        for (int i = 0; i < vecdim; i++)
+//            massf[i] = (1.0)*massb[i];
+//        dynamic_cast<NewL2SpacePQ *>(appr_alg->space)->pq->compute_code(massf, mass_code);
+//
+//        appr_alg->addPoint((void *) mass_code, j1);
 
-        appr_alg->addPoint((void *) mass_code, j1);
-
-        //ifstream input(PQ ? path_data_pq : path_data, ios::binary);
-        //vtype mass[PQ ? M_PQ : vecdim];
-        //readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
-        //appr_alg->addPoint((void *) mass, j1);
+        ifstream input(PQ ? path_data_pq : path_data, ios::binary);
+        vtype mass[PQ ? M_PQ : vecdim];
+        readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
+        appr_alg->addPoint((void *) mass, j1);
 
         size_t report_every = 100000;
 #pragma omp parallel for num_threads(32)
@@ -412,11 +412,11 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
             unsigned char mass_code[M_PQ];
 #pragma omp critical
             {
-                readXvecs<vtype>(input, massb, vecdim);
-                for (int i = 0; i < vecdim; i++)
-                    massf[i] = (1.0)*massb[i];
-                dynamic_cast<NewL2SpacePQ *>(appr_alg->space)->pq->compute_code(massf, mass_code);
-                //readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
+//                readXvecs<vtype>(input, massb, vecdim);
+//                for (int i = 0; i < vecdim; i++)
+//                    massf[i] = (1.0)*massb[i];
+//                dynamic_cast<NewL2SpacePQ *>(appr_alg->space)->pq->compute_code(massf, mass_code);
+                readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
                 if (++j1 % report_every == 0) {
                     cout << j1 / (0.01 * vecsize) << " %, "
                          << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
