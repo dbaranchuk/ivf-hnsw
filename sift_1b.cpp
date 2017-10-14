@@ -406,10 +406,10 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
         size_t report_every = 100000;
 #pragma omp parallel for num_threads(32)
         for (int i = 1; i < vecsize; i++) {
-            //vtype mass[PQ ? M_PQ : vecdim];
-            vtype massb[vecdim];
-            float massf[vecdim];
-            unsigned char mass_code[M_PQ];
+            vtype mass[PQ ? M_PQ : vecdim];
+//            vtype massb[vecdim];
+//            float massf[vecdim];
+//            unsigned char mass_code[M_PQ];
 #pragma omp critical
             {
 //                readXvecs<vtype>(input, massb, vecdim);
@@ -424,7 +424,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
                     stopw.reset();
                 }
             }
-            appr_alg->addPoint((void *) (mass_code), (size_t) j1);
+            appr_alg->addPoint((void *) (mass), (size_t) j1);
         }
         input.close();
         cout << "Build time:" << 1e-6 * stopw_full.getElapsedTimeMicro() << "  seconds\n";
