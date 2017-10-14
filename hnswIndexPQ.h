@@ -434,21 +434,17 @@ namespace hnswlib {
         float fstdistfunc(uint8_t *code)
         {
             float result = 0.;
-            int dim = code_size >> 2;
+            int dim = code_size >> 3;
             int m = 0;
-            for (int i = 0; i < code_size; i += 4) {
-                result += dis_table[pq->ksub * i + code[i]]
-                          + dis_table[pq->ksub * (i+1) + code[i+1]]
-                          + dis_table[pq->ksub * (i+2) + code[i+2]]
-                          + dis_table[pq->ksub * (i+3) + code[i+3]];
-//                result += dis_table[pq->ksub * m + code[m]]; m++;
-//                result += dis_table[pq->ksub * m + code[m]]; m++;
-//                result += dis_table[pq->ksub * m + code[m]]; m++;
-//                result += dis_table[pq->ksub * m + code[m]]; m++;
-//                result += dis_table[pq->ksub * m + code[m]]; m++;
-//                result += dis_table[pq->ksub * m + code[m]]; m++;
-//                result += dis_table[pq->ksub * m + code[m]]; m++;
-//                result += dis_table[pq->ksub * m + code[m]]; m++;
+            for (int i = 0; i < dim; i++) {
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
             }
             return result;
         }
