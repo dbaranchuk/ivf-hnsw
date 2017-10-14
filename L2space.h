@@ -363,7 +363,7 @@ namespace hnswlib {
         size_t vocab_dim_;
 
         float *query_table;
-
+        float *dst_table;
     public:
         faiss::ProductQuantizer *pq;
 
@@ -401,11 +401,12 @@ namespace hnswlib {
 
                 delete trainvecs_float;
             }
-            pq->compute_sdc_table();
+            compute_distance_table();
         }
 
         virtual ~NewL2SpacePQ()
         {
+            delete dst_table;
             delete query_table;
             delete pq;
         }
@@ -417,6 +418,24 @@ namespace hnswlib {
 
         size_t get_data_size() { return data_size_; }
         size_t get_data_dim() { return m_; }
+
+
+        void compute_distance_table()
+        {
+            dst_table = new float[m_ * k_ * k_];
+            float *centroids = pq->get_centroids();
+
+            for (int m = 0; m < m_; m++) {
+                float *m_centroids = centroids + m*k_*vocab_dim_;
+                for (int i = 0; i < k_; i++){
+                    float *i_centroid = m_centroids + i*vocab_dim_;
+                    for (int j = 0; j < k_; j++) {
+                        float *j_centroid = m_centroids + j*vocab_dim_;
+                        dst_table[k_*(m*k_ + i)+ j] = faiss::fvec_L2sqr (i_centroid, j_centroid, vocab_dim_);
+                    }
+                }
+            }
+        }
 
         float fstdistfunc(const void *x_code, const void *y_code)
         {
