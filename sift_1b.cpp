@@ -308,13 +308,14 @@ static void encode_dataset(NewL2SpacePQ *space, const char *path_src, const char
             fwrite(&m, sizeof(int), 1, fout);
             fwrite(batch_code + i * m, sizeof(unsigned char), m, fout);
         }
-
-        input.close();
-        fclose(fout);
-        delete batch;
-        delete batchf;
-        delete batch_code;
     }
+
+    input.close();
+    fclose(fout);
+
+    delete batch;
+    delete batchf;
+    delete batch_code;
 }
 
 template<typename dist_t, typename vtype>
