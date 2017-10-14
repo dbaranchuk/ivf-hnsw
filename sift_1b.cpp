@@ -327,8 +327,8 @@ static void _hnsw_test(const char *path_codebooks, const char *path_tables,
     const int M_PQ = 16;
     const bool PQ = true;//(path_codebooks && path_tables);
 
-    const char *path_data_pq = "/sata2/dbaranchuk/test_pq.bvecs";
-    const char *path_pq = "/sata2/dbaranchuk/pq16.pq";
+    const char *path_data_pq = "/sata2/dbaranchuk/bigann_test_pq.bvecs";
+    const char *path_pq = "/sata2/dbaranchuk/pq16_1m.pq";
     //const char *path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
     const char *path_learn = "/sata2/dbaranchuk/bigann/bigann_learn.bvecs";
 
