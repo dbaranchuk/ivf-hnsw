@@ -394,6 +394,8 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
         readXvecs<vtype>(input, massb, vecdim);
         for (int i = 0; i < vecdim; i++)
             massf[i] = (1.0)*massb[i];
+        dynamic_cast<NewL2SpacePQ *>(appr_alg->space)->pq->compute_code(massf, mass_code);
+
         appr_alg->addPoint((void *) mass_code, j1);
 
         //ifstream input(PQ ? path_data_pq : path_data, ios::binary);
@@ -413,6 +415,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
                 readXvecs<vtype>(input, massb, vecdim);
                 for (int i = 0; i < vecdim; i++)
                     massf[i] = (1.0)*massb[i];
+                dynamic_cast<NewL2SpacePQ *>(appr_alg->space)->pq->compute_code(massf, mass_code);
                 //readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
                 if (++j1 % report_every == 0) {
                     cout << j1 / (0.01 * vecsize) << " %, "
