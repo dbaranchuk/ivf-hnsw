@@ -265,10 +265,10 @@ template <typename format>
 static void loadXvecs(const char *path, format *mass, const int n, const int d)
 {
     ifstream input(path, ios::binary);
-    std::cout << "HUUUIIII\n";
     for (int i = 0; i < n; i++) {
         int in = 0;
         input.read((char *)&in, sizeof(int));
+        std::cout << in << " " <<  d << std::endl;
         if (in != d) {
             cout << "file error\n";
             exit(1);
