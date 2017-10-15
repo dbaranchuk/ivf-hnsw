@@ -353,7 +353,6 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
     vtype massQ[qsize * vecdim];
     loadXvecs<vtype>(path_q, massQ, qsize, vecdim);
 
-    std::cout << "HUI\n";
     SpaceInterface<dist_t> *l2space;
 
     switch(l2SpaceType) {
