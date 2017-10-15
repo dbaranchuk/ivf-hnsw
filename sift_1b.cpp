@@ -388,35 +388,17 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
         StopW stopw_full = StopW();
 
         cout << "Adding elements\n";
-//        ifstream input(path_data, ios::binary);
-//        vtype massb[vecdim];
-//        float massf[vecdim];
-//        unsigned char mass_code[M_PQ];
-//        readXvecs<vtype>(input, massb, vecdim);
-//        for (int i = 0; i < vecdim; i++)
-//            massf[i] = (1.0)*massb[i];
-//        dynamic_cast<NewL2SpacePQ *>(appr_alg->space)->pq->compute_code(massf, mass_code);
-//
-//        appr_alg->addPoint((void *) mass_code, j1);
-
         ifstream input(PQ ? path_data_pq : path_data, ios::binary);
         vtype mass[PQ ? M_PQ : vecdim];
         readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
         appr_alg->addPoint((void *) mass, j1);
 
         size_t report_every = 1000000;
-#pragma omp parallel for num_threads(32)
+#pragma omp parallel for num_threads(16)
         for (int i = 1; i < vecsize; i++) {
             vtype mass[PQ ? M_PQ : vecdim];
-//            vtype massb[vecdim];
-//            float massf[vecdim];
-//            unsigned char mass_code[M_PQ];
 #pragma omp critical
             {
-//                readXvecs<vtype>(input, massb, vecdim);
-//                for (int i = 0; i < vecdim; i++)
-//                    massf[i] = (1.0)*massb[i];
-//                dynamic_cast<NewL2SpacePQ *>(appr_alg->space)->pq->compute_code(massf, mass_code);
                 readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
                 if (++j1 % report_every == 0) {
                     cout << j1 / (0.01 * vecsize) << " %, "
@@ -471,7 +453,7 @@ void hnsw_test(const char *l2space_type,
                           L2SpaceType::Float,
                           k, vecsize, qsize, vecdim, efConstruction, M, M_PQ);
     else if (!strcmp (l2space_type, "new_pq"))
-        _hnsw_test<float, unsigned char>(path_pq, path_learn,
+        _hnsw_test<float, float>(path_pq, path_learn,
                 path_codebooks, path_tables, path_data, path_q,
                                          path_gt, path_info, path_edges, L2SpaceType::NewPQ,
                                          k, vecsize, qsize, vecdim, efConstruction, M, M_PQ);
