@@ -332,7 +332,6 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
     const bool PQ = (M_PQ != -1);//(path_codebooks && path_tables);
 
     const char *path_data_pq = "/sata2/dbaranchuk/bigann_test_pq.bvecs";
-    //const char *path_learn = "/home/arbabenko/Bigann/deep1B_learn.fvecs";
 
     const std::map<size_t, std::pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
@@ -390,17 +389,21 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
 
         cout << "Adding elements\n";
         ifstream input(PQ ? path_data_pq : path_data, ios::binary);
-        vtype mass[PQ ? M_PQ : vecdim];
-        readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
+        //vtype mass[PQ ? M_PQ : vecdim];
+        //readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
+        unsigned char mass[M_PQ];
+        readXvec<unsigned char>(input, mass, M_PQ);
         appr_alg->addPoint((void *) mass, j1);
 
         size_t report_every = 1000000;
 #pragma omp parallel for num_threads(16)
         for (int i = 1; i < vecsize; i++) {
-            vtype mass[PQ ? M_PQ : vecdim];
+            //vtype mass[PQ ? M_PQ : vecdim];
+            unsigned char mass[M_PQ];
 #pragma omp critical
             {
-                readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
+                //readXvec<vtype>(input, mass, (PQ ? M_PQ : vecdim));
+                readXvec<unsigned char>(input, mass, M_PQ);
                 if (++j1 % report_every == 0) {
                     cout << j1 / (0.01 * vecsize) << " %, "
                          << report_every / (1000.0 * 1e-6 * stopw.getElapsedTimeMicro()) << " kips " << " Mem: "
