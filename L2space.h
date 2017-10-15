@@ -386,7 +386,7 @@ namespace hnswlib {
                 read_PQ(path_pq, pq);
             else {
                 int nt = 65536;
-                std::vector<unsigned char> trainvecs(nt * dim_);
+                std::vector<float> trainvecs(nt * dim_);
 
                 std::ifstream input(path_learn, ios::binary);
                 readXvecs(input, trainvecs.data(), dim_, nt);
