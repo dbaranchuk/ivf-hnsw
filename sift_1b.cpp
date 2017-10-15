@@ -269,7 +269,6 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
         int in = 0;
         input.read((char *)&in, sizeof(int));
         if (in != d) {
-            std::cout << in << " " << d << std::endl;
             cout << "file error\n";
             exit(1);
         }
@@ -284,7 +283,7 @@ static void encode_dataset(NewL2SpacePQ *space, const char *path_src, const char
         std::cout << "Dataset is already encoded" << std::endl;
         return;
     }
-
+    std::cout << "Encoding dataset:\n";
     int m = space->get_data_size();
     size_t batch_size = 1000000;
     size_t nb = n / batch_size;
