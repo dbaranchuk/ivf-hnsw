@@ -55,7 +55,6 @@ void readXvecs(std::ifstream &input, format *mass, const int d, const int n = 1)
     for (int i = 0; i < n; i++) {
         input.read((char *) &in, sizeof(int));
         if (in != d) {
-            std::cout << in << " " << d << std::endl;
             std::cout << "file error\n";
             exit(1);
         }
