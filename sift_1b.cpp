@@ -268,7 +268,6 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
     for (int i = 0; i < n; i++) {
         int in = 0;
         input.read((char *)&in, sizeof(int));
-        std::cout << in << " " <<  d << std::endl;
         if (in != d) {
             cout << "file error\n";
             exit(1);
@@ -331,16 +330,16 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
     //const int M_PQ = 16;
     const bool PQ = (M_PQ != -1);//(path_codebooks && path_tables);
 
-    const char *path_data_pq = "/sata2/dbaranchuk/bigann_test_pq.bvecs";
+    const char *path_data_pq = "/home/dbaranchuk/deep_base_pq.bvecs";
 
-    const std::map<size_t, std::pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
+    //const std::map<size_t, std::pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}}, {200000000, {12, 24}}, {400000000, {8, 16}},
     //                                                 {500000000, {6, 10}}, {900000000, {5, 7}}, {vecsize, {5, 5}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{50000000, {18, 32}}, {100000000, {16, 28}}, {150000000, {14, 24}},
     //                                                 {200000000, {10, 16}}, {vecsize, {6, 8}}};
     //                                                 {800000000, {4, 8}}, {900000000, {4, 6}}, {1000000000, {4, 4}}};
-    //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}},{200000000, {12, 24}},{400000000, {8, 16}},{vecsize, {6, 10}}};
+    const std::map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}},{200000000, {12, 24}},{400000000, {8, 16}},{vecsize, {6, 10}}};
                                                      //{600000000, {5, 10}},{800000000, {5, 10}},{900000000, {5, 7}},{vecsize, {5, 6}}};
     //
     const std::vector<size_t> elements_per_level;// = {100000000, 5000000, 250000, 12500, 625, 32};
