@@ -195,7 +195,7 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
 }
 
 static void check_precomputing(Index *index, const char *path_data, const char *precomputed_idxs,
-                               size_t vecdim, size_t vecsize)
+                               size_t vecdim, size_t ncentroids, size_t vecsize)
 {
     size_t batch_size = 1000000;
     std::ifstream base_input(path_data, ios::binary);
@@ -334,7 +334,7 @@ void hybrid_test(const char *path_centroids,
         index->write(path_index);
     }
 
-    check_precomputing(index, path_data, path_precomputed_idxs, vecdim, vecsize);
+    check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize);
 
     /** Compute centroid norms **/
     std::cout << "Computing centroid norms"<< std::endl;
