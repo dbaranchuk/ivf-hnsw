@@ -218,8 +218,6 @@ static void check_precomputing(Index *index, const char *path_data, const char *
 
             if (gt_mistakes.count(elem) == 0){
                 continue;
-            } else {
-                std::cout << "Element " << elem << " is a gt\n";
             }
 
             float *data = batch.data() + i*vecdim;
@@ -238,7 +236,7 @@ static void check_precomputing(Index *index, const char *path_data, const char *
             }
         }
     }
-    double error = counter * (100.0) / batch_size;
+    double error = counter * (100.0) / gt_mistakes.size();
     std::cout << "Percentage of mistakes due to incorrect centroids: " << error << "%\n";
     idx_input.close();
     base_input.close();
