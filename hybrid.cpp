@@ -10,6 +10,7 @@
 #include "hnswlib.h"
 
 #include <map>
+#include <set>
 #include <unordered_set>
 using namespace std;
 using namespace hnswlib;
