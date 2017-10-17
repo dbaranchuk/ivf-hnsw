@@ -203,23 +203,27 @@ static void check_precomputing(Index *index, const char *path_data, const char *
     std::ifstream idx_input(path_precomputed_idxs, ios::binary);
     std::vector<float> batch(batch_size * vecdim);
     std::vector<idx_t> idx_batch(batch_size);
-    std::vector<idx_t> ids(vecsize);
 
+    int counter = 0;
     for (int b = 0; b < (vecsize / batch_size); b++) {
         readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
         readXvec<float>(base_input, batch.data(), vecdim, batch_size);
-        for (size_t i = 0; i < batch_size; i++)
-            ids[batch_size*b + i] = batch_size*b + i;
 
         printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
 
-        int counter = 0;
         for (int i = 0; i < batch_size; i++) {
-            float min_dist = 10000;
-            int min_centroid = 1000000;
+            int elem = batch_size*b + i;
+            float min_dist = 100000;
+            int min_centroid = 10000000;
+
+            if (gt_mistakes.count(elem) == 0){
+                continue;
+            } else {
+                std::cout << "Element " << elem << " is a gt\n";
+            }
 
             float *data = batch.data() + i*vecdim;
-#pragma omp parallel for num_threads(18)
+        #pragma omp parallel for num_threads(18)
             for (int j = 0; j < ncentroids; j++) {
                 float *centroid = (float *) index->quantizer->getDataByInternalId(j);
                 float dist = faiss::fvec_L2sqr(data, centroid, vecdim);
@@ -229,17 +233,13 @@ static void check_precomputing(Index *index, const char *path_data, const char *
                 }
             }
             if (min_centroid != idx_batch[i]){
-                int elem = batch_size*b + i;
                 std::cout << "Element: " << elem << " True centroid: " << min_centroid << " Precomputed centroid:" << idx_batch[i] << std::endl;
-                if (gt_mistakes.count(elem)){
-                    std::cout << "Element " << elem << " is a gt\n";
-                }
                 counter++;
             }
         }
-        double error = counter * (100.0) / batch_size;
-        std::cout << "Percentage of incorrect centroids: " << error << "%\n";
     }
+    double error = counter * (100.0) / batch_size;
+    std::cout << "Percentage of mistakes due to incorrect centroids: " << error << "%\n";
     idx_input.close();
     base_input.close();
 }
