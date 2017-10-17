@@ -335,8 +335,8 @@ void hybrid_test(const char *path_centroids,
         index->write(path_index);
     }
 
-    //std::cout << "Check precomputed idxs"<< std::endl;
-    //check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize);
+    std::cout << "Check precomputed idxs"<< std::endl;
+    check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize);
 
     /** Compute centroid norms **/
     std::cout << "Computing centroid norms"<< std::endl;
