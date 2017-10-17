@@ -368,13 +368,14 @@ void hybrid_test(const char *path_centroids,
             gt.pop();
         }
 
+        int prev_correct = correct;
         for (int j = 0; j < k; j++){
             if (g.count(results[j]) != 0){
                 correct++;
                 break;
             }
         }
-        if (!correct){
+        if (prev_correct == correct){
             std::cout << i << " " << answers[i].top().second << std::endl;
         }
     }
