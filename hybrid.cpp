@@ -218,6 +218,7 @@ static void check_precomputing(Index *index, const char *path_data, const char *
             float min_centroid = 1000000;
 
             float *data = batch.data() + i*vecdim;
+#pragma omp parallel for num_threads(20)
             for (int j = 0; j < ncentroids; j++) {
                 float *centroid = (float *) index->quantizer->getDataByInternalId(j);
                 float dist = faiss::fvec_L2sqr(data, centroid, vecdim);
@@ -334,7 +335,8 @@ void hybrid_test(const char *path_centroids,
         index->write(path_index);
     }
 
-    check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize);
+    //std::cout << "Check precomputed idxs"<< std::endl;
+    //check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize);
 
     /** Compute centroid norms **/
     std::cout << "Computing centroid norms"<< std::endl;
@@ -371,6 +373,9 @@ void hybrid_test(const char *path_centroids,
                 correct++;
                 break;
             }
+        }
+        if (!correct){
+            std::cout << i << " " << answers[i].top().second << std::endl;
         }
     }
 
