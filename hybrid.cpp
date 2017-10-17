@@ -195,7 +195,7 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
 }
 
 static void check_precomputing(Index *index, const char *path_data, const char *path_precomputed_idxs,
-                               size_t vecdim, size_t ncentroids, size_t vecsize)
+                               size_t vecdim, size_t ncentroids, size_t vecsize, std::set<int> gt_mistakes)
 {
     size_t batch_size = 1000000;
     std::ifstream base_input(path_data, ios::binary);
@@ -215,10 +215,10 @@ static void check_precomputing(Index *index, const char *path_data, const char *
         int counter = 0;
         for (int i = 0; i < batch_size; i++) {
             float min_dist = 10000;
-            float min_centroid = 1000000;
+            int min_centroid = 1000000;
 
             float *data = batch.data() + i*vecdim;
-#pragma omp parallel for num_threads(20)
+#pragma omp parallel for num_threads(18)
             for (int j = 0; j < ncentroids; j++) {
                 float *centroid = (float *) index->quantizer->getDataByInternalId(j);
                 float dist = faiss::fvec_L2sqr(data, centroid, vecdim);
@@ -228,7 +228,11 @@ static void check_precomputing(Index *index, const char *path_data, const char *
                 }
             }
             if (min_centroid != idx_batch[i]){
-                std::cout << batch_size*b + i << " " << min_centroid << " " << idx_batch[i] << std::endl;
+                int elem = batch_size*b + i;
+                std::cout << "Element: " << elem << " True centroid: " << min_centroid << " Precomputed centroid:" << idx_batch[i] << std::endl;
+                if (gt_mistakes.count(elem)){
+                    std::cout << "Element " << elem << " is a gt\n";
+                }
                 counter++;
             }
         }
@@ -334,10 +338,6 @@ void hybrid_test(const char *path_centroids,
         std::cout << "       norm pq to " << path_norm_pq << std::endl;
         index->write(path_index);
     }
-
-    std::cout << "Check precomputed idxs"<< std::endl;
-    check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize);
-
     /** Compute centroid norms **/
     std::cout << "Computing centroid norms"<< std::endl;
     index->compute_centroid_norm_table();
@@ -356,6 +356,7 @@ void hybrid_test(const char *path_centroids,
     index->quantizer->ef_ = efSearch;
 
     /** Search **/
+    std::set<size_t> gt_mistakes;
     StopW stopw = StopW();
     for (int i = 0; i < qsize; i++) {
         index->search(massQ+i*vecdim, k, results);
@@ -377,6 +378,7 @@ void hybrid_test(const char *path_centroids,
         }
         if (prev_correct == correct){
             std::cout << i << " " << answers[i].top().second << std::endl;
+            gt_mistakes.insert(answers[i].top().second);
         }
     }
 
@@ -384,6 +386,10 @@ void hybrid_test(const char *path_centroids,
     float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
     std::cout << "Recall@" << k << ": " << 1.0f*correct / qsize << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
+
+
+    std::cout << "Check precomputed idxs"<< std::endl;
+    check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize, gt_mistakes);
 
     delete index;
     delete massQA;
