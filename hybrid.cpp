@@ -194,7 +194,7 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
     input.close();
 }
 
-static void check_precomputing(Index *index, const char *path_data, const char *precomputed_idxs,
+static void check_precomputing(Index *index, const char *path_data, const char *path_precomputed_idxs,
                                size_t vecdim, size_t ncentroids, size_t vecsize)
 {
     size_t batch_size = 1000000;
