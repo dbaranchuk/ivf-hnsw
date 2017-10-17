@@ -786,15 +786,15 @@ namespace hnswlib {
             FILE *fin = fopen(location.c_str(), "rb");
             int dim;
             const int D = space->get_data_dim();
-            //vtype mass[D];
-            unsigned char mass[D];
+            vtype mass[D];
+            //unsigned char mass[D];
             for (tableint i = 0; i < maxelements_; i++) {
                 fread((int *) &dim, sizeof(int), 1, fin);
                 if (dim != D)
                     cerr << "Wront data dim" << endl;
 
-                //fread(mass, sizeof(vtype), dim, fin);
-                fread(mass, sizeof(unsigned char), dim, fin);
+                fread(mass, sizeof(vtype), dim, fin);
+                //fread(mass, sizeof(unsigned char), dim, fin);
                 memset((char *) get_linklist0(i), 0, getParametersByInternalId(i)[i_size_data_per_element]);
                 memcpy(getDataByInternalId(i), mass, data_size_);
             }
