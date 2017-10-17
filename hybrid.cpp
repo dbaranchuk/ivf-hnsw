@@ -194,6 +194,49 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
     input.close();
 }
 
+static void check_precomputing(Index *index, const char *path_data, const char *precomputed_idxs,
+                               size_t vecdim, size_t vecsize)
+{
+    size_t batch_size = 1000000;
+    std::ifstream base_input(path_data, ios::binary);
+    std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+    std::vector<float> batch(batch_size * vecdim);
+    std::vector<idx_t> idx_batch(batch_size);
+    std::vector<idx_t> ids(vecsize);
+
+    for (int b = 0; b < (vecsize / batch_size); b++) {
+        readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+        readXvec<float>(base_input, batch.data(), vecdim, batch_size);
+        for (size_t i = 0; i < batch_size; i++)
+            ids[batch_size*b + i] = batch_size*b + i;
+
+        printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
+
+        int counter = 0;
+        for (int i = 0; i < batch_size; i++) {
+            float min_dist = 10000;
+            float min_centroid = 1000000;
+
+            float *data = batch.data() + i*vecdim;
+            for (int j = 0; j < ncentroids; j++) {
+                float *centroid = (float *) index->quantizer->getDataByInternalId(j);
+                float dist = faiss::fvec_L2sqr(data, centroid, vecdim);
+                if (dist < min_dist){
+                    min_dist = dist;
+                    min_centroid = j;
+                }
+            }
+            if (min_centroid != idx_batch[i]){
+                std::cout << batch_size*b + i << " " << min_centroid << " " << idx_batch[i] << std::endl;
+                counter++;
+            }
+        }
+        double error = counter * (100.0) / batch_size;
+        std::cout << "Percentage of incorrect centroids: " << error << "%\n";
+    }
+    idx_input.close();
+    base_input.close();
+}
 
 void hybrid_test(const char *path_centroids,
                  const char *path_index, const char *path_precomputed_idxs,
@@ -290,6 +333,9 @@ void hybrid_test(const char *path_centroids,
         std::cout << "       norm pq to " << path_norm_pq << std::endl;
         index->write(path_index);
     }
+
+    check_precomputing(index, path_data, path_precomputed_idxs, vecdim, vecsize);
+
     /** Compute centroid norms **/
     std::cout << "Computing centroid norms"<< std::endl;
     index->compute_centroid_norm_table();
