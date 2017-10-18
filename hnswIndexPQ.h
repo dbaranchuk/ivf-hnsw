@@ -442,7 +442,7 @@ namespace hnswlib {
 
         void compute_centroid_size_table(const char *path_data, const char *path_precomputed_idxs)
         {
-            c_size_table = new idx_t[csize];
+            c_size_table = new size_t[csize];
             for (int i = 0; i < csize; i++)
                 c_size_table[i] = 0;
 
