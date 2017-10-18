@@ -447,7 +447,7 @@ namespace hnswlib {
                 readXvec<float>(base_input, batch.data(), d, batch_size);
 
                 //printf("%.1f %c \n", (100.*b)/1000, '%');
-
+            #pragma omp parallel for num_threads(16)
                 for (int i = 0; i < batch_size; i++)
                      c_size_table[idx_batch[i]]++;
             }

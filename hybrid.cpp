@@ -221,7 +221,7 @@ static void check_precomputing(Index *index, const char *path_data, const char *
             }
 
             float *data = batch.data() + i*vecdim;
-        #pragma omp parallel for num_threads(18)
+        #pragma omp parallel for num_threads(16)
             for (int j = 0; j < ncentroids; j++) {
                 float *centroid = (float *) index->quantizer->getDataByInternalId(j);
                 float dist = faiss::fvec_L2sqr(data, centroid, vecdim);
