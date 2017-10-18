@@ -323,6 +323,10 @@ namespace hnswlib {
             float *residuals = new float [n * d];
             compute_residuals (n, x, residuals, assigned);
 
+            std::cout << assigned[0] << std::endl;
+            for (int i = 0; i < d; i++){
+                std::cout << x[i] << " " << residuals[i] << "\n";
+            }
             printf ("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
                     pq->M, pq->ksub, n, d);
             pq->verbose = true;
@@ -517,9 +521,8 @@ namespace hnswlib {
                      c_size_table[idx_batch[i]]++;
             }
 
-            for (int i = 0; i < 32; i++)
-                std::cout << c_size_table[i] << std::endl;
-
+            //for (int i = 0; i < 32; i++)
+            //    std::cout << c_size_table[i] << std::endl;
             idx_input.close();
             base_input.close();
         }
@@ -598,33 +601,6 @@ namespace hnswlib {
                 }
             }
 		}
-
-
-        void compute_average_distance(const char *path_data) const
-        {
-            double average = 0.0;
-            size_t batch_size = 1000000;
-            std::ifstream base_input(path_data, ios::binary);
-            std::ifstream idx_input("/home/dbaranchuk/precomputed_idxs_999973.ivecs", ios::binary);
-            std::vector<float> batch(batch_size * d);
-            std::vector<idx_t> idx_batch(batch_size);
-
-            for (int b = 0; b < 1000; b++) {
-                readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-                readXvec<float>(base_input, batch.data(), d, batch_size);
-
-                printf("%.1f %c \n", (100.*b)/1000, '%');
-
-                for (int i = 0; i < batch_size; i++) {
-                    float *centroid = (float *) quantizer->getDataByInternalId(idx_batch[i]);
-                    average += faiss::fvec_L2sqr (batch.data() + i*d, centroid, d);
-                }
-            }
-            idx_input.close();
-            base_input.close();
-
-            std::cout << "Average distance " << average / 1000000000 << std::endl;
-        }
 	};
 
 }

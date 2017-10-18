@@ -196,7 +196,8 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
 }
 
 static void check_precomputing(Index *index, const char *path_data, const char *path_precomputed_idxs,
-                               size_t vecdim, size_t ncentroids, size_t vecsize, std::set<size_t> gt_mistakes)
+                               size_t vecdim, size_t ncentroids, size_t vecsize,
+                               std::set<idx_t> gt_mistakes, std::set<idx_t> gt_correct)
 {
     size_t batch_size = 1000000;
     std::ifstream base_input(path_data, ios::binary);
@@ -204,7 +205,9 @@ static void check_precomputing(Index *index, const char *path_data, const char *
     std::vector<float> batch(batch_size * vecdim);
     std::vector<idx_t> idx_batch(batch_size);
 
-    int counter = 0;
+//    int counter = 0;
+    std::vector<float> mistake_dst;
+    std::vector<float> correct_dst;
     for (int b = 0; b < (vecsize / batch_size); b++) {
         readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
         readXvec<float>(base_input, batch.data(), vecdim, batch_size);
@@ -213,33 +216,51 @@ static void check_precomputing(Index *index, const char *path_data, const char *
 
         for (int i = 0; i < batch_size; i++) {
             int elem = batch_size*b + i;
-            float min_dist = 1000000;
-            int min_centroid = 100000000;
+            //float min_dist = 1000000;
+            //int min_centroid = 100000000;
 
-            if (gt_mistakes.count(elem) == 0){
+            if (gt_mistakes.count(elem) == 0 &&
+                gt_correct.count(elem) == 0)
                 continue;
-            }
 
             float *data = batch.data() + i*vecdim;
-        #pragma omp parallel for num_threads(16)
             for (int j = 0; j < ncentroids; j++) {
                 float *centroid = (float *) index->quantizer->getDataByInternalId(j);
                 float dist = faiss::fvec_L2sqr(data, centroid, vecdim);
-                if (dist < min_dist){
-                    min_dist = dist;
-                    min_centroid = j;
-                }
+                //if (dist < min_dist){
+                //    min_dist = dist;
+                //    min_centroid = j;
+                //}
+                if (gt_mistakes.count(elem) != 0)
+                    mistake_dst.push_back(dist);
+                if (gt_correct.count(elem) != 0)
+                    correct_dst.push_back(dist);
             }
-            if (min_centroid != idx_batch[i]){
-                std::cout << "Element: " << elem << " True centroid: " << min_centroid << " Precomputed centroid:" << idx_batch[i] << std::endl;
-                counter++;
-            }
+//            if (min_centroid != idx_batch[i]){
+//                std::cout << "Element: " << elem << " True centroid: " << min_centroid << " Precomputed centroid:" << idx_batch[i] << std::endl;
+//                counter++;
+//            }
         }
     }
-    double error = counter * (100.0) / gt_mistakes.size();
-    std::cout << "Percentage of mistakes due to incorrect centroids: " << error << "%\n";
+
+    std::cout << "Correct distance distribution\n";
+    for (int i = 0; i < correct_dst.size(); i++)
+        std::cout << correct_dst[i] << std::endl;
+
+    std::cout << std::endl << std::endl << std::endl;
+    std::cout << "Mistake distance distribution\n";
+    for (int i = 0; i < mistake_dst.size(); i++)
+        std::cout << mistake_dst[i] << std::endl;
+
     idx_input.close();
     base_input.close();
+}
+
+void compute_query2gt_distances(float *q, std::set<idx_t> mistakes)
+{
+    for (int i = 0; i < 10000; i++){
+
+    }
 }
 
 void hybrid_test(const char *path_centroids,
@@ -371,7 +392,9 @@ void hybrid_test(const char *path_centroids,
     index->quantizer->ef_ = efSearch;
 
     /** Search **/
-    std::set<size_t> gt_mistakes;
+    std::set<idx_t> gt_mistakes;
+    std::set<idx_t> gt_correct;
+
     StopW stopw = StopW();
     for (int i = 0; i < qsize; i++) {
         index->search(massQ+i*vecdim, k, results);
@@ -391,9 +414,12 @@ void hybrid_test(const char *path_centroids,
                 break;
             }
         }
+
         if (prev_correct == correct){
             //std::cout << i << " " << answers[i].top().second << std::endl;
             gt_mistakes.insert(answers[i].top().second);
+        } else {
+            gt_correct.insert(answers[i].top().second);
         }
     }
 
