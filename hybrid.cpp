@@ -338,19 +338,25 @@ void hybrid_test(const char *path_centroids,
         index->write(path_index);
     }
     /** Compute centroid norms **/
-    std::cout << "Computing centroid norms"<< std::endl;
-    index->compute_centroid_norm_table();
+    //std::cout << "Computing centroid norms"<< std::endl;
+    //index->compute_centroid_norm_table();
 
     /** Compute centroid sizes **/
     std::cout << "Computing centroid sizes"<< std::endl;
     index->compute_centroid_size_table(path_data, path_precomputed_idxs);
 
-    /** Compute centroid vars **/
-    std::cout << "Computing centroid vars"<< std::endl;
-    index->compute_centroid_var_table(path_data, path_precomputed_idxs);
 
-    const char *path_index_new = "/home/dbaranchuk/hybrid4M_PQ16_new.index";
-    index->write(path_index_new);
+    /** Compute centroid vars **/
+    //std::cout << "Computing centroid vars"<< std::endl;
+    //index->compute_centroid_var_table(path_data, path_precomputed_idxs);
+
+    //const char *path_index_new = "/home/dbaranchuk/hybrid4M_PQ16_new.index";
+    //index->write(path_index_new);
+
+    /** Update centroids **/
+    std::cout << "Update centroids"<< std::endl;
+    index->update_centroids(path_data, path_precomputed_idxs,
+                            "/home/dbaranchuk/data/updated_centroids4M.fvecs");
 
     /** Parse groundtruth **/
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;

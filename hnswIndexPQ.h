@@ -431,6 +431,54 @@ namespace hnswlib {
             fclose(fin);
         }
 
+        void update_centroids(const char *path_data, const char *path_precomputed_idxs,
+                              const char *path_updated_centroids)
+        {
+            if (!c_size_table){
+                std::cout << "Precompute centroid size table first\n";
+                return;
+            }
+            float *c_e_table = new float*[csize*d];
+
+            for (int i = 0; i < csize*d; i++)
+                c_e_table[i] = 0.0;
+
+            size_t batch_size = 1000000;
+            std::ifstream base_input(path_data, ios::binary);
+            std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+            std::vector<float> batch(batch_size * d);
+            std::vector<idx_t> idx_batch(batch_size);
+
+            for (int b = 0; b < 1000; b++) {
+                readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+                readXvec<float>(base_input, batch.data(), d, batch_size);
+
+                #pragma omp parallel for num_threads(16)
+                for (int i = 0; i < batch_size; i++) {
+                    idx_t key = idx_batch[i];
+                    for (int j = 0; j < d; j++) {
+                        c_e_table[key*d + j] += batch[i*d + j];
+                    }
+                }
+            }
+
+            for (int i = 0; i < csize; i++) {
+                size_t size = c_size_table[i];
+                for (int j = 0; j < d; j++)
+                    c_e_table[i*d + j] /= size;
+            }
+
+            idx_input.close();
+            base_input.close();
+
+            FILE* fout = fopen(path_updated_centroids, "wb");
+            for (int i = 0; i < csize; i++) {
+                fwrite((int *) &d, sizeof(int), 1, fout);
+                fwrite((c_e_table + i*d), sizeof(float), d, fout);
+            }
+            fclose(fout);
+        }
+
         void compute_centroid_norm_table()
         {
             c_norm_table = new float[csize];
