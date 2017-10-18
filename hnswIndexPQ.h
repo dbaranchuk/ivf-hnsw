@@ -323,9 +323,6 @@ namespace hnswlib {
             float *residuals = new float [n * d];
             compute_residuals (n, x, residuals, assigned);
 
-            for (int i = 0; i < n/10; i++)
-                std::cout << assigned[i] << std::endl;
-
             printf ("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
                     pq->M, pq->ksub, n, d);
             pq->verbose = true;
@@ -465,9 +462,7 @@ namespace hnswlib {
                 #pragma omp parallel for num_threads(16)
                 for (int i = 0; i < batch_size; i++) {
                     idx_t key = idx_batch[i];
-                    for (int j = 0; j < d; j++) {
-                        c_e_table[key*d + j] += batch[i*d + j];
-                    }
+                    add_vector(batch + i*d, c_e_table + key*d);
                 }
             }
 
@@ -600,6 +595,12 @@ namespace hnswlib {
                 }
             }
 		}
+
+        void add_vector(const float *x, float *y)
+        {
+            for (int i = 0; i < d; i++)
+                y[i] += x[i];
+        }
 	};
 
 }
