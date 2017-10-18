@@ -438,7 +438,7 @@ namespace hnswlib {
                 std::cout << "Precompute centroid size table first\n";
                 return;
             }
-            float *c_e_table = new float*[csize*d];
+            float *c_e_table = new float[csize*d];
 
             for (int i = 0; i < csize*d; i++)
                 c_e_table[i] = 0.0;
@@ -477,6 +477,7 @@ namespace hnswlib {
                 fwrite((c_e_table + i*d), sizeof(float), d, fout);
             }
             fclose(fout);
+            delete c_e_table;
         }
 
         void compute_centroid_norm_table()
