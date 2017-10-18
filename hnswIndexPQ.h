@@ -462,7 +462,7 @@ namespace hnswlib {
                 #pragma omp parallel for num_threads(16)
                 for (int i = 0; i < batch_size; i++) {
                     idx_t key = idx_batch[i];
-                    add_vector(batch + i*d, c_e_table + key*d);
+                    add_vector(batch.data() + i*d, c_e_table + key*d);
                 }
             }
 
