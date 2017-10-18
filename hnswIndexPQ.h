@@ -323,10 +323,9 @@ namespace hnswlib {
             float *residuals = new float [n * d];
             compute_residuals (n, x, residuals, assigned);
 
-            std::cout << assigned[0] << std::endl;
-            for (int i = 0; i < d; i++){
-                std::cout << x[i] << " " << residuals[i] << "\n";
-            }
+            for (int i = 0; i < n/10; i++)
+                std::cout << assigned[i] << std::endl;
+
             printf ("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
                     pq->M, pq->ksub, n, d);
             pq->verbose = true;
