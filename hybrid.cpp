@@ -213,8 +213,8 @@ static void check_precomputing(Index *index, const char *path_data, const char *
 
         for (int i = 0; i < batch_size; i++) {
             int elem = batch_size*b + i;
-            float min_dist = 100000;
-            int min_centroid = 10000000;
+            float min_dist = 1000000;
+            int min_centroid = 100000000;
 
             if (gt_mistakes.count(elem) == 0){
                 continue;
@@ -236,6 +236,7 @@ static void check_precomputing(Index *index, const char *path_data, const char *
             }
         }
     }
+    std::cout << counter << " " << gt.mistakes.size() << std::endl;
     double error = counter * (100.0) / gt_mistakes.size();
     std::cout << "Percentage of mistakes due to incorrect centroids: " << error << "%\n";
     idx_input.close();
