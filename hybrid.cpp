@@ -349,6 +349,9 @@ void hybrid_test(const char *path_centroids,
     std::cout << "Computing centroid vars"<< std::endl;
     index->compute_centroid_var_table(path_data, path_precomputed_idxs);
 
+    const char *path_index_new = "/home/dbaranchuk/hybrid4M_PQ16_new.index";
+    index->write(path_index_new);
+
     /** Parse groundtruth **/
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
     std::cout << "Parsing gt:\n";
@@ -384,7 +387,7 @@ void hybrid_test(const char *path_centroids,
             }
         }
         if (prev_correct == correct){
-            std::cout << i << " " << answers[i].top().second << std::endl;
+            //std::cout << i << " " << answers[i].top().second << std::endl;
             gt_mistakes.insert(answers[i].top().second);
         }
     }
