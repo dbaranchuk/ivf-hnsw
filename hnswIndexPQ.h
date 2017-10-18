@@ -127,14 +127,14 @@ namespace hnswlib {
             if (norms)
                 delete norms;
 
-            if (c_norm_table)
-                delete c_norm_table;
+            //if (c_norm_table)
+            //    delete c_norm_table;
 
-            if (c_var_table)
-                delete c_var_table;
+            //if (c_var_table)
+            //    delete c_var_table;
 
-            if (c_size_table)
-                delete c_size_table;
+            //if (c_size_table)
+            //    delete c_size_table;
 
             delete pq;
             delete norm_pq;
