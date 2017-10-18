@@ -99,7 +99,7 @@ namespace hnswlib {
         std::vector < std::vector<uint8_t> > codes;
 		std::vector < std::vector<uint8_t> > norm_codes;
 
-        idx_t *c_size_table;
+        size_t *c_size_table;
         float *c_var_table;
         float *c_norm_table;
 		HierarchicalNSW<float, float> *quantizer;
@@ -384,6 +384,11 @@ namespace hnswlib {
                 fwrite(&size, sizeof(size_t), 1, fout);
                 fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
             }
+
+            fwrite(c_norm_table, sizeof(float), csize, fout);
+            fwrite(c_size_table, sizeof(size_t), csize, fout);
+            fwrite(c_var_table, sizeof(float), csize, fout);
+
             fclose(fout);
         }
 
@@ -418,6 +423,11 @@ namespace hnswlib {
                 norm_codes[i].resize(size);
                 fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
             }
+
+            //fread(c_norm_table, sizeof(float), csize, fin);
+            //fread(c_size_table, sizeof(size_t), csize, fin);
+            //fread(c_var_table, sizeof(float), csize, fin);
+
             fclose(fin);
         }
 
