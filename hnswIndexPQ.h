@@ -99,9 +99,9 @@ namespace hnswlib {
         std::vector < std::vector<uint8_t> > codes;
 		std::vector < std::vector<uint8_t> > norm_codes;
 
-        size_t *c_size_table;
-        float *c_var_table;
-        float *c_norm_table;
+        size_t *c_size_table = NULL;
+        float *c_var_table = NULL;
+        float *c_norm_table = NULL;
 		HierarchicalNSW<float, float> *quantizer;
 
     public:
@@ -127,14 +127,14 @@ namespace hnswlib {
             if (norms)
                 delete norms;
 
-            //if (c_norm_table)
-            //    delete c_norm_table;
+            if (c_norm_table)
+                delete c_norm_table;
 
-            //if (c_var_table)
-            //    delete c_var_table;
+            if (c_var_table)
+                delete c_var_table;
 
-            //if (c_size_table)
-            //    delete c_size_table;
+            if (c_size_table)
+                delete c_size_table;
 
             delete pq;
             delete norm_pq;
@@ -161,7 +161,7 @@ namespace hnswlib {
 			quantizer->addPoint((void *) (mass), j1);
 
 			size_t report_every = 100000;
-		#pragma omp parallel for num_threads(16)
+		#pragma omp parallel for num_threads(24)
 			for (int i = 1; i < csize; i++) {
 				float mass[d];
 		#pragma omp critical
@@ -169,6 +169,12 @@ namespace hnswlib {
 					readXvec<float>(input, mass, d);
 					if (++j1 % report_every == 0)
 						std::cout << j1 / (0.01 * csize) << " %\n";
+
+                    if (j1 < 30) {
+                        for (int i = 0; i < d; i++)
+                            std::cout << mass[i] << " ";
+                        std::cout << std::endl;
+                    }
 				}
 				quantizer->addPoint((void *) (mass), (size_t) j1);
 			}
@@ -465,7 +471,7 @@ namespace hnswlib {
             for (int i = 0; i < csize; i++) {
                 size_t size = c_size_table[i];
                 for (int j = 0; j < d; j++)
-                    c_e_table[i*d + j] /= size;
+                    c_e_table[i * d + j] /= size;
             }
 
             idx_input.close();
