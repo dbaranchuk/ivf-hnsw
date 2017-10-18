@@ -236,7 +236,6 @@ static void check_precomputing(Index *index, const char *path_data, const char *
             }
         }
     }
-    std::cout << counter << " " << gt.mistakes.size() << std::endl;
     double error = counter * (100.0) / gt_mistakes.size();
     std::cout << "Percentage of mistakes due to incorrect centroids: " << error << "%\n";
     idx_input.close();

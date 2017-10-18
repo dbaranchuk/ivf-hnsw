@@ -434,7 +434,7 @@ namespace hnswlib {
         {
             c_size_table = new idx_t[csize];
             for (int i = 0; i < csize; i++)
-                c_size_table = 0;
+                c_size_table[i] = 0;
 
             size_t batch_size = 1000000;
             std::ifstream base_input(path_data, ios::binary);
@@ -467,7 +467,7 @@ namespace hnswlib {
             }
             c_var_table = new float[csize];
             for (int i = 0; i < csize; i++)
-                c_var_table = 0.;
+                c_var_table[i] = 0.;
 
             size_t batch_size = 1000000;
             std::ifstream base_input(path_data, ios::binary);
