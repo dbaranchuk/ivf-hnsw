@@ -342,6 +342,14 @@ void hybrid_test(const char *path_centroids,
     std::cout << "Computing centroid norms"<< std::endl;
     index->compute_centroid_norm_table();
 
+    /** Compute centroid sizes **/
+    std::cout << "Computing centroid sizes"<< std::endl;
+    index->compute_centroid_size_table(path_data, path_precomputed_idxs);
+
+    /** Compute centroid vars **/
+    std::cout << "Computing centroid vars"<< std::endl;
+    index->compute_centroid_var_table(path_data, path_precomputed_idxs);
+
     /** Parse groundtruth **/
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
     std::cout << "Parsing gt:\n";
@@ -388,8 +396,8 @@ void hybrid_test(const char *path_centroids,
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
 
 
-    std::cout << "Check precomputed idxs"<< std::endl;
-    check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize, gt_mistakes);
+    //std::cout << "Check precomputed idxs"<< std::endl;
+    //check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize, gt_mistakes);
 
     delete index;
     delete massQA;

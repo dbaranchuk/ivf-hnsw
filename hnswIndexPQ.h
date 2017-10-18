@@ -99,9 +99,10 @@ namespace hnswlib {
         std::vector < std::vector<uint8_t> > codes;
 		std::vector < std::vector<uint8_t> > norm_codes;
 
+        idx_t *c_size_table;
+        float *c_var_table;
         float *c_norm_table;
 		HierarchicalNSW<float, float> *quantizer;
-
 
     public:
 		Index(size_t dim, size_t ncentroids,
@@ -128,6 +129,12 @@ namespace hnswlib {
 
             if (c_norm_table)
                 delete c_norm_table;
+
+            if (c_var_table)
+                delete c_var_table;
+
+            if (c_size_table)
+                delete c_size_table;
 
             delete pq;
             delete norm_pq;
@@ -264,7 +271,6 @@ namespace hnswlib {
                 results[i] = topResults.top().second;
                 topResults.pop();
             }
-
 //            if (topResults.size() < k) {
 //                for (int j = topResults.size(); j < k; j++)
 //                    topResults.emplace(std::make_pair(std::numeric_limits<float>::max(), 0));
@@ -422,6 +428,73 @@ namespace hnswlib {
                 float *c = (float *)quantizer->getDataByInternalId(i);
                 faiss::fvec_norms_L2sqr (c_norm_table+i, c, d, 1);
             }
+        }
+
+        void compute_centroid_size_table(const char *path_data, const char *path_precomputed_idxs)
+        {
+            c_size_table = new idx_t[csize];
+            for (int i = 0; i < csize; i++)
+                c_size_table = 0;
+
+            size_t batch_size = 1000000;
+            std::ifstream base_input(path_data, ios::binary);
+            std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+            std::vector<float> batch(batch_size * d);
+            std::vector<idx_t> idx_batch(batch_size);
+
+            for (int b = 0; b < 1000; b++) {
+                readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+                readXvec<float>(base_input, batch.data(), d, batch_size);
+
+                //printf("%.1f %c \n", (100.*b)/1000, '%');
+
+                for (int i = 0; i < batch_size; i++)
+                     c_size_table[idx_batch[i]]++;
+            }
+
+            for (int i = 0; i < 32; i++)
+                std::cout << c_size_table[i] << std::endl;
+
+            idx_input.close();
+            base_input.close();
+        }
+
+        void compute_centroid_var_table(const char *path_data, const char *path_precomputed_idxs)
+        {
+            if (!c_size_table){
+                std::cout << "Precompute centroid size table first\n";
+                return;
+            }
+            c_var_table = new float[csize];
+            for (int i = 0; i < csize; i++)
+                c_var_table = 0.;
+
+            size_t batch_size = 1000000;
+            std::ifstream base_input(path_data, ios::binary);
+            std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+            std::vector<float> batch(batch_size * d);
+            std::vector<idx_t> idx_batch(batch_size);
+
+            for (int b = 0; b < 1000; b++) {
+                readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+                readXvec<float>(base_input, batch.data(), d, batch_size);
+                //printf("%.1f %c \n", (100.*b)/1000, '%');
+            #pragma omp parallel for num_threads(16)
+                for (int i = 0; i < batch_size; i++) {
+                    idx_t key = idx_batch[i];
+                    float *centroid = (float *) quantizer->getDataByInternalId(key);
+                    c_var_table[key] += faiss::fvec_L2sqr (batch.data() + i*d, centroid, d);
+                }
+            }
+
+            for (int i = 0; i < csize; i++)
+                c_var_table[i] /= c_size_table[i]-1;
+
+            for (int i = 0; i < 32; i++)
+                std::cout << c_var_table[i] << std::endl;
+
+            idx_input.close();
+            base_input.close();
         }
 
 	private:
