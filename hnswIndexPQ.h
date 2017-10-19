@@ -245,10 +245,8 @@ namespace hnswlib {
             if (!dis_table)
                 dis_table = new float [pq->ksub * pq->M];
 
-            std::cout << "HUI\n";
             float *p = new float[65536*d];
             float *r_norms = new float[65536];
-            std::cout << "HUI\n";
             pq->compute_inner_prod_table(x, dis_table);
 
             std::priority_queue<std::pair<float, idx_t>> topResults;
@@ -263,23 +261,19 @@ namespace hnswlib {
                 coarse.pop();
             }
 
-            std::cout << "HUI\n";
             int counter = 0;
             for (int i = 0; i < nprobe; i++){
-                std::cout << "HUI\n";
                 idx_t key = keys[i];
                 std::vector<uint8_t> code = codes[key];
                 std::vector<uint8_t> norm_code = norm_codes[key];
                 float term1 = q_c[i] - c_norm_table[key];
                 int ncodes = norm_code.size();
 
-                std::cout << "HUI\n";
                 norm_pq->decode(norm_code.data(), norms, ncodes);
 
-                std::cout << "HUI\n";
                 pq->decode(code.data(), p, ncodes);
                 faiss::fvec_norms_L2sqr(r_norms, p, d, ncodes);
-                std::cout << "HUI\n";
+
                 for (int j = 0; j < ncodes; j++){
                     if (!topFilters.empty() && (topFilters.top().first < std::abs(q_c[i] - r_norms[j]))) {
                         counter++;
