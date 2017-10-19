@@ -106,7 +106,6 @@ namespace hnswlib {
         float *c_norm_table = NULL;
 		HierarchicalNSW<float, float> *quantizer;
 
-        int counter = 0;
     public:
 		Index(size_t dim, size_t ncentroids,
 			  size_t bytes_per_code, size_t nbits_per_idx):
@@ -239,12 +238,8 @@ namespace hnswlib {
             if (!dis_table)
                 dis_table = new float [pq->ksub * pq->M];
 
-            float *p = new float[65536*d];
-            float *r_norms = new float[65536];
             pq->compute_inner_prod_table(x, dis_table);
-
             std::priority_queue<std::pair<float, idx_t>> topResults;
-            std::priority_queue<std::pair<float, idx_t>> topFilters;
 
             auto coarse = quantizer->searchKnn(x, nprobe);
 
@@ -264,20 +259,12 @@ namespace hnswlib {
 
                 norm_pq->decode(norm_code.data(), norms, ncodes);
 
-                pq->decode(code.data(), p, ncodes);
-                faiss::fvec_norms_L2sqr(r_norms, p, d, ncodes);
-
                 for (int j = 0; j < ncodes; j++){
-                    if (!topFilters.empty() && (topFilters.top().first < std::abs(q_c[i] - r_norms[j]))) {
-                        counter++;
-                        //continue;
-                    }
 
                     float q_r = fstdistfunc(code.data() + j*code_size);
                     float dist = term1 - 2*q_r + norms[j];
                     idx_t label = ids[key][j];
                     topResults.emplace(std::make_pair(-dist, label));
-                    topFilters.emplace(std::make_pair(dist, label));
                 }
                 if (topResults.size() > max_codes)
                     break;
@@ -287,9 +274,6 @@ namespace hnswlib {
                 results[i] = topResults.top().second;
                 topResults.pop();
             }
-
-            delete p;
-            delete r_norms;
 //            if (topResults.size() < k) {
 //                for (int j = topResults.size(); j < k; j++)
 //                    topResults.emplace(std::make_pair(std::numeric_limits<float>::max(), 0));
