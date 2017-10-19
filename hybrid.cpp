@@ -391,6 +391,7 @@ void hybrid_test(const char *path_centroids,
 
     StopW stopw = StopW();
     for (int i = 0; i < qsize; i++) {
+        std::cout << "HUI\n";
         index->search(massQ+i*vecdim, k, results);
 
         std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);

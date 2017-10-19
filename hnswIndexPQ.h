@@ -240,7 +240,7 @@ namespace hnswlib {
 		{
             idx_t keys[nprobe];
             float q_c[nprobe];
-
+            std::cout << "HUI\n";
             if (!norms)
                 norms = new float[65536];
             if (!dis_table)
@@ -248,6 +248,7 @@ namespace hnswlib {
 
             float *p = new float[65536*d];
 
+            std::cout << "HUI\n";
             pq->compute_inner_prod_table(x, dis_table);
 
             std::priority_queue<std::pair<float, idx_t>> topResults;
