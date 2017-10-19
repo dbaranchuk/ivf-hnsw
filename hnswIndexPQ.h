@@ -252,14 +252,7 @@ namespace hnswlib {
             std::priority_queue<std::pair<float, idx_t>> topResults;
             std::priority_queue<std::pair<float, idx_t>> topFilters;
 
-            std::cout << "HUI\n";
             auto coarse = quantizer->searchKnn(x, nprobe);
-            std::cout << "HUI\n";
-            std::cout << "HUI\n";
-            std::cout << "HUI\n";
-            std::cout << "HUI\n";
-            std::cout << "HUI\n";
-
 
             for (int i = nprobe - 1; i >= 0; i--) {
                 auto elem = coarse.top();
@@ -278,9 +271,11 @@ namespace hnswlib {
 
                 norm_pq->decode(norm_code.data(), norms, ncodes);
 
+                std::cout << "HUI1\n";
                 pq->decode(code.data(), p, ncodes);
+                std::cout << "HUI2\n";
                 float *c = (float *) quantizer->getDataByInternalId(key);
-
+                std::cout << "HUI3\n";
                 for (int j = 0; j < ncodes; j++){
                     float p_c = faiss::fvec_L2sqr (p + j*d, c, d);
                     if (topFilters.top().first < std::abs(q_c[i] - p_c))
