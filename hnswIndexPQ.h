@@ -246,6 +246,8 @@ namespace hnswlib {
             if (!dis_table)
                 dis_table = new float [pq->ksub * pq->M];
 
+            float *x = new float[65536*d];
+
             pq->compute_inner_prod_table(x, dis_table);
 
             std::priority_queue<std::pair<float, idx_t>> topResults;
@@ -260,7 +262,6 @@ namespace hnswlib {
                 coarse.pop();
             }
 
-            float *x = new float[ncodes*d];
             int counter = 0;
             for (int i = 0; i < nprobe; i++){
                 idx_t key = keys[i];
