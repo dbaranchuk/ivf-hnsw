@@ -114,7 +114,7 @@ namespace hnswlib {
             codes.reserve(ncentroids);
             norm_codes.reserve(ncentroids);
             ids.reserve(ncentroids);
-            p_c_dst.reserve(ncentroids);
+            //p_c_dst.reserve(ncentroids);
 
             pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
             norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
