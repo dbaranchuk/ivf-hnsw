@@ -100,7 +100,7 @@ namespace hnswlib {
             cout << "Size Mb: " << total_size / (1000 * 1000) << "\n";
             cur_element_count = 0;
 
-            //visitedlistpool = new VisitedListPool(1, maxelements_);
+            visitedlistpool = new VisitedListPool(1, maxelements_);
             visitedsetpool = new VisitedSetPool(1);
             //initializations for special treatment of the first node
             enterpoint_node = -1;
@@ -119,7 +119,7 @@ namespace hnswlib {
             }
             free(linkLists_);
             delete visitedsetpool;
-            //delete visitedlistpool;
+            delete visitedlistpool;
             delete params;
         }
         // Fields
@@ -318,7 +318,8 @@ namespace hnswlib {
                     }
                 }
             }
-            visitedsetpool->releaseVisitedSet(vs);
+            //visitedsetpool->releaseVisitedSet(vs);
+            visitedlistpool->releaseVisitedList(vl);
             return topResults;
         }
 
