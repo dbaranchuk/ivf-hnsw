@@ -304,7 +304,6 @@ namespace hnswlib {
         void mutuallyConnectNewElement(void *datapoint, tableint cur_c,
                                        std::priority_queue<std::pair<dist_t, tableint>> topResults)
         {
-            std::cout << "HUI\n";
             size_t Mmax = params[i_maxM0];
             size_t M = params[i_M];
 
@@ -401,8 +400,10 @@ namespace hnswlib {
 
             tableint currObj = enterpoint_node;
             enterpoint_node = 0;
+            std::cout << "HUI\n";
             std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
                                                                                           efConstruction_);
+            std::cout << "HUI\n";
             mutuallyConnectNewElement(datapoint, cur_c, topResults);
         };
 
