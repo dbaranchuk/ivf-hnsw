@@ -335,7 +335,7 @@ template<typename dist_t, typename vtype>
 static void merge_hnsw(HierarchicalNSW<dist_t, vtype> *hnsw1, HierarchicalNSW<dist_t, vtype> *hnsw2)
 {
     size_t vecsize = hnsw1->maxelements_;
-    size_t M_max = hnsw1->
+    size_t M_max = hnsw1->params[i_maxM];
     for (int i = 0; i < vecsize; i++){
         linklistsizeint *ll1 = hnsw1->get_linklist0(i);
         linklistsizeint *ll2 = hnsw1->get_linklist0(i);
@@ -349,7 +349,7 @@ static void merge_hnsw(HierarchicalNSW<dist_t, vtype> *hnsw1, HierarchicalNSW<di
         for (labeltype link = 0; link < size2; link++)
             links.insert(links2[link]);
 
-        if (links.size() < M_max)
+        //if (links.size() < M_max)
 
 
 

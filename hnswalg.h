@@ -247,13 +247,9 @@ namespace hnswlib {
                     if (!(massVisited[tnum] == currentV)) {
                         massVisited[tnum] = currentV;
 
-                        dist_t dist;
-                        if (q_idx != -1)
-                            dist = space->fstdistfuncST(getDataByInternalId(tnum));
-                        else
-                            dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
-
+                        dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
                         dist_calc++;
+
                         if (topResults.top().first > dist || topResults.size() < ef) {
                             candidateSet.emplace(-dist, tnum);
 
@@ -329,7 +325,6 @@ namespace hnswlib {
                 if (*ll_cur) {
                     cout << *ll_cur << "\n";
                     cout << (int) elementLevels[cur_c] << "\n";
-                    cout << level << "\n";
                     throw runtime_error("Should be blank");
                 }
                 *ll_cur = rez.size();
@@ -338,8 +333,6 @@ namespace hnswlib {
                 for (int idx = 0; idx < rez.size(); idx++) {
                     if (data[idx])
                         throw runtime_error("Should be blank");
-                    if (level > elementLevels[rez[idx]])
-                        throw runtime_error("Bad level");
                     data[idx] = rez[idx];
                 }
             }
@@ -347,7 +340,7 @@ namespace hnswlib {
                 if (rez[idx] == cur_c)
                     throw runtime_error("Connection to the same element");
 
-                linklistsizeint *ll_other = get_linklist0(rez[idx];
+                linklistsizeint *ll_other = get_linklist0(rez[idx]);
                 linklistsizeint sz_link_list_other = *ll_other;
 
                 if (sz_link_list_other > curMmax || sz_link_list_other < 0)
@@ -366,7 +359,8 @@ namespace hnswlib {
                     candidates.emplace(d_max, cur_c);
 
                     for (int j = 0; j < sz_link_list_other; j++)
-                        candidates.emplace(space->fstdistfunc(getDataByInternalId(data[j]), getDataByInternalId(rez[idx])), data[j]);
+                        candidates.emplace(space->fstdistfunc(getDataByInternalId(data[j]),
+                                                              getDataByInternalId(rez[idx])), data[j]);
 
                     getNeighborsByHeuristic(candidates, curMmax);
 
@@ -378,7 +372,6 @@ namespace hnswlib {
                     }
                     *ll_other = indx;
                 }
-
             }
         }
 
@@ -447,7 +440,7 @@ namespace hnswlib {
             streampos position;
 
             writeBinaryPOD(output, enterpoint_node);
-            output.write((char *) params, 8 sizeof(size_t));
+            output.write((char *) params, 8 * sizeof(size_t));
             output.close();
         }
 
