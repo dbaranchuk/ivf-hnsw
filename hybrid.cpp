@@ -214,6 +214,7 @@ static void check_precomputing(Index *index, const char *path_data, const char *
 
         printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
 
+#pragma omp parallel for num_threads(16)
         for (int i = 0; i < batch_size; i++) {
             int elem = batch_size*b + i;
             //float min_dist = 1000000;
