@@ -297,7 +297,7 @@ namespace hnswlib {
         void mutuallyConnectNewElement(void *datapoint, tableint cur_c,
                                        std::priority_queue<std::pair<dist_t, tableint>> topResults)
         {
-            size_t Mmax = params[i_maxM0];
+            size_t Mmax = params[i_maxM];
             size_t M = params[i_M];
 
             getNeighborsByHeuristic(topResults, M);
