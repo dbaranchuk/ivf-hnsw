@@ -249,7 +249,6 @@ namespace hnswlib {
         searchBaseLayerST(tableint ep, void *datapoint, size_t ef, int q_idx = -1)
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
-            std::cout << "HUI\n";
             //VisitedSet *vs = visitedsetpool->getFreeVisitedSet();
             vl_type *massVisited = vl->mass;
             vl_type currentV = vl->curV;
@@ -257,10 +256,12 @@ namespace hnswlib {
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> candidateSet;
 
             dist_t dist;
+            std::cout << "HUI\n";
             if (q_idx != -1)
                 dist = space->fstdistfuncST(getDataByInternalId(ep));
             else
                 dist = space->fstdistfunc(datapoint, getDataByInternalId(ep));
+            std::cout << "HUI\n";
 
             dist_calc++;
             topResults.emplace(dist, ep);
