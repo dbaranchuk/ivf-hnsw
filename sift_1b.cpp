@@ -394,7 +394,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
         appr_alg->addPoint((void *) mass, j1);
 
         size_t report_every = 1000000;
-#pragma omp parallel for num_threads(20)
+#pragma omp parallel for num_threads(32)
         for (int i = 1; i < vecsize; i++) {
             vtype mass[PQ ? M_PQ : vecdim];
             //unsigned char mass[M_PQ];
