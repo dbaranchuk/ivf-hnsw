@@ -304,17 +304,18 @@ namespace hnswlib {
         void mutuallyConnectNewElement(void *datapoint, tableint cur_c,
                                        std::priority_queue<std::pair<dist_t, tableint>> topResults)
         {
-            size_t curMmax = params[i_maxM0];
-            size_t curM = params[i_M];
+            std::cout << "HUI\n";
+            size_t Mmax = params[i_maxM0];
+            size_t M = params[i_M];
 
-            getNeighborsByHeuristic(topResults, curM);
+            getNeighborsByHeuristic(topResults, M);
 
-            while (topResults.size() > curM) {
+            while (topResults.size() > M) {
                 throw exception();
                 topResults.pop();
             }
 
-            vector<tableint> rez(curM);
+            vector<tableint> rez(M);
             while (topResults.size() > 0) {
                 rez.push_back(topResults.top().second);
                 topResults.pop();
@@ -343,10 +344,10 @@ namespace hnswlib {
                 linklistsizeint *ll_other = get_linklist0(rez[idx]);
                 linklistsizeint sz_link_list_other = *ll_other;
 
-                if (sz_link_list_other > curMmax || sz_link_list_other < 0)
+                if (sz_link_list_other > Mmax || sz_link_list_other < 0)
                     throw runtime_error("Bad sz_link_list_other");
 
-                if (sz_link_list_other < curMmax) {
+                if (sz_link_list_other < Mmax) {
                     tableint *data = (tableint *) (ll_other + 1);
                     data[sz_link_list_other] = cur_c;
                     *ll_other = sz_link_list_other + 1;
@@ -362,7 +363,7 @@ namespace hnswlib {
                         candidates.emplace(space->fstdistfunc(getDataByInternalId(data[j]),
                                                               getDataByInternalId(rez[idx])), data[j]);
 
-                    getNeighborsByHeuristic(candidates, curMmax);
+                    getNeighborsByHeuristic(candidates, Mmax);
 
                     int indx = 0;
                     while (candidates.size() > 0) {
