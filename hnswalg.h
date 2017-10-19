@@ -144,18 +144,22 @@ namespace hnswlib {
         {
             VisitedSet *vs = visitedsetpool->getFreeVisitedSet();
 
+            std::cout << "HUI\n";
             std::priority_queue<std::pair<dist_t, tableint  >> topResults;
             std::priority_queue<std::pair<dist_t, tableint >> candidateSet;
             dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(ep));
 
+            std::cout << "HUI\n";
             topResults.emplace(dist, ep);
             candidateSet.emplace(-dist, ep);
             vs->insert(ep);
 
+            std::cout << "HUI\n";
+
             dist_t lowerBound = dist;
 
             while (!candidateSet.empty()) {
-
+                std::cout << "HUI\n";
                 std::pair<dist_t, tableint> curr_el_pair = candidateSet.top();
 
                 if ((-curr_el_pair.first) > lowerBound) {
