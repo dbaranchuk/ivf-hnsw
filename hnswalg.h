@@ -250,6 +250,7 @@ namespace hnswlib {
         {
             std::cout << "HUI\n";
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
+            std::cout << "HUI\n";
             //VisitedSet *vs = visitedsetpool->getFreeVisitedSet();
             vl_type *massVisited = vl->mass;
             vl_type currentV = vl->curV;
@@ -265,7 +266,6 @@ namespace hnswlib {
             dist_calc++;
             topResults.emplace(dist, ep);
             candidateSet.emplace(-dist, ep);
-            std::cout << "HUI\n";
             massVisited[ep] = currentV;
 //            vs->insert(ep);
             dist_t lowerBound = dist;
