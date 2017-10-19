@@ -274,7 +274,7 @@ namespace hnswlib {
 
                 for (int j = 0; j < ncodes; j++){
                     float p_c = faiss::fvec_L2sqr (x + j*d, c, d);
-                    if (topResults.top().first < std::abs(q_c[i] - p_c))
+                    if (-topResults.top().first < std::abs(q_c[i] - p_c))
                         counter++;
 
                     float q_r = fstdistfunc(code.data() + j*code_size);
