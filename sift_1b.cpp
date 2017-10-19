@@ -332,54 +332,6 @@ static void encode_dataset(NewL2SpacePQ *space, const char *path_src, const char
 
 
 template<typename dist_t, typename vtype>
-static void merge_hnsw(HierarchicalNSW<dist_t, vtype> *hnsw1, const HierarchicalNSW<dist_t, vtype> *hnsw2)
-{
-    size_t vecsize = hnsw1->maxelements_;
-    size_t M_max = hnsw1->params[i_maxM];
-    for (int i = 0; i < vecsize; i++){
-        linklistsizeint *ll1 = hnsw1->get_linklist0(i);
-        linklistsizeint *ll2 = hnsw2->get_linklist0(i);
-        size_t size1 = *ll1;
-        size_t size2 = *ll2;
-        labeltype *links1 = (labeltype *)(ll1 + 1);
-        labeltype *links2 = (labeltype *)(ll2 + 1);
-        std::unordered_set<labeltype> links;
-        for (labeltype link = 0; link < size1; link++)
-            links.insert(links1[link]);
-        for (labeltype link = 0; link < size2; link++)
-            links.insert(links2[link]);
-
-        if (links.size() <= M_max){
-            for (labeltype link : links)
-                *(links1++) = link;
-            links1 -= links.size();
-        } else {
-            std::priority_queue<std::pair<dist_t, tableint>> topResults;
-            float *data = (float *) hnsw1->getDataByInternalId(i);
-            for (labeltype link : links){
-                float *point = (float *) hnsw1->getDataByInternalId(link);
-                dist_t dist = hnsw1->space->fstdistfunc((void *)data, point);
-                topResults.emplace(std::make_pair(dist, link));
-            }
-            hnsw1->getNeighborsByHeuristic(topResults, M_max);
-
-            while (topResults.size() != 0) {
-                labeltype link = topResults.top().second;
-                topResults.pop();
-                *(links1++) = link;
-            }
-            int indx = 0;
-            while (topResults.size() > 0) {
-                *(links1 + indx++) = topResults.top().second;
-                topResults.pop();
-            }
-        }
-    }
-}
-
-
-
-template<typename dist_t, typename vtype>
 static void _hnsw_test(const char *path_pq, const char *path_learn,
                        const char *path_codebooks, const char *path_tables,
                        const char *path_data, const char *path_q,

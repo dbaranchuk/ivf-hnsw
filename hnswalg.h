@@ -517,5 +517,48 @@ namespace hnswlib {
                 fread((tableint *)data, sizeof(tableint), size, fin);
             }
         }
+
+        void merge(const HierarchicalNSW<dist_t, vtype> *hnsw)
+        {
+            for (int i = 0; i < maxelements_; i++){
+                linklistsizeint *ll1 = get_linklist0(i);
+                linklistsizeint *ll2 = hnsw->get_linklist0(i);
+                size_t size1 = *ll1;
+                size_t size2 = *ll2;
+                labeltype *links1 = (labeltype *)(ll1 + 1);
+                labeltype *links2 = (labeltype *)(ll2 + 1);
+                std::unordered_set<labeltype> links;
+                for (labeltype link = 0; link < size1; link++)
+                    links.insert(links1[link]);
+                for (labeltype link = 0; link < size2; link++)
+                    links.insert(links2[link]);
+
+                if (links.size() <= params[i_maxM]){
+                    for (labeltype link : links)
+                        *(links1++) = link;
+                    links1 -= links.size();
+                } else {
+                    std::priority_queue<std::pair<dist_t, tableint>> topResults;
+                    float *data = (float *) getDataByInternalId(i);
+                    for (labeltype link : links){
+                        float *point = (float *) getDataByInternalId(link);
+                        dist_t dist = space->fstdistfunc((void *)data, point);
+                        topResults.emplace(std::make_pair(dist, link));
+                    }
+                    getNeighborsByHeuristic(topResults, params[i_maxM]);
+
+                    while (topResults.size() != 0) {
+                        labeltype link = topResults.top().second;
+                        topResults.pop();
+                        *(links1++) = link;
+                    }
+                    int indx = 0;
+                    while (topResults.size() > 0) {
+                        *(links1 + indx++) = topResults.top().second;
+                        topResults.pop();
+                    }
+                }
+            }
+        }
     };
 }
