@@ -317,10 +317,8 @@ namespace hnswlib {
                     }
                 }
             }
-            std::cout << "HUI\n";
             //visitedsetpool->releaseVisitedSet(vs);
             visitedlistpool->releaseVisitedList(vl);
-            std::cout << "HUI\n";
             return topResults;
         }
 
@@ -602,10 +600,12 @@ namespace hnswlib {
             }
             enterpoint0 = currObj;
 
+            std::cout << "HUI\n";
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> tmpTopResults = searchBaseLayerST(
                     currObj, query_data, ef_, q_idx);
             std::priority_queue<std::pair<dist_t, labeltype >> results;
 
+            std::cout << "HUI\n";
             // Remove clusters as answers
             std::priority_queue<std::pair<dist_t, tableint >> topResults;
             while (tmpTopResults.size() > 0) {
@@ -613,7 +613,7 @@ namespace hnswlib {
                 topResults.push(rez);
                 tmpTopResults.pop();
             }
-
+            std::cout << "HUI\n";
             while (topResults.size() > k)
                 topResults.pop();
 
