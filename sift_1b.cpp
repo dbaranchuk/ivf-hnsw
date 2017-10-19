@@ -327,8 +327,8 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
                        const int k, const int vecsize, const int qsize,
                        const int vecdim, const int efConstruction, const int M, const int M_PQ)
 {
-    const int M_PQ = -1;
-    const bool PQ = (M_PQ != -1);//(path_codebooks && path_tables);
+    const int M_PQ = 16;
+    const bool PQ = false; //(M_PQ != -1);//(path_codebooks && path_tables);
 
     const char *path_data_pq = "/home/dbaranchuk/deep_base_pq.bvecs";
 
