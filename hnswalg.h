@@ -70,30 +70,24 @@ namespace hnswlib {
             data_size_ = s->get_data_size();
 
             efConstruction_ = efConstruction;
-            params_num = 10;
-            params = new size_t[params_num];
+
             for (auto p : M_map){
-                params[i_threshold] = p.first;
-                params[i_maxelements] = i ? p.first - params[(i-1)*params_num + i_threshold] : p.first;
+                params[i_maxelements] = p.first;
                 params[i_M] = p.second.first;
                 params[i_maxM] = p.second.second;
-                params[i_maxM0] = p.second.second;//(i == parts_num-1) ? p.second : 2 * p.second;
-                params[i_size_links_level0] = params[i*params_num + i_maxM0]* sizeof(tableint) + sizeof(linklistsizeint);
-                params[i_size_data_per_element] = params[i*params_num + i_size_links_level0] + data_size_;
-                params[i_offsetData] = params[i*params_num + i_size_links_level0];
-                params[i_size_links_per_element] = params[i*params_num + i_maxM] * sizeof(tableint) + sizeof(linklistsizeint);
+                params[i_size_links_level0] = params[i_maxM]* sizeof(tableint) + sizeof(linklistsizeint);
+                params[i_size_data_per_element] = params[i_size_links_level0] + data_size_;
+                params[i_offsetData] = params[i_size_links_level0];
                 params[i_partOffset] = total_size;
 
                 total_size = params[i_maxelements] * params[i_size_data_per_element];
-                maxelements_ = params[i_maxelements];
+                maxelements_ = p.first;
             }
             elementLevels = vector<char>(maxelements_);
             for (int i = 0; i < maxelements_; i++)
                 elementLevels[i] = 0;
 
-            std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
             data_level0_memory_ = (char *) malloc(total_size);
-            std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
 
             cout << "Size Mb: " << total_size / (1000 * 1000) << "\n";
             cur_element_count = 0;
@@ -107,24 +101,16 @@ namespace hnswlib {
         ~HierarchicalNSW()
         {
             free(data_level0_memory_);
-            for (tableint i = 0; i < cur_element_count; i++) {
-                if (elementLevels[i] > 0)
-                    free(linkLists_[i]);
-            }
-            free(linkLists_);
+
             delete visitedsetpool;
             delete visitedlistpool;
-            delete params;
         }
         // Fields
         SpaceInterface<dist_t> *space;
 
         size_t maxelements_;
         size_t cur_element_count;
-
         size_t efConstruction_;
-        double mult_;
-        int maxlevel_;
 
         VisitedListPool *visitedlistpool;
         VisitedSetPool *visitedsetpool;
@@ -140,13 +126,10 @@ namespace hnswlib {
 
         vector<char> elementLevels;
 
-        size_t *params;
-        size_t parts_num;
-        size_t params_num;
+        size_t params[8];
 
         size_t data_size_;
         size_t total_size;
-        std::default_random_engine generator = std::default_random_engine(100);
 
         inline char *getDataByInternalId(tableint internal_id) const {
             return (data_level0_memory_ + params[i_partOffset] +
@@ -157,7 +140,7 @@ namespace hnswlib {
             return (linklistsizeint *) (data_level0_memory_ + params[i_partOffset] + internal_id * params[i_size_data_per_element]);
         };
 
-        std::priority_queue<std::pair<dist_t, tableint  >> searchBaseLayer(tableint ep, void *datapoint, int level, int ef)
+        std::priority_queue<std::pair<dist_t, tableint  >> searchBaseLayer(tableint ep, void *datapoint, int ef)
         {
             VisitedSet *vs = visitedsetpool->getFreeVisitedSet();
 
@@ -323,7 +306,7 @@ namespace hnswlib {
         }
 
         void mutuallyConnectNewElement(void *datapoint, tableint cur_c,
-                                       std::priority_queue<std::pair<dist_t, tableint>> topResults, int level)
+                                       std::priority_queue<std::pair<dist_t, tableint>> topResults)
         {
             size_t curMmax = params[i_maxM0];
             size_t curM = params[i_M];
@@ -424,22 +407,18 @@ namespace hnswlib {
 
             tableint currObj = enterpoint_node;
             enterpoint_node = 0;
-            size_t level = elementLevels[cur_c];
             std::priority_queue<std::pair<dist_t, tableint>> topResults = searchBaseLayer(currObj, datapoint,
-                                                                                          level, efConstruction_);
-            mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
+                                                                                          efConstruction_);
+            mutuallyConnectNewElement(datapoint, cur_c, topResults);
         };
 
         std::priority_queue<std::pair<dist_t, labeltype >> searchKnn(void *query_data, int k)
         {
-            tableint currObj = enterpoint_node;
             dist_t curdist = space->fstdistfunc(query_data, getDataByInternalId(enterpoint_node));
-
             dist_calc++;
-            enterpoint0 = currObj;
 
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> tmpTopResults = searchBaseLayerST(
-                    currObj, query_data, ef_, q_idx);
+                    enterpoint_node, query_data, ef_);
             std::priority_queue<std::pair<dist_t, labeltype >> results;
 
             // Remove clusters as answers
@@ -468,9 +447,7 @@ namespace hnswlib {
             streampos position;
 
             writeBinaryPOD(output, enterpoint_node);
-            writeBinaryPOD(output, parts_num);
-            writeBinaryPOD(output, params_num);
-            output.write((char *) params, parts_num * params_num * sizeof(size_t));
+            output.write((char *) params, 8 sizeof(size_t));
             output.close();
         }
 
@@ -500,12 +477,8 @@ namespace hnswlib {
             data_size_ = s->get_data_size();
 
             readBinaryPOD(input, enterpoint_node);
-            readBinaryPOD(input, parts_num);
-            readBinaryPOD(input, params_num);
-            cout << enterpoint_node << " " << parts_num << " " << params_num << endl;
-            //enterpoint_node  = 0;
-            params = new size_t[params_num*parts_num];
-            input.read((char *) params, parts_num*params_num*sizeof(size_t));
+
+            input.read((char *) params, 8*sizeof(size_t));
 
             efConstruction_ = 0;
             maxelements_ = params[i_maxelements];
@@ -538,7 +511,7 @@ namespace hnswlib {
 
                 fread(mass, sizeof(vtype), dim, fin);
                 //fread(mass, sizeof(unsigned char), dim, fin);
-                memset((char *) get_linklist0(i), 0, getParametersByInternalId(i)[i_size_data_per_element]);
+                memset((char *) get_linklist0(i), 0, params[i_size_data_per_element]);
                 memcpy(getDataByInternalId(i), mass, data_size_);
             }
 
