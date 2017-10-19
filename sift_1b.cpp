@@ -160,12 +160,44 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
 	}
 }
 
+static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<int> &appr_alg, size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k) {
+    size_t correct = 0;
+    size_t total = 0;
+    //uncomment to test in parallel mode:
+    //#pragma omp parallel for
+    for (int i = 0; i < qsize; i++) {
+
+        std::priority_queue< std::pair< int, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k);
+        std::priority_queue< std::pair< int, labeltype >> gt(answers[i]);
+        unordered_set <labeltype> g;
+        total += gt.size();
+
+        while (gt.size()) {
+            g.insert(gt.top().second);
+            gt.pop();
+        }
+
+        while (result.size()) {
+            if (g.find(result.top().second) != g.end()) {
+
+                correct++;
+            }
+            else {
+            }
+            result.pop();
+        }
+
+    }
+    return 1.0f*correct / total;
+}
+
 template <typename dist_t, typename vtype>
 static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vtype> &appr_alg,
                          size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
                          size_t k, bool pq = false)
 {
 	size_t correct = 0;
+    size_t total = 0;
 
     float massfQ[qsize * vecdim];
     for (int i = 0; i < qsize * vecdim; i++)
@@ -191,17 +223,30 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
                                                      appr_alg.getDataByInternalId(appr_alg.enterpoint0));
         appr_alg.nev9zka += dist2gt / qsize;
 
-		while (gt.size()) {
-			g.insert(gt.top().second);
-			gt.pop();
-		}
+//		while (gt.size()) {
+//			g.insert(gt.top().second);
+//			gt.pop();
+//		}
+//
+//		while (result.size()) {
+//			if (g.find(result.top().second) != g.end())
+//				correct++;
+//			result.pop();
+//		}
+        total += gt.size();
 
-		while (result.size()) {
-			if (g.find(result.top().second) != g.end())
-				correct++;
-			result.pop();
-		}
-	}
+        while (gt.size()) {
+            g.insert(gt.top().second);
+            gt.pop();
+        }
+
+        while (result.size()) {
+            if (g.find(result.top().second) != g.end())
+                correct++;
+            result.pop();
+        }
+
+    }
 	return 1.0f*correct / qsize;
 }
 
@@ -344,7 +389,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
     const std::vector<size_t> elements_per_level;// = {100000000, 5000000, 250000, 12500, 625, 32};
     //const map<size_t, pair<size_t, size_t>> M_map = {{5263157, {16, 32}}, {vecsize, {M, 2*M}}};
     cout << "Loading GT:\n";
-    const int gt_dim = 1;
+    const int gt_dim = 1000;
     unsigned int *massQA = new unsigned int[qsize * gt_dim];
     loadXvecs<unsigned int>(path_gt, massQA, qsize, gt_dim);
 
@@ -374,7 +419,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
 
     HierarchicalNSW<dist_t, vtype> *appr_alg;
     if (exists_test(path_info) && exists_test(path_edges)) {
-        appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, path_info, path_data_pq, path_edges);
+        appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, path_info, path_data, path_edges);
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
@@ -425,7 +470,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
     vector<std::priority_queue< std::pair<dist_t, labeltype >>> answers;
 
     cout << "Parsing gt:\n";
-    get_gt<dist_t>(massQA, qsize, answers, gt_dim);
+    get_gt<dist_t>(massQA, qsize, answers, gt_dim, k);
 
     cout << "Loaded gt\n";
     test_vs_recall<dist_t, vtype>(massQ, qsize, *appr_alg, vecdim, answers, k, PQ);
