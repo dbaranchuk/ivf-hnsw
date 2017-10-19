@@ -15,7 +15,6 @@ class VisitedList {
 public:
 	vl_type curV;
 	vl_type *mass;
-    dense_hash_set<unsigned int> *vl_set;
 	unsigned int numelements;
 
 	VisitedList(unsigned int numelements1)
@@ -103,16 +102,20 @@ public:
 	{
 		VisitedList *rez;
 		{
+			std::cout << "HUI\n";
 			unique_lock<mutex> lock(poolguard);
 			if (pool.size() > 0) {
 				rez = pool.front();
 				pool.pop_front();
 			}
 			else {
+				std::cout << numelements << std::endl
 				rez = new VisitedList(numelements);
 			}
 		}
+		std::cout << "HUI\n";
 		rez->reset();
+		std::cout << "HUI\n";
 		return rez;
 	};
 	void releaseVisitedList(VisitedList *vl)
