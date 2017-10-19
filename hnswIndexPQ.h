@@ -268,7 +268,7 @@ namespace hnswlib {
 
                 norm_pq->decode(norm_code.data(), norms, ncodes);
 
-                float x = new float[ncodes*d];
+                float *x = new float[ncodes*d];
                 pq->decode(code.data(), x, ncodes);
                 float *c = (float *) quantizer->getDataByInternalId(key);
 
