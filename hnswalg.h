@@ -256,12 +256,10 @@ namespace hnswlib {
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> candidateSet;
 
             dist_t dist;
-            std::cout << "HUI\n";
             if (q_idx != -1)
                 dist = space->fstdistfuncST(getDataByInternalId(ep));
             else
                 dist = space->fstdistfunc(datapoint, getDataByInternalId(ep));
-            std::cout << "HUI\n";
 
             dist_calc++;
             topResults.emplace(dist, ep);
@@ -319,8 +317,10 @@ namespace hnswlib {
                     }
                 }
             }
+            std::cout << "HUI\n";
             //visitedsetpool->releaseVisitedSet(vs);
             visitedlistpool->releaseVisitedList(vl);
+            std::cout << "HUI\n";
             return topResults;
         }
 
