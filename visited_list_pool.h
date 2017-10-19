@@ -113,7 +113,6 @@ public:
 				rez = new VisitedList(numelements);
 			}
 		}
-		std::cout << "HUI\n";
 		rez->reset();
 		return rez;
 	};

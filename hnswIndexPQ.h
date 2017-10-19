@@ -253,7 +253,6 @@ namespace hnswlib {
             std::priority_queue<std::pair<float, idx_t>> topFilters;
 
             auto coarse = quantizer->searchKnn(x, nprobe);
-            std::cout << "HUI\n";
 
             for (int i = nprobe - 1; i >= 0; i--) {
                 auto elem = coarse.top();

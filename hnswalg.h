@@ -265,11 +265,11 @@ namespace hnswlib {
             dist_calc++;
             topResults.emplace(dist, ep);
             candidateSet.emplace(-dist, ep);
+            std::cout << "HUI\n";
             massVisited[ep] = currentV;
 //            vs->insert(ep);
             dist_t lowerBound = dist;
 
-            std::cout << "HUI\n";
             while (!candidateSet.empty()) {
                 hops0 += 1.0 / 10000;
                 std::pair<dist_t, tableint> curr_el_pair = candidateSet.top();
