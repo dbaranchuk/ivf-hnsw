@@ -98,7 +98,7 @@ namespace hnswlib {
         std::vector < std::vector<idx_t> > ids;
         std::vector < std::vector<uint8_t> > codes;
         std::vector < std::vector<uint8_t> > norm_codes;
-        std::vector < std::vector<float> > p_c_dst;
+        //std::vector < std::vector<float> > p_c_dst;
 
         size_t *c_size_table = NULL;
         float *c_var_table = NULL;

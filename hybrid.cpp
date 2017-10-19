@@ -256,12 +256,6 @@ static void check_precomputing(Index *index, const char *path_data, const char *
     base_input.close();
 }
 
-void compute_query2gt_distances(float *q, std::set<idx_t> mistakes)
-{
-    for (int i = 0; i < 10000; i++){
-
-    }
-}
 
 void hybrid_test(const char *path_centroids,
                  const char *path_index, const char *path_precomputed_idxs,
@@ -392,8 +386,8 @@ void hybrid_test(const char *path_centroids,
     index->quantizer->ef_ = efSearch;
 
     /** Search **/
-    std::set<idx_t> gt_mistakes;
-    std::set<idx_t> gt_correct;
+//    std::set<idx_t> gt_mistakes;
+//    std::set<idx_t> gt_correct;
 
     StopW stopw = StopW();
     for (int i = 0; i < qsize; i++) {
@@ -407,7 +401,7 @@ void hybrid_test(const char *path_centroids,
             gt.pop();
         }
 
-        int prev_correct = correct;
+        i//nt prev_correct = correct;
         for (int j = 0; j < k; j++){
             if (g.count(results[j]) != 0){
                 correct++;
@@ -415,12 +409,12 @@ void hybrid_test(const char *path_centroids,
             }
         }
 
-        if (prev_correct == correct){
-            //std::cout << i << " " << answers[i].top().second << std::endl;
-            gt_mistakes.insert(answers[i].top().second);
-        } else {
-            gt_correct.insert(answers[i].top().second);
-        }
+//        if (prev_correct == correct){
+//            //std::cout << i << " " << answers[i].top().second << std::endl;
+//            gt_mistakes.insert(answers[i].top().second);
+//        } else {
+//            gt_correct.insert(answers[i].top().second);
+//        }
     }
 
     /**Represent results**/
