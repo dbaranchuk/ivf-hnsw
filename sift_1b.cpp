@@ -395,7 +395,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
         cout << "Building index:\n";
         size_t j1 = 0;
         appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, M_map, efConstruction);
-        appr_alg->setElementLevels(elements_per_level, true);
+        appr_alg->setElementLevels(elements_per_level, false);
 
         StopW stopw = StopW();
         StopW stopw_full = StopW();

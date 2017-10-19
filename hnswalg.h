@@ -155,18 +155,6 @@ namespace hnswlib {
         size_t total_size;
         std::default_random_engine generator = std::default_random_engine(100);
 
-
-//        inline labeltype *getExternalLabelPointer(tableint internal_id)
-//        {
-//            if (internal_id < maxclusters_)
-//                return (labeltype *) (data_level0_memory_ + internal_id * size_data_per_cluster_ + label_offset_cluster_);
-//            else {
-//                tableint internal_element_id = internal_id - maxclusters_;
-//                return (labeltype *) (data_level0_memory_ + maxclusters_ * size_data_per_cluster_ +
-//                                      internal_element_id * size_data_per_element_ + label_offset_);
-//            }
-//        }
-
         inline size_t *getParametersByInternalId(tableint internal_id)
         {
             size_t *param = params;
@@ -459,16 +447,13 @@ namespace hnswlib {
         float hops = 0.0;
         float hops0 = 0.0;
 
-        void setElementLevels(const vector<size_t> &elements_per_level, bool one_layer)
+        void setElementLevels(const vector<size_t> &elements_per_level, bool one_layer=true)
         {
             if (elements_per_level.size() == 0) {
                 std::uniform_real_distribution<double> distribution(0.0, 1.0);
-                for (size_t i = 0; i < params[0*params_num + i_maxelements]; ++i) {
-                    elementLevels[i] = 0; //(int) (-log(distribution(generator)) * mult_) + 1;
-                }
-                for (int i = params[0*params_num + i_maxelements]; i < maxelements_; i++)
-                    elementLevels[i] = 0;
-            } else{
+                for (size_t i = 0; i < maxelements_; ++i)
+                    elementLevels[i] = !one_layer ? (int) (-log(distribution(generator)) * mult_) : 0;
+            } else {
                 for (size_t i = 0; i < maxelements_; ++i) {
                     if (one_layer){
                         elementLevels[i] = 0;
