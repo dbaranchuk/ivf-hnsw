@@ -177,13 +177,13 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
 	for (int i = 0; i < qsize; i++) {
 		std::priority_queue< std::pair<dist_t, labeltype >> result;
 
-        if (pq) {
-            //dynamic_cast<L2SpacePQ *>(appr_alg.space)->set_query_table((unsigned char *) (massQ + vecdim * i));
-            dynamic_cast<NewL2SpacePQ *>(appr_alg.space)->set_query_table((massfQ + vecdim * i));
-            result = appr_alg.searchKnn(massQ + vecdim*i, k, i);
-        }
-        else
-            result = appr_alg.searchKnn(massQ + vecdim*i, k);
+//        if (pq) {
+//            //dynamic_cast<L2SpacePQ *>(appr_alg.space)->set_query_table((unsigned char *) (massQ + vecdim * i));
+//            dynamic_cast<NewL2SpacePQ *>(appr_alg.space)->set_query_table((massfQ + vecdim * i));
+//            result = appr_alg.searchKnn(massQ + vecdim*i, k, i);
+//        }
+//        else
+        result = appr_alg.searchKnn(massQ + vecdim*i, k);
 
 		std::priority_queue< std::pair<dist_t, labeltype >> gt(answers[i]);
 		unordered_set <labeltype> g;
@@ -240,19 +240,17 @@ static void test_vs_recall(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, v
 		appr_alg.ef_ = ef;
         appr_alg.dist_calc = 0;
         appr_alg.nev9zka = 0.0;
-        appr_alg.hops = 0.0;
         appr_alg.hops0 = 0.0;
 		StopW stopw = StopW();
 		float recall = test_approx<dist_t, vtype>(massQ, qsize, appr_alg, vecdim, answers, k, pq);
 		float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
 		float avr_dist_count = appr_alg.dist_calc*1.f / qsize;
-		cout << ef << "\t" << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\t" << appr_alg.hops0 + appr_alg.hops << " hps\n";
+		cout << ef << "\t" << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\t" << appr_alg.hops0 << " hps\n";
 		if (recall > 1.0) {
 			cout << recall << "\t" << time_us_per_query << " us\t" << avr_dist_count << " dcs\n";
 			break;
 		}
     }
-    cout << "Average hops on levels 1+: " << appr_alg.hops << endl;
     cout << "Average distance from 0 level entry point to query: " << appr_alg.nev9zka << endl;
 }
 
@@ -332,6 +330,34 @@ static void encode_dataset(NewL2SpacePQ *space, const char *path_src, const char
     delete batch_code;
 }
 
+
+template<typename dist_t, typename vtype>
+static void merge_hnsw(HierarchicalNSW<dist_t, vtype> *hnsw1, HierarchicalNSW<dist_t, vtype> *hnsw2)
+{
+    size_t vecsize = hnsw1->maxelements_;
+    size_t M_max = hnsw1->
+    for (int i = 0; i < vecsize; i++){
+        linklistsizeint *ll1 = hnsw1->get_linklist0(i);
+        linklistsizeint *ll2 = hnsw1->get_linklist0(i);
+        size_t size1 = *ll1;
+        size_t size2 = *ll2;
+        labeltype *links1 = (labeltype *)(ll1 + 1);
+        labeltype *links2 = (labeltype *)(ll2 + 1);
+        std::unordered_set<labeltype> links;
+        for (labeltype link = 0; link < size1; link++)
+            links.insert(links1[link]);
+        for (labeltype link = 0; link < size2; link++)
+            links.insert(links2[link]);
+
+        if (links.size() < M_max)
+
+
+
+    }
+}
+
+
+
 template<typename dist_t, typename vtype>
 static void _hnsw_test(const char *path_pq, const char *path_learn,
                        const char *path_codebooks, const char *path_tables,
@@ -395,7 +421,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
         cout << "Building index:\n";
         size_t j1 = 0;
         appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, M_map, efConstruction);
-        appr_alg->setElementLevels(elements_per_level, true);
+        //appr_alg->setElementLevels(elements_per_level, true);
 
         StopW stopw = StopW();
         StopW stopw_full = StopW();
@@ -435,7 +461,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
     //appr_alg->printListsize();
     //appr_alg->reorder_graph();
     //appr_alg->check_connectivity(massQA, qsize);
-    appr_alg->printNumElements();
+    //appr_alg->printNumElements();
 
     vector<std::priority_queue< std::pair<dist_t, labeltype >>> answers;
 
