@@ -248,7 +248,7 @@ namespace hnswlib {
         std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst>
         searchBaseLayerST(tableint ep, void *datapoint, size_t ef, int q_idx = -1)
         {
-            std::cout << "HUI\n";
+            //std::cout << "HUI\n";
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
             std::cout << "HUI\n";
             //VisitedSet *vs = visitedsetpool->getFreeVisitedSet();
