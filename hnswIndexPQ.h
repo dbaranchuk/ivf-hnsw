@@ -263,14 +263,17 @@ namespace hnswlib {
                 coarse.pop();
             }
 
+            std::cout << "HUI\n";
             int counter = 0;
             for (int i = 0; i < nprobe; i++){
+                std::cout << "HUI\n";
                 idx_t key = keys[i];
                 std::vector<uint8_t> code = codes[key];
                 std::vector<uint8_t> norm_code = norm_codes[key];
                 float term1 = q_c[i] - c_norm_table[key];
                 int ncodes = norm_code.size();
 
+                std::cout << "HUI\n";
                 norm_pq->decode(norm_code.data(), norms, ncodes);
 
                 std::cout << "HUI\n";
