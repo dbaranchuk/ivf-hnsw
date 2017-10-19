@@ -246,6 +246,7 @@ namespace hnswlib {
                 dis_table = new float [pq->ksub * pq->M];
 
             float *p = new float[65536*d];
+            float *r_norms = new float[65536];
 
             pq->compute_inner_prod_table(x, dis_table);
 
@@ -272,14 +273,12 @@ namespace hnswlib {
                 norm_pq->decode(norm_code.data(), norms, ncodes);
 
                 pq->decode(code.data(), p, ncodes);
-                float *c = (float *) quantizer->getDataByInternalId(key);
+                faiss::fvec_norms_L2sqr(r_norms, p, d, ncodes);
 
                 for (int j = 0; j < ncodes; j++){
-                    float p_c = faiss::fvec_L2sqr (p + j*d, c, d);
-
-                    if (!topFilters.empty() && (topFilters.top().first < std::abs(q_c[i] - p_c))) {
+                    if (!topFilters.empty() && (topFilters.top().first < std::abs(q_c[i] - r_norms[j]))) {
                         counter++;
-                        continue;
+                        //continue;
                     }
 
                     float q_r = fstdistfunc(code.data() + j*code_size);
@@ -299,6 +298,7 @@ namespace hnswlib {
             }
 
             delete p;
+            delete r_norms;
 //            if (topResults.size() < k) {
 //                for (int j = topResults.size(); j < k; j++)
 //                    topResults.emplace(std::make_pair(std::numeric_limits<float>::max(), 0));
