@@ -260,6 +260,7 @@ namespace hnswlib {
                 coarse.pop();
             }
 
+            float *x = new float[ncodes*d];
             int counter = 0;
             for (int i = 0; i < nprobe; i++){
                 idx_t key = keys[i];
@@ -270,14 +271,13 @@ namespace hnswlib {
 
                 norm_pq->decode(norm_code.data(), norms, ncodes);
 
-                float *x = new float[ncodes*d];
-                pq->decode(code.data(), x, ncodes);
-                float *c = (float *) quantizer->getDataByInternalId(key);
+                //pq->decode(code.data(), x, ncodes);
+                //float *c = (float *) quantizer->getDataByInternalId(key);
 
                 for (int j = 0; j < ncodes; j++){
-                    float p_c = faiss::fvec_L2sqr (x + j*d, c, d);
-                    if (topFilters.top().first < std::abs(q_c[i] - p_c))
-                        counter++;
+                    //float p_c = faiss::fvec_L2sqr (x + j*d, c, d);
+                    //if (topFilters.top().first < std::abs(q_c[i] - p_c))
+                    //    counter++;
 
                     float q_r = fstdistfunc(code.data() + j*code_size);
                     float dist = term1 - 2*q_r + norms[j];
@@ -294,6 +294,8 @@ namespace hnswlib {
                 results[i] = topResults.top().second;
                 topResults.pop();
             }
+
+            delete x;
 //            if (topResults.size() < k) {
 //                for (int j = topResults.size(); j < k; j++)
 //                    topResults.emplace(std::make_pair(std::numeric_limits<float>::max(), 0));
