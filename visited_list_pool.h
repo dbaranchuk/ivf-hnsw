@@ -102,9 +102,9 @@ public:
 	{
 		VisitedList *rez;
 		{
-			std::cout << "HUI\n";
 			unique_lock<mutex> lock(poolguard);
 			if (pool.size() > 0) {
+				std::cout << "HUI\n";
 				rez = pool.front();
 				pool.pop_front();
 			}
@@ -115,7 +115,6 @@ public:
 		}
 		std::cout << "HUI\n";
 		rez->reset();
-		std::cout << "HUI\n";
 		return rez;
 	};
 	void releaseVisitedList(VisitedList *vl)
