@@ -249,6 +249,8 @@ namespace hnswlib {
             pq->compute_inner_prod_table(x, dis_table);
 
             std::priority_queue<std::pair<float, idx_t>> topResults;
+            std::priority_queue<std::pair<float, idx_t>> topFilters;
+
             auto coarse = quantizer->searchKnn(x, nprobe);
 
             for (int i = nprobe - 1; i >= 0; i--) {
@@ -274,13 +276,14 @@ namespace hnswlib {
 
                 for (int j = 0; j < ncodes; j++){
                     float p_c = faiss::fvec_L2sqr (x + j*d, c, d);
-                    if (-topResults.top().first < std::abs(q_c[i] - p_c))
+                    if (topFilters.top().first < std::abs(q_c[i] - p_c))
                         counter++;
 
                     float q_r = fstdistfunc(code.data() + j*code_size);
                     float dist = term1 - 2*q_r + norms[j];
                     idx_t label = ids[key][j];
                     topResults.emplace(std::make_pair(-dist, label));
+                    topFilters.emplace(std::make_pair(dist, label));
                 }
                 if (topResults.size() > max_codes)
                     break;
