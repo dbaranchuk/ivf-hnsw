@@ -271,13 +271,13 @@ namespace hnswlib {
 
                 norm_pq->decode(norm_code.data(), norms, ncodes);
 
-                //pq->decode(code.data(), p, ncodes);
-                //float *c = (float *) quantizer->getDataByInternalId(key);
+                pq->decode(code.data(), p, ncodes);
+                float *c = (float *) quantizer->getDataByInternalId(key);
 
                 for (int j = 0; j < ncodes; j++){
-                    //float p_c = faiss::fvec_L2sqr (p + j*d, c, d);
-                    //if (topFilters.top().first < std::abs(q_c[i] - p_c))
-                    //    counter++;
+                    float p_c = faiss::fvec_L2sqr (p + j*d, c, d);
+                    if (topFilters.top().first < std::abs(q_c[i] - p_c))
+                        counter++;
 
                     float q_r = fstdistfunc(code.data() + j*code_size);
                     float dist = term1 - 2*q_r + norms[j];

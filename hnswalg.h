@@ -248,9 +248,7 @@ namespace hnswlib {
         std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst>
         searchBaseLayerST(tableint ep, void *datapoint, size_t ef, int q_idx = -1)
         {
-            //std::cout << "HUI\n";
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
-            std::cout << "HUI\n";
             //VisitedSet *vs = visitedsetpool->getFreeVisitedSet();
             vl_type *massVisited = vl->mass;
             vl_type currentV = vl->curV;
@@ -739,7 +737,7 @@ namespace hnswlib {
                 total_size += params[i*params_num + i_maxelements] * params[i*params_num + i_size_data_per_element];
             }
             cur_element_count = maxelements_;
-            //visitedlistpool = new VisitedListPool(1, maxelements_);
+            visitedlistpool = new VisitedListPool(1, maxelements_);
             visitedsetpool = new VisitedSetPool(1);
 
             /** Hierarcy **/
