@@ -214,13 +214,13 @@ static void test_vs_recall(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, v
     if (k < 30) {
         for (int i = k; i < 30; i++) efs.push_back(i);
         for (int i = 30; i < 100; i += 10) efs.push_back(i);
-        for (int i = 100; i <= 900; i += 40) efs.push_back(i);
+        for (int i = 100; i <= 500; i += 40) efs.push_back(i);
     }
 	else if (k < 100) {
         for (int i = k; i < 100; i += 10) efs.push_back(i);
-        for (int i = 100; i <= 900; i += 40) efs.push_back(i);
+        for (int i = 100; i <= 500; i += 40) efs.push_back(i);
     } else
-        for (int i = k; i <= 900; i += 40) efs.push_back(i);
+        for (int i = k; i <= 500; i += 40) efs.push_back(i);
 
 	for (size_t ef : efs) {
 		appr_alg.ef_ = ef;
@@ -331,7 +331,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
 
     const char *path_data_pq = "/home/dbaranchuk/deep_base_pq.bvecs";
 
-    const std::map<size_t, std::pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
+    const std::map<size_t, std::pair<size_t, size_t>> M_map = {{vecsize/4, {M, 2*M}}, {vecsize, {M/2, 2*M/2}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}}, {200000000, {12, 24}}, {400000000, {8, 16}},
     //                                                 {500000000, {6, 10}}, {900000000, {5, 7}}, {vecsize, {5, 5}}};
