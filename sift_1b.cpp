@@ -160,37 +160,6 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
 	}
 }
 
-static float test_approx(unsigned char *massQ, size_t vecsize, size_t qsize, HierarchicalNSW<int> &appr_alg, size_t vecdim, vector<std::priority_queue< std::pair< int, labeltype >>> &answers, size_t k) {
-    size_t correct = 0;
-    size_t total = 0;
-    //uncomment to test in parallel mode:
-    //#pragma omp parallel for
-    for (int i = 0; i < qsize; i++) {
-
-        std::priority_queue< std::pair< int, labeltype >> result = appr_alg.searchKnn(massQ + vecdim*i, k);
-        std::priority_queue< std::pair< int, labeltype >> gt(answers[i]);
-        unordered_set <labeltype> g;
-        total += gt.size();
-
-        while (gt.size()) {
-            g.insert(gt.top().second);
-            gt.pop();
-        }
-
-        while (result.size()) {
-            if (g.find(result.top().second) != g.end()) {
-
-                correct++;
-            }
-            else {
-            }
-            result.pop();
-        }
-
-    }
-    return 1.0f*correct / total;
-}
-
 template <typename dist_t, typename vtype>
 static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vtype> &appr_alg,
                          size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
