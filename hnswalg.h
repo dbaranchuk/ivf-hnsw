@@ -21,16 +21,12 @@ using google::dense_hash_map;
 using google::dense_hash_set;
 
 enum ParameterIndex{
-    i_threshold = 0,
-    i_maxelements = 1,
-    i_M = 2,
-    i_maxM = 3,
-    i_maxM0 = 4,
-    i_size_links_level0 = 5,
-    i_size_data_per_element = 6,
-    i_offsetData = 7,
-    i_size_links_per_element = 8,
-    i_partOffset = 9
+    i_maxelements = 0,
+    i_M = 1,
+    i_maxM = 2,
+    i_size_links_level0 = 3,
+    i_size_data_per_element = 4,
+    i_offsetData = 5
 };
 
 
@@ -78,7 +74,6 @@ namespace hnswlib {
                 params[i_size_links_level0] = params[i_maxM]* sizeof(tableint) + sizeof(linklistsizeint);
                 params[i_size_data_per_element] = params[i_size_links_level0] + data_size_;
                 params[i_offsetData] = params[i_size_links_level0];
-                params[i_partOffset] = total_size;
 
                 total_size = params[i_maxelements] * params[i_size_data_per_element];
                 maxelements_ = p.first;
@@ -126,18 +121,17 @@ namespace hnswlib {
 
         vector<char> elementLevels;
 
-        size_t params[8];
+        size_t params[6];
 
         size_t data_size_;
         size_t total_size;
 
         inline char *getDataByInternalId(tableint internal_id) const {
-            return (data_level0_memory_ + params[i_partOffset] +
-                    internal_id * params[i_size_data_per_element] + params[i_offsetData]);
+            return (data_level0_memory_ + internal_id * params[i_size_data_per_element] + params[i_offsetData]);
         }
 
         inline linklistsizeint *get_linklist0(tableint internal_id) const {
-            return (linklistsizeint *) (data_level0_memory_ + params[i_partOffset] + internal_id * params[i_size_data_per_element]);
+            return (linklistsizeint *) (data_level0_memory_ + internal_id * params[i_size_data_per_element]);
         };
 
         std::priority_queue<std::pair<dist_t, tableint  >> searchBaseLayer(tableint ep, void *datapoint, int ef)
@@ -378,7 +372,6 @@ namespace hnswlib {
         size_t ef_;
 
         float nev9zka = 0.0;
-        tableint enterpoint0;
         float hops0 = 0.0;
 
         void addPoint(void *datapoint, labeltype label)
@@ -471,7 +464,7 @@ namespace hnswlib {
 
             readBinaryPOD(input, enterpoint_node);
 
-            input.read((char *) params, 8*sizeof(size_t));
+            input.read((char *) params, 6*sizeof(size_t));
 
             efConstruction_ = 0;
             maxelements_ = params[i_maxelements];
@@ -496,14 +489,12 @@ namespace hnswlib {
             int dim;
             const int D = space->get_data_dim();
             vtype mass[D];
-            //unsigned char mass[D];
             for (tableint i = 0; i < maxelements_; i++) {
                 fread((int *) &dim, sizeof(int), 1, fin);
                 if (dim != D)
                     cerr << "Wront data dim" << endl;
 
                 fread(mass, sizeof(vtype), dim, fin);
-                //fread(mass, sizeof(unsigned char), dim, fin);
                 memset((char *) get_linklist0(i), 0, params[i_size_data_per_element]);
                 memcpy(getDataByInternalId(i), mass, data_size_);
             }
