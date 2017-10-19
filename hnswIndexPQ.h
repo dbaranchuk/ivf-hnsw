@@ -271,16 +271,16 @@ namespace hnswlib {
 
                 norm_pq->decode(norm_code.data(), norms, ncodes);
 
-                //std::cout << "HUI1\n";
                 pq->decode(code.data(), p, ncodes);
-                //std::cout << "HUI2\n";
                 float *c = (float *) quantizer->getDataByInternalId(key);
-                //std::cout << "HUI3\n";
+
                 for (int j = 0; j < ncodes; j++){
                     float p_c = faiss::fvec_L2sqr (p + j*d, c, d);
 
-                    if (!topFilters.empty() && (topFilters.top().first < std::abs(q_c[i] - p_c)))
+                    if (!topFilters.empty() && (topFilters.top().first < std::abs(q_c[i] - p_c))) {
                         counter++;
+                        continue;
+                    }
 
                     float q_r = fstdistfunc(code.data() + j*code_size);
                     float dist = term1 - 2*q_r + norms[j];
@@ -291,7 +291,7 @@ namespace hnswlib {
                 if (topResults.size() > max_codes)
                     break;
             }
-            std::cout << "Inequility: " << counter << std::endl;
+            std::cout << counter << std::endl;
 
             for (int i = 0; i < k; i++) {
                 results[i] = topResults.top().second;
