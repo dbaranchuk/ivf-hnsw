@@ -106,7 +106,7 @@ namespace hnswlib {
         float *c_norm_table = NULL;
 		HierarchicalNSW<float, float> *quantizer;
 
-
+        int counter = 0;
     public:
 		Index(size_t dim, size_t ncentroids,
 			  size_t bytes_per_code, size_t nbits_per_idx):
@@ -255,7 +255,6 @@ namespace hnswlib {
                 coarse.pop();
             }
 
-            int counter = 0;
             for (int i = 0; i < nprobe; i++){
                 idx_t key = keys[i];
                 std::vector<uint8_t> code = codes[key];
@@ -283,7 +282,6 @@ namespace hnswlib {
                 if (topResults.size() > max_codes)
                     break;
             }
-            std::cout << counter << std::endl;
 
             for (int i = 0; i < k; i++) {
                 results[i] = topResults.top().second;

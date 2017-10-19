@@ -415,7 +415,7 @@ void hybrid_test(const char *path_centroids,
 //            gt_correct.insert(answers[i].top().second);
 //        }
     }
-
+    std::cout << index->counter << std::endl;
     /**Represent results**/
     float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
     std::cout << "Recall@" << k << ": " << 1.0f*correct / qsize << std::endl;
