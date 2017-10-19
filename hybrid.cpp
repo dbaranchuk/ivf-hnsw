@@ -429,8 +429,8 @@ void hybrid_test(const char *path_centroids,
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
 
 
-    std::cout << "Check precomputed idxs"<< std::endl;
-    check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize, gt_mistakes, gt_correct);
+    //std::cout << "Check precomputed idxs"<< std::endl;
+    //check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize, gt_mistakes, gt_correct);
 
     delete index;
     delete massQA;

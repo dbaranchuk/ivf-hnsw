@@ -97,12 +97,14 @@ namespace hnswlib {
 
         std::vector < std::vector<idx_t> > ids;
         std::vector < std::vector<uint8_t> > codes;
-		std::vector < std::vector<uint8_t> > norm_codes;
+        std::vector < std::vector<uint8_t> > norm_codes;
+        std::vector < std::vector<float> > p_c_dst;
 
         size_t *c_size_table = NULL;
         float *c_var_table = NULL;
         float *c_norm_table = NULL;
 		HierarchicalNSW<float, float> *quantizer;
+
 
     public:
 		Index(size_t dim, size_t ncentroids,
@@ -112,6 +114,7 @@ namespace hnswlib {
             codes.reserve(ncentroids);
             norm_codes.reserve(ncentroids);
             ids.reserve(ncentroids);
+            p_c_dst.reserve(ncentroids);
 
             pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
             norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
@@ -161,7 +164,7 @@ namespace hnswlib {
 			quantizer->addPoint((void *) (mass), j1);
 
 			size_t report_every = 100000;
-		#pragma omp parallel for num_threads(24)
+		#pragma omp parallel for num_threads(16)
 			for (int i = 1; i < csize; i++) {
 				float mass[d];
 		#pragma omp critical
@@ -391,9 +394,9 @@ namespace hnswlib {
                 fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
             }
 
-            fwrite(c_norm_table, sizeof(float), csize, fout);
-            fwrite(c_size_table, sizeof(size_t), csize, fout);
-            fwrite(c_var_table, sizeof(float), csize, fout);
+//            fwrite(c_norm_table, sizeof(float), csize, fout);
+//            fwrite(c_size_table, sizeof(size_t), csize, fout);
+//            fwrite(c_var_table, sizeof(float), csize, fout);
 
             fclose(fout);
         }
@@ -559,6 +562,13 @@ namespace hnswlib {
             base_input.close();
         }
 
+        void compute_p_c_dst()
+        {
+            for (auto code : codes){
+
+            }
+
+        }
 	private:
         float *dis_table;
         float *norms;
