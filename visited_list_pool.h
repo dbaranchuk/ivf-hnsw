@@ -109,7 +109,7 @@ public:
 				pool.pop_front();
 			}
 			else {
-				std::cout << numelements << std::endl
+				std::cout << numelements << std::endl;
 				rez = new VisitedList(numelements);
 			}
 		}
