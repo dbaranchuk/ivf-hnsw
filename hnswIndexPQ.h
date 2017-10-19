@@ -5,6 +5,7 @@
 #include <vector>
 #include <queue>
 #include <limits>
+#include <cmath>
 
 #include "L2space.h"
 #include "hnswalg.h"
@@ -257,6 +258,7 @@ namespace hnswlib {
                 coarse.pop();
             }
 
+            int counter = 0;
             for (int i = 0; i < nprobe; i++){
                 idx_t key = keys[i];
                 std::vector<uint8_t> code = codes[key];
@@ -266,7 +268,15 @@ namespace hnswlib {
 
                 norm_pq->decode(norm_code.data(), norms, ncodes);
 
+                float x = new float[ncodes*d];
+                pq->decode(code.data(), x, ncodes);
+                float *c = (float *) quantizer->getDataByInternalId(key);
+
                 for (int j = 0; j < ncodes; j++){
+                    float p_c = faiss::fvec_L2sqr (x + j*d, c, d);
+                    if (topResults.top().first < std::abs(q_c[i] - p_c))
+                        counter++;
+
                     float q_r = fstdistfunc(code.data() + j*code_size);
                     float dist = term1 - 2*q_r + norms[j];
                     idx_t label = ids[key][j];
@@ -275,6 +285,7 @@ namespace hnswlib {
                 if (topResults.size() > max_codes)
                     break;
             }
+            std::cout << "Inequility: " << counter << std::endl;
 
             for (int i = 0; i < k; i++) {
                 results[i] = topResults.top().second;
