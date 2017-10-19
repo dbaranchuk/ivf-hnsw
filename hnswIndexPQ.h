@@ -254,7 +254,7 @@ namespace hnswlib {
 
             auto coarse = quantizer->searchKnn(x, nprobe);
             std::cout << "HUI\n";
-            
+
             for (int i = nprobe - 1; i >= 0; i--) {
                 auto elem = coarse.top();
                 q_c[i] = elem.first;

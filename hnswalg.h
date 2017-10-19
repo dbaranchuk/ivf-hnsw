@@ -250,7 +250,7 @@ namespace hnswlib {
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
             //VisitedSet *vs = visitedsetpool->getFreeVisitedSet();
-
+            std::cout << "HUI\n";
             vl_type *massVisited = vl->mass;
             vl_type currentV = vl->curV;
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> topResults;
@@ -269,6 +269,7 @@ namespace hnswlib {
 //            vs->insert(ep);
             dist_t lowerBound = dist;
 
+            std::cout << "HUI\n";
             while (!candidateSet.empty()) {
                 hops0 += 1.0 / 10000;
                 std::pair<dist_t, tableint> curr_el_pair = candidateSet.top();
@@ -318,8 +319,10 @@ namespace hnswlib {
                     }
                 }
             }
+            std::cout << "HUI\n";
             //visitedsetpool->releaseVisitedSet(vs);
             visitedlistpool->releaseVisitedList(vl);
+            std::cout << "HUI\n";
             return topResults;
         }
 
