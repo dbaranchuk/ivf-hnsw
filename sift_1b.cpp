@@ -216,7 +216,7 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
         }
 
     }
-	return 1.0f*correct / qsize;
+	return 1.0f*correct / total;
 }
 
 template <typename dist_t, typename vtype>
