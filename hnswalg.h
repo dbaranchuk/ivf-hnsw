@@ -778,6 +778,46 @@ namespace hnswlib {
             }
         }
 
+        void getNeighborsByHeuristicMerge(std::priority_queue<std::pair<dist_t, tableint>> &topResults, const int NN) {
+            if (topResults.size() < NN)
+                return;
+
+            std::priority_queue<std::pair<dist_t, tableint>> resultSet;
+            std::priority_queue<std::pair<dist_t, tableint>> templist;
+            vector<std::pair<dist_t, tableint>> returnlist;
+            while (topResults.size() > 0) {
+                resultSet.emplace(-topResults.top().first, topResults.top().second);
+                topResults.pop();
+            }
+
+            while (resultSet.size()) {
+                if (returnlist.size() >= NN)
+                    break;
+                std::pair<dist_t, tableint> curen = resultSet.top();
+                dist_t dist_to_query = -curen.first;
+                resultSet.pop();
+                bool good = true;
+                for (std::pair<dist_t, tableint> curen2 : returnlist) {
+                    dist_t curdist = space->fstdistfunc(getDataByInternalId(curen2.second), getDataByInternalId(curen.second));
+                    if (curdist < dist_to_query) {
+                        good = false;
+                        break;
+                    }
+                }
+                if (good)
+                    returnlist.push_back(curen);
+                else
+                    templist.emplace(curen);
+            }
+
+            while (returnlist.size() < NN && templist.size() > 0) {
+                returnlist.push_back(templist.top());
+                templist.pop();
+            }
+            for (std::pair<dist_t, tableint> curen2 : returnlist)
+                topResults.emplace(-curen2.first, curen2.second);
+        }
+
         void merge(const HierarchicalNSW<dist_t, vtype> *hnsw)
         {
             int counter = 0;
@@ -810,7 +850,7 @@ namespace hnswlib {
                         topResults.emplace(std::make_pair(dist, link));
                     }
 
-                    getNeighborsByHeuristic(topResults, params[i_maxM]);
+                    getNeighborsByHeuristicMerge(topResults, params[i_maxM]);
 
                     int indx = 0;
                     while (topResults.size() > 0) {
