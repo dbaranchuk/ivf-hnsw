@@ -547,11 +547,6 @@ namespace hnswlib {
                     }
                     getNeighborsByHeuristic(topResults, params[i_maxM]);
 
-                    while (topResults.size() != 0) {
-                        labeltype link = topResults.top().second;
-                        topResults.pop();
-                        *(links1++) = link;
-                    }
                     int indx = 0;
                     while (topResults.size() > 0) {
                         *(links1 + indx++) = topResults.top().second;
