@@ -552,7 +552,7 @@ namespace hnswlib {
 
                     if (topResults.size() < params[i_maxM]) {
                         counter++;
-                        average += topResults.size();
+                        average_ll_size += topResults.size();
                     }
 
                     int indx = 0;
