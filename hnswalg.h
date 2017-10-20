@@ -269,6 +269,7 @@ namespace hnswlib {
             std::priority_queue<std::pair<dist_t, tableint>> resultSet;
             std::priority_queue<std::pair<dist_t, tableint>> templist;
             vector<std::pair<dist_t, tableint>> returnlist;
+
             while (topResults.size() > 0) {
                 resultSet.emplace(-topResults.top().first, topResults.top().second);
                 topResults.pop();
@@ -288,7 +289,15 @@ namespace hnswlib {
                         break;
                     }
                 }
-                if (good) returnlist.push_back(curen);
+                if (good)
+                    returnlist.push_back(curen);
+                else
+                    templist.emplace(curen);
+            }
+
+            while (returnlist.size() < NN && templist.size() > 0) {
+                returnlist.push_back(templist.top());
+                templist.pop();
             }
             for (std::pair<dist_t, tableint> curen2 : returnlist)
                 topResults.emplace(-curen2.first, curen2.second);
@@ -562,23 +571,23 @@ namespace hnswlib {
 
                 if (*ll1 == params[i_maxM]) continue;
 
-                unordered_set<tableint> linkSet;
-                for (int i = 0; i < *ll1; i++)
-                    linkSet.insert(links1[i]);
-
-                auto tmp = searchKnn((void *) data, 64);
-                std::priority_queue<std::pair<dist_t, tableint>> unusedNN;
-
-                while (tmp.size() > 0) {
-                    if (linkSet.count(tmp.top().second) == 0)
-                        unusedNN.emplace(-tmp.top().first, tmp.top().second);
-                    tmp.pop();
-                }
-                while (*ll1 != params[i_maxM] || unusedNN.size() != 0){
-                    links1[*ll1] = unusedNN.top().second;
-                    unusedNN.pop();
-                    ll1[0]++;
-                }
+//                unordered_set<tableint> linkSet;
+//                for (int i = 0; i < *ll1; i++)
+//                    linkSet.insert(links1[i]);
+//
+//                auto tmp = searchKnn((void *) data, 64);
+//                std::priority_queue<std::pair<dist_t, tableint>> unusedNN;
+//
+//                while (tmp.size() > 0) {
+//                    if (linkSet.count(tmp.top().second) == 0)
+//                        unusedNN.emplace(-tmp.top().first, tmp.top().second);
+//                    tmp.pop();
+//                }
+//                while (*ll1 != params[i_maxM] || unusedNN.size() != 0){
+//                    links1[*ll1] = unusedNN.top().second;
+//                    unusedNN.pop();
+//                    ll1[0]++;
+//                }
                 if (*ll1 < params[i_maxM])
                     counter++;
             }
