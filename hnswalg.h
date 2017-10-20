@@ -524,6 +524,7 @@ namespace hnswlib {
             float average_ll_size = 0.0;
 
             for (int i = 0; i < maxelements_; i++){
+                float *data = (float *) getDataByInternalId(i);
                 linklistsizeint *ll1 = get_linklist0(i);
                 linklistsizeint *ll2 = hnsw->get_linklist0(i);
                 size_t size1 = *ll1;
@@ -544,7 +545,6 @@ namespace hnswlib {
                 } else {
                     std::priority_queue<std::pair<dist_t, tableint>> topResults;
 
-                    float *data = (float *) getDataByInternalId(i);
                     for (labeltype link : links){
                         float *point = (float *) getDataByInternalId(link);
                         dist_t dist = space->fstdistfunc((void *)data, point);
@@ -566,7 +566,7 @@ namespace hnswlib {
                 }
 
                 if (*ll1) return;
-                
+
                 unordered_set<tableint> linkSet;
                 for (int i = 0; i < *ll1; i++){
                     linkSet.insert(links1[i]);
