@@ -540,19 +540,21 @@ namespace hnswlib {
                     for (labeltype link : links)
                         *(links1++) = link;
                     links1 -= links.size();
+                    *ll1 = links.size();
                 } else {
                     std::priority_queue<std::pair<dist_t, tableint>> topResults;
+
                     float *data = (float *) getDataByInternalId(i);
                     for (labeltype link : links){
                         float *point = (float *) getDataByInternalId(link);
                         dist_t dist = space->fstdistfunc((void *)data, point);
                         topResults.emplace(std::make_pair(dist, link));
+
                     }
                     getNeighborsByHeuristic(topResults, params[i_maxM]);
 
                     if (topResults.size() < params[i_maxM]) {
-                        counter++;
-                        average_ll_size += topResults.size();
+
                     }
 
                     int indx = 0;
@@ -560,10 +562,21 @@ namespace hnswlib {
                         *(links1 + indx++) = topResults.top().second;
                         topResults.pop();
                     }
+                    *ll1 = indx;
                 }
+
+
+//                linkSet.insert(topResults.top().second);
+//
+//                auto tmp = searchKnn((void *) data, 100);
+//                std::priority_queue<std::pair<dist_t, tableint>> unusedNN;
+//
+//                while (tmp.size() > 0) {
+//                    if (linkSet.count(tmp.top().second))
+//                        resultSet.emplace(-tmp.top().first, tmp.top().second);
+//                    topResults.pop();
+//                }
             }
-            std::cout << counter << std::endl;
-            std::cout << average_ll_size / maxelements_ << std::endl;
         }
     };
 }
