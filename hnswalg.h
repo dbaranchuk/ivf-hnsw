@@ -106,7 +106,7 @@ namespace hnswlib {
             enterpoint_node = -1;
             maxlevel_ = -1;
 
-            linkLists_ = (char **) malloc(sizeof(void *) * params[0*params_num + i_maxelements]);
+            linkLists_ = (char **) malloc(sizeof(void *) * maxelements_);
             mult_ = 1 / log(1.0 * params[0*params_num + i_M]);//M_);
         }
 
@@ -686,7 +686,7 @@ namespace hnswlib {
             writeBinaryPOD(output, params_num);
             output.write((char *) params, parts_num * params_num * sizeof(size_t));
 
-            for (size_t i = 0; i < params[0*params_num + i_maxelements]; ++i) {
+            for (size_t i = 0; i < maxelements_; ++i) {
                 unsigned int linkListSize = elementLevels[i] > 0 ? params[0*params_num + i_size_links_per_element] * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
@@ -724,7 +724,7 @@ namespace hnswlib {
             readBinaryPOD(input, parts_num);
             readBinaryPOD(input, params_num);
             cout << enterpoint_node << " " << parts_num << " " << params_num << endl;
-            //enterpoint_node  = 0;
+
             params = new size_t[params_num*parts_num];
             input.read((char *) params, parts_num*params_num*sizeof(size_t));
 
@@ -740,12 +740,12 @@ namespace hnswlib {
             visitedsetpool = new VisitedSetPool(1);
 
             /** Hierarcy **/
-            linkLists_ = (char **) malloc(sizeof(void *) * (params[0*params_num + i_maxelements]));
+            linkLists_ = (char **) malloc(sizeof(void *) * maxelements_));
 
             elementLevels = vector<char>(maxelements_);
             maxlevel_ = 0;
 
-            for (size_t i = 0; i < params[0*params_num + i_maxelements]; i++) {
+            for (size_t i = 0; i < maxelements_; i++) {
                 unsigned int linkListSize;
                 readBinaryPOD(input, linkListSize);
                 if (linkListSize == 0) {
@@ -802,6 +802,53 @@ namespace hnswlib {
             }
         }
 
+        void merge(const HierarchicalNSW<dist_t, vtype> *hnsw)
+        {
+            int counter = 0;
+//#pragma omp parallel for num_threads(32)
+            for (int i = 0; i < maxelements_; i++){
+                float *data = (float *) getDataByInternalId(i);
+                linklistsizeint *ll1 = get_linklist0(i);
+                linklistsizeint *ll2 = hnsw->get_linklist0(i);
+                size_t size1 = *ll1;
+                size_t size2 = *ll2;
+                labeltype *links1 = (labeltype *)(ll1 + 1);
+                labeltype *links2 = (labeltype *)(ll2 + 1);
+                std::unordered_set<labeltype> links;
+                for (labeltype link = 0; link < size1; link++)
+                    links.insert(links1[link]);
+                for (labeltype link = 0; link < size2; link++)
+                    links.insert(links2[link]);
+
+                if (links.size() <= params[i_maxM]){
+                    int indx = 0;
+                    for (labeltype link : links)
+                        links1[indx++] = link;
+                    *ll1 = indx;
+                } else {
+                    std::priority_queue<std::pair<dist_t, tableint>> topResults;
+
+                    for (labeltype link : links){
+                        float *point = (float *) getDataByInternalId(link);
+                        dist_t dist = space->fstdistfunc((void *)data, point);
+                        topResults.emplace(std::make_pair(dist, link));
+                    }
+
+                    getNeighborsByHeuristic(topResults, params[i_maxM]);
+
+                    int indx = 0;
+                    while (topResults.size() > 0) {
+                        links1[indx++] = topResults.top().second;
+                        topResults.pop();
+                    }
+                    *ll1 = indx;
+                }
+
+                if (*ll1 < params[i_maxM])
+                    counter++;
+            }
+            std::cout << counter << std::endl;
+        }
 
         void check(bool *map, tableint ep)
         {
