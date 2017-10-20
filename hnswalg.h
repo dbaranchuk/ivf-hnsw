@@ -530,7 +530,7 @@ namespace hnswlib {
         void merge(const HierarchicalNSW<dist_t, vtype> *hnsw)
         {
             int counter = 0;
-#pragma omp parallel for num_threads(32)
+//#pragma omp parallel for num_threads(32)
             for (int i = 0; i < maxelements_; i++){
                 float *data = (float *) getDataByInternalId(i);
                 linklistsizeint *ll1 = get_linklist0(i);
@@ -568,8 +568,6 @@ namespace hnswlib {
                     }
                     *ll1 = indx;
                 }
-
-                if (*ll1 == params[i_maxM]) continue;
 
 //                unordered_set<tableint> linkSet;
 //                for (int i = 0; i < *ll1; i++)
