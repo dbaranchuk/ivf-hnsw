@@ -389,7 +389,6 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
     HierarchicalNSW<dist_t, vtype> *appr_alg;
     if (exists_test(path_info) && exists_test(path_edges)) {
         appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, path_info, path_data, path_edges);
-        appr_alg->setElementLevels(false);
         //HierarchicalNSW<dist_t, vtype> *hnsw = new HierarchicalNSW<dist_t, vtype>(l2space, "/sata2/dbaranchuk/to_vision/deep4m_ef500_clusters3993883_M16_reverse.bin",
         //"/sata2/dbaranchuk/to_vision/centroids4M_reverse.fvecs", "/sata2/dbaranchuk/to_vision/deep4m_ef500_clusters3993883_M16_reverse.ivecs");
         //appr_alg->merge(hnsw);
@@ -400,7 +399,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
         cout << "Building index:\n";
         size_t j1 = 0;
         appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, M_map, efConstruction);
-        //appr_alg->setElementLevels(elements_per_level, true);
+        appr_alg->setElementLevels(false);
 
         StopW stopw = StopW();
         StopW stopw_full = StopW();
