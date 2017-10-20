@@ -565,17 +565,25 @@ namespace hnswlib {
                     *ll1 = indx;
                 }
 
+                if (*ll1) return;
+                
+                unordered_set<tableint> linkSet;
+                for (int i = 0; i < *ll1; i++){
+                    linkSet.insert(links1[i]);
+                }
 
-//                linkSet.insert(topResults.top().second);
-//
-//                auto tmp = searchKnn((void *) data, 100);
-//                std::priority_queue<std::pair<dist_t, tableint>> unusedNN;
-//
-//                while (tmp.size() > 0) {
-//                    if (linkSet.count(tmp.top().second))
-//                        resultSet.emplace(-tmp.top().first, tmp.top().second);
-//                    topResults.pop();
-//                }
+                auto tmp = searchKnn((void *) data, 100);
+                std::priority_queue<std::pair<dist_t, tableint>> unusedNN;
+
+                while (tmp.size() > 0) {
+                    if (linkSet.count(tmp.top().second) == 0)
+                        unusedNN.emplace(-tmp.top().first, tmp.top().second);
+                    tmp.pop();
+                }
+                while (*ll1 != params[i_maxM] || unusedNN.size() != 0){
+                    links1[*(ll1++)] = unusedNN.top().second;
+                    unusedNN.pop();
+                }
             }
         }
     };
