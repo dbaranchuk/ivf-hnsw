@@ -553,10 +553,6 @@ namespace hnswlib {
                     }
                     getNeighborsByHeuristic(topResults, params[i_maxM]);
 
-                    if (topResults.size() < params[i_maxM]) {
-
-                    }
-
                     int indx = 0;
                     while (topResults.size() > 0) {
                         *(links1 + indx++) = topResults.top().second;
@@ -565,7 +561,7 @@ namespace hnswlib {
                     *ll1 = indx;
                 }
 
-                if (*ll1) return;
+                if (*ll1 == params[i_maxM]) continue;
 
                 unordered_set<tableint> linkSet;
                 for (int i = 0; i < *ll1; i++){
@@ -584,7 +580,10 @@ namespace hnswlib {
                     links1[*(ll1++)] = unusedNN.top().second;
                     unusedNN.pop();
                 }
+                if (*ll1 < params[i_maxM])
+                    counter++;
             }
+            std::cout << counter << std::endl;
         }
     };
 }
