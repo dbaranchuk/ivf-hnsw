@@ -551,14 +551,11 @@ namespace hnswlib {
                         topResults.emplace(std::make_pair(dist, link));
 
                     }
-                    //getNeighborsByHeuristic(topResults, params[i_maxM]);
-
-                    while (topResults.size() > params[i_maxM])
-                        topResults.pop();
+                    getNeighborsByHeuristic(topResults, params[i_maxM]);
 
                     int indx = 0;
                     while (topResults.size() > 0) {
-                        *(links1 + indx++) = topResults.top().second;
+                        links1[indx++] = topResults.top().second;
                         topResults.pop();
                     }
                     *ll1 = indx;
@@ -566,24 +563,23 @@ namespace hnswlib {
 
                 if (*ll1 == params[i_maxM]) continue;
 
-//                unordered_set<tableint> linkSet;
-//                for (int i = 0; i < *ll1; i++){
-//                    linkSet.insert(links1[i]);
-//                }
-//
-//                auto tmp = searchKnn((void *) data, 100);
-//                std::priority_queue<std::pair<dist_t, tableint>> unusedNN;
-//
-//                while (tmp.size() > 0) {
-//                    if (linkSet.count(tmp.top().second) == 0)
-//                        unusedNN.emplace(-tmp.top().first, tmp.top().second);
-//                    tmp.pop();
-//                }
-//                while (*ll1 != params[i_maxM] || unusedNN.size() != 0){
-//                    links1[*ll1] = unusedNN.top().second;
-//                    unusedNN.pop();
-//                    *(ll1)++;
-//                }
+                unordered_set<tableint> linkSet;
+                for (int i = 0; i < *ll1; i++)
+                    linkSet.insert(links1[i]);
+
+                auto tmp = searchKnn((void *) data, 100);
+                std::priority_queue<std::pair<dist_t, tableint>> unusedNN;
+
+                while (tmp.size() > 0) {
+                    if (linkSet.count(tmp.top().second) == 0)
+                        unusedNN.emplace(-tmp.top().first, tmp.top().second);
+                    tmp.pop();
+                }
+                while (*ll1 != params[i_maxM] || unusedNN.size() != 0){
+                    links1[*ll1] = unusedNN.top().second;
+                    unusedNN.pop();
+                    *(ll1)++;
+                }
                 if (*ll1 < params[i_maxM])
                     counter++;
             }
