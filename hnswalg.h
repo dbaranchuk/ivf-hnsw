@@ -520,6 +520,9 @@ namespace hnswlib {
 
         void merge(const HierarchicalNSW<dist_t, vtype> *hnsw)
         {
+            int counter = 0;
+            float average_ll_size = 0.0;
+
             for (int i = 0; i < maxelements_; i++){
                 linklistsizeint *ll1 = get_linklist0(i);
                 linklistsizeint *ll2 = hnsw->get_linklist0(i);
@@ -547,6 +550,11 @@ namespace hnswlib {
                     }
                     getNeighborsByHeuristic(topResults, params[i_maxM]);
 
+                    if (topResults.size() < params[i_maxM]) {
+                        counter++;
+                        average += topResults.size();
+                    }
+
                     int indx = 0;
                     while (topResults.size() > 0) {
                         *(links1 + indx++) = topResults.top().second;
@@ -554,6 +562,8 @@ namespace hnswlib {
                     }
                 }
             }
+            std::cout << counter << std::endl;
+            std::cout << average_ll_size / maxelements_ << std::endl;
         }
     };
 }
