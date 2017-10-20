@@ -578,7 +578,7 @@ namespace hnswlib {
                 while (*ll1 != params[i_maxM] || unusedNN.size() != 0){
                     links1[*ll1] = unusedNN.top().second;
                     unusedNN.pop();
-                    *(ll1)++;
+                    ll1[0]++;
                 }
                 if (*ll1 < params[i_maxM])
                     counter++;
