@@ -563,7 +563,9 @@ namespace hnswlib {
 
                 if (*ll1 == params[i_maxM]) continue;
 
-                links1[ll1++] = 0;
+                links1[*ll1] = 0;
+                *(ll1)++;
+
 //                unordered_set<tableint> linkSet;
 //                for (int i = 0; i < *ll1; i++){
 //                    linkSet.insert(links1[i]);
@@ -578,8 +580,9 @@ namespace hnswlib {
 //                    tmp.pop();
 //                }
 //                while (*ll1 != params[i_maxM] || unusedNN.size() != 0){
-//                    links1[*(ll1++)] = unusedNN.top().second;
+//                    links1[*ll1] = unusedNN.top().second;
 //                    unusedNN.pop();
+//                    *(ll1)++;
 //                }
                 if (*ll1 < params[i_maxM])
                     counter++;
