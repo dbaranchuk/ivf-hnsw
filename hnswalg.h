@@ -447,35 +447,11 @@ namespace hnswlib {
         float hops = 0.0;
         float hops0 = 0.0;
 
-        void setElementLevels(const vector<size_t> &elements_per_level, bool one_layer=true)
+        void setElementLevels(bool one_layer=true)
         {
-            if (elements_per_level.size() == 0) {
-                std::uniform_real_distribution<double> distribution(0.0, 1.0);
-                for (size_t i = 0; i < maxelements_; ++i)
-                    elementLevels[i] = !one_layer ? (int) (-log(distribution(generator)) * mult_) : 0;
-            } else {
-                for (size_t i = 0; i < maxelements_; ++i) {
-                    if (one_layer){
-                        elementLevels[i] = 0;
-                        continue;
-                    }
-                    if (i < elements_per_level[5])
-                        elementLevels[i] = 5;
-                    else if (i < elements_per_level[5] + elements_per_level[4])
-                        elementLevels[i] = 4;
-                    else if (i < elements_per_level[5] + elements_per_level[4] +
-                                 elements_per_level[3])
-                        elementLevels[i] = 3;
-                    else if (i < elements_per_level[5] + elements_per_level[4] +
-                                 elements_per_level[3] + elements_per_level[2])
-                        elementLevels[i] = 2;
-                    else if (i < elements_per_level[5] + elements_per_level[4] +
-                                 elements_per_level[3] + elements_per_level[2] + elements_per_level[1])
-                        elementLevels[i] = 1;
-                    else
-                        elementLevels[i] = 0;
-                }
-            }
+            std::uniform_real_distribution<double> distribution(0.0, 1.0);
+            for (size_t i = 0; i < maxelements_; ++i)
+                elementLevels[i] = !one_layer ? (int) (-log(distribution(generator)) * mult_) : 0;
         }
 
         void addPoint(void *datapoint, labeltype label)
@@ -740,7 +716,7 @@ namespace hnswlib {
             visitedsetpool = new VisitedSetPool(1);
 
             /** Hierarcy **/
-            linkLists_ = (char **) malloc(sizeof(void *) * maxelements_));
+            linkLists_ = (char **) malloc(sizeof(void *) * maxelements_);
 
             elementLevels = vector<char>(maxelements_);
             maxlevel_ = 0;
