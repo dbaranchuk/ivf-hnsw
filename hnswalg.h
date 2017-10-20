@@ -521,8 +521,7 @@ namespace hnswlib {
         void merge(const HierarchicalNSW<dist_t, vtype> *hnsw)
         {
             int counter = 0;
-            float average_ll_size = 0.0;
-
+#pragma omp parallel for num_threads(32)
             for (int i = 0; i < maxelements_; i++){
                 float *data = (float *) getDataByInternalId(i);
                 linklistsizeint *ll1 = get_linklist0(i);
@@ -563,23 +562,23 @@ namespace hnswlib {
 
                 if (*ll1 == params[i_maxM]) continue;
 
-                unordered_set<tableint> linkSet;
-                for (int i = 0; i < *ll1; i++)
-                    linkSet.insert(links1[i]);
-
-                auto tmp = searchKnn((void *) data, 100);
-                std::priority_queue<std::pair<dist_t, tableint>> unusedNN;
-
-                while (tmp.size() > 0) {
-                    if (linkSet.count(tmp.top().second) == 0)
-                        unusedNN.emplace(-tmp.top().first, tmp.top().second);
-                    tmp.pop();
-                }
-                while (*ll1 != params[i_maxM] || unusedNN.size() != 0){
-                    links1[*ll1] = unusedNN.top().second;
-                    unusedNN.pop();
-                    ll1[0]++;
-                }
+//                unordered_set<tableint> linkSet;
+//                for (int i = 0; i < *ll1; i++)
+//                    linkSet.insert(links1[i]);
+//
+//                auto tmp = searchKnn((void *) data, 100);
+//                std::priority_queue<std::pair<dist_t, tableint>> unusedNN;
+//
+//                while (tmp.size() > 0) {
+//                    if (linkSet.count(tmp.top().second) == 0)
+//                        unusedNN.emplace(-tmp.top().first, tmp.top().second);
+//                    tmp.pop();
+//                }
+//                while (*ll1 != params[i_maxM] || unusedNN.size() != 0){
+//                    links1[*ll1] = unusedNN.top().second;
+//                    unusedNN.pop();
+//                    ll1[0]++;
+//                }
                 if (*ll1 < params[i_maxM])
                     counter++;
             }
