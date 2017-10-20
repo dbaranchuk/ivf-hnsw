@@ -527,6 +527,90 @@ namespace hnswlib {
             }
         }
 
+//        void getNeighborsByHeuristic3(priority_queue<HnswNodeDistCloser<dist_t>> &resultSet1, const int NN)
+//        {
+//            unordered_set<HnswNode *> candidates;
+//            for (int i = resultSet1.size() - 1; i >= 0; i--) {
+//                // inputCopy[i] = resultSet1.top();
+//                candidates.insert(resultSet1.top().getMSWNodeHier());
+//                for (HnswNode *n : resultSet1.top().getMSWNodeHier()->getAllFriends(level))
+//                    candidates.insert(n);
+//                resultSet1.pop();
+//            }
+//            for (HnswNode *n : candidates) {
+//                if (n != this)
+//                    resultSet1.emplace(space->IndexTimeDistance(n->getData(), this->getData()), n);
+//            }
+//
+//            if (resultSet1.size() < NN) {
+//                return;
+//            }
+//
+//            vector<HnswNodeDistCloser<dist_t>> inputCopy(resultSet1.size());
+//            vector<HnswNodeDistCloser<dist_t>> templist;
+//            vector<HnswNodeDistCloser<dist_t>> returnlist;
+//            vector<HnswNodeDistCloser<dist_t>> highPriorityList;
+//            for (int i = resultSet1.size() - 1; i >= 0; i--) {
+//                inputCopy[i] = resultSet1.top();
+//                resultSet1.pop();
+//            }
+//            for (int i = 0; i < inputCopy.size(); i++) {
+//                if (highPriorityList.size() >= NN)
+//                    break;
+
+//                HnswNodeDistCloser<dist_t> curen = inputCopy[i];
+//                dist_t dist_to_query = curen.getDistance();
+//
+//                int good = 2;
+//                for (HnswNodeDistCloser<dist_t> curen2 : templist) {
+//                    dist_t curdist =
+//                            space->IndexTimeDistance(curen2.getMSWNodeHier()->getData(), curen.getMSWNodeHier()->getData());
+//                    if (curdist < dist_to_query) {
+//                        if (good == 2)
+//                            good = 1;
+//                        break;
+//                    }
+//                }
+//                for (HnswNodeDistCloser<dist_t> curen2 : highPriorityList) {
+//                    dist_t curdist =
+//                            space->IndexTimeDistance(curen2.getMSWNodeHier()->getData(), curen.getMSWNodeHier()->getData());
+//
+//                    if (curdist < dist_to_query) {
+//                        good = 0;
+//                        break;
+//                    }
+//                }
+//                if (good)
+//                    for (HnswNodeDistCloser<dist_t> curen2 : returnlist) {
+//                        dist_t curdist =
+//                                space->IndexTimeDistance(curen2.getMSWNodeHier()->getData(), curen.getMSWNodeHier()->getData());
+//
+//                        if (curdist < dist_to_query) {
+//                            good = 0;
+//                            break;
+//                        }
+//                    }
+//
+//                if (good == 2)
+//                    highPriorityList.push_back(curen);
+//                else if (good == 1)
+//                    returnlist.push_back(curen);
+//                else
+//                    templist.push_back(curen);
+//            }
+//
+//            for (HnswNodeDistCloser<dist_t> curen2 : highPriorityList) {
+//                if (resultSet1.size() >= NN)
+//                    break;
+//                resultSet1.emplace(curen2.getDistance(), curen2.getMSWNodeHier());
+//            }
+//            for (HnswNodeDistCloser<dist_t> curen2 : returnlist) {
+//                if (resultSet1.size() >= NN)
+//                    break;
+//                resultSet1.emplace(curen2.getDistance(), curen2.getMSWNodeHier());
+//            }
+//        };
+
         void merge(const HierarchicalNSW<dist_t, vtype> *hnsw)
         {
             int counter = 0;
