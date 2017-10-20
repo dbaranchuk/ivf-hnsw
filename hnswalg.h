@@ -538,10 +538,10 @@ namespace hnswlib {
                     links.insert(links2[link]);
 
                 if (links.size() <= params[i_maxM]){
+                    int indx = 0;
                     for (labeltype link : links)
-                        *(links1++) = link;
-                    links1 -= links.size();
-                    *ll1 = links.size();
+                        links1[indx++] = link;
+                    *ll1 = indx;
                 } else {
                     std::priority_queue<std::pair<dist_t, tableint>> topResults;
 
@@ -563,23 +563,23 @@ namespace hnswlib {
 
                 if (*ll1 == params[i_maxM]) continue;
 
-                unordered_set<tableint> linkSet;
-                for (int i = 0; i < *ll1; i++){
-                    linkSet.insert(links1[i]);
-                }
-
-                auto tmp = searchKnn((void *) data, 100);
-                std::priority_queue<std::pair<dist_t, tableint>> unusedNN;
-
-                while (tmp.size() > 0) {
-                    if (linkSet.count(tmp.top().second) == 0)
-                        unusedNN.emplace(-tmp.top().first, tmp.top().second);
-                    tmp.pop();
-                }
-                while (*ll1 != params[i_maxM] || unusedNN.size() != 0){
-                    links1[*(ll1++)] = unusedNN.top().second;
-                    unusedNN.pop();
-                }
+//                unordered_set<tableint> linkSet;
+//                for (int i = 0; i < *ll1; i++){
+//                    linkSet.insert(links1[i]);
+//                }
+//
+//                auto tmp = searchKnn((void *) data, 100);
+//                std::priority_queue<std::pair<dist_t, tableint>> unusedNN;
+//
+//                while (tmp.size() > 0) {
+//                    if (linkSet.count(tmp.top().second) == 0)
+//                        unusedNN.emplace(-tmp.top().first, tmp.top().second);
+//                    tmp.pop();
+//                }
+//                while (*ll1 != params[i_maxM] || unusedNN.size() != 0){
+//                    links1[*(ll1++)] = unusedNN.top().second;
+//                    unusedNN.pop();
+//                }
                 if (*ll1 < params[i_maxM])
                     counter++;
             }
