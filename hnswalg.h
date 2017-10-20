@@ -551,7 +551,10 @@ namespace hnswlib {
                         topResults.emplace(std::make_pair(dist, link));
 
                     }
-                    getNeighborsByHeuristic(topResults, params[i_maxM]);
+                    //getNeighborsByHeuristic(topResults, params[i_maxM]);
+
+                    while (topResults.size() > params[i_maxM])
+                        topResults.pop();
 
                     int indx = 0;
                     while (topResults.size() > 0) {
@@ -562,9 +565,6 @@ namespace hnswlib {
                 }
 
                 if (*ll1 == params[i_maxM]) continue;
-
-                links1[*ll1] = 0;
-                *ll1 = *ll1 + 1;
 
 //                unordered_set<tableint> linkSet;
 //                for (int i = 0; i < *ll1; i++){
