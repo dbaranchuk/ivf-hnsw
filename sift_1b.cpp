@@ -440,7 +440,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
     //appr_alg->printListsize();
     //appr_alg->reorder_graph();
     //appr_alg->check_connectivity(massQA, qsize);
-    //appr_alg->printNumElements();
+    appr_alg->printNumElements();
 
     vector<std::priority_queue< std::pair<dist_t, labeltype >>> answers;
 
