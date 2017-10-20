@@ -564,7 +564,7 @@ namespace hnswlib {
                 if (*ll1 == params[i_maxM]) continue;
 
                 links1[*ll1] = 0;
-                (*ll1)++;
+                *ll1 = *ll1 + 1;
 
 //                unordered_set<tableint> linkSet;
 //                for (int i = 0; i < *ll1; i++){
