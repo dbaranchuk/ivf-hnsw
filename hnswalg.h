@@ -563,6 +563,7 @@ namespace hnswlib {
 
                 if (*ll1 == params[i_maxM]) continue;
 
+                links1[ll1++] = 0;
 //                unordered_set<tableint> linkSet;
 //                for (int i = 0; i < *ll1; i++){
 //                    linkSet.insert(links1[i]);
