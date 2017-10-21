@@ -395,8 +395,8 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
         //appr_alg->merge(hnsw);
         //delete hnsw;
 
-        appr_alg->SaveInfo("/sata2/dbaranchuk/to_vision/deep4m_ef500_clusters3993883_M16_hnsw_merge.bin");
-        appr_alg->SaveEdges("/sata2/dbaranchuk/to_vision/deep4m_ef500_clusters3993883_M16_hnsw_merge.ivecs");
+        //appr_alg->SaveInfo("/sata2/dbaranchuk/to_vision/deep4m_ef500_clusters3993883_M16_hnsw_merge.bin");
+        //appr_alg->SaveEdges("/sata2/dbaranchuk/to_vision/deep4m_ef500_clusters3993883_M16_hnsw_merge.ivecs");
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
