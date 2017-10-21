@@ -829,11 +829,13 @@ namespace hnswlib {
                 float *data = (float *) getDataByInternalId(i);
 
                 linklistsizeint *ll1 = get_linklist0(i);
-//                linklistsizeint *ll2 = hnsw->get_linklist0(i);
                 linklistsizeint *ll2 = hnsw->get_linklist0(maxelements_- 1 - i);
 
-//                if (i < 50)
-//                    std::cout << space->fstdistfunc((void *)data, (void *)hnsw->getDataByInternalId(maxelements_- 1 - i)) << std::endl;
+                float identity = space->fstdistfunc((void *)data, (void *)hnsw->getDataByInternalId(maxelements_- 1 - i);
+                if (identity > 0.0000001){
+                    std::cout << "Merging different points\n";
+                    exit(1);
+                }
 
                 size_t size1 = *ll1;
                 size_t size2 = *ll2;
