@@ -359,7 +359,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
     const std::vector<size_t> elements_per_level;// = {100000000, 5000000, 250000, 12500, 625, 32};
     //const map<size_t, pair<size_t, size_t>> M_map = {{5263157, {16, 32}}, {vecsize, {M, 2*M}}};
     cout << "Loading GT:\n";
-    const int gt_dim = 10000;
+    const int gt_dim = 100;
     unsigned int *massQA = new unsigned int[qsize * gt_dim];
     loadXvecs<unsigned int>(path_gt, massQA, qsize, gt_dim);
 
