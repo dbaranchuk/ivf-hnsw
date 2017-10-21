@@ -853,7 +853,7 @@ namespace hnswlib {
                         topResults.emplace(std::make_pair(dist, link));
                     }
 
-                    getNeighborsByHeuristicMerge(topResults, params[i_maxM]);
+                    getNeighborsByHeuristic(topResults, params[i_maxM]);
 
                     int indx = 0;
                     while (topResults.size() > 0) {
