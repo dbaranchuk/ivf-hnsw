@@ -392,10 +392,10 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
         appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, path_info, path_data, path_edges);
 //        HierarchicalNSW<dist_t, vtype> *hnsw = new HierarchicalNSW<dist_t, vtype>(l2space, "/sata2/dbaranchuk/to_vision/deep4m_ef260_clusters3993883_M16_hnsw_reverse.bin",
 //        "/sata2/dbaranchuk/to_vision/centroids4M_reverse.fvecs", "/sata2/dbaranchuk/to_vision/deep4m_ef260_clusters3993883_M16_hnsw_reverse.ivecs");
-//        HierarchicalNSW<dist_t, vtype> *hnsw = new HierarchicalNSW<dist_t, vtype>(l2space, "/sata2/dbaranchuk/to_vision/sift/sift1m_ef320_M16_hnsw_reverse.bin",
-//                                                                                  "/sata2/dbaranchuk/to_vision/sift/sift_base_reverse.bvecs", "/sata2/dbaranchuk/to_vision/sift/sift1m_ef320_M16_hnsw_reverse.ivecs");
-//        appr_alg->merge(hnsw);
-//        delete hnsw;
+        HierarchicalNSW<dist_t, vtype> *hnsw = new HierarchicalNSW<dist_t, vtype>(l2space, "/sata2/dbaranchuk/to_vision/sift/sift1m_ef320_M16_hnsw_reverse.bin",
+                                                                                  "/sata2/dbaranchuk/to_vision/sift/sift_base_reverse.bvecs", "/sata2/dbaranchuk/to_vision/sift/sift1m_ef320_M16_hnsw_reverse.ivecs");
+        appr_alg->merge(hnsw);
+        delete hnsw;
 
 //        appr_alg->SaveInfo("/sata2/dbaranchuk/to_vision/deep4m_ef260_clusters3993883_M16_hnsw_merge.bin");
 //        appr_alg->SaveEdges("/sata2/dbaranchuk/to_vision/deep4m_ef260_clusters3993883_M16_hnsw_merge.ivecs");
