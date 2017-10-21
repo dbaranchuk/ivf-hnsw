@@ -547,7 +547,7 @@ namespace hnswlib {
                 curdist = space->fstdistfunc(query_data, getDataByInternalId(enterpoint_node));
 
             dist_calc++;
-            std::cout << currObj << std::endl;
+            std::cout << curdist<< std::endl;
             for (int level = maxlevel_; level > 0; level--) {
                 bool changed = true;
                 while (changed) {
@@ -576,7 +576,7 @@ namespace hnswlib {
                     }
                 }
             }
-            std::cout << currObj << std::endl;
+            std::cout << curdist << std::endl;
             enterpoint0 = currObj;
 
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> tmpTopResults = searchBaseLayerST(
