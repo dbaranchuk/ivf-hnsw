@@ -547,6 +547,7 @@ namespace hnswlib {
                 curdist = space->fstdistfunc(query_data, getDataByInternalId(enterpoint_node));
 
             dist_calc++;
+            std::cout << maxlevel_ << std::endl;
             for (int level = maxlevel_; level > 0; level--) {
                 bool changed = true;
                 while (changed) {
@@ -824,6 +825,7 @@ namespace hnswlib {
         {
             int counter = 0;
 //#pragma omp parallel for num_threads(32)
+
             for (int i = 0; i < maxelements_; i++){
                 float *data = (float *) getDataByInternalId(i);
 
