@@ -845,7 +845,7 @@ namespace hnswlib {
                 for (labeltype link = 0; link < size1; link++)
                     links.insert(links1[link]);
                 for (labeltype link = 0; link < size2; link++)
-                    links.insert(links2[link]);
+                    links.insert(maxelements_- 1 - links2[link]);
 
                 if (links.size() <= params[i_maxM]){
                     int indx = 0;
