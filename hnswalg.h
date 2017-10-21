@@ -735,7 +735,7 @@ namespace hnswlib {
                     maxlevel_ = elementLevels[i];
                 }
             }
-            cout << enterpoint_node << " " << elementLevels[enterpoint_node] << " " << maxlevel_ << endl;
+            cout << enterpoint_node << " " << (int)(elementLevels[enterpoint_node]) << " " << maxlevel_ << endl;
             cout << "Predicted size=" << total_size / (1000 * 1000) << "\n";
             input.close();
         }
