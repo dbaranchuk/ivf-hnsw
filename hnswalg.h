@@ -827,8 +827,8 @@ namespace hnswlib {
             for (int i = 0; i < maxelements_; i++){
                 float *data = (float *) getDataByInternalId(i);
                 linklistsizeint *ll1 = get_linklist0(i);
-                linklistsizeint *ll2 = hnsw->get_linklist0(i);
-//                linklistsizeint *ll2 = hnsw->get_linklist0(maxelements_-1 - i);
+//                linklistsizeint *ll2 = hnsw->get_linklist0(i);
+                linklistsizeint *ll2 = hnsw->get_linklist0(maxelements_-1 - i);
                 size_t size1 = *ll1;
                 size_t size2 = *ll2;
                 labeltype *links1 = (labeltype *)(ll1 + 1);
