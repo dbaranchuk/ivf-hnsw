@@ -831,8 +831,8 @@ namespace hnswlib {
 //                linklistsizeint *ll2 = hnsw->get_linklist0(i);
                 linklistsizeint *ll2 = hnsw->get_linklist0(maxelements_- 1 - i);
 
-                if (i < 50)
-                    std::cout << space->fstdistfunc((void *)data, (void *)hnsw->getDataByInternalId(maxelements_- 1 - i)) << std::endl;
+//                if (i < 50)
+//                    std::cout << space->fstdistfunc((void *)data, (void *)hnsw->getDataByInternalId(maxelements_- 1 - i)) << std::endl;
 
                 size_t size1 = *ll1;
                 size_t size2 = *ll2;
@@ -858,7 +858,7 @@ namespace hnswlib {
                         topResults.emplace(std::make_pair(dist, link));
                     }
 
-                    getNeighborsByHeuristicMerge(topResults, params[i_maxM]);
+                    getNeighborsByHeuristic(topResults, params[i_maxM]);
 
                     int indx = 0;
                     while (topResults.size() > 0) {
