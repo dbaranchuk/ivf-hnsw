@@ -107,7 +107,7 @@ namespace hnswlib {
             maxlevel_ = -1;
 
             linkLists_ = (char **) malloc(sizeof(void *) * maxelements_);
-            mult_ = 1 / log(1.0 * params[0*params_num + i_M]);//M_);
+            mult_ = 1 / log(1.0 * params[0*params_num + i_M]);
         }
 
         ~HierarchicalNSW()
