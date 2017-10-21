@@ -450,8 +450,10 @@ namespace hnswlib {
         void setElementLevels(bool one_layer=true)
         {
             std::uniform_real_distribution<double> distribution(0.0, 1.0);
-            for (size_t i = 0; i < maxelements_; ++i)
+            for (size_t i = 0; i < maxelements_; ++i) {
                 elementLevels[i] = !one_layer ? (int) (-log(distribution(generator)) * mult_) : 0;
+                elementLevels[i] = (elementLevels[i] > 4) ? 4 : elementLevels[i];
+            }
         }
 
         void addPoint(void *datapoint, labeltype label)
