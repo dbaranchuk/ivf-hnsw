@@ -699,7 +699,6 @@ namespace hnswlib {
             readBinaryPOD(input, enterpoint_node);
             readBinaryPOD(input, parts_num);
             readBinaryPOD(input, params_num);
-            cout << enterpoint_node << " " << parts_num << " " << params_num << endl;
 
             params = new size_t[params_num*parts_num];
             input.read((char *) params, parts_num*params_num*sizeof(size_t));
@@ -736,6 +735,7 @@ namespace hnswlib {
                     maxlevel_ = elementLevels[i];
                 }
             }
+            cout << enterpoint_node << " " << elementLevels[enterpoint_node] << " " << maxlevel_ << endl;
             cout << "Predicted size=" << total_size / (1000 * 1000) << "\n";
             input.close();
         }
