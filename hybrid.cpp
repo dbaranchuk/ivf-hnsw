@@ -354,7 +354,7 @@ void check_idea(Index *index, const char *path_centroids,
     /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
     std::cout << "Compute centroid-neighbor_centroid and centroid-group_point vectors\n";
     std::vector<float> normalized_centroid_vectors (ncentroids * vecdim);
-    std::vector<float> point_vectors (ncentroids * vecdim);
+    std::vector<float> point_vectors (groupsize * vecdim);
 
     for (int i = 0; i < ncentroids; i++){
         float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i].second);
