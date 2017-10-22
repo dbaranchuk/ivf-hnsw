@@ -337,7 +337,6 @@ void check_idea(Index *index, const char *path_centroids,
                 for (int d = 0; d < vecdim; d++)
                     data[counter * vecdim + d] = batch[i * vecdim + d];
                 counter++;
-
             }
             if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
             if (counter == ids.size())
