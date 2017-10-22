@@ -290,6 +290,8 @@ void check_idea(Index *index, const char *path_centroids,
     }
 
     /** Pruning **/
+    std::cout << "Prune bad centroids by hnsw heuristic\n";
+
     index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
     size_t ncentroids = nn_centroids_before_heuristic.size();
 
@@ -310,6 +312,8 @@ void check_idea(Index *index, const char *path_centroids,
     size_t groupsize = ids.size();
 
     /** Read original vectors of the 100th group **/
+    std::cout << "Reading original group vectors\n";
+
     std::vector<float> data(ids.size() * vecdim);
     std::unordered_map<idx_t, int> ids_map;
     for (int i = 0; i < ids.size(); i++)
@@ -334,6 +338,9 @@ void check_idea(Index *index, const char *path_centroids,
                 }
             }
         }
+        printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
+        if (ids_map.size() == 0)
+            break;
     }
     idx_input.close();
     base_input.close();
@@ -358,7 +365,7 @@ void check_idea(Index *index, const char *path_centroids,
     std::cout << "Residual distances\n";
     for (int i = 0; i < groupsize; i++) {
         compute_vector(point_vectors.data() + i * vecdim, centroid, data.data() + i * vecdim, vecdim);
-        std::cout << i << " " << faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim) << std::endl;
+        if (i < 32) std::cout << i << " " << faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim) << std::endl;
     }
 
     /** Find alphas for vectors **/
@@ -403,7 +410,7 @@ void check_idea(Index *index, const char *path_centroids,
             results.emplace(std::make_pair(-dist, c));
         }
         sub_centroids[i] = results.top().second;
-        std::cout << i << " " << -results.top().first << std::endl;
+        if (i < 32) std::cout << i << " " << -results.top().first << std::endl;
     }
 }
 
