@@ -406,7 +406,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
         cout << "Building index:\n";
         size_t j1 = 0;
         appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, M_map, efConstruction);
-        appr_alg->setElementLevels(false);
+        //appr_alg->setElementLevels(false);
 
         StopW stopw = StopW();
         StopW stopw_full = StopW();
@@ -446,7 +446,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
     //appr_alg->printListsize();
     //appr_alg->reorder_graph();
     //appr_alg->check_connectivity(massQA, qsize);
-    appr_alg->printNumElements();
+    //appr_alg->printNumElements();
 
     vector<std::priority_queue< std::pair<dist_t, labeltype >>> answers;
 
