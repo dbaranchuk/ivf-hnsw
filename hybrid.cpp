@@ -293,7 +293,7 @@ void check_idea(Index *index, const char *path_centroids,
     index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
     size_t ncentroids = nn_centroids_before_heuristic.size();
 
-    if (nn_centroids > nc){
+    if (ncentroids > nc){
         std::cout << "Wrong number of nn centroids\n";
         exit(1);
     }
@@ -306,7 +306,7 @@ void check_idea(Index *index, const char *path_centroids,
 
     /** Take 100th group element ids and codes **/
     std::vector<idx_t> ids = index->ids[centroid_num];
-    std::vector<idx_t> codes = index->codes[centroid_num];
+    std::vector<uint8_t > codes = index->codes[centroid_num];
     size_t groupsize = ids.size();
 
     /** Read original vectors of the 100th group **/
@@ -396,9 +396,10 @@ void check_idea(Index *index, const char *path_centroids,
     std::cout << "Compute subdistances\n";
 
     for (int i = 0; i < groupsize; i++){
+        float *point = data.data() + i*vecdim;
         std::priority_queue<std::pair<float, idx_t>> results;
         for (int c = 0; c < ncentroids; c++){
-            float dist = faiss::fvec_L2sqr(sub_centroids.data() + c*vecdim, vecdim);
+            float dist = faiss::fvec_L2sqr(sub_centroids.data() + c*vecdim, point, vecdim);
             results.emplace(std::make_pair(-dist, c));
         }
         sub_centroids[i] = results.top().second;
