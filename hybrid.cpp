@@ -284,23 +284,24 @@ void check_idea(Index *index, const char *path_centroids,
 
     /** Remove the 100th centroid from answers **/
     std::priority_queue<std::pair<float, idx_t>> nn_centroids_before_heuristic;
-    std::vector<std::pair<float, idx_t>> nn_centroids;
-    while (nn_centroids_queue.size() > 1){
+    while (nn_centroids_raw.size() > 1){
         nn_centroids_before_heuristic.emplace(nn_centroids_raw.top());
         nn_centroids_raw.pop();
     }
 
     /** Pruning **/
     index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
-    std::vector<std::pair<float, idx_t>> nn_centroids;
-    while (nn_centroids_raw.size() > 0){
-        nn_centroids.push_front(nn_centroids_before_heuristic.top());
-        nn_centroids_before_heuristic.pop();
-    }
+    size_t ncentroids = nn_centroids_before_heuristic.size();
 
-    if (nn_centroids.size() > nc){
+    if (nn_centroids > nc){
         std::cout << "Wrong number of nn centroids\n";
         exit(1);
+    }
+
+    std::vector<std::pair<float, idx_t>> nn_centroids(ncentroids);
+    while (nn_centroids_before_heuristic.size() > 0){
+        nn_centroids[nn_centroids_before_heuristic.size() - 1] = nn_centroids_before_heuristic.top();
+        nn_centroids_before_heuristic.pop();
     }
 
     /** Take 100th group element ids and codes **/
@@ -343,7 +344,6 @@ void check_idea(Index *index, const char *path_centroids,
     }
 
     /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
-    size_t ncentroids = nn_centroids.size();
     std::vector<float> normalized_centroid_vectors (ncentroids * vecdim);
     std::vector<float> point_vectors (ncentroids * vecdim);
 
@@ -398,7 +398,7 @@ void check_idea(Index *index, const char *path_centroids,
     for (int i = 0; i < groupsize; i++){
         std::priority_queue<std::pair<float, idx_t>> results;
         for (int c = 0; c < ncentroids; c++){
-            float dist = faiss::fvec_L2sqr(sub_centroids.data() + c*vecdim);
+            float dist = faiss::fvec_L2sqr(sub_centroids.data() + c*vecdim, vecdim);
             results.emplace(std::make_pair(-dist, c));
         }
         sub_centroids[i] = results.top().second;
