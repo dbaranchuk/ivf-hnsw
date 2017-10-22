@@ -357,7 +357,7 @@ void check_idea(Index *index, const char *path_centroids,
 
     std::cout << "Residual distances\n";
     for (int i = 0; i < groupsize; i++) {
-        compute_vector(point_vectors.data() + i * vecdim, centroid, data.data() + i * d, vecdim);
+        compute_vector(point_vectors.data() + i * vecdim, centroid, data.data() + i * vecdim, vecdim);
         std::cout << i << " " << faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim) << std::endl;
     }
 
