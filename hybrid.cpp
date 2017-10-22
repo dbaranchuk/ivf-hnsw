@@ -278,6 +278,8 @@ void check_idea(Index *index, const char *path_centroids,
 {
     const int nc = 16;
     const int centroid_num = 100;
+    const char *path_group = "group_vectors.fvecs";
+
     /** Consider the 100th centroid **/
     float *centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
     auto nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nc + 1);
@@ -313,8 +315,12 @@ void check_idea(Index *index, const char *path_centroids,
 
     /** Read original vectors of the 100th group **/
     std::cout << "Reading original " << groupsize << " group vectors\n";
-    std::vector<float> data(ids.size() * vecdim);
-    {
+    std::vector<float> data(groupsize * vecdim);
+    if (exists_test(path_group)){
+        std::ifstream input(path_group, ios::binary);
+        readXvec<float>(input, data.data(), vecdim, groupsize);
+        input.close();
+    } else {
         const int batch_size = 1000000;
         std::ifstream base_input(path_data, ios::binary);
         std::ifstream idx_input(path_precomputed_idxs, ios::binary);
@@ -339,17 +345,25 @@ void check_idea(Index *index, const char *path_centroids,
                 counter++;
             }
             if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
-            if (counter == ids.size())
+            if (counter == groupsize)
                 break;
         }
         idx_input.close();
         base_input.close();
 
-        if (counter != ids.size()) {
+        if (counter != groupsize) {
             std::cout << "Counter != ids.size()\n";
             exit(1);
         }
+
+        FILE *fout = fopen(path_group, "wb");
+        for (int i = 0; i < groupsize; i++){
+            fwrite(&vecdim, sizeof(int), 1, fout);
+            fwrite(data.data() + i*vecdim, sizeof(float), vecdim, fout);
+        }
+        fclose(fout);
     }
+
     /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
     std::cout << "Compute centroid-neighbor_centroid and centroid-group_point vectors\n";
     std::vector<float> normalized_centroid_vectors (ncentroids * vecdim);
