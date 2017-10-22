@@ -161,26 +161,82 @@ import matplotlib.pyplot as plt
 import numpy
 import re
 
-splitted_cM16_M16 = re.findall(r"[0-9.]+", cM16_M16_txt)
-splitted_cM16_M4 = re.findall(r"[0-9.]+", cM16_M4_txt)
-splitted_cM4_M4 = re.findall(r"[0-9.]+", cM4_M4_txt)
+# splitted_cM16_M16 = re.findall(r"[0-9.]+", cM16_M16_txt)
+# splitted_cM16_M4 = re.findall(r"[0-9.]+", cM16_M4_txt)
+# splitted_cM4_M4 = re.findall(r"[0-9.]+", cM4_M4_txt)
+#
+# cM16_M16 = splitted_cM16_M16[1::5]
+# cM16_M4 = splitted_cM16_M4[1::5]
+# cM4_M4 = splitted_cM4_M4[1::5]
+#
+# cM16_M16_us = splitted_cM16_M16[2::5]
+# cM16_M4_us = splitted_cM16_M4[2::5]
+# cM4_M4_us = splitted_cM4_M4[2::5]
+#
+#
+# plt.plot(cM16_M16_us, cM16_M16, 'r', label = 'cM16_M16')
+# plt.plot(cM4_M4_us, cM4_M4, 'g', label = 'cM4_M4')
+# plt.plot(cM16_M4_us, cM16_M4, 'b', label = 'cM16_M4')
+#
+# plt.axis([0, 1550, 0, 1])
+# plt.xlabel('Time', fontsize=14)
+# plt.ylabel('Recall@1', fontsize=14)
+# # plt.text(ef[-1]+1, cM16_M16[-1], 'cM16_M16_ef_240', fontsize=9, color=(1,0,0))
+# # plt.text(ef[-1]+1, float(cM16_M2[-1])-0.1, 'cM16_M2_ef_240', fontsize=9, color=(0,0,1))
+# # plt.text(ef[-1]+1, cM2_M2[-1], 'cM2_M2_ef_240', fontsize=9, color=(0,0.7,0))
+# #
+# # plt.text(ef[-1]+1, cM16_M16_ef_60[-1], 'cM16_M16_ef_60', fontsize=9, color=(1,0,0))
+# # plt.text(ef[-1]+1, cM16_M2_ef_60[-1], 'cM16_M2_ef_60', fontsize=9, color=(0,0,1))
+# # plt.text(ef[-1]+1, cM2_M2_ef_60[-1], 'cM2_M2_ef_60', fontsize=9, color=(0,0.7,0))
+#
+#
+# plt.title('Recall/Time')
+# plt.legend(bbox_to_anchor=(0., 1.01, 1., .101), loc=3,
+#            ncol=3, mode="expand", borderaxespad=0., prop={'size': 11})
+# plt.savefig('recall_us.png')
 
-cM16_M16 = splitted_cM16_M16[1::5]
-cM16_M4 = splitted_cM16_M4[1::5]
-cM4_M4 = splitted_cM4_M4[1::5]
+orig_txt = '''
+120	0.787545	358.958 us	2122.75 dcs	129.144 hps
+160	0.80585	455.181 us	2666.25 dcs	171.144 hps
+200	0.815611	546.476 us	3185.79 dcs	213.77 hps
+240	0.821317	636.143 us	3686.06 dcs	256.428 hps
+280	0.824695	725.797 us	4169.93 dcs	294.125 hps
+320	0.827003	814.607 us	4639.72 dcs	330.717 hps
+360	0.828602	901.919 us	5096.82 dcs	367.312 hps
+400	0.829683	986.963 us	5543.53 dcs	403.919 hps
+440	0.830499	1071.78 us	5980.05 dcs	440.521 hps
+480	0.831033	1153.97 us	6408.05 dcs	477.132 hps
+'''
 
-cM16_M16_us = splitted_cM16_M16[2::5]
-cM16_M4_us = splitted_cM16_M4[2::5]
-cM4_M4_us = splitted_cM4_M4[2::5]
+merge_txt = '''
+120	0.808176	427.333 us	2568.52 dcs	128.981 hps
+160	0.819529	540.34 us	3220.56 dcs	171.021 hps
+200	0.825127	648.79 us	3839.98 dcs	213.665 hps
+240	0.828123	756.561 us	4433.18 dcs	256.347 hps
+280	0.829903	862.392 us	5005.18 dcs	294.059 hps
+320	0.831001	969.558 us	5558.38 dcs	330.66 hps
+360	0.831717	1069.41 us	6095.21 dcs	367.268 hps
+400	0.832177	1169.57 us	6618.22 dcs	403.871 hps
+440	0.832465	1268.94 us	7128.19 dcs	440.477 hps
+480	0.832672	1365.06 us	7627.12 dcs	477.092 hps
+'''
+
+splitted_orig = re.findall(r"[0-9.]+", orig_txt)
+splitted_merge = re.findall(r"[0-9.]+", merge_txt)
+
+orig = splitted_orig[1::5]
+merge = splitted_merge[1::5]
+
+orig_us = splitted_orig[2::5]
+merge_us = splitted_merge[2::5]
 
 
-plt.plot(cM16_M16_us, cM16_M16, 'r', label = 'cM16_M16')
-plt.plot(cM4_M4_us, cM4_M4, 'g', label = 'cM4_M4')
-plt.plot(cM16_M4_us, cM16_M4, 'b', label = 'cM16_M4')
+plt.plot(orig_us, orig, 'r', label = 'Original')
+plt.plot(merge_us, merge, 'g', label = 'Merged')
 
-plt.axis([0, 1550, 0, 1])
+plt.axis([0, 1160, 0.75, 1])
 plt.xlabel('Time', fontsize=14)
-plt.ylabel('Recall@1', fontsize=14)
+plt.ylabel('Recall@120', fontsize=14)
 # plt.text(ef[-1]+1, cM16_M16[-1], 'cM16_M16_ef_240', fontsize=9, color=(1,0,0))
 # plt.text(ef[-1]+1, float(cM16_M2[-1])-0.1, 'cM16_M2_ef_240', fontsize=9, color=(0,0,1))
 # plt.text(ef[-1]+1, cM2_M2[-1], 'cM2_M2_ef_240', fontsize=9, color=(0,0.7,0))
@@ -193,5 +249,4 @@ plt.ylabel('Recall@1', fontsize=14)
 plt.title('Recall/Time')
 plt.legend(bbox_to_anchor=(0., 1.01, 1., .101), loc=3,
            ncol=3, mode="expand", borderaxespad=0., prop={'size': 11})
-plt.savefig('recall_us.png')
-#plt.s:ow()
+plt.savefig('recall_us_merge.png')

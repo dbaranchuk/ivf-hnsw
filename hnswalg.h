@@ -579,7 +579,7 @@ namespace hnswlib {
 
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> tmpTopResults = searchBaseLayerST(
                     currObj, query_data, ef_, q_idx);
-            std::priority_queue<std::pair<dist_t, labeltype >> results;
+            //std::priority_queue<std::pair<dist_t, labeltype >> results;
 
             // Remove clusters as answers
             std::priority_queue<std::pair<dist_t, tableint >> topResults;

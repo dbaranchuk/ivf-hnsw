@@ -256,6 +256,144 @@ static void check_precomputing(Index *index, const char *path_data, const char *
     base_input.close();
 }
 
+void compute_vector(float *vector, const float *p1, const float *p2, const int d)
+{
+    for (int i = 0; i < d; i++)
+        vector[i] = p1[i] - p2[i];
+}
+
+void normalize_vector(float *vector, const int d)
+{
+    float norm = faiss::fvec_norm_L2(vector, d);
+    for (int i = 0; i < d; i++)
+        vector[i] /= norm;
+}
+
+
+
+//void check_idea(Index *index, const char *path_centroids,
+//                const char *path_precomputed_idxs, const char *path_data,
+//                const int vecsize, const int vecdim)
+//{
+//    const int nc = 16;
+//    const int centroid_num = 100;
+//    /** Consider the 100th centroid **/
+//    float *centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
+//    auto nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nc + 1);
+//
+//    /** Remove the 100th centroid from answers **/
+//    std::priority_queue<std::pair<float, idx_t>> nn_centroids_before_heuristic;
+//    std::vector<std::pair<float, idx_t>> nn_centroids;
+//    while (nn_centroids_queue.size() > 1){
+//        nn_centroids_before_heuristic.emplace(nn_centroids_raw.top());
+//        nn_centroids_raw.pop();
+//    }
+//
+//    /** Pruning **/
+//    index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
+//    std::vector<std::pair<float, idx_t>> nn_centroids;
+//    while (nn_centroids_raw.size() > 0){
+//        nn_centroids.push_front(nn_centroids_before_heuristic.top());
+//        nn_centroids_before_heuristic.pop();
+//    }
+//
+//    if (nn_centroids.size() > nc){
+//        std::cout << "Wrong number of nn centroids\n";
+//        exit(1);
+//    }
+//
+//    /** Take 100th group element ids and codes **/
+//    std::vector<idx_t> ids = index->ids[centroid_num];
+//    std::vector<idx_t> codes = index->codes[centroid_num];
+//    size_t groupsize = ids.size();
+//
+//    /** Read original vectors of the 100th group **/
+//    std::vector<float> data(ids.size() * vecdim);
+//    std::unordered_map<idx_t, int> ids_map;
+//    for (int i = 0; i < ids.size(); i++)
+//        ids_map.insert({ids[i], i});
+//
+//    size_t batch_size = 1000000;
+//    std::ifstream base_input(path_data, ios::binary);
+//    std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+//    std::vector<float> batch(batch_size * vecdim);
+//    std::vector<idx_t> idx_batch(batch_size);
+//
+//    for (int b = 0; b < (vecsize / batch_size); b++) {
+//        readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+//        readXvec<float>(base_input, batch.data(), vecdim, batch_size);
+//
+//        for (size_t i = 0; i < batch_size; i++){
+//            int element_num = batch_size*b + i;
+//            if (ids_map.count(element_num) == 1){
+//                for (int d = 0; d < vecdim; d++) {
+//                    data[ids_map[element_num] * vecdim + d] = batch[i * vecdim + d];
+//                    ids_map.erase(element_num);
+//                }
+//            }
+//        }
+//    }
+//    idx_input.close();
+//    base_input.close();
+//
+//    if (ids_map.size() > 0){
+//        std::cout <<"Ids map must be empty\n";
+//        exit(1);
+//    }
+//
+//    /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
+//    size_t ncentroids = nn_centroids.size();
+//    std::vector<float> normalized_centroid_vectors (ncentroids * vecdim);
+//    std::vector<float> point_vectors (ncentroids * vecdim);
+//
+//    for (int i = 0; i < ncentroids; i++){
+//        float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i].second);
+//        compute_vector(normalized_centroid_vectors.data() + i*vecdim, centroid, neighbor_centroid, vecdim);
+//
+//        /** Normalize them **/
+//        normalize_vector(normalized_centroid_vectors.data() + i*vecdim, vecdim);
+//    }
+//    for (int i = 0; i < groupsize; i++) {
+//        compute_vector(point_vectors.data() + i * vecdim, centroid, data.data() + i * d, vecdim);
+//    }
+//
+//    /** Find alphas for vectors **/
+//    std::vector<float> alphas(ncentroids);
+//    for (int c = 0; c < ncentroids; c++) {
+//        float *centroid_vector = normalized_centroid_vectors.data() + c*vecdim;
+//        float alpha = 0.0;
+//        int counter_positive = 0;
+//
+//        for (int i = 0; i < groupsize; i++) {
+//            float *point_vector = point_vectors.data() + i*vecdim;
+//            float inner_product = faiss::fvec_inner_product (centroid_vector, point_vector, vecdim);
+//            if (inner_product < 0)
+//                continue;
+//            alpha += inner_product;
+//            counter_positive++;
+//        }
+//        alpha /= counter_positive;
+//        alphas[c] = alpha;
+//    }
+//
+//    /** Compute final subcentroids **/
+//    std::vector<float> sub_centroids(ncentroids * vecdim);
+//    for (int c = 0; c < ncentroids; c++) {
+//        float *centroid_vector = normalized_centroid_vectors.data() + c * vecdim;
+//        float *sub_centroid = sub_centroids.data() + c * vecdim;
+//        float alpha = alphas[c];
+//        for (int i = 0; i < vecdim; i++)
+//            sub_centroid[i] = centroid_vector[i] * alpha;
+//    }
+//
+//    /** Compute sub idxs for group points **/
+//    for (int i = 0; i < groupsize; i++){
+//        std::priority_queue<std::pair<>>
+//        for (int c = 0; c < ncentroids; c++){
+//
+//        }
+//    }
+//}
 
 void hybrid_test(const char *path_centroids,
                  const char *path_index, const char *path_precomputed_idxs,

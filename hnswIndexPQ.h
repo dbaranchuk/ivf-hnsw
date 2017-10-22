@@ -99,7 +99,6 @@ namespace hnswlib {
         std::vector < std::vector<idx_t> > ids;
         std::vector < std::vector<uint8_t> > codes;
         std::vector < std::vector<uint8_t> > norm_codes;
-        //std::vector < std::vector<float> > p_c_dst;
 
         size_t *c_size_table = NULL;
         float *c_var_table = NULL;
@@ -114,7 +113,6 @@ namespace hnswlib {
             codes.reserve(ncentroids);
             norm_codes.reserve(ncentroids);
             ids.reserve(ncentroids);
-            //p_c_dst.reserve(ncentroids);
 
             pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
             norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
@@ -239,6 +237,7 @@ namespace hnswlib {
                 dis_table = new float [pq->ksub * pq->M];
 
             pq->compute_inner_prod_table(x, dis_table);
+            //std::priority_queue<std::pair<float, idx_t>, std::vector<pair<float, idx_t>>, CompareByFirst> topResults;
             std::priority_queue<std::pair<float, idx_t>> topResults;
 
             auto coarse = quantizer->searchKnn(x, nprobe);
