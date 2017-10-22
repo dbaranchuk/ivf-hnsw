@@ -9,6 +9,7 @@
 #include "hnswIndexPQ.h"
 #include "hnswlib.h"
 
+#include <cmath>
 #include <map>
 #include <set>
 #include <unordered_set>
@@ -256,18 +257,18 @@ static void check_precomputing(Index *index, const char *path_data, const char *
     base_input.close();
 }
 
-//void compute_vector(float *vector, const float *p1, const float *p2, const int d)
-//{
-//    for (int i = 0; i < d; i++)
-//        vector[i] = p1[i] - p2[i];
-//}
-//
-//void normalize_vector(float *vector, const int d)
-//{
-//    float norm = faiss::fvec_norm_L2(vector, d);
-//    for (int i = 0; i < d; i++)
-//        vector[i] /= norm;
-//}
+void compute_vector(float *vector, const float *p1, const float *p2, const int d)
+{
+    for (int i = 0; i < d; i++)
+        vector[i] = p1[i] - p2[i];
+}
+
+void normalize_vector(float *vector, const int d)
+{
+    float norm = sqrt(faiss::fvec_norm_L2sqr(vector, d));
+    for (int i = 0; i < d; i++)
+        vector[i] /= norm;
+}
 
 
 
