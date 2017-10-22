@@ -106,8 +106,8 @@ namespace hnswlib {
             enterpoint_node = -1;
             maxlevel_ = -1;
 
-            linkLists_ = (char **) malloc(sizeof(void *) * params[0*params_num + i_maxelements]);
-            mult_ = 1 / log(1.0 * params[0*params_num + i_M]);//M_);
+            linkLists_ = (char **) malloc(sizeof(void *) * maxelements_);
+            mult_ = 1 / log(1.0 * params[0*params_num + i_M]);
         }
 
         ~HierarchicalNSW()
@@ -447,34 +447,12 @@ namespace hnswlib {
         float hops = 0.0;
         float hops0 = 0.0;
 
-        void setElementLevels(const vector<size_t> &elements_per_level, bool one_layer=true)
+        void setElementLevels(bool one_layer=true)
         {
-            if (elements_per_level.size() == 0) {
-                std::uniform_real_distribution<double> distribution(0.0, 1.0);
-                for (size_t i = 0; i < maxelements_; ++i)
-                    elementLevels[i] = !one_layer ? (int) (-log(distribution(generator)) * mult_) : 0;
-            } else {
-                for (size_t i = 0; i < maxelements_; ++i) {
-                    if (one_layer){
-                        elementLevels[i] = 0;
-                        continue;
-                    }
-                    if (i < elements_per_level[5])
-                        elementLevels[i] = 5;
-                    else if (i < elements_per_level[5] + elements_per_level[4])
-                        elementLevels[i] = 4;
-                    else if (i < elements_per_level[5] + elements_per_level[4] +
-                                 elements_per_level[3])
-                        elementLevels[i] = 3;
-                    else if (i < elements_per_level[5] + elements_per_level[4] +
-                                 elements_per_level[3] + elements_per_level[2])
-                        elementLevels[i] = 2;
-                    else if (i < elements_per_level[5] + elements_per_level[4] +
-                                 elements_per_level[3] + elements_per_level[2] + elements_per_level[1])
-                        elementLevels[i] = 1;
-                    else
-                        elementLevels[i] = 0;
-                }
+            std::uniform_real_distribution<double> distribution(0.0, 1.0);
+            for (size_t i = 0; i < maxelements_; ++i) {
+                elementLevels[i] = !one_layer ? (int) (-log(distribution(generator)) * mult_) : 0;
+                elementLevels[i] = (elementLevels[i] > 4) ? 4 : elementLevels[i];
             }
         }
 
@@ -601,7 +579,7 @@ namespace hnswlib {
 
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> tmpTopResults = searchBaseLayerST(
                     currObj, query_data, ef_, q_idx);
-            std::priority_queue<std::pair<dist_t, labeltype >> results;
+            //std::priority_queue<std::pair<dist_t, labeltype >> results;
 
             // Remove clusters as answers
             std::priority_queue<std::pair<dist_t, tableint >> topResults;
@@ -686,7 +664,7 @@ namespace hnswlib {
             writeBinaryPOD(output, params_num);
             output.write((char *) params, parts_num * params_num * sizeof(size_t));
 
-            for (size_t i = 0; i < params[0*params_num + i_maxelements]; ++i) {
+            for (size_t i = 0; i < maxelements_; ++i) {
                 unsigned int linkListSize = elementLevels[i] > 0 ? params[0*params_num + i_size_links_per_element] * elementLevels[i] : 0;
                 writeBinaryPOD(output, linkListSize);
                 if (linkListSize)
@@ -723,8 +701,7 @@ namespace hnswlib {
             readBinaryPOD(input, enterpoint_node);
             readBinaryPOD(input, parts_num);
             readBinaryPOD(input, params_num);
-            cout << enterpoint_node << " " << parts_num << " " << params_num << endl;
-            //enterpoint_node  = 0;
+
             params = new size_t[params_num*parts_num];
             input.read((char *) params, parts_num*params_num*sizeof(size_t));
 
@@ -740,12 +717,12 @@ namespace hnswlib {
             visitedsetpool = new VisitedSetPool(1);
 
             /** Hierarcy **/
-            linkLists_ = (char **) malloc(sizeof(void *) * (params[0*params_num + i_maxelements]));
+            linkLists_ = (char **) malloc(sizeof(void *) * maxelements_);
 
             elementLevels = vector<char>(maxelements_);
             maxlevel_ = 0;
 
-            for (size_t i = 0; i < params[0*params_num + i_maxelements]; i++) {
+            for (size_t i = 0; i < maxelements_; i++) {
                 unsigned int linkListSize;
                 readBinaryPOD(input, linkListSize);
                 if (linkListSize == 0) {
@@ -760,6 +737,7 @@ namespace hnswlib {
                     maxlevel_ = elementLevels[i];
                 }
             }
+            cout << enterpoint_node << " " << (int)(elementLevels[enterpoint_node]) << " " << maxlevel_ << endl;
             cout << "Predicted size=" << total_size / (1000 * 1000) << "\n";
             input.close();
         }
@@ -802,6 +780,102 @@ namespace hnswlib {
             }
         }
 
+        void getNeighborsByHeuristicMerge(std::priority_queue<std::pair<dist_t, tableint>> &topResults, const int NN) {
+            if (topResults.size() < NN)
+                return;
+
+            std::priority_queue<std::pair<dist_t, tableint>> resultSet;
+            std::priority_queue<std::pair<dist_t, tableint>> templist;
+            std::vector<std::pair<dist_t, tableint>> returnlist;
+            while (topResults.size() > 0) {
+                resultSet.emplace(-topResults.top().first, topResults.top().second);
+                topResults.pop();
+            }
+
+            while (resultSet.size()) {
+                if (returnlist.size() >= NN)
+                    break;
+                std::pair<dist_t, tableint> curen = resultSet.top();
+                dist_t dist_to_query = -curen.first;
+                resultSet.pop();
+                bool good = true;
+                for (std::pair<dist_t, tableint> curen2 : returnlist) {
+                    dist_t curdist = space->fstdistfunc(getDataByInternalId(curen2.second), getDataByInternalId(curen.second));
+                    if (curdist < dist_to_query) {
+                        good = false;
+                        break;
+                    }
+                }
+                if (good)
+                    returnlist.push_back(curen);
+                else
+                    templist.emplace(curen);
+            }
+
+            while (returnlist.size() < NN && templist.size() > 0) {
+                returnlist.push_back(templist.top());
+                templist.pop();
+            }
+            for (std::pair<dist_t, tableint> curen2 : returnlist)
+                topResults.emplace(-curen2.first, curen2.second);
+        }
+
+        void merge(const HierarchicalNSW<dist_t, vtype> *hnsw)
+        {
+            int counter = 0;
+//#pragma omp parallel for num_threads(32)
+
+            for (int i = 0; i < maxelements_; i++){
+                float *data = (float *) getDataByInternalId(i);
+
+                linklistsizeint *ll1 = get_linklist0(i);
+                linklistsizeint *ll2 = hnsw->get_linklist0(maxelements_- 1 - i);
+
+                float identity = space->fstdistfunc((void *)data, (void *)hnsw->getDataByInternalId(maxelements_- 1 - i));
+                if (identity > 0.0000001){
+                    std::cout << "Merging different points\n";
+                    exit(1);
+                }
+
+                size_t size1 = *ll1;
+                size_t size2 = *ll2;
+                labeltype *links1 = (labeltype *)(ll1 + 1);
+                labeltype *links2 = (labeltype *)(ll2 + 1);
+                std::unordered_set<labeltype> links;
+                for (labeltype link = 0; link < size1; link++)
+                    links.insert(links1[link]);
+                for (labeltype link = 0; link < size2; link++)
+                    links.insert(maxelements_- 1 - links2[link]);
+
+                if (links.size() <= params[i_maxM]){
+                    int indx = 0;
+                    for (labeltype link : links)
+                        links1[indx++] = link;
+                    *ll1 = indx;
+                } else {
+                    std::priority_queue<std::pair<dist_t, tableint>> topResults;
+
+                    for (labeltype link : links){
+                        float *point = (float *) getDataByInternalId(link);
+                        dist_t dist = space->fstdistfunc((void *)data, (void *)point);
+                        topResults.emplace(std::make_pair(dist, link));
+                    }
+
+                    getNeighborsByHeuristicMerge(topResults, params[i_maxM]);
+
+                    int indx = 0;
+                    while (topResults.size() > 0) {
+                        links1[indx++] = topResults.top().second;
+                        topResults.pop();
+                    }
+                    *ll1 = indx;
+                }
+
+                if (*ll1 < params[i_maxM])
+                    counter++;
+            }
+            std::cout << counter << std::endl;
+        }
 
         void check(bool *map, tableint ep)
         {
