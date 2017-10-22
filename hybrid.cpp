@@ -315,9 +315,6 @@ void check_idea(Index *index, const char *path_centroids,
     std::cout << "Reading original group vectors\n";
 
     std::vector<float> data(ids.size() * vecdim);
-    std::unordered_map<idx_t, int> ids_map;
-    for (int i = 0; i < ids.size(); i++)
-        ids_map.insert({ids[i], i});
 
     size_t batch_size = 1000000;
     std::ifstream base_input(path_data, ios::binary);
@@ -325,32 +322,38 @@ void check_idea(Index *index, const char *path_centroids,
     std::vector<float> batch(batch_size * vecdim);
     std::vector<idx_t> idx_batch(batch_size);
 
+    int counter = 0;
     for (int b = 0; b < (vecsize / batch_size); b++) {
         readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
         readXvec<float>(base_input, batch.data(), vecdim, batch_size);
 
         for (size_t i = 0; i < batch_size; i++){
-            int element_num = batch_size*b + i;
-            if (ids_map.count(element_num) == 1){
-                for (int d = 0; d < vecdim; d++) {
-                    data[ids_map[element_num] * vecdim + d] = batch[i * vecdim + d];
-                    ids_map.erase(element_num);
-                }
+            if (idx_batch[i] != centroid_num)
+                continue;
+
+            if (ids[counter] != b*batch_size + i){
+                std::cout << "ids[counter] != b*batch_size + i\n";
+                exit(1);
             }
+            for (int d = 0; d < vecdim; d++)
+                data[counter * vecdim + d] = batch[i * vecdim + d];
+            counter++;
+
         }
-        printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
-        if (ids_map.size() == 0)
+        if (b % 10 == 0) printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
+        if (counter == ids.size())
             break;
     }
     idx_input.close();
     base_input.close();
 
-    if (ids_map.size() > 0){
-        std::cout <<"Ids map must be empty\n";
+    if (counter != ids.size()){
+        std::cout <<"Counter != ids.size()\n";
         exit(1);
     }
 
     /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
+    std::cout << "Compute centroid-neighbor_centroid and centroid-group_point vectors\n";
     std::vector<float> normalized_centroid_vectors (ncentroids * vecdim);
     std::vector<float> point_vectors (ncentroids * vecdim);
 
