@@ -227,12 +227,12 @@ namespace hnswlib {
 			delete xnorm_codes;
 		}
 
-//        struct CompareByFirst {
-//            constexpr bool operator()(std::pair<float, idx_t> const &a,
-//                                      std::pair<float, idx_t> const &b) const noexcept {
-//                return a.first < b.first;
-//            }
-//        };
+        struct CompareByFirst {
+            constexpr bool operator()(std::pair<float, idx_t> const &a,
+                                      std::pair<float, idx_t> const &b) const noexcept {
+                return a.first < b.first;
+            }
+        };
 
 		void search (float *x, idx_t k, idx_t *results)
 		{
@@ -244,8 +244,8 @@ namespace hnswlib {
                 dis_table = new float [pq->ksub * pq->M];
 
             pq->compute_inner_prod_table(x, dis_table);
-            //std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
-            std::priority_queue<std::pair<float, idx_t>> topResults;
+            std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
+            //std::priority_queue<std::pair<float, idx_t>> topResults;
 
             auto coarse = quantizer->searchKnn(x, nprobe);
 
