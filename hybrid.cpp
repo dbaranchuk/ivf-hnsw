@@ -401,6 +401,8 @@ void check_idea(Index *index, const char *path_centroids,
         }
         alpha /= counter_positive;
         alphas[c] = alpha;
+        std::cout << "Counter positive: " << counter_positive << std::endl;
+        std::cout << "Centroid " << c << ": " << alpha << std::endl;
     }
 
     /** Compute final subcentroids **/
@@ -410,6 +412,12 @@ void check_idea(Index *index, const char *path_centroids,
         float *centroid_vector = normalized_centroid_vectors.data() + c * vecdim;
         float *sub_centroid = sub_centroids.data() + c * vecdim;
         float alpha = alphas[c];
+
+        float check_norm = faiss::fvec_norm_L2sqr(centroid_vector, vecdim);
+        if (!(0.99999 <  check_norm < 1.00001)){
+            std::cout << "Centroid " << c << " has wrong norm: " << check_norm << std::endl;
+            exit(1);
+        }
         for (int i = 0; i < vecdim; i++)
             sub_centroid[i] = centroid_vector[i] * alpha;
     }
