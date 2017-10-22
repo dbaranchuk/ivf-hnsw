@@ -290,10 +290,10 @@ void check_idea(Index *index, const char *path_centroids,
     }
 
     /** Pruning **/
-    std::cout << "Prune bad centroids by hnsw heuristic\n";
-
+    std::cout << "Prune some centroids by hnsw heuristic\n";
     index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
     size_t ncentroids = nn_centroids_before_heuristic.size();
+    std::cout << "Number of centroids after pruning: " << ncentroids << std::emdl;
 
     if (ncentroids > nc){
         std::cout << "Wrong number of nn centroids\n";
@@ -312,46 +312,45 @@ void check_idea(Index *index, const char *path_centroids,
     size_t groupsize = ids.size();
 
     /** Read original vectors of the 100th group **/
-    std::cout << "Reading original group vectors\n";
-
+    std::cout << "Reading original " << groupsize << " group vectors\n";
     std::vector<float> data(ids.size() * vecdim);
+    {
+        const int batch_size = 1000000;
+        std::ifstream base_input(path_data, ios::binary);
+        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+        std::vector<float> batch(batch_size * vecdim);
+        std::vector<idx_t> idx_batch(batch_size);
 
-    size_t batch_size = 1000000;
-    std::ifstream base_input(path_data, ios::binary);
-    std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-    std::vector<float> batch(batch_size * vecdim);
-    std::vector<idx_t> idx_batch(batch_size);
+        int counter = 0;
+        for (int b = 0; b < (vecsize / batch_size); b++) {
+            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+            readXvec<float>(base_input, batch.data(), vecdim, batch_size);
 
-    int counter = 0;
-    for (int b = 0; b < (vecsize / batch_size); b++) {
-        readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-        readXvec<float>(base_input, batch.data(), vecdim, batch_size);
+            for (size_t i = 0; i < batch_size; i++) {
+                if (idx_batch[i] != centroid_num)
+                    continue;
 
-        for (size_t i = 0; i < batch_size; i++){
-            if (idx_batch[i] != centroid_num)
-                continue;
+                if (ids[counter] != b * batch_size + i) {
+                    std::cout << "ids[counter] != b*batch_size + i\n";
+                    exit(1);
+                }
+                for (int d = 0; d < vecdim; d++)
+                    data[counter * vecdim + d] = batch[i * vecdim + d];
+                counter++;
 
-            if (ids[counter] != b*batch_size + i){
-                std::cout << "ids[counter] != b*batch_size + i\n";
-                exit(1);
             }
-            for (int d = 0; d < vecdim; d++)
-                data[counter * vecdim + d] = batch[i * vecdim + d];
-            counter++;
-
+            if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
+            if (counter == ids.size())
+                break;
         }
-        if (b % 10 == 0) printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
-        if (counter == ids.size())
-            break;
-    }
-    idx_input.close();
-    base_input.close();
+        idx_input.close();
+        base_input.close();
 
-    if (counter != ids.size()){
-        std::cout <<"Counter != ids.size()\n";
-        exit(1);
+        if (counter != ids.size()) {
+            std::cout << "Counter != ids.size()\n";
+            exit(1);
+        }
     }
-
     /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
     std::cout << "Compute centroid-neighbor_centroid and centroid-group_point vectors\n";
     std::vector<float> normalized_centroid_vectors (ncentroids * vecdim);
@@ -372,6 +371,7 @@ void check_idea(Index *index, const char *path_centroids,
     }
 
     /** Find alphas for vectors **/
+    std::cout << "Compute alphas\n";
     std::vector<float> alphas(ncentroids);
     for (int c = 0; c < ncentroids; c++) {
         float *centroid_vector = normalized_centroid_vectors.data() + c*vecdim;
@@ -391,6 +391,7 @@ void check_idea(Index *index, const char *path_centroids,
     }
 
     /** Compute final subcentroids **/
+    std::cout << "Compute final subcentroids\n";
     std::vector<float> sub_centroids(ncentroids * vecdim);
     for (int c = 0; c < ncentroids; c++) {
         float *centroid_vector = normalized_centroid_vectors.data() + c * vecdim;
@@ -402,7 +403,6 @@ void check_idea(Index *index, const char *path_centroids,
 
     /** Compute sub idxs for group points **/
     std::vector<idx_t> subcentroid_idxs(groupsize);
-
     std::cout << "Compute subdistances\n";
 
     for (int i = 0; i < groupsize; i++){
