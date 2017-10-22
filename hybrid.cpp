@@ -293,7 +293,7 @@ void check_idea(Index *index, const char *path_centroids,
     std::cout << "Prune some centroids by hnsw heuristic\n";
     index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
     size_t ncentroids = nn_centroids_before_heuristic.size();
-    std::cout << "Number of centroids after pruning: " << ncentroids << std::emdl;
+    std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
 
     if (ncentroids > nc){
         std::cout << "Wrong number of nn centroids\n";
