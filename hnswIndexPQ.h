@@ -237,8 +237,8 @@ namespace hnswlib {
                 dis_table = new float [pq->ksub * pq->M];
 
             pq->compute_inner_prod_table(x, dis_table);
-            //std::priority_queue<std::pair<float, idx_t>, std::vector<pair<float, idx_t>>, CompareByFirst> topResults;
-            std::priority_queue<std::pair<float, idx_t>> topResults;
+            std::priority_queue<std::pair<float, idx_t>, std::vector<pair<float, idx_t>>, CompareByFirst> topResults;
+            //std::priority_queue<std::pair<float, idx_t>> topResults;
 
             auto coarse = quantizer->searchKnn(x, nprobe);
 
