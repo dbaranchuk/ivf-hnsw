@@ -418,8 +418,10 @@ void check_idea(Index *index, const char *path_centroids,
             std::cout << "Centroid " << c << " has wrong norm: " << check_norm << std::endl;
             exit(1);
         }
-        for (int i = 0; i < vecdim; i++)
+        for (int i = 0; i < vecdim; i++) {
             sub_centroid[i] = centroid_vector[i] * alpha;
+            sub_centroid[i] += centroid[i];
+        }
     }
 
     /** Compute sub idxs for group points **/
