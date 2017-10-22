@@ -786,7 +786,7 @@ namespace hnswlib {
 
             std::priority_queue<std::pair<dist_t, tableint>> resultSet;
             std::priority_queue<std::pair<dist_t, tableint>> templist;
-            vector<std::pair<dist_t, tableint>> returnlist;
+            std::vector<std::pair<dist_t, tableint>> returnlist;
             while (topResults.size() > 0) {
                 resultSet.emplace(-topResults.top().first, topResults.top().second);
                 topResults.pop();

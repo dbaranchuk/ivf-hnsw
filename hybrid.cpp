@@ -364,7 +364,7 @@ void hybrid_test(const char *path_centroids,
     //std::cout << "Computing centroid vars"<< std::endl;
     //index->compute_centroid_var_table(path_data, path_precomputed_idxs);
 
-    //const char *path_index_new = "/home/dbaranchuk/hybrid4M_PQ16_new.index";
+    //const char *path_index_new = "/home/dbaranchuk/hybrid8M_PQ16_new.index";
     //index->write(path_index_new);
 
     /** Update centroids **/
