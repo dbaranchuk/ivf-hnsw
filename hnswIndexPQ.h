@@ -585,7 +585,7 @@ namespace hnswlib {
             }
             return result;
         }
-
+    public:
         void reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys)
         {
             for (idx_t i = 0; i < n; i++) {
