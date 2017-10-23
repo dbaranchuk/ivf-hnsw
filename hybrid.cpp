@@ -284,7 +284,7 @@ void check_idea(Index *index, const char *path_centroids,
                 const int vecsize, const int vecdim)
 {
     const int nc = 16;
-    const int centroid_num = 101;
+    const int centroid_num = 10000;
     const char *path_group = "group_vectors.fvecs";
 
     /** Consider the 100th centroid **/
@@ -348,6 +348,7 @@ void check_idea(Index *index, const char *path_centroids,
                 }
                 for (int d = 0; d < vecdim; d++)
                     data[counter * vecdim + d] = batch[i * vecdim + d];
+
                 counter++;
             }
             if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
@@ -358,7 +359,7 @@ void check_idea(Index *index, const char *path_centroids,
         base_input.close();
 
         if (counter != groupsize) {
-            std::cout << "Counter != ids.size()\n";
+            std::cout << "Counter != groupsize)\n";
             exit(1);
         }
 
