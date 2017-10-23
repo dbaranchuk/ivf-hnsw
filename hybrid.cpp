@@ -441,7 +441,7 @@ void check_idea(Index *index, const char *path_centroids,
             float dist = faiss::fvec_L2sqr(sub_centroids.data() + c*vecdim, point, vecdim);
             results.emplace(std::make_pair(-dist, c));
         }
-        subcentroids_idxs[i] = results.top().second;
+        subcentroid_idxs[i] = results.top().second;
         if (i < 32) std::cout << i << " " << -results.top().first << std::endl;
     }
 
