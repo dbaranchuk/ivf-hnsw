@@ -438,7 +438,8 @@ void check_idea(Index *index, const char *path_centroids,
         float *point = data.data() + i*vecdim;
         std::priority_queue<std::pair<float, idx_t>> results;
         for (int c = 0; c < ncentroids; c++){
-            float dist = faiss::fvec_L2sqr(sub_centroids.data() + c*vecdim, point, vecdim);
+            float *sub_centroid = sub_centroids.data() + c*vecdim;
+            float dist = faiss::fvec_L2sqr(sub_centroid, point, vecdim);
             results.emplace(std::make_pair(-dist, c));
         }
         subcentroid_idxs[i] = results.top().second;
@@ -470,6 +471,9 @@ void check_idea(Index *index, const char *path_centroids,
             idx_t subcentroid_idx = subcentroid_idxs[i];
             float *sub_centroid = sub_centroids.data() + subcentroid_idx * vecdim;
             float *point = data.data() + i * vecdim;
+
+            float dist = faiss::fvec_L2sqr(sub_centroid, point, vecdim);
+            if (i < 32) std::cout << i << " " << dist << std::endl;
 
             float residual[vecdim];
             for (int j = 0; j < vecdim; j++)
