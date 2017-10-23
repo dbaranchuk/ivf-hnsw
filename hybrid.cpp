@@ -301,7 +301,7 @@ void check_idea(Index *index, const char *path_centroids,
     /** Pruning **/
     std::cout << "Prune some centroids by hnsw heuristic\n";
     index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
-    size_t ncentroids = nn_centroids_before_heuristic.size(); //////////////
+    size_t ncentroids = nn_centroids_before_heuristic.size();
     std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
 
     if (ncentroids > nc){//////////////
@@ -314,7 +314,7 @@ void check_idea(Index *index, const char *path_centroids,
     nn_centroids[0] = std::make_pair(0.0, centroid_num);
 
     while (nn_centroids_before_heuristic.size() > 0){
-        nn_centroids[nn_centroids_before_heuristic.size() - 1] = nn_centroids_before_heuristic.top();
+        nn_centroids[nn_centroids_before_heuristic.size()/* - 1*/] = nn_centroids_before_heuristic.top();
         nn_centroids_before_heuristic.pop();
     }
 
