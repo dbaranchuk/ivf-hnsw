@@ -284,7 +284,7 @@ void check_idea(Index *index, const char *path_centroids,
                 const int vecsize, const int vecdim)
 {
     const int nc = 16;
-    const int centroid_num = 1000;
+    const int centroid_num = 10000;
     const char *path_group = "group_vectors.fvecs";
 
     /** Consider the 100th centroid **/
@@ -383,7 +383,6 @@ void check_idea(Index *index, const char *path_centroids,
         normalize_vector(normalized_centroid_vectors.data() + i*vecdim, vecdim);
     }
 
-    std::cout << "[Baseline] Average Distances\n";
     double av_dist = 0.0;
     for (int i = 0; i < groupsize; i++) {
         compute_vector(point_vectors.data() + i * vecdim, centroid, data.data() + i * vecdim, vecdim);
