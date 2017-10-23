@@ -310,7 +310,7 @@ void check_idea(Index *index, const char *path_centroids,
     }
 
     std::vector<std::pair<float, idx_t>> nn_centroids(ncentroids);
-    nn_centroids[0] = std::make_pair(0, centroid_num);
+    nn_centroids[0] = std::make_pair(0.0, centroid_num);
 
     while (nn_centroids_before_heuristic.size() > 0){
         nn_centroids[nn_centroids_before_heuristic.size() - 1] = nn_centroids_before_heuristic.top();
@@ -381,9 +381,19 @@ void check_idea(Index *index, const char *path_centroids,
     for (int i = 0; i < ncentroids; i++){
         float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i].second);
         compute_vector(normalized_centroid_vectors.data() + i*vecdim, centroid, neighbor_centroid, vecdim);
+        if (i == 0) {
+            for (int d = 0; d < vecdim; d++)
+                std::cout << normalized_centroid_vectors[d] << " ";
+            std::cout << std::endl;
+        }
 
         /** Normalize them **/
         normalize_vector(normalized_centroid_vectors.data() + i*vecdim, vecdim);
+        if (i == 0) {
+            for (int d = 0; d < vecdim; d++)
+                std::cout << normalized_centroid_vectors[d] << " ";
+            std::cout << std::endl;
+        }
     }
 
     double av_dist = 0.0;
