@@ -283,6 +283,7 @@ void check_idea(Index *index, const char *path_centroids,
                 const char *path_precomputed_idxs, const char *path_data,
                 const int vecsize, const int vecdim)
 {
+    const bool include_zero_centroid = true;
     const int nc = 16;
     const int centroid_num = 1000;
     const char *path_group = "group1000_vectors.fvecs";
@@ -301,20 +302,21 @@ void check_idea(Index *index, const char *path_centroids,
     /** Pruning **/
     std::cout << "Prune some centroids by hnsw heuristic\n";
     index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
-    size_t ncentroids = nn_centroids_before_heuristic.size();
+    size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
     std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
 
-    if (ncentroids > nc){//////////////
+    if (ncentroids > nc+include_zero_centroid){
         std::cout << "Wrong number of nn centroids\n";
         exit(1);
     }
 
-    ncentroids++;
     std::vector<std::pair<float, idx_t>> nn_centroids(ncentroids);
-    nn_centroids[0] = std::make_pair(0.0, centroid_num);
+
+    if (include_zero_centroid)
+        nn_centroids[0] = std::make_pair(0.0, centroid_num);
 
     while (nn_centroids_before_heuristic.size() > 0){
-        nn_centroids[nn_centroids_before_heuristic.size()/* - 1*/] = nn_centroids_before_heuristic.top();
+        nn_centroids[nn_centroids_before_heuristic.size() - !include_zero_centroid] = nn_centroids_before_heuristic.top();
         nn_centroids_before_heuristic.pop();
     }
 
@@ -382,12 +384,6 @@ void check_idea(Index *index, const char *path_centroids,
     for (int i = 0; i < ncentroids; i++){
         float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i].second);
         compute_vector(normalized_centroid_vectors.data() + i*vecdim, centroid, neighbor_centroid, vecdim);
-        if (i == 0) {
-            std::cout << nn_centroids[0].second << std::endl;
-            for (int d = 0; d < vecdim; d++)
-                std::cout << normalized_centroid_vectors[d] << " ";
-            std::cout << std::endl;
-        }
 
         /** Normalize them **/
         if (i == 0) continue;
