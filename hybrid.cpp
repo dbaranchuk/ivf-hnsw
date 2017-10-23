@@ -284,7 +284,7 @@ void check_idea(Index *index, const char *path_centroids,
                 const int vecsize, const int vecdim)
 {
     const int nc = 16;
-    const int centroid_num = 1000;
+    const int centroid_num = 100;
     const char *path_group = "group_vectors.fvecs";
 
     /** Consider the 100th centroid **/
@@ -383,11 +383,13 @@ void check_idea(Index *index, const char *path_centroids,
         normalize_vector(normalized_centroid_vectors.data() + i*vecdim, vecdim);
     }
 
-    std::cout << "Residual distances\n";
+    std::cout << "[Baseline] Average Distances\n";
+    double av_dist = 0.0
     for (int i = 0; i < groupsize; i++) {
         compute_vector(point_vectors.data() + i * vecdim, centroid, data.data() + i * vecdim, vecdim);
-        if (i < 16) std::cout << i << " " << faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim) << std::endl;
+        av_dist += faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim);
     }
+    std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
 
     /** Find alphas for vectors **/
     std::cout << "Compute alphas\n";
@@ -412,7 +414,6 @@ void check_idea(Index *index, const char *path_centroids,
     }
 
     /** Compute final subcentroids **/
-    std::cout << "Compute final subcentroids\n";
     std::vector<float> sub_centroids(ncentroids * vecdim);
     for (int c = 0; c < ncentroids; c++) {
         float *centroid_vector = normalized_centroid_vectors.data() + c * vecdim;
@@ -432,8 +433,8 @@ void check_idea(Index *index, const char *path_centroids,
 
     /** Compute sub idxs for group points **/
     std::vector<idx_t> subcentroid_idxs(groupsize);
-    std::cout << "Compute subdistances\n";
 
+    av_dist = 0.0;
     for (int i = 0; i < groupsize; i++){
         float *point = data.data() + i*vecdim;
         std::priority_queue<std::pair<float, idx_t>> results;
@@ -443,8 +444,9 @@ void check_idea(Index *index, const char *path_centroids,
             results.emplace(std::make_pair(-dist, c));
         }
         subcentroid_idxs[i] = results.top().second;
-        if (i < 16) std::cout << i << " " << -results.top().first << std::endl;
+        av_dist += -results.top().first;
     }
+    std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
 
     /** Baseline Quantization Error **/
     {
@@ -461,7 +463,7 @@ void check_idea(Index *index, const char *path_centroids,
         index->reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(), keys.data());
 
         double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
-        std::cout << "Baseline Quantization Error: " << error << std::endl;
+        std::cout << "[Baseline] Quantization Error: " << error << std::endl;
     }
     /** Modified Quantization Error **/
     {
@@ -488,7 +490,7 @@ void check_idea(Index *index, const char *path_centroids,
 
         }
         double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
-        std::cout << "Modified Quantization Error: " << error << std::endl;
+        std::cout << "[Modified] Quantization Error: " << error << std::endl;
     }
 }
 
