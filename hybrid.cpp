@@ -376,7 +376,6 @@ void check_idea(Index *index, const char *path_centroids,
     }
 
     /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
-    std::cout << "Compute centroid-neighbor_centroid and centroid-group_point vectors\n";
     std::vector<float> normalized_centroid_vectors (ncentroids * vecdim);
     std::vector<float> point_vectors (groupsize * vecdim);
 
@@ -397,7 +396,6 @@ void check_idea(Index *index, const char *path_centroids,
     std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
 
     /** Find alphas for vectors **/
-    std::cout << "Compute alphas\n";
     std::vector<float> alphas(ncentroids);
     for (int c = 0; c < ncentroids; c++) {
         float *centroid_vector = normalized_centroid_vectors.data() + c*vecdim;
