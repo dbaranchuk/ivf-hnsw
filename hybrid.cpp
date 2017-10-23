@@ -301,14 +301,15 @@ void check_idea(Index *index, const char *path_centroids,
     /** Pruning **/
     std::cout << "Prune some centroids by hnsw heuristic\n";
     index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
-    size_t ncentroids = nn_centroids_before_heuristic.size() + 1; //////////////
+    size_t ncentroids = nn_centroids_before_heuristic.size(); //////////////
     std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
 
-    if (ncentroids > nc+1){//////////////
+    if (ncentroids > nc){//////////////
         std::cout << "Wrong number of nn centroids\n";
         exit(1);
     }
 
+    ncentroids++;
     std::vector<std::pair<float, idx_t>> nn_centroids(ncentroids);
     nn_centroids[0] = std::make_pair(0.0, centroid_num);
 
