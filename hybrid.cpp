@@ -390,12 +390,8 @@ void check_idea(Index *index, const char *path_centroids,
         }
 
         /** Normalize them **/
+        if (i == 0) continue;
         normalize_vector(normalized_centroid_vectors.data() + i*vecdim, vecdim);
-        if (i == 0) {
-            for (int d = 0; d < vecdim; d++)
-                std::cout << normalized_centroid_vectors[d] << " ";
-            std::cout << std::endl;
-        }
     }
 
     double av_dist = 0.0;
@@ -435,7 +431,7 @@ void check_idea(Index *index, const char *path_centroids,
         float alpha = alphas[c];
 
         float check_norm = faiss::fvec_norm_L2sqr(centroid_vector, vecdim);
-        if (!(0.99999 <  check_norm < 1.00001)){
+        if (c != 0 && !(0.99999 <  check_norm < 1.00001)){
             std::cout << "Centroid " << c << " has wrong norm: " << check_norm << std::endl;
             exit(1);
         }
