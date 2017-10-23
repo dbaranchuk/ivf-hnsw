@@ -450,11 +450,11 @@ void check_idea(Index *index, const char *path_centroids,
 
     float *decoded_residuals = new float[groupsize * vecdim];
     index->pq->decode(codes, decoded_residuals, groupsize);
-    
+
     float *reconstructed_x = new float[groupsize * vecdim];
     index->reconstruct(groupsize, reconstructed_x, decoded_residuals, centroid_num);
 
-    double error = faiss::fvec_L2sqr(sub_centroids.data() + c*vecdim, point, vecdim);
+    double error = compute_quantization_error(reconstructed_x, x, vecdim, groupsize);
     std::cout << "Baseline Quantization Error: " << error << std::endl;
     delete decoded_residuals;
     delete reconstructed_x;
