@@ -472,12 +472,9 @@ void check_idea(Index *index, const char *path_centroids,
             float *sub_centroid = sub_centroids.data() + subcentroid_idx * vecdim;
             float *point = data.data() + i * vecdim;
 
-            float dist = faiss::fvec_L2sqr(sub_centroid, point, vecdim);
-            if (i < 32) std::cout << i << " " << dist << std::endl;
-
             float residual[vecdim];
             for (int j = 0; j < vecdim; j++)
-                residual[j] = sub_centroid[j] - point[j];
+                residual[j] = point[j] - sub_centroid[j];
 
             uint8_t code[index->pq->code_size];
             index->pq->compute_code(residual, code);
