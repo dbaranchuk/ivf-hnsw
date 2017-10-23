@@ -285,7 +285,7 @@ void check_idea(Index *index, const char *path_centroids,
 {
     const bool include_zero_centroid = false;
     const int nc = 64;
-    const int centroid_num = 100000;
+    const int centroid_num = 32424;
     const char *path_group = "group100000_vectors.fvecs";
 
     /** Consider the 100th centroid **/
