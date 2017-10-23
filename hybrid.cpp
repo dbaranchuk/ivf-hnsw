@@ -311,7 +311,7 @@ void collect_groups(const char *path_data, const char *path_precomputed_idxs,
     base_input.close();
 
 
-    FILE *fout = fopen(path_group, "wb");
+    FILE *fout = fopen(path_groups, "wb");
     for (idx_t centroid_num : centroid_nums) {
         fwrite(&centroid_num, sizeof(int), 1, fout);
         auto group_data = data[centroid_num];
