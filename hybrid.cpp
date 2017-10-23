@@ -285,8 +285,8 @@ void check_idea(Index *index, const char *path_centroids,
 {
     const bool include_zero_centroid = false;
     const int nc = 64;
-    const int centroid_num = 1000;
-    const char *path_group = "group1000_vectors.fvecs";
+    const int centroid_num = 10000;
+    const char *path_group = "group10000_vectors.fvecs";
 
     /** Consider the 100th centroid **/
     float *centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
