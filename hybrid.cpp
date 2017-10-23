@@ -441,27 +441,54 @@ void check_idea(Index *index, const char *path_centroids,
             float dist = faiss::fvec_L2sqr(sub_centroids.data() + c*vecdim, point, vecdim);
             results.emplace(std::make_pair(-dist, c));
         }
-        sub_centroids[i] = results.top().second;
+        subcentroids_idxs[i] = results.top().second;
         if (i < 32) std::cout << i << " " << -results.top().first << std::endl;
     }
 
     /** Baseline Quantization Error **/
-    std::vector<idx_t> keys(groupsize);
-    for (int i = 0; i < groupsize; i++)
-        keys[i] = centroid_num;
+    {
+        std::vector<idx_t> keys(groupsize);
+        for (int i = 0; i < groupsize; i++)
+            keys[i] = centroid_num;
 
-    std::vector<uint8_t > codes = index->codes[centroid_num];
+        std::vector<uint8_t> codes = index->codes[centroid_num];
 
-    std::vector<float> decoded_residuals(groupsize * vecdim);
-    index->pq->decode(codes.data(), decoded_residuals.data(), groupsize);
+        std::vector<float> decoded_residuals(groupsize * vecdim);
+        index->pq->decode(codes.data(), decoded_residuals.data(), groupsize);
 
-    std::vector<float> reconstructed_x(groupsize * vecdim);
-    index->reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(), keys.data());
+        std::vector<float> reconstructed_x(groupsize * vecdim);
+        index->reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(), keys.data());
 
-    double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
-    std::cout << "Baseline Quantization Error: " << error << std::endl;
-
+        double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
+        std::cout << "Baseline Quantization Error: " << error << std::endl;
+    }
     /** Modified Quantization Error **/
+    {
+        std::vector<float> reconstructed_x(groupsize * vecdim);
+
+        for (int i = 0; i < groupsize; i++){
+            idx_t subcentroid_idx = subcentroid_idxs[i];
+            float *sub_centroid = sub_centroids.data() + subcentroid_idx * vecdim;
+            float *point = data.data() + i * vecdim;
+
+            float residual[vecdim];
+            for (int j = 0; j < vecdim; j++)
+                residual[j] = sub_centroid[j] - point[j];
+
+            uint8_t code[index->pq->code_size];
+            index->pq->compute_code(residual, code);
+
+            float decoded_residual[vecdim];
+            index->pq->decode(code, decoded_residual);
+
+            float *rx = reconstructed_x.data() + i * vecdim;
+            for (int j = 0; j < vecdim; j++)
+                rx[j] = sub_centroid[j] + decoded_residual[j];
+
+        }
+        double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
+        std::cout << "Modified Quantization Error: " << error << std::endl;
+    }
 }
 
 void hybrid_test(const char *path_centroids,
