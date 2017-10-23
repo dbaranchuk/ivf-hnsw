@@ -384,7 +384,7 @@ void check_idea(Index *index, const char *path_centroids,
     }
 
     std::cout << "[Baseline] Average Distances\n";
-    double av_dist = 0.0
+    double av_dist = 0.0;
     for (int i = 0; i < groupsize; i++) {
         compute_vector(point_vectors.data() + i * vecdim, centroid, data.data() + i * vecdim, vecdim);
         av_dist += faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim);
