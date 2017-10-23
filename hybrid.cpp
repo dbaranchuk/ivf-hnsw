@@ -283,9 +283,9 @@ void check_idea(Index *index, const char *path_centroids,
                 const char *path_precomputed_idxs, const char *path_data,
                 const int vecsize, const int vecdim)
 {
-    const bool include_zero_centroid = true;
-    const int nc = 16;
-    const int centroid_num = 100;
+    const bool include_zero_centroid = false;
+    const int nc = 64;
+    const int centroid_num = 1000;
     const char *path_group = "group100_vectors.fvecs";
 
     /** Consider the 100th centroid **/
@@ -301,7 +301,7 @@ void check_idea(Index *index, const char *path_centroids,
 
     /** Pruning **/
     std::cout << "Prune some centroids by hnsw heuristic\n";
-    index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
+    //index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
     size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
     std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
 
