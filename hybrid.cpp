@@ -284,7 +284,7 @@ void check_idea(Index *index, const char *path_centroids,
                 const int vecsize, const int vecdim)
 {
     const int nc = 16;
-    const int centroid_num = 100;
+    const int centroid_num = 10000;
     const char *path_group = "group_vectors.fvecs";
 
     /** Consider the 100th centroid **/
@@ -386,7 +386,7 @@ void check_idea(Index *index, const char *path_centroids,
     std::cout << "Residual distances\n";
     for (int i = 0; i < groupsize; i++) {
         compute_vector(point_vectors.data() + i * vecdim, centroid, data.data() + i * vecdim, vecdim);
-        if (i < 32) std::cout << i << " " << faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim) << std::endl;
+        if (i < 16) std::cout << i << " " << faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim) << std::endl;
     }
 
     /** Find alphas for vectors **/
@@ -407,8 +407,8 @@ void check_idea(Index *index, const char *path_centroids,
         }
         alpha /= counter_positive;
         alphas[c] = alpha;
-        std::cout << "Counter positive: " << counter_positive << std::endl;
-        std::cout << "Centroid " << c << ": " << alpha << std::endl;
+        //std::cout << "Counter positive: " << counter_positive << std::endl;
+        std::cout << "Alpha " << c << ": " << alpha << std::endl;
     }
 
     /** Compute final subcentroids **/
@@ -443,7 +443,7 @@ void check_idea(Index *index, const char *path_centroids,
             results.emplace(std::make_pair(-dist, c));
         }
         subcentroid_idxs[i] = results.top().second;
-        if (i < 32) std::cout << i << " " << -results.top().first << std::endl;
+        if (i < 16) std::cout << i << " " << -results.top().first << std::endl;
     }
 
     /** Baseline Quantization Error **/
