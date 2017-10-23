@@ -270,7 +270,14 @@ void normalize_vector(float *vector, const int d)
         vector[i] /= norm;
 }
 
-
+double compute_quantization_error(const float *reconstructed_x, const float *x,
+                                 const int vecdim, const int n)
+{
+    double error = 0.0;
+    for (int i = 0; i < n; i++)
+        error += faiss::fvec_L2sqr(reconstructed_x + i*vecdim, x + i * vecdim, vecdim);
+    return error / n;
+}
 
 void check_idea(Index *index, const char *path_centroids,
                 const char *path_precomputed_idxs, const char *path_data,
@@ -310,7 +317,6 @@ void check_idea(Index *index, const char *path_centroids,
 
     /** Take 100th group element ids and codes **/
     std::vector<idx_t> ids = index->ids[centroid_num];
-    std::vector<uint8_t > codes = index->codes[centroid_num];
     size_t groupsize = ids.size();
 
     /** Read original vectors of the 100th group **/
@@ -438,6 +444,22 @@ void check_idea(Index *index, const char *path_centroids,
         sub_centroids[i] = results.top().second;
         if (i < 32) std::cout << i << " " << -results.top().first << std::endl;
     }
+
+    /** Baseline Quantization Error **/
+    std::vector<uint8_t > codes = index->codes[centroid_num];
+
+    float *decoded_residuals = new float[groupsize * vecdim];
+    index->pq->decode(codes, decoded_residuals, groupsize);
+    
+    float *reconstructed_x = new float[groupsize * vecdim];
+    index->reconstruct(groupsize, reconstructed_x, decoded_residuals, centroid_num);
+
+    double error = faiss::fvec_L2sqr(sub_centroids.data() + c*vecdim, point, vecdim);
+    std::cout << "Baseline Quantization Error: " << error << std::endl;
+    delete decoded_residuals;
+    delete reconstructed_x;
+
+    /** Modified Quantization Error **/
 }
 
 void hybrid_test(const char *path_centroids,
