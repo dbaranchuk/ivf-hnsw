@@ -301,15 +301,17 @@ void check_idea(Index *index, const char *path_centroids,
     /** Pruning **/
     std::cout << "Prune some centroids by hnsw heuristic\n";
     index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
-    size_t ncentroids = nn_centroids_before_heuristic.size();
+    size_t ncentroids = nn_centroids_before_heuristic.size() + 1; //////////////
     std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
 
-    if (ncentroids > nc){
+    if (ncentroids > nc+1){//////////////
         std::cout << "Wrong number of nn centroids\n";
         exit(1);
     }
 
     std::vector<std::pair<float, idx_t>> nn_centroids(ncentroids);
+    nn_centroids[0] = std::make_pair(0, centroid_num);
+
     while (nn_centroids_before_heuristic.size() > 0){
         nn_centroids[nn_centroids_before_heuristic.size() - 1] = nn_centroids_before_heuristic.top();
         nn_centroids_before_heuristic.pop();
@@ -320,7 +322,7 @@ void check_idea(Index *index, const char *path_centroids,
     size_t groupsize = ids.size();
 
     /** Read original vectors of the 100th group **/
-    std::cout << "Reading original " << groupsize << " group vectors\n";
+    std::cout << "Group size: " << groupsize << " vectors\n";
     std::vector<float> data(groupsize * vecdim);
     if (exists_test(path_group)){
         std::ifstream input(path_group, ios::binary);
