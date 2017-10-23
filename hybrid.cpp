@@ -286,7 +286,7 @@ void check_idea(Index *index, const char *path_centroids,
     const bool include_zero_centroid = false;
     const int nc = 64;
     const int centroid_num = 1000;
-    const char *path_group = "group100_vectors.fvecs";
+    const char *path_group = "group1000_vectors.fvecs";
 
     /** Consider the 100th centroid **/
     float *centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
@@ -300,7 +300,6 @@ void check_idea(Index *index, const char *path_centroids,
     }
 
     /** Pruning **/
-    std::cout << "Prune some centroids by hnsw heuristic\n";
     //index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
     size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
     std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
