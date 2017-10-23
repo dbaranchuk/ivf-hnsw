@@ -300,7 +300,7 @@ void check_idea(Index *index, const char *path_centroids,
     }
 
     /** Pruning **/
-    //index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
+    index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
     size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
     std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
 
