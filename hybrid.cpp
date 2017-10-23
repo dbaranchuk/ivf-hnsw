@@ -283,7 +283,7 @@ void check_idea(Index *index, const char *path_centroids,
                 const char *path_precomputed_idxs, const char *path_data,
                 const int vecsize, const int vecdim)
 {
-    const bool include_zero_centroid = false;//true;
+    const bool include_zero_centroid = true;
     const int nc = 16;
     const int centroid_num = 100;
     const char *path_group = "group100_vectors.fvecs";
