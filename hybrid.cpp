@@ -382,6 +382,7 @@ void check_idea(Index *index, const char *path_centroids,
         float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i].second);
         compute_vector(normalized_centroid_vectors.data() + i*vecdim, centroid, neighbor_centroid, vecdim);
         if (i == 0) {
+            std::cout << nn_centroids[0].second << std::endl;
             for (int d = 0; d < vecdim; d++)
                 std::cout << normalized_centroid_vectors[d] << " ";
             std::cout << std::endl;
