@@ -449,14 +449,14 @@ void check_idea(Index *index, const char *path_centroids,
     std::vector<uint8_t > codes = index->codes[centroid_num];
 
     std::vector<float> decoded_residuals(groupsize * vecdim);
-    index->pq->decode(codes.data, decoded_residuals, groupsize);
+    index->pq->decode(codes.data(), decoded_residuals.data(), groupsize);
 
     std::vector<float> reconstructed_x(groupsize * vecdim);
     index->reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(), centroid_num);
 
     double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
     std::cout << "Baseline Quantization Error: " << error << std::endl;
-    
+
     /** Modified Quantization Error **/
 }
 
