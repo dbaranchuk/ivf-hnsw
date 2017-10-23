@@ -279,6 +279,52 @@ double compute_quantization_error(const float *reconstructed_x, const float *x,
     return error / n;
 }
 
+
+void collect_groups(const char *path_data, const char *path_precomputed_idxs,
+                 std::unordered_set<idx_t> centroid_nums, const int vecdim, const int vecsize)
+{
+    const char *path_groups = "groups10000.bin";
+    std::unordered_map<idx_t, std::vector<float>> data;
+    const int ncentroids = centroid_nums.size();
+
+    const int batch_size = 1000000;
+    std::ifstream base_input(path_data, ios::binary);
+    std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+    std::vector<float> batch(batch_size * vecdim);
+    std::vector<idx_t> idx_batch(batch_size);
+
+    for (int b = 0; b < (vecsize / batch_size); b++) {
+        readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+        readXvec<float>(base_input, batch.data(), vecdim, batch_size);
+
+        for (size_t i = 0; i < batch_size; i++) {
+            if (centroid_nums.count(idx_batch[i]) == 0)
+                continue;
+
+            std::vector<float> group_data = data[idx_batch[i]];
+            for (int d = 0; d < vecdim; d++)
+                group_data.push_back(batch[i * vecdim + d]);
+        }
+        if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
+    }
+    idx_input.close();
+    base_input.close();
+
+
+    FILE *fout = fopen(path_group, "wb");
+    for (idx_t centroid_num : centroid_nums) {
+        fwrite(&centroid_num, sizeof(int), 1, fout);
+        auto group_data = data[centroid_num];
+        int groupsize = group_data.size();
+        fwrite(&groupsize, sizeof(int), 1, fout);
+        for (int i = 0; i < groupsize; i++) {
+            fwrite(&vecdim, sizeof(int), 1, fout);
+            fwrite(group_data.data() + i * vecdim, sizeof(float), vecdim, fout);
+        }
+    }
+    fclose(fout);
+}
+
 void check_idea(Index *index, const char *path_centroids,
                 const char *path_precomputed_idxs, const char *path_data,
                 const int vecsize, const int vecdim)
@@ -565,7 +611,13 @@ void hybrid_test(const char *path_centroids,
         /** Load Index **/
         std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
-        check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
+
+        std::unordered_set<idx_t> centroid_nums;
+        for (idx_t i = 999000; i < 1999000; i += 100)
+            centroid_nums.insert(i);
+
+        collect_groups(path_data,path_precomputed_idxs, centroid_nums, vecdim, vecsize);
+        //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {
         /** Add elements **/
         size_t batch_size = 1000000;
