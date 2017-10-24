@@ -335,9 +335,9 @@ void save_groups(Index *index, const char *path_data, const char *path_precomput
         readXvec<float>(base_input, batch.data(), vecdim, batch_size);
 
         for (size_t i = 0; i < batch_size; i++) {
-            idx_i cur_idx = idx_batch[i];
+            idx_t cur_idx = idx_batch[i];
             fwrite(&vecdim, sizeof(int), 1, files[cur_idx]);
-            fwrite(batch + i * vecdim, sizeof(float), vecdim, files[cur_idx]);
+            fwrite(batch.data() + i * vecdim, sizeof(float), vecdim, files[cur_idx]);
         }
         if (b % 100 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
     }
