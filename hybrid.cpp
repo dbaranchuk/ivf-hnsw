@@ -572,7 +572,7 @@ void check_idea(Index *index, const char *path_centroids,
                 float *subcentroid = subcentroids.data() + c * vecdim;
                 std::vector<idx_t> id = ids[c];
 
-                for (idx_t i : id)
+                for (idx_t i : id) {
                     float *point = data.data() + i * vecdim;
 
                     float residual[vecdim];
