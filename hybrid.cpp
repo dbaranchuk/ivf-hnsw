@@ -405,6 +405,7 @@ void check_idea(Index *index, const char *path_centroids,
                 const char *path_precomputed_idxs, const char *path_data,
                 const int vecsize, const int vecdim)
 {
+    StopW stopw = StopW();
     const bool include_zero_centroid = true;
     const int nc = 256;
     const int maxM = 128;
@@ -428,7 +429,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 100;
+    const int ngroups = 10;
     float average_nc = 0;
     for (int g = 0; g < ngroups; g++) {
         /** Read Original vectors from Group file**/
@@ -508,7 +509,6 @@ void check_idea(Index *index, const char *path_centroids,
         float alpha = compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(),
                                     centroid, vecdim, ncentroids, groupsize);
 
-
         /** Compute final subcentroids **/
         std::vector<float> subcentroids(ncentroids * vecdim);
         compute_subcentroids(subcentroids.data(), centroid, normalized_centroid_vectors.data(),
@@ -573,6 +573,8 @@ void check_idea(Index *index, const char *path_centroids,
     std::cout << "[Global Modified] Average Distance: " << modified_average / ngroups << std::endl;
     std::cout << "[Global Baseline] Average Error: " << baseline_error / ngroups << std::endl;
     std::cout << "[Global Modified] Average Error: " << modified_error / ngroups << std::endl;
+
+    std::cout << "Time(s): " << stopw.getElapsedTimeMicro() / 1000000 << std::endl;
     input.close();
 }
 
