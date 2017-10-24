@@ -537,7 +537,6 @@ void check_idea(Index *index, const char *path_centroids,
         baseline_average += av_dist / groupsize;
 
         /** Find alphas for vectors **/
-        std::vector<std::vector<idx_t>> ids(ncentroids);
         float alpha = compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(),
                                     centroid, vecdim, ncentroids, groupsize);
 
@@ -552,8 +551,8 @@ void check_idea(Index *index, const char *path_centroids,
 
 
         /** Compute sub idxs for group points **/
-        std::vector<std::vector<idx_t>> subcentroid_idxs(ncentroids);
-        compute_idxs(subcentroid_idxs, data.data(), subcentroids.data(),
+        std::vector<std::vector<idx_t>> idxs(ncentroids);
+        compute_idxs(idxs, data.data(), subcentroids.data(),
                      vecdim, ncentroids, groupsize);
 
         /** Baseline Quantization Error **/
@@ -580,10 +579,10 @@ void check_idea(Index *index, const char *path_centroids,
 
             for (int c = 0; c < ncentroids; c++){
                 float *subcentroid = subcentroids.data() + c * vecdim;
-                std::vector<idx_t> id = ids[c];
+                std::vector<idx_t> idx = idxs[c];
 
-                for (idx_t i : id) {
-                    float *point = data.data() + i * vecdim;
+                for (idx_t id : idx) {
+                    float *point = data.data() + id * vecdim;
 
                     float residual[vecdim];
                     for (int j = 0; j < vecdim; j++)
@@ -595,7 +594,7 @@ void check_idea(Index *index, const char *path_centroids,
                     float decoded_residual[vecdim];
                     index->pq->decode(code, decoded_residual);
 
-                    float *rx = reconstructed_x.data() + i * vecdim;
+                    float *rx = reconstructed_x.data() + id * vecdim;
                     for (int j = 0; j < vecdim; j++)
                         rx[j] = subcentroid[j] + decoded_residual[j];
                 }
