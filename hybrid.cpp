@@ -301,9 +301,8 @@ void collect_groups(const char *path_data, const char *path_precomputed_idxs,
             if (centroid_nums.count(idx_batch[i]) == 0)
                 continue;
 
-            std::vector<float> group_data = data[idx_batch[i]];
             for (int d = 0; d < vecdim; d++)
-                group_data.push_back(batch[i * vecdim + d]);
+                data[idx_batch[i]].push_back(batch[i * vecdim + d]);
         }
         if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
     }
