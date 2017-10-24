@@ -309,10 +309,10 @@ void collect_groups(const char *path_groups, const char *path_data, const char *
     fclose(fout);
 }
 
-void save_groups(Index *index, const char *path_data, const char *path_precomputed_idxs,
-                 const int vecdim, const int vecsize)
+void save_groups(Index *index, const char *path_groups, const char *path_data,
+                 const char *path_precomputed_idxs, const int vecdim, const int vecsize)
 {
-    const int ncentroids = 400;
+    const int ncentroids = 400000;
     std::vector<std::vector<float>> data(ncentroids);
 
     for (int i = 0; i < ncentroids; i++){
@@ -700,7 +700,8 @@ void hybrid_test(const char *path_centroids,
         std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
 
-        save_groups(index, path_data, path_precomputed_idxs, vecsize, vecdim);
+        save_groups(index, "/home/dbaranchuk/data/groups/groups400000", path_data,
+                    path_precomputed_idxs, vecsize, vecdim);
         check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {
         /** Add elements **/
