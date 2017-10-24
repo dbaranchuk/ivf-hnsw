@@ -315,9 +315,12 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
     const int ncentroids = 30000;
     //std::vector<std::vector<float>> data(ncentroids);
     float **data = new float*[ncentroids];
+    int *offsets = new int[ncentroids];
+    int *groupsizes = new int[ncentroids];
     for (int i = 0; i < ncentroids; i++){
-        int groupsize = index->ids[i].size();
-        data[i] = new float [groupsize*vecdim];
+        groupsizes[i] = index->ids[i].size();
+        data[i] = new float [groupsizes[i]*vecdim];
+        offsets[i] = 0;
     }
 
     const int batch_size = 1000000;
@@ -336,7 +339,13 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
 
             idx_t cur_idx = idx_batch[i];
             for (int d = 0; d < vecdim; d++)
-                data[cur_idx].push_back(batch[i * vecdim + d]);
+                (data[cur_idx] + offsets[cur_idx])[d] = batch[i * vecdim + d];
+            offsets[cur_idx] += vecdim;
+            if (offsets[cur_idx] > groupsizes[cur_idx]*vecdim){
+                std::cout << "Wrong offsets: " << offsets[cur_idx] << " vs "
+                          << groupsizes[cur_idx]*vecdim << std::endl;
+                exit(1);
+            }
         }
         if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
     }
@@ -364,6 +373,8 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
     for (int i = 0; i < ncentroids; i++)
         delete data[i];
     delete data;
+    delete groupsizes;
+    delete offsets;
 }
 
 void compute_subcentroids(float *subcentroids, const float *centroid,
