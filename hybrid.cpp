@@ -374,19 +374,16 @@ void compute_subcentroids(float *subcentroids, const float *centroid,
     }
 }
 
-float compute_alpha(std::vector<std::vector<idx_t>> &subcentroid_idxs,
-                    const float *centroid_vectors, const float *point_vectors,
+float compute_alpha(const float *centroid_vectors, const float *point_vectors,
                     const float *centroid,
                     const int vecdim, const int ncentroids, const int groupsize)
 {
-    float av_dist = 0.0;
+    int counter_positive = 0;
     float result_alpha = 0.0;
 
     for (int i = 0; i < groupsize; i++) {
         const float *point_vector = point_vectors + i*vecdim;
-        float min_alpha;
-        float min_dist = 10000;
-        idx_t min_subcentroid;
+        std::priority_queue<std::pair<float, float>> max_heap;
 
         for (int c = 0; c < ncentroids; c++){
             const float *centroid_vector = centroid_vectors + c*vecdim;
@@ -398,19 +395,39 @@ float compute_alpha(std::vector<std::vector<idx_t>> &subcentroid_idxs,
                 subcentroid[d] += centroid[d];
             }
             float dist = faiss::fvec_L2sqr(point_vector, subcentroid.data(), vecdim);
-            if (dist < min_dist) {
-                min_dist = dist;
-                min_alpha = alpha;
-                min_subcentroid = c;
-            }
+            max_heap.emplace(std::make_pair(-dist, alpha));
         }
-        subcentroid_idxs[min_subcentroid].push_back(i);
-        result_alpha += min_alpha;
-        av_dist += min_dist;
+        float optim_alpha = max_heap.top().second;
+        if (optim_alpha < 0)
+            continue;
+
+        counter_positive++;
+        result_alpha += optim_alpha;
     }
-    std::cout << "Alpha: " << result_alpha / ncentroids << std::endl;
+
+    std::cout << "Alpha: " << result_alpha / counter_positive << std::endl;
+    return result_alpha / counter_positive;
+}
+
+void compute_idxs(std::vector<std::vector<idx_t>> &idxs,
+                  const float *points, const float *subcentroids,
+                  const int vecdim, const int ncentroids, const int groupsize)
+{
+    float av_dist = 0.0;
+    for (int i = 0; i < groupsize; i++) {
+        float *point = points + i * vecdim;
+        std::priority_queue<std::pair<float, idx_t>> max_heap;
+        for (int c = 0; c < ncentroids; c++) {
+            float *subcentroid = subcentroids + c * vecdim;
+            float dist = faiss::fvec_L2sqr(subcentroid, point, vecdim);
+            max_heap.emplace(std::make_pair(-dist, c));
+        }
+        idx_t idx = max_heap.top().second;
+        idxs[idx].push_back(i);
+        av_dist += -max_heap.top().first;
+    }
     std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
-    return result_alpha / ncentroids;
+    modified_average += av_dist / groupsize;
 }
 
 void check_idea(Index *index, const char *path_centroids,
@@ -516,9 +533,9 @@ void check_idea(Index *index, const char *path_centroids,
 
         /** Find alphas for vectors **/
         std::vector<std::vector<idx_t>> ids(ncentroids);
-        float alpha = compute_alpha(ids, normalized_centroid_vectors.data(),
-                                    point_vectors.data(), centroid, vecdim, ncentroids, groupsize);
-        
+        float alpha = compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(),
+                                    centroid, vecdim, ncentroids, groupsize);
+
         //std::vector<float> alphas(ncentroids);
         //compute_alphas(alphas.data(), normalized_centroid_vectors.data(), point_vectors.data(),
         //               vecdim, ncentroids, groupsize);
@@ -530,22 +547,9 @@ void check_idea(Index *index, const char *path_centroids,
 
 
         /** Compute sub idxs for group points **/
-//        std::vector<idx_t> subcentroid_idxs(groupsize);
-
-//        av_dist = 0.0;
-//        for (int i = 0; i < groupsize; i++) {
-//            float *point = data.data() + i * vecdim;
-//            std::priority_queue<std::pair<float, idx_t>> results;
-//            for (int c = 0; c < ncentroids; c++) {
-//                float *subcentroid = subcentroids.data() + c * vecdim;
-//                float dist = faiss::fvec_L2sqr(subcentroid, point, vecdim);
-//                results.emplace(std::make_pair(-dist, c));
-//            }
-//            subcentroid_idxs[i] = results.top().second;
-//            av_dist += -results.top().first;
-//        }
-//        //std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
-//        modified_average += av_dist / groupsize;
+        std::vector<std::vector<idx_t>> subcentroid_idxs(ncentroids);
+        compute_idxs(subcentroid_idxs, data.data(), subcentroids.data(),
+                     vecdim, ncentroids, groupsize);
 
         /** Baseline Quantization Error **/
         {
