@@ -320,7 +320,7 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
     for (int i = 0; i < ncentroids; i++){
         std::cout << index->ids[i].size() << std::endl;
         groupsizes[i] = index->ids[i].size();
-        data[i] = new float [groupsizes[i]*vecdim];
+        data[i] = (float *) malloc(groupsizes[i]*vecdim*sizeof(float));
         offsets[i] = 0;
     }
 
