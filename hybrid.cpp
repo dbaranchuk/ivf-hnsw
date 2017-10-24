@@ -451,6 +451,7 @@ void check_idea(Index *index, const char *path_centroids,
 {
     const bool include_zero_centroid = false;
     const int nc = 128;
+    const int maxM = 128;
     const char *path_groups = "groups1M_10000.bin";
 
     if (!exists_test(path_groups)) {
@@ -505,7 +506,7 @@ void check_idea(Index *index, const char *path_centroids,
         }
 
         /** Pruning **/
-        index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, nc/2);
+        //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, nc/2);
         size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
         //std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
         average_nc += ncentroids;
