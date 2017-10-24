@@ -342,8 +342,7 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
 
     FILE *fout = fopen(path_groups, "wb");
     for (int i = 0; i < ncentroids; i++) {
-        float *group_data = data[i];
-        int groupsize = group_data.size() / vecdim;
+        int groupsize = data[i].size() / vecdim;
 
         if (groupsize != index->ids[i].size()){
             std::cout << "Wrong groupsize: " << groupsize << " vs "
