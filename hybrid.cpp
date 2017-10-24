@@ -501,6 +501,8 @@ void check_idea(Index *index, const char *path_centroids,
 
     const int ngroups = 200;
     float average_nc = 0;
+
+#pragma omp parallel for num_threads(16)
     for (int g = 0; g < ngroups; g++) {
         /** Read Original vectors from Group file**/
         idx_t centroid_num;
