@@ -373,6 +373,12 @@ void check_idea(Index *index, const char *path_centroids,
 
     std::ifstream input(path_groups, ios::binary);
 
+    double baseline_average = 0.0;
+    double modified_average = 0.0;
+
+    double baseline_error = 0.0;
+    double modified_error = 0.0;
+
     const int ngroups = 10;//0000;
     for (int g = 0; g < ngroups; g++) {
 
@@ -444,6 +450,7 @@ void check_idea(Index *index, const char *path_centroids,
             av_dist += faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim);
         }
         std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
+        baseline_average += av_dist / groupsize;
 
         /** Find alphas for vectors **/
         std::vector<float> alphas(ncentroids);
@@ -472,6 +479,7 @@ void check_idea(Index *index, const char *path_centroids,
             av_dist += -results.top().first;
         }
         std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
+        modified_average += av_dist / groupsize;
 
         /** Baseline Quantization Error **/
         {
@@ -489,6 +497,7 @@ void check_idea(Index *index, const char *path_centroids,
 
             double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
             std::cout << "[Baseline] Quantization Error: " << error << std::endl;
+            baseline_error += error;
         }
         /** Modified Quantization Error **/
         {
@@ -516,8 +525,13 @@ void check_idea(Index *index, const char *path_centroids,
             }
             double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
             std::cout << "[Modified] Quantization Error: " << error << std::endl;
+            modified_error += error;
         }
     }
+    std::cout << "[Global Baseline] Average Distance: " << baseline_average << std::endl;
+    std::cout << "[Global Modified] Average Distance: " << modified_average << std::endl;
+    std::cout << "[Global Baseline] Average Error: " << baseline_error << std::endl;
+    std::cout << "[Global Modified] Average Error: " << modified_error << std::endl;
     input.close();
 }
 
