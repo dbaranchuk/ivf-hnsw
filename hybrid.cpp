@@ -373,7 +373,7 @@ void check_idea(Index *index, const char *path_centroids,
 
     std::ifstream input(path_groups, ios::binary);
 
-    const int ngroups = 1;//0000;
+    const int ngroups = 10;//0000;
     for (int g = 0; g < ngroups; g++) {
 
         /** Read Original vectors from Group file**/
@@ -383,7 +383,7 @@ void check_idea(Index *index, const char *path_centroids,
         input.read((char *)&centroid_num, sizeof(idx_t));
         input.read((char *)&groupsize, sizeof(int));
         groupsize /= 96;
-        
+
         std::cout << centroid_num << " " << groupsize << std::endl;
 
         std::vector<float> data(groupsize * vecdim);
