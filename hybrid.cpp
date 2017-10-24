@@ -507,13 +507,13 @@ void check_idea(Index *index, const char *path_centroids,
         /** Read Original vectors from Group file**/
         idx_t centroid_num;
         int groupsize;
-
+        std::vector<float> data;
 #pragma omp critical
         {
             input.read((char *) &centroid_num, sizeof(idx_t));
             input.read((char *) &groupsize, sizeof(int));
             //std::cout << centroid_num << " " << groupsize << std::endl;
-            std::vector<float> data(groupsize * vecdim);
+            data.reverse(groupsize * vecdim);
             readXvecs<float>(input, data.data(), vecdim, groupsize);
         }
 
