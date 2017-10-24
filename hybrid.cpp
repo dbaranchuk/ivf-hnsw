@@ -392,10 +392,8 @@ void compute_subcentroids(float *subcentroids, const float *centroid,
             std::cout << "Centroid " << c << " has wrong norm: " << check_norm << std::endl;
             exit(1);
         }
-        for (int i = 0; i < vecdim; i++) {
-            subcentroid[i] = centroid_vector[i] * alpha;
-            subcentroid[i] += centroid[i];
-        }
+        for (int i = 0; i < vecdim; i++)
+            subcentroid[i] = centroid_vector[i] * alpha + centroid[i];
     }
 }
 
@@ -417,10 +415,9 @@ float compute_alpha(const float *centroid_vectors, const float *point_vectors,
             float alpha = faiss::fvec_inner_product (centroid_vector, point_vector, vecdim);
 
             std::vector<float> subcentroid(vecdim);
-            for (int d = 0; d < vecdim; d++) {
-                subcentroid[d] = centroid_vector[d] * alpha;
-                subcentroid[d] += centroid[d];
-            }
+            for (int d = 0; d < vecdim; d++)
+                subcentroid[d] = centroid_vector[d] * alpha + centroid[d];
+
             float dist = faiss::fvec_L2sqr(point_vector, subcentroid.data(), vecdim);
             max_heap.emplace(std::make_pair(-dist, alpha));
         }
@@ -457,6 +454,7 @@ float compute_idxs(std::vector<std::vector<idx_t>> &idxs,
     for (int i = 0; i < groupsize; i++) {
         const float *point = points + i * vecdim;
         std::priority_queue<std::pair<float, idx_t>> max_heap;
+
         for (int c = 0; c < ncentroids; c++) {
             const float *subcentroid = subcentroids + c * vecdim;
             float dist = faiss::fvec_L2sqr(subcentroid, point, vecdim);
