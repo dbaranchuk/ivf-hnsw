@@ -475,7 +475,7 @@ void check_idea(Index *index, const char *path_centroids,
 {
     StopW stopw = StopW();
     const bool include_zero_centroid = true;
-    const int nc = 499;
+    //const int nc = 499;
     const int maxM = 500;
     const char *path_groups = "groups1M_10000.bin";
 
@@ -525,7 +525,7 @@ void check_idea(Index *index, const char *path_centroids,
         /** Find NN centroids to source centroid **/
         float *centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
         index->quantizer->ef_ = groupsize+1;
-        nc = groupsize;
+        int nc = groupsize;
         auto nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nc + 1);
 
         /** Remove source centroid from consideration **/
@@ -536,7 +536,7 @@ void check_idea(Index *index, const char *path_centroids,
         }
 
         /** Pruning **/
-        index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
+        //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
         size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
         //std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
         average_nc += ncentroids;
