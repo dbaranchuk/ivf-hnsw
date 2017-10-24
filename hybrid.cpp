@@ -359,13 +359,13 @@ void check_idea(Index *index, const char *path_centroids,
 {
     const bool include_zero_centroid = false;
     const int nc = 64;
-    const char *path_groups = "groups10000.bin";
+    const char *path_groups = "groups1M_10000.bin";
 
     if (!exists_test(path_groups)) {
         std::cout << "Precompute Group file first\n";
 
         std::unordered_set<idx_t> centroid_nums;
-        for (idx_t i = 999000; i < 1999000; i += 100)
+        for (idx_t i = 50000; i < 150000; i += 10)
             centroid_nums.insert(i);
 
         collect_groups(path_data, path_precomputed_idxs, centroid_nums, vecdim, vecsize);
@@ -413,7 +413,7 @@ void check_idea(Index *index, const char *path_centroids,
         }
 
         /** Pruning **/
-        index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
+        //index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
         size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
         //std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
 
