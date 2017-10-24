@@ -300,7 +300,7 @@ void collect_groups(const char *path_data, const char *path_precomputed_idxs,
     for (idx_t centroid_num : centroid_nums) {
         fwrite(&centroid_num, sizeof(int), 1, fout);
         auto group_data = data[centroid_num];
-        int groupsize = group_data.size();
+        int groupsize = group_data.size() / vecdim;
         fwrite(&groupsize, sizeof(int), 1, fout);
         for (int i = 0; i < groupsize; i++) {
             fwrite(&vecdim, sizeof(int), 1, fout);
@@ -382,7 +382,6 @@ void check_idea(Index *index, const char *path_centroids,
 
         input.read((char *)&centroid_num, sizeof(idx_t));
         input.read((char *)&groupsize, sizeof(int));
-        groupsize /= 96;
 
         std::cout << centroid_num << " " << groupsize << std::endl;
 
