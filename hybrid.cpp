@@ -446,7 +446,7 @@ float compute_alpha(const float *centroid_vectors, const float *point_vectors,
 //    else
 //        std::cout << "Negative Alpha: " << negative_alpha << std::endl;
 
-    return (counter_positive > counter_negative) ? positive_alpha : negative_alpha;
+    return (counter_positive < counter_negative) ? positive_alpha : negative_alpha;
 }
 
 float compute_idxs(std::vector<std::vector<idx_t>> &idxs,
