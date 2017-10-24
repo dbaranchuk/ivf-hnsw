@@ -505,12 +505,9 @@ void check_idea(Index *index, const char *path_centroids,
         baseline_average += av_dist / groupsize;
 
         /** Find alphas for vectors **/
-//        float alpha = compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(),
-//                                    centroid, vecdim, ncentroids, groupsize);
+        float alpha = compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(),
+                                    centroid, vecdim, ncentroids, groupsize);
 
-        std::vector<float> alphas(ncentroids);
-        compute_alphas(alphas.data(), normalized_centroid_vectors.data(), point_vectors.data(),
-                       vecdim, ncentroids, groupsize);
 
         /** Compute final subcentroids **/
         std::vector<float> subcentroids(ncentroids * vecdim);
