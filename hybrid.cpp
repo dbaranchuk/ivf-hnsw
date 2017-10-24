@@ -312,7 +312,7 @@ void collect_groups(const char *path_groups, const char *path_data, const char *
 void save_groups(Index *index, const char *path_groups, const char *path_data,
                  const char *path_precomputed_idxs, const int vecdim, const int vecsize)
 {
-    const int ncentroids = 30000;
+    const int ncentroids = 3000;
     //std::vector<std::vector<float>> data(ncentroids);
     float **data = new float*[ncentroids];
     int *offsets = new int[ncentroids];
@@ -718,7 +718,7 @@ void hybrid_test(const char *path_centroids,
 
         save_groups(index, "/home/dbaranchuk/data/groups/groups400000", path_data,
                     path_precomputed_idxs, vecsize, vecdim);
-        check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
+        //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {
         /** Add elements **/
         size_t batch_size = 1000000;
