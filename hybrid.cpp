@@ -578,7 +578,7 @@ void check_idea(Index *index, const char *path_centroids,
             index->reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(), keys.data());
 
             double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
-            std::cout << "[Baseline] Quantization Error: " << error << std::endl;
+            //std::cout << "[Baseline] Quantization Error: " << error << std::endl;
             baseline_error += error;
         }
         /** Modified Quantization Error **/
@@ -608,7 +608,7 @@ void check_idea(Index *index, const char *path_centroids,
                 }
             }
             double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
-            std::cout << "[Modified] Quantization Error: " << error << std::endl;
+            //std::cout << "[Modified] Quantization Error: " << error << std::endl;
             modified_error += error;
         }
     }
