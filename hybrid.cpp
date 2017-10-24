@@ -379,7 +379,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 1000;
+    const int ngroups = 100;
     for (int g = 0; g < ngroups; g++) {
 
         /** Read Original vectors from Group file**/
@@ -528,10 +528,10 @@ void check_idea(Index *index, const char *path_centroids,
             modified_error += error;
         }
     }
-    std::cout << "[Global Baseline] Average Distance: " << baseline_average << std::endl;
-    std::cout << "[Global Modified] Average Distance: " << modified_average << std::endl;
-    std::cout << "[Global Baseline] Average Error: " << baseline_error << std::endl;
-    std::cout << "[Global Modified] Average Error: " << modified_error << std::endl;
+    std::cout << "[Global Baseline] Average Distance: " << baseline_average / ngroups << std::endl;
+    std::cout << "[Global Modified] Average Distance: " << modified_average / ngroups << std::endl;
+    std::cout << "[Global Baseline] Average Error: " << baseline_error / ngroups << std::endl;
+    std::cout << "[Global Modified] Average Error: " << modified_error / ngroups << std::endl;
     input.close();
 }
 
