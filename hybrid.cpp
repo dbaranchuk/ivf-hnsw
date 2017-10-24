@@ -493,13 +493,12 @@ void check_idea(Index *index, const char *path_centroids,
             std::vector<float> reconstructed_x(groupsize * vecdim);
 
             for (int i = 0; i < groupsize; i++) {
-                idx_t subcentroid_idx = subcentroid_idxs[i];
-                float *sub_centroid = sub_centroids.data() + subcentroid_idx * vecdim;
+                float *subcentroid = subcentroids.data() + subcentroid_idx * vecdim;
                 float *point = data.data() + i * vecdim;
 
                 float residual[vecdim];
                 for (int j = 0; j < vecdim; j++)
-                    residual[j] = point[j] - sub_centroid[j];
+                    residual[j] = point[j] - subcentroid[j];
 
                 uint8_t code[index->pq->code_size];
                 index->pq->compute_code(residual, code);
