@@ -379,7 +379,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 100;
+    const int ngroups = 1000;
     for (int g = 0; g < ngroups; g++) {
 
         /** Read Original vectors from Group file**/
@@ -398,6 +398,8 @@ void check_idea(Index *index, const char *path_centroids,
             std::cout << "Wrong groupsize\n";
             exit(1);
         }
+        if (groupsize == 0)
+            continue;
 
         /** Find NN centroids to source centroid **/
         float *centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
