@@ -313,14 +313,13 @@ void collect_groups(const char *path_data, const char *path_precomputed_idxs,
 void compute_alphas(float *alphas, const float *centroid_vectors, const float *point_vectors,
                     const int vecdim, const int ncentroids, const int groupsize)
 {
-    std::vector<float> alphas(ncentroids);
     for (int c = 0; c < ncentroids; c++) {
-        float *centroid_vector = centroid_vectors + c*vecdim;
+        const float *centroid_vector = centroid_vectors + c*vecdim;
         float alpha = 0.0;
         int counter_positive = 0;
 
         for (int i = 0; i < groupsize; i++) {
-            float *point_vector = point_vectors + i*vecdim;
+            const float *point_vector = point_vectors + i*vecdim;
             float inner_product = faiss::fvec_inner_product (centroid_vector, point_vector, vecdim);
             if (inner_product < 0)
                 continue;
@@ -338,7 +337,7 @@ void compute_subcentroids(float *subcentroids, const float *centroid_vectors,
                           const int ncentroids, const int groupsize)
 {
     for (int c = 0; c < ncentroids; c++) {
-        float *centroid_vector = centroid_vectors + c * vecdim;
+        const float *centroid_vector = centroid_vectors + c * vecdim;
         float *subcentroid = subcentroids + c * vecdim;
         float alpha = alphas[c];
 
