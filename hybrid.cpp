@@ -315,10 +315,6 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
     const int ncentroids = 400000;
     std::vector<std::vector<float>> data(ncentroids);
 
-    for (int i = 0; i < ncentroids; i++){
-        int groupsize = index->ids[i].size();
-    }
-
     const int batch_size = 1000000;
     std::ifstream base_input(path_data, ios::binary);
     std::ifstream idx_input(path_precomputed_idxs, ios::binary);
