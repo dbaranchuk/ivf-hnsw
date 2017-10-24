@@ -312,8 +312,13 @@ void collect_groups(const char *path_groups, const char *path_data, const char *
 void save_groups(Index *index, const char *path_groups, const char *path_data,
                  const char *path_precomputed_idxs, const int vecdim, const int vecsize)
 {
-    const int ncentroids = 350000;
+    const int ncentroids = 30000;
     std::vector<std::vector<float>> data(ncentroids);
+    float **data = new float*[ncentroids];
+    for (int i = 0; i < ncentroids; i++){
+        int groupsize = index->ids[i].size();
+        data[i] = new float [groupsize*vecdim];
+    }
 
     const int batch_size = 1000000;
     std::ifstream base_input(path_data, ios::binary);
@@ -333,28 +338,32 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
             for (int d = 0; d < vecdim; d++)
                 data[cur_idx].push_back(batch[i * vecdim + d]);
         }
-        if (b % 100 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
+        if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
     }
     idx_input.close();
     base_input.close();
 
     FILE *fout = fopen(path_groups, "wb");
     for (int i = 0; i < ncentroids; i++) {
-        auto group_data = data[i];
-        int groupsize = group_data.size() / vecdim;
+        float *group_data = data[i];
+        int groupsize = index->ids[i].size();//group_data.size() / vecdim;
 
-        if (groupsize != index->ids[i].size()){
-            std::cout << "Wrong groupsize: " << groupsize << " vs "
-                      << index->ids[i].size() <<std::endl;
-            exit(1);
-        }
+//        if (groupsize != index->ids[i].size()){
+//            std::cout << "Wrong groupsize: " << groupsize << " vs "
+//                      << index->ids[i].size() <<std::endl;
+//            exit(1);
+//        }
 
         fwrite(&groupsize, sizeof(int), 1, fout);
         for (int i = 0; i < groupsize; i++) {
             fwrite(&vecdim, sizeof(int), 1, fout);
-            fwrite(group_data.data() + i * vecdim, sizeof(float), vecdim, fout);
+            fwrite(group_data + i * vecdim, sizeof(float), vecdim, fout);
         }
     }
+
+    for (int i = 0; i < ncentroids; i++)
+        delete data[i];
+    delete data;
 }
 
 void compute_subcentroids(float *subcentroids, const float *centroid,
