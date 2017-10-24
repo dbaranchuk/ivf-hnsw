@@ -415,10 +415,10 @@ void compute_idxs(std::vector<std::vector<idx_t>> &idxs,
 {
     float av_dist = 0.0;
     for (int i = 0; i < groupsize; i++) {
-        float *point = points + i * vecdim;
+        const float *point = points + i * vecdim;
         std::priority_queue<std::pair<float, idx_t>> max_heap;
         for (int c = 0; c < ncentroids; c++) {
-            float *subcentroid = subcentroids + c * vecdim;
+            const float *subcentroid = subcentroids + c * vecdim;
             float dist = faiss::fvec_L2sqr(subcentroid, point, vecdim);
             max_heap.emplace(std::make_pair(-dist, c));
         }
@@ -427,7 +427,6 @@ void compute_idxs(std::vector<std::vector<idx_t>> &idxs,
         av_dist += -max_heap.top().first;
     }
     std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
-    modified_average += av_dist / groupsize;
 }
 
 void check_idea(Index *index, const char *path_centroids,
