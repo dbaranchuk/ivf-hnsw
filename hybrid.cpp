@@ -309,8 +309,8 @@ void collect_groups(const char *path_groups, const char *path_data, const char *
     fclose(fout);
 }
 
-void save_groups(Index *index, const char *path_groups, const char *path_data,
-                 const char *path_precomputed_idxs, const int vecdim, const int vecsize)
+void save_groups(Index *index, const char *path_data, const char *path_precomputed_idxs,
+                 const int ncentroids, const int vecdim, const int vecsize)
 {
     const int batch_size = 1000000;
     std::ifstream base_input(path_data, ios::binary);
@@ -701,7 +701,7 @@ void hybrid_test(const char *path_centroids,
         std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
 
-        save_groups(index, path_data, path_precomputed_idxs, vecdim, vecsize);
+        save_groups(index, path_data, path_precomputed_idxs, ncentroids, vecdim, vecsize);
         //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {
         /** Add elements **/
