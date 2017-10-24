@@ -493,6 +493,7 @@ void check_idea(Index *index, const char *path_centroids,
             std::vector<float> reconstructed_x(groupsize * vecdim);
 
             for (int i = 0; i < groupsize; i++) {
+                idx_t subcentroid_idx = subcentroid_idxs[i];
                 float *subcentroid = subcentroids.data() + subcentroid_idx * vecdim;
                 float *point = data.data() + i * vecdim;
 
@@ -508,7 +509,7 @@ void check_idea(Index *index, const char *path_centroids,
 
                 float *rx = reconstructed_x.data() + i * vecdim;
                 for (int j = 0; j < vecdim; j++)
-                    rx[j] = sub_centroid[j] + decoded_residual[j];
+                    rx[j] = subcentroid[j] + decoded_residual[j];
 
             }
             double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
