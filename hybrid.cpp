@@ -508,13 +508,14 @@ void check_idea(Index *index, const char *path_centroids,
         idx_t centroid_num;
         int groupsize;
 
-        input.read((char *)&centroid_num, sizeof(idx_t));
-        input.read((char *)&groupsize, sizeof(int));
-
-        //std::cout << centroid_num << " " << groupsize << std::endl;
-
-        std::vector<float> data(groupsize * vecdim);
-        readXvecs<float>(input, data.data(), vecdim, groupsize);
+#pragma omp critical
+        {
+            input.read((char *) &centroid_num, sizeof(idx_t));
+            input.read((char *) &groupsize, sizeof(int));
+            //std::cout << centroid_num << " " << groupsize << std::endl;
+            std::vector<float> data(groupsize * vecdim);
+            readXvecs<float>(input, data.data(), vecdim, groupsize);
+        }
 
         if (groupsize != index->ids[centroid_num].size()){
             std::cout << "Wrong groupsize\n";
