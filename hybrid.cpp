@@ -312,7 +312,7 @@ void collect_groups(const char *path_groups, const char *path_data, const char *
 void save_groups(Index *index, const char *path_groups, const char *path_data,
                  const char *path_precomputed_idxs, const int vecdim, const int vecsize)
 {
-    const int ncentroids = 40000;
+    const int ncentroids = 400000;
     std::vector<std::vector<float>> data(ncentroids);
 
     const int batch_size = 1000000;
@@ -329,11 +329,8 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
             if (idx_batch[i] >= ncentroids)
                 continue;
 
-            idx_t cur_idx = idx_batch[i];
-            data[cur_idx].insert(data[cur_idx].end(), batch.begin() + i * vecdim,
-                                 batch.begin() + (i+1) * vecdim);
-            //for (int d = 0; d < vecdim; d++)
-            //    data[cur_idx].push_back(batch[i * vecdim + d]);
+            for (int d = 0; d < vecdim; d++)
+                data[cur_idx].push_back(batch[i * vecdim + d]);
         }
         if (b % 100 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
     }
