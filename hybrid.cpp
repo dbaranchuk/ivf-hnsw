@@ -476,7 +476,7 @@ void check_idea(Index *index, const char *path_centroids,
     StopW stopw = StopW();
     const bool include_zero_centroid = true;
     //const int nc = 499;
-    const int maxM = 500;
+    const int maxM = 1000;
     const char *path_groups = "groups1M_10000.bin";
 
     if (!exists_test(path_groups)) {
