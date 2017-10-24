@@ -472,6 +472,7 @@ void check_idea(Index *index, const char *path_centroids,
     double modified_error = 0.0;
 
     const int ngroups = 100;
+    float average_nc = 0;
     for (int g = 0; g < ngroups; g++) {
         /** Read Original vectors from Group file**/
         idx_t centroid_num;
@@ -507,6 +508,7 @@ void check_idea(Index *index, const char *path_centroids,
         //index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
         size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
         //std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
+        average_nc += ncentroids;
 
         if (ncentroids > nc + include_zero_centroid) {
             std::cout << "Wrong number of nn centroids\n";
@@ -612,6 +614,7 @@ void check_idea(Index *index, const char *path_centroids,
             modified_error += error;
         }
     }
+    std::cout << "Average ncentroids: " << average_nc / ngroups << std::endl;
     std::cout << "[Global Baseline] Average Distance: " << baseline_average / ngroups << std::endl;
     std::cout << "[Global Modified] Average Distance: " << modified_average / ngroups << std::endl;
     std::cout << "[Global Baseline] Average Error: " << baseline_error / ngroups << std::endl;
