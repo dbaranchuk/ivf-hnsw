@@ -331,36 +331,15 @@ void compute_alphas(float *alphas, const float *centroid_vectors, const float *p
     }
 }
 
-//void compute_subcentroids(float *subcentroids, const float *centroid,
-//                          const float *centroid_vectors,
-//                          const float *alphas, const int vecdim,
-//                          const int ncentroids, const int groupsize)
-//{
-//    for (int c = 0; c < ncentroids; c++) {
-//        const float *centroid_vector = centroid_vectors + c * vecdim;
-//        float *subcentroid = subcentroids + c * vecdim;
-//        float alpha = alphas[c];
-//
-//        float check_norm = faiss::fvec_norm_L2sqr(centroid_vector, vecdim);
-//        if (c != 0 && !(0.99999 <  check_norm < 1.00001)){
-//            std::cout << "Centroid " << c << " has wrong norm: " << check_norm << std::endl;
-//            exit(1);
-//        }
-//        for (int i = 0; i < vecdim; i++) {
-//            subcentroid[i] = centroid_vector[i] * alpha;
-//            subcentroid[i] += centroid[i];
-//        }
-//    }
-//}
-
 void compute_subcentroids(float *subcentroids, const float *centroid,
                           const float *centroid_vectors,
-                          const float alpha, const int vecdim,
+                          const float *alphas, const int vecdim,
                           const int ncentroids, const int groupsize)
 {
     for (int c = 0; c < ncentroids; c++) {
         const float *centroid_vector = centroid_vectors + c * vecdim;
         float *subcentroid = subcentroids + c * vecdim;
+        float alpha = alphas[c];
 
         float check_norm = faiss::fvec_norm_L2sqr(centroid_vector, vecdim);
         if (c != 0 && !(0.99999 <  check_norm < 1.00001)){
@@ -373,6 +352,27 @@ void compute_subcentroids(float *subcentroids, const float *centroid,
         }
     }
 }
+
+//void compute_subcentroids(float *subcentroids, const float *centroid,
+//                          const float *centroid_vectors,
+//                          const float alpha, const int vecdim,
+//                          const int ncentroids, const int groupsize)
+//{
+//    for (int c = 0; c < ncentroids; c++) {
+//        const float *centroid_vector = centroid_vectors + c * vecdim;
+//        float *subcentroid = subcentroids + c * vecdim;
+//
+//        float check_norm = faiss::fvec_norm_L2sqr(centroid_vector, vecdim);
+//        if (c != 0 && !(0.99999 <  check_norm < 1.00001)){
+//            std::cout << "Centroid " << c << " has wrong norm: " << check_norm << std::endl;
+//            exit(1);
+//        }
+//        for (int i = 0; i < vecdim; i++) {
+//            subcentroid[i] = centroid_vector[i] * alpha;
+//            subcentroid[i] += centroid[i];
+//        }
+//    }
+//}
 
 float compute_alpha(const float *centroid_vectors, const float *point_vectors,
                     const float *centroid,
@@ -549,17 +549,17 @@ void check_idea(Index *index, const char *path_centroids,
         baseline_average += av_dist / groupsize;
 
         /** Find alphas for vectors **/
-        float alpha = compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(),
-                                    centroid, vecdim, ncentroids, groupsize);
+//        float alpha = compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(),
+//                                    centroid, vecdim, ncentroids, groupsize);
 
-        //std::vector<float> alphas(ncentroids);
-        //compute_alphas(alphas.data(), normalized_centroid_vectors.data(), point_vectors.data(),
-        //               vecdim, ncentroids, groupsize);
+        std::vector<float> alphas(ncentroids);
+        compute_alphas(alphas.data(), normalized_centroid_vectors.data(), point_vectors.data(),
+                       vecdim, ncentroids, groupsize);
 
         /** Compute final subcentroids **/
         std::vector<float> subcentroids(ncentroids * vecdim);
         compute_subcentroids(subcentroids.data(), centroid, normalized_centroid_vectors.data(),
-                             alpha, vecdim, ncentroids, groupsize);
+                             alphas, vecdim, ncentroids, groupsize);
 
         /** Compute sub idxs for group points **/
         std::vector<std::vector<idx_t>> idxs(ncentroids);
