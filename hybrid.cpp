@@ -309,31 +309,23 @@ void collect_groups(const char *path_groups, const char *path_data, const char *
     fclose(fout);
 }
 
-void save_groups(Index *index, const char *path_data, const char *path_precomputed_idxs,
-                 const int ncentroids, const int vecdim, const int vecsize)
+void save_groups(Index *index, const char *path_groups, const char *path_data,
+                 const char *path_precomputed_idxs, const int vecdim, const int vecsize)
 {
+    const int ncentroids = 400000;
+    std::vector<std::vector<float>> data(ncentroids);
+
     const int batch_size = 1000000;
     std::ifstream base_input(path_data, ios::binary);
     std::ifstream idx_input(path_precomputed_idxs, ios::binary);
     std::vector<float> batch(batch_size * vecdim);
     std::vector<idx_t> idx_batch(batch_size);
 
-    std::string prefix = std::string("/home/dbaranchuk/data/groups/");
-    std::string format = std::string(".dat");
-
-    for (int i = 0; i < ncentroids; i++){
-        const char *filename = (prefix + std::to_string(i) + format).c_str();
-        FILE *fout = fopen(filename, "wb");
-        int groupsize = index->ids[i].size();
-        fwrite(&groupsize, sizeof(int), 1, fout);
-        fclose(fout);
-    }
-
     for (int b = 0; b < (vecsize / batch_size); b++) {
         readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
         readXvec<float>(base_input, batch.data(), vecdim, batch_size);
 
-        std::vector<std::vector<float>> data(ncentroids);
+    #pragma omp parallel for num_threads(16)
         for (size_t i = 0; i < batch_size; i++) {
             if (idx_batch[i] >= ncentroids)
                 continue;
@@ -343,20 +335,25 @@ void save_groups(Index *index, const char *path_data, const char *path_precomput
                 data[cur_idx].push_back(batch[i * vecdim + d]);
         }
 
-        for (int i = 0; i < ncentroids; i++){
-            if (data[i].size() == 0)
-                continue;
-
-            const char *filename = (prefix + std::to_string(i) + format).c_str();
-            FILE *fout = fopen(filename, "ab");
-            fwrite(data[i].data(), sizeof(float), data[i].size(), fout);
-            fclose(fout);
-        }
-
         if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
     }
     idx_input.close();
     base_input.close();
+
+    FILE *fout = fopen(path_groups, "wb");
+    for (int i = 0; i < ncentroids; i++) {
+        float *group_data = data[i];
+        int groupsize = group_data.size() / vecdim;
+
+        if (groupsize != index->ids[i].size()){
+            std::cout << "Wrong groupsize: " << groupsize << " vs "
+                      << index->ids[i].size() <<std::endl;
+            exit(1);
+        }
+
+        fwrite(&groupsize, sizeof(int), 1, fout);
+        fwrite(data[i].data(), sizeof(float), data[i].size(), fout);
+    }
 }
 
 void compute_subcentroids(float *subcentroids, const float *centroid,
@@ -701,7 +698,8 @@ void hybrid_test(const char *path_centroids,
         std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
 
-        save_groups(index, path_data, path_precomputed_idxs, ncentroids, vecdim, vecsize);
+        save_groups(index, "/home/dbaranchuk/data/groups/groups400000.dat", path_data,
+                    path_precomputed_idxs, vecdim, vecsize);
         //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {
         /** Add elements **/
