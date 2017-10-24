@@ -559,7 +559,7 @@ void check_idea(Index *index, const char *path_centroids,
         /** Compute final subcentroids **/
         std::vector<float> subcentroids(ncentroids * vecdim);
         compute_subcentroids(subcentroids.data(), centroid, normalized_centroid_vectors.data(),
-                             alphas, vecdim, ncentroids, groupsize);
+                             alphas.data(), vecdim, ncentroids, groupsize);
 
         /** Compute sub idxs for group points **/
         std::vector<std::vector<idx_t>> idxs(ncentroids);
