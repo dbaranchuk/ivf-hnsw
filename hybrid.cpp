@@ -166,30 +166,6 @@ static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queu
     }
 }
 
-
-static void read_groups(std::ifstream &input, std::unrodered_map<idx_t, std::vector<float>> &data,
-                        const int d, const int ncentroids)
-{
-
-    for (int  n = 0; n < ncentroids; n++) {
-        idx_t centroid_num;
-        int groupsize;
-
-        input.read((char *) &centroid_num, sizeof(idx_t));
-        input.read((char *) &groupsize, sizeof(int));
-
-        int in = 0;
-        for (int i = 0; i < n; i++) {
-            input.read((char *) &in, sizeof(int));
-            if (in != d) {
-                std::cout << "file error\n";
-                exit(1);
-            }
-            input.read((char *) (mass + i * d), in * sizeof(format));
-        }
-    }
-}
-
 template <typename format>
 static void loadXvecs(const char *path, format *mass, const int n, const int d)
 {
