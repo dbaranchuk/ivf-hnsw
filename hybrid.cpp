@@ -392,12 +392,12 @@ float compute_alpha(std::vector<std::vector<idx_t>> &subcentroid_idxs,
             const float *centroid_vector = centroid_vectors + c*vecdim;
             float alpha = faiss::fvec_inner_product (centroid_vector, point_vector, vecdim);
 
-            std::vector<float> subcentroid(d);
+            std::vector<float> subcentroid(vecdim);
             for (int d = 0; d < vecdim; d++) {
                 subcentroid[d] = centroid_vector[d] * alpha;
                 subcentroid[d] += centroid[d];
             }
-            float dist = faiss::fvec_L2sqr(point_vector, subcentroid, vecdim);
+            float dist = faiss::fvec_L2sqr(point_vector, subcentroid.data(), vecdim);
             if (dist < min_dist) {
                 min_dist = dist;
                 min_alpha = alpha;
@@ -516,7 +516,7 @@ void check_idea(Index *index, const char *path_centroids,
         /** Find alphas for vectors **/
         std::vector<std::vector<idx_t>> subcentroid_idxs(ncentroids);
         float alpha = compute_alpha(subcentroid_idxs, normalized_centroid_vectors.data(),
-                                    point_vectors.data(), vecdim, ncentroids, groupsize);
+                                    point_vectors.data(), centorid, vecdim, ncentroids, groupsize);
 
         //std::vector<float> alphas(ncentroids);
         //compute_alphas(alphas.data(), normalized_centroid_vectors.data(), point_vectors.data(),
