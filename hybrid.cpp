@@ -318,6 +318,7 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
     int *offsets = new int[ncentroids];
     int *groupsizes = new int[ncentroids];
     for (int i = 0; i < ncentroids; i++){
+        std::cout << index->ids[i].size() << std::endl;
         groupsizes[i] = index->ids[i].size();
         data[i] = new float [groupsizes[i]*vecdim];
         offsets[i] = 0;
