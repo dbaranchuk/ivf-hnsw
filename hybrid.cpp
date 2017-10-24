@@ -384,8 +384,8 @@ float compute_alpha(std::vector<std::vector<idx_t>> &subcentroid_idxs,
 
     for (int i = 0; i < groupsize; i++) {
         const float *point_vector = point_vectors + i*vecdim;
-        float min_alpha = 0.0;
-        float min_dist = 0.0;
+        float min_alpha;
+        float min_dist = 10000;
         idx_t min_subcentroid;
 
         for (int c = 0; c < ncentroids; c++){
@@ -438,7 +438,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 100;
+    const int ngroups = 10;
     for (int g = 0; g < ngroups; g++) {
 
         /** Read Original vectors from Group file**/
@@ -518,6 +518,8 @@ void check_idea(Index *index, const char *path_centroids,
         float alpha = compute_alpha(ids, normalized_centroid_vectors.data(),
                                     point_vectors.data(), centroid, vecdim, ncentroids, groupsize);
 
+        for (int i = 0; i < 10; i++)
+            std::cout << ids[i].size() << " ";
         //std::vector<float> alphas(ncentroids);
         //compute_alphas(alphas.data(), normalized_centroid_vectors.data(), point_vectors.data(),
         //               vecdim, ncentroids, groupsize);
