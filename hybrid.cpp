@@ -379,7 +379,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 10;//0000;
+    const int ngroups = 10000;
     for (int g = 0; g < ngroups; g++) {
 
         /** Read Original vectors from Group file**/
