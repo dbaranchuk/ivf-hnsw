@@ -328,7 +328,7 @@ void compute_alphas(float *alphas, const float *centroid_vectors, const float *p
         }
         alpha /= counter_positive;
         alphas[c] = alpha;
-        std::cout << "Alpha " << c << ": " << alpha << std::endl;
+        //std::cout << "Alpha " << c << ": " << alpha << std::endl;
     }
 }
 
@@ -379,7 +379,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 1000;
+    const int ngroups = 10000;
     for (int g = 0; g < ngroups; g++) {
 
         /** Read Original vectors from Group file**/
@@ -415,7 +415,7 @@ void check_idea(Index *index, const char *path_centroids,
         /** Pruning **/
         index->quantizer->getNeighborsByHeuristic(nn_centroids_before_heuristic, nc);
         size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
-        std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
+        //std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
 
         if (ncentroids > nc + include_zero_centroid) {
             std::cout << "Wrong number of nn centroids\n";
@@ -451,7 +451,7 @@ void check_idea(Index *index, const char *path_centroids,
             compute_vector(point_vectors.data() + i * vecdim, centroid, data.data() + i * vecdim, vecdim);
             av_dist += faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim);
         }
-        std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
+        //std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
         baseline_average += av_dist / groupsize;
 
         /** Find alphas for vectors **/
@@ -480,7 +480,7 @@ void check_idea(Index *index, const char *path_centroids,
             subcentroid_idxs[i] = results.top().second;
             av_dist += -results.top().first;
         }
-        std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
+        //std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
         modified_average += av_dist / groupsize;
 
         /** Baseline Quantization Error **/
@@ -498,7 +498,7 @@ void check_idea(Index *index, const char *path_centroids,
             index->reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(), keys.data());
 
             double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
-            std::cout << "[Baseline] Quantization Error: " << error << std::endl;
+            //std::cout << "[Baseline] Quantization Error: " << error << std::endl;
             baseline_error += error;
         }
         /** Modified Quantization Error **/
@@ -526,7 +526,7 @@ void check_idea(Index *index, const char *path_centroids,
 
             }
             double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
-            std::cout << "[Modified] Quantization Error: " << error << std::endl;
+            //std::cout << "[Modified] Quantization Error: " << error << std::endl;
             modified_error += error;
         }
     }
