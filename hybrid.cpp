@@ -332,7 +332,8 @@ void compute_alphas(float *alphas, const float *centroid_vectors, const float *p
     }
 }
 
-void compute_subcentroids(float *subcentroids, const float *centroid_vectors,
+void compute_subcentroids(float *subcentroids, const float *centroid,
+                          const float *centroid_vectors,
                           const float *alphas, const int vecdim,
                           const int ncentroids, const int groupsize)
 {
@@ -449,8 +450,8 @@ void check_idea(Index *index, const char *path_centroids,
 
         /** Compute final subcentroids **/
         std::vector<float> subcentroids(ncentroids * vecdim);
-        compute_subcentroids(subcentroids.data(), normalized_centroid_vectors.data(), alphas.data(),
-                             vecdim, ncentroids, groupsize);
+        compute_subcentroids(subcentroids.data(), centroid, normalized_centroid_vectors.data(),
+                             alphas.data(), vecdim, ncentroids, groupsize);
 
 
         /** Compute sub idxs for group points **/
@@ -461,8 +462,8 @@ void check_idea(Index *index, const char *path_centroids,
             float *point = data.data() + i * vecdim;
             std::priority_queue<std::pair<float, idx_t>> results;
             for (int c = 0; c < ncentroids; c++) {
-                float *sub_centroid = sub_centroids.data() + c * vecdim;
-                float dist = faiss::fvec_L2sqr(sub_centroid, point, vecdim);
+                float *subcentroid = subcentroids.data() + c * vecdim;
+                float dist = faiss::fvec_L2sqr(subcentroid, point, vecdim);
                 results.emplace(std::make_pair(-dist, c));
             }
             subcentroid_idxs[i] = results.top().second;
