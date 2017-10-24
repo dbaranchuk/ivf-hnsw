@@ -514,9 +514,9 @@ void check_idea(Index *index, const char *path_centroids,
         baseline_average += av_dist / groupsize;
 
         /** Find alphas for vectors **/
-        std::vector<std::vector<idx_t>> subcentroid_idxs(ncentroids);
-        float alpha = compute_alpha(subcentroid_idxs, normalized_centroid_vectors.data(),
-                                    point_vectors.data(), centorid, vecdim, ncentroids, groupsize);
+        std::vector<std::vector<idx_t>> ids(ncentroids);
+        float alpha = compute_alpha(ids, normalized_centroid_vectors.data(),
+                                    point_vectors.data(), centroid, vecdim, ncentroids, groupsize);
 
         //std::vector<float> alphas(ncentroids);
         //compute_alphas(alphas.data(), normalized_centroid_vectors.data(), point_vectors.data(),
@@ -568,25 +568,26 @@ void check_idea(Index *index, const char *path_centroids,
         {
             std::vector<float> reconstructed_x(groupsize * vecdim);
 
-            for (int i = 0; i < groupsize; i++) {
-                idx_t subcentroid_idx = subcentroid_idxs[i];
-                float *subcentroid = subcentroids.data() + subcentroid_idx * vecdim;
-                float *point = data.data() + i * vecdim;
+            for (int c = 0; c < ncentroids; c++){
+                float *subcentroid = subcentroids.data() + c * vecdim;
 
-                float residual[vecdim];
-                for (int j = 0; j < vecdim; j++)
-                    residual[j] = point[j] - subcentroid[j];
+                for (int i = 0; i < groupsize; i++) {
+                    float *point = data.data() + ids[i] * vecdim;
 
-                uint8_t code[index->pq->code_size];
-                index->pq->compute_code(residual, code);
+                    float residual[vecdim];
+                    for (int j = 0; j < vecdim; j++)
+                        residual[j] = point[j] - subcentroid[j];
 
-                float decoded_residual[vecdim];
-                index->pq->decode(code, decoded_residual);
+                    uint8_t code[index->pq->code_size];
+                    index->pq->compute_code(residual, code);
 
-                float *rx = reconstructed_x.data() + i * vecdim;
-                for (int j = 0; j < vecdim; j++)
-                    rx[j] = subcentroid[j] + decoded_residual[j];
+                    float decoded_residual[vecdim];
+                    index->pq->decode(code, decoded_residual);
 
+                    float *rx = reconstructed_x.data() + i * vecdim;
+                    for (int j = 0; j < vecdim; j++)
+                        rx[j] = subcentroid[j] + decoded_residual[j];
+                }
             }
             double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
             std::cout << "[Modified] Quantization Error: " << error << std::endl;
