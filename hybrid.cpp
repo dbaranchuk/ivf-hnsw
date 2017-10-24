@@ -497,7 +497,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 200;
+    const int ngroups = 1000;
     float average_nc = 0;
 
 #pragma omp parallel for num_threads(16)
@@ -524,7 +524,8 @@ void check_idea(Index *index, const char *path_centroids,
 
         /** Find NN centroids to source centroid **/
         float *centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
-        auto nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nc + 1);
+        index->quantizer->ef_ = groupsize+1;
+        auto nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, groupsize+1);//nc + 1);
 
         /** Remove source centroid from consideration **/
         std::priority_queue<std::pair<float, idx_t>> nn_centroids_before_heuristic;
