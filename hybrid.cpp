@@ -309,6 +309,47 @@ void collect_groups(const char *path_groups, const char *path_data, const char *
     fclose(fout);
 }
 
+void save_groups(Index *index, const char *path_data, const char *path_precomputed_idxs,
+                 const int vecdim, const int vecsize)
+{
+    const int ncentroids = 990000;
+
+    FILE **files = new FILE *[ncentroids];
+
+    for (int i = 0; i < ncentroids; i++){
+        std::string filename = std::string("/home/dbaranchuk/data/groups/group") + std::to_string(i);
+        files[i] = fopen(filename.c_str(), "wb");
+
+        int groupsize = index->ids[i].size();
+        fwrite(&groupsize, sizeof(int), 1, files[i]);
+    }
+
+    const int batch_size = 1000000;
+    std::ifstream base_input(path_data, ios::binary);
+    std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+    std::vector<float> batch(batch_size * vecdim);
+    std::vector<idx_t> idx_batch(batch_size);
+
+    for (int b = 0; b < (vecsize / batch_size); b++) {
+        readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+        readXvec<float>(base_input, batch.data(), vecdim, batch_size);
+
+        for (size_t i = 0; i < batch_size; i++) {
+            idx_i cur_idx = idx_batch[i];
+            fwrite(&vecdim, sizeof(int), 1, files[cur_idx]);
+            fwrite(batch + i * vecdim, sizeof(float), vecdim, files[cur_idx]);
+        }
+        if (b % 100 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
+    }
+    idx_input.close();
+    base_input.close();
+
+    for (int i = 0; i < ncentroids; i++)
+        fclose(files[i]);
+
+    delete files;
+}
+
 void compute_subcentroids(float *subcentroids, const float *centroid,
                           const float *centroid_vectors,
                           const float alpha, const int vecdim,
@@ -400,6 +441,7 @@ float compute_idxs(std::vector<std::vector<idx_t>> &idxs,
     return av_dist / groupsize;
     //std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
 }
+
 
 void check_idea(Index *index, const char *path_centroids,
                 const char *path_precomputed_idxs, const char *path_data,
@@ -519,7 +561,7 @@ void check_idea(Index *index, const char *path_centroids,
         modified_average += compute_idxs(idxs, data.data(), subcentroids.data(),
                                          vecdim, ncentroids, groupsize);
 
-        /** Baseline Quantization Error **/
+//        /** Baseline Quantization Error **/
 //        {
 //            std::vector<idx_t> keys(groupsize);
 //            for (int i = 0; i < groupsize; i++)
@@ -647,6 +689,7 @@ void hybrid_test(const char *path_centroids,
         std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
 
+        save_groups(index, path_data, path_precomputed_idxs, vecsize, vecdim);
         check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {
         /** Add elements **/
