@@ -588,10 +588,7 @@ void hybrid_test(const char *path_centroids,
         std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
 
-
-
-        //collect_groups(path_data,path_precomputed_idxs, centroid_nums, vecdim, vecsize);
-        //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
+        check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {
         /** Add elements **/
         size_t batch_size = 1000000;
