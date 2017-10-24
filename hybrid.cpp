@@ -450,8 +450,7 @@ void check_idea(Index *index, const char *path_centroids,
                 const int vecsize, const int vecdim)
 {
     const bool include_zero_centroid = false;
-    const int nc = 128;
-    std::cout << index->quantizer->ef_;
+    const int nc = 256;
     const char *path_groups = "groups1M_10000.bin";
 
     if (!exists_test(path_groups)) {
