@@ -325,7 +325,7 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
         readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
         readXvec<float>(base_input, batch.data(), vecdim, batch_size);
 
-    #pragma omp parallel for num_threads(16)
+    //#pragma omp parallel for num_threads(16)
         for (size_t i = 0; i < batch_size; i++) {
             if (idx_batch[i] >= ncentroids)
                 continue;
