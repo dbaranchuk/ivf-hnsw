@@ -410,12 +410,21 @@ float compute_alpha(const float *centroid_vectors, const float *point_vectors,
     }
     positive_alpha /= counter_positive;
     negative_alpha /= counter_negative;
-    std::cout << "Positive Alpha: " << positive_alpha << std::endl;
-    std::cout << "Negative Alpha: " << negative_alpha << std::endl;
+
+//    if (counter_positive == 0)
+//        std::cout << "Positive Alpha: every alpha is negative" << std::endl;
+//    else
+//        std::cout << "Positive Alpha: " << positive_alpha << std::endl;
+//
+//    if (counter_negative == 0)
+//        std::cout << "Negative Alpha: every alphas is positive" << std::endl;
+//    else
+//        std::cout << "Negative Alpha: " << negative_alpha << std::endl;
+
     return (counter_positive > counter_negative) ? positive_alpha : negative_alpha;
 }
 
-void compute_idxs(std::vector<std::vector<idx_t>> &idxs,
+float compute_idxs(std::vector<std::vector<idx_t>> &idxs,
                   const float *points, const float *subcentroids,
                   const int vecdim, const int ncentroids, const int groupsize)
 {
@@ -432,7 +441,8 @@ void compute_idxs(std::vector<std::vector<idx_t>> &idxs,
         idxs[idx].push_back(i);
         av_dist += -max_heap.top().first;
     }
-    std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
+    return av_dist / groupsize;
+    //std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
 }
 
 void check_idea(Index *index, const char *path_centroids,
@@ -461,9 +471,8 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 10;
+    const int ngroups = 100;
     for (int g = 0; g < ngroups; g++) {
-
         /** Read Original vectors from Group file**/
         idx_t centroid_num;
         int groupsize;
@@ -533,7 +542,7 @@ void check_idea(Index *index, const char *path_centroids,
             compute_vector(point_vectors.data() + i * vecdim, centroid, data.data() + i * vecdim, vecdim);
             av_dist += faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim);
         }
-        std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
+        //std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
         baseline_average += av_dist / groupsize;
 
         /** Find alphas for vectors **/
@@ -549,11 +558,10 @@ void check_idea(Index *index, const char *path_centroids,
         compute_subcentroids(subcentroids.data(), centroid, normalized_centroid_vectors.data(),
                              alpha, vecdim, ncentroids, groupsize);
 
-
         /** Compute sub idxs for group points **/
         std::vector<std::vector<idx_t>> idxs(ncentroids);
-        compute_idxs(idxs, data.data(), subcentroids.data(),
-                     vecdim, ncentroids, groupsize);
+        modified_average += compute_idxs(idxs, data.data(), subcentroids.data(),
+                                         vecdim, ncentroids, groupsize);
 
         /** Baseline Quantization Error **/
         {
@@ -604,8 +612,8 @@ void check_idea(Index *index, const char *path_centroids,
             modified_error += error;
         }
     }
-//    std::cout << "[Global Baseline] Average Distance: " << baseline_average / ngroups << std::endl;
-//    std::cout << "[Global Modified] Average Distance: " << modified_average / ngroups << std::endl;
+    std::cout << "[Global Baseline] Average Distance: " << baseline_average / ngroups << std::endl;
+    std::cout << "[Global Modified] Average Distance: " << modified_average / ngroups << std::endl;
     std::cout << "[Global Baseline] Average Error: " << baseline_error / ngroups << std::endl;
     std::cout << "[Global Modified] Average Error: " << modified_error / ngroups << std::endl;
     input.close();
