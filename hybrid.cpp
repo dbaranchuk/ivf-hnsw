@@ -408,6 +408,7 @@ float compute_alpha(std::vector<std::vector<idx_t>> &subcentroid_idxs,
         result_alpha += min_alpha;
         av_dist += min_dist;
     }
+    std::cout << "Alpha: " << result_alpha / ncentroids << std::endl;
     std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
     return result_alpha / ncentroids;
 }
@@ -417,7 +418,7 @@ void check_idea(Index *index, const char *path_centroids,
                 const int vecsize, const int vecdim)
 {
     const bool include_zero_centroid = false;
-    const int nc = 64;
+    const int nc = 16;
     const char *path_groups = "groups1M_10000.bin";
 
     if (!exists_test(path_groups)) {
@@ -438,7 +439,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 10;
+    const int ngroups = 1;
     for (int g = 0; g < ngroups; g++) {
 
         /** Read Original vectors from Group file**/
@@ -517,9 +518,7 @@ void check_idea(Index *index, const char *path_centroids,
         std::vector<std::vector<idx_t>> ids(ncentroids);
         float alpha = compute_alpha(ids, normalized_centroid_vectors.data(),
                                     point_vectors.data(), centroid, vecdim, ncentroids, groupsize);
-
-        for (int i = 0; i < 10; i++)
-            std::cout << ids[i].size() << " ";
+        
         //std::vector<float> alphas(ncentroids);
         //compute_alphas(alphas.data(), normalized_centroid_vectors.data(), point_vectors.data(),
         //               vecdim, ncentroids, groupsize);
