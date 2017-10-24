@@ -313,7 +313,7 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
                  const char *path_precomputed_idxs, const int vecdim, const int vecsize)
 {
     const int ncentroids = 30000;
-    std::vector<std::vector<float>> data(ncentroids);
+    //std::vector<std::vector<float>> data(ncentroids);
     float **data = new float*[ncentroids];
     for (int i = 0; i < ncentroids; i++){
         int groupsize = index->ids[i].size();
