@@ -266,10 +266,9 @@ double compute_quantization_error(const float *reconstructed_x, const float *x,
 }
 
 
-void collect_groups(const char *path_data, const char *path_precomputed_idxs,
+void collect_groups(const char *path_groups, const char *path_data, const char *path_precomputed_idxs,
                  std::unordered_set<idx_t> centroid_nums, const int vecdim, const int vecsize)
 {
-    const char *path_groups = "groups10000.bin";
     std::unordered_map<idx_t, std::vector<float>> data;
     const int ncentroids = centroid_nums.size();
 
@@ -332,15 +331,36 @@ void compute_alphas(float *alphas, const float *centroid_vectors, const float *p
     }
 }
 
+//void compute_subcentroids(float *subcentroids, const float *centroid,
+//                          const float *centroid_vectors,
+//                          const float *alphas, const int vecdim,
+//                          const int ncentroids, const int groupsize)
+//{
+//    for (int c = 0; c < ncentroids; c++) {
+//        const float *centroid_vector = centroid_vectors + c * vecdim;
+//        float *subcentroid = subcentroids + c * vecdim;
+//        float alpha = alphas[c];
+//
+//        float check_norm = faiss::fvec_norm_L2sqr(centroid_vector, vecdim);
+//        if (c != 0 && !(0.99999 <  check_norm < 1.00001)){
+//            std::cout << "Centroid " << c << " has wrong norm: " << check_norm << std::endl;
+//            exit(1);
+//        }
+//        for (int i = 0; i < vecdim; i++) {
+//            subcentroid[i] = centroid_vector[i] * alpha;
+//            subcentroid[i] += centroid[i];
+//        }
+//    }
+//}
+
 void compute_subcentroids(float *subcentroids, const float *centroid,
                           const float *centroid_vectors,
-                          const float *alphas, const int vecdim,
+                          const float alpha, const int vecdim,
                           const int ncentroids, const int groupsize)
 {
     for (int c = 0; c < ncentroids; c++) {
         const float *centroid_vector = centroid_vectors + c * vecdim;
         float *subcentroid = subcentroids + c * vecdim;
-        float alpha = alphas[c];
 
         float check_norm = faiss::fvec_norm_L2sqr(centroid_vector, vecdim);
         if (c != 0 && !(0.99999 <  check_norm < 1.00001)){
@@ -353,6 +373,45 @@ void compute_subcentroids(float *subcentroids, const float *centroid,
         }
     }
 }
+
+float compute_alpha(std::vector<std::vector<idx_t>> &subcentroid_idxs,
+                    const float *centroid_vectors, const float *point_vectors,
+                    const float *centroid,
+                    const int vecdim, const int ncentroids, const int groupsize)
+{
+    float av_dist = 0.0;
+    float result_alpha = 0.0;
+
+    for (int i = 0; i < groupsize; i++) {
+        const float *point_vector = point_vectors + i*vecdim;
+        float min_alpha = 0.0;
+        float min_dist = 0.0;
+        idx_t min_subcentroid;
+
+        for (int c = 0; c < ncentroids; c++){
+            const float *centroid_vector = centroid_vectors + c*vecdim;
+            float alpha = faiss::fvec_inner_product (centroid_vector, point_vector, vecdim);
+
+            std::vector<float> subcentroid(d);
+            for (int d = 0; d < vecdim; d++) {
+                subcentroid[d] = centroid_vector[d] * alpha;
+                subcentroid[d] += centroid[d];
+            }
+            float dist = faiss::fvec_L2sqr(point_vector, subcentroid, vecdim);
+            if (dist < min_dist) {
+                min_dist = dist;
+                min_alpha = alpha;
+                min_subcentroid = c;
+            }
+        }
+        subcentroid_idxs[min_subcentroid].push_back(i);
+        result_alpha += min_alpha;
+        av_dist += min_dist;
+    }
+    std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
+    return result_alpha / ncentroids;
+}
+
 void check_idea(Index *index, const char *path_centroids,
                 const char *path_precomputed_idxs, const char *path_data,
                 const int vecsize, const int vecdim)
@@ -368,7 +427,7 @@ void check_idea(Index *index, const char *path_centroids,
         for (idx_t i = 50000; i < 150000; i += 10)
             centroid_nums.insert(i);
 
-        collect_groups(path_data, path_precomputed_idxs, centroid_nums, vecdim, vecsize);
+        collect_groups(path_groups, path_data, path_precomputed_idxs, centroid_nums, vecdim, vecsize);
     }
 
     std::ifstream input(path_groups, ios::binary);
@@ -389,7 +448,7 @@ void check_idea(Index *index, const char *path_centroids,
         input.read((char *)&centroid_num, sizeof(idx_t));
         input.read((char *)&groupsize, sizeof(int));
 
-        //std::cout << centroid_num << " " << groupsize << std::endl;
+        std::cout << centroid_num << " " << groupsize << std::endl;
 
         std::vector<float> data(groupsize * vecdim);
         readXvecs<float>(input, data.data(), vecdim, groupsize);
@@ -451,37 +510,41 @@ void check_idea(Index *index, const char *path_centroids,
             compute_vector(point_vectors.data() + i * vecdim, centroid, data.data() + i * vecdim, vecdim);
             av_dist += faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim);
         }
-        //std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
+        std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
         baseline_average += av_dist / groupsize;
 
         /** Find alphas for vectors **/
-        std::vector<float> alphas(ncentroids);
-        compute_alphas(alphas.data(), normalized_centroid_vectors.data(), point_vectors.data(),
-                       vecdim, ncentroids, groupsize);
+        std::vector<std::vector<idx_t>> subcentroid_idxs(ncentroids);
+        float alpha = compute_alpha(subcentroid_idxs, normalized_centroid_vectors.data(),
+                                    point_vectors.data(), vecdim, ncentroids, groupsize);
+
+        //std::vector<float> alphas(ncentroids);
+        //compute_alphas(alphas.data(), normalized_centroid_vectors.data(), point_vectors.data(),
+        //               vecdim, ncentroids, groupsize);
 
         /** Compute final subcentroids **/
         std::vector<float> subcentroids(ncentroids * vecdim);
         compute_subcentroids(subcentroids.data(), centroid, normalized_centroid_vectors.data(),
-                             alphas.data(), vecdim, ncentroids, groupsize);
+                             alpha, vecdim, ncentroids, groupsize);
 
 
         /** Compute sub idxs for group points **/
-        std::vector<idx_t> subcentroid_idxs(groupsize);
+//        std::vector<idx_t> subcentroid_idxs(groupsize);
 
-        av_dist = 0.0;
-        for (int i = 0; i < groupsize; i++) {
-            float *point = data.data() + i * vecdim;
-            std::priority_queue<std::pair<float, idx_t>> results;
-            for (int c = 0; c < ncentroids; c++) {
-                float *subcentroid = subcentroids.data() + c * vecdim;
-                float dist = faiss::fvec_L2sqr(subcentroid, point, vecdim);
-                results.emplace(std::make_pair(-dist, c));
-            }
-            subcentroid_idxs[i] = results.top().second;
-            av_dist += -results.top().first;
-        }
-        //std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
-        modified_average += av_dist / groupsize;
+//        av_dist = 0.0;
+//        for (int i = 0; i < groupsize; i++) {
+//            float *point = data.data() + i * vecdim;
+//            std::priority_queue<std::pair<float, idx_t>> results;
+//            for (int c = 0; c < ncentroids; c++) {
+//                float *subcentroid = subcentroids.data() + c * vecdim;
+//                float dist = faiss::fvec_L2sqr(subcentroid, point, vecdim);
+//                results.emplace(std::make_pair(-dist, c));
+//            }
+//            subcentroid_idxs[i] = results.top().second;
+//            av_dist += -results.top().first;
+//        }
+//        //std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
+//        modified_average += av_dist / groupsize;
 
         /** Baseline Quantization Error **/
         {
@@ -498,7 +561,7 @@ void check_idea(Index *index, const char *path_centroids,
             index->reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(), keys.data());
 
             double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
-            //std::cout << "[Baseline] Quantization Error: " << error << std::endl;
+            std::cout << "[Baseline] Quantization Error: " << error << std::endl;
             baseline_error += error;
         }
         /** Modified Quantization Error **/
@@ -526,12 +589,12 @@ void check_idea(Index *index, const char *path_centroids,
 
             }
             double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
-            //std::cout << "[Modified] Quantization Error: " << error << std::endl;
+            std::cout << "[Modified] Quantization Error: " << error << std::endl;
             modified_error += error;
         }
     }
-    std::cout << "[Global Baseline] Average Distance: " << baseline_average / ngroups << std::endl;
-    std::cout << "[Global Modified] Average Distance: " << modified_average / ngroups << std::endl;
+//    std::cout << "[Global Baseline] Average Distance: " << baseline_average / ngroups << std::endl;
+//    std::cout << "[Global Modified] Average Distance: " << modified_average / ngroups << std::endl;
     std::cout << "[Global Baseline] Average Error: " << baseline_error / ngroups << std::endl;
     std::cout << "[Global Modified] Average Error: " << modified_error / ngroups << std::endl;
     input.close();
