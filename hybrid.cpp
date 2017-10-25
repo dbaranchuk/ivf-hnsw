@@ -451,9 +451,9 @@ void check_idea(Index *index, const char *path_centroids,
 {
     StopW stopw = StopW();
     const bool include_zero_centroid = false;
-    const int nc = 256;
+    const int nc = 128;
     const int maxM = 128;
-    const int ngroups = 10000;//999973;
+    const int ngroups = 999973;
     int total_groupsizes = 0;
     const char *path_groups = "/home/dbaranchuk/data/groups/groups999973.dat";
 
@@ -516,7 +516,7 @@ void check_idea(Index *index, const char *path_centroids,
         }
 
         /** Pruning **/
-        index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
+        //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
         size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
 
         if (ncentroids > nc + include_zero_centroid) {
