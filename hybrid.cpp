@@ -473,7 +473,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 10000;
+    const int ngroups = 100000;
     float average_nc = 0;
 
     int j1 = 0;
@@ -556,19 +556,19 @@ void check_idea(Index *index, const char *path_centroids,
         //std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
         baseline_average += av_dist / groupsize;
 
-        /** Find alphas for vectors **/
-        float alpha = compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(),
-                                    centroid, vecdim, ncentroids, groupsize);
-
-        /** Compute final subcentroids **/
-        std::vector<float> subcentroids(ncentroids * vecdim);
-        compute_subcentroids(subcentroids.data(), centroid, normalized_centroid_vectors.data(),
-                             alpha, vecdim, ncentroids, groupsize);
-
-        /** Compute sub idxs for group points **/
-        std::vector<std::vector<idx_t>> idxs(ncentroids);
-        modified_average += compute_idxs(idxs, data.data(), subcentroids.data(),
-                                         vecdim, ncentroids, groupsize);
+//        /** Find alphas for vectors **/
+//        float alpha = compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(),
+//                                    centroid, vecdim, ncentroids, groupsize);
+//
+//        /** Compute final subcentroids **/
+//        std::vector<float> subcentroids(ncentroids * vecdim);
+//        compute_subcentroids(subcentroids.data(), centroid, normalized_centroid_vectors.data(),
+//                             alpha, vecdim, ncentroids, groupsize);
+//
+//        /** Compute sub idxs for group points **/
+//        std::vector<std::vector<idx_t>> idxs(ncentroids);
+//        modified_average += compute_idxs(idxs, data.data(), subcentroids.data(),
+//                                         vecdim, ncentroids, groupsize);
 
 //        /** Baseline Quantization Error **/
 //        {
