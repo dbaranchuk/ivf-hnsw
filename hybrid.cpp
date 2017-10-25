@@ -649,7 +649,7 @@ void compute_average_distance(const char *path_data, const char *path_centroids,
         readXvec<float>(base_input, batch.data(), vecdim, batch_size);
 
         for (size_t i = 0; i < batch_size; i++) {
-            const float *centroid = centroids[idx_batch[i] * vecdim];
+            const float *centroid = centroids + idx_batch[i] * vecdim;
             average_dist += faiss::fvec_L2sqr(batch.data() + i*vecdim, centroid, vecdim);
         }
 
