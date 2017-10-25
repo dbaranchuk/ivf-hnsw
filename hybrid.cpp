@@ -536,7 +536,7 @@ void check_idea(Index *index, const char *path_centroids,
 //        }
 
         /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
-        std::vector<float> normalized_centroid_vectors(ncentroids * vecdim);
+        //std::vector<float> normalized_centroid_vectors(ncentroids * vecdim);
         std::vector<float> point_vectors(groupsize * vecdim);
 
 //        for (int i = 0; i < ncentroids; i++) {
@@ -643,7 +643,7 @@ void compute_average_distance(const char *path_data, const char *path_centroids,
     std::vector<float> batch(batch_size * vecdim);
     std::vector<idx_t> idx_batch(batch_size);
 
-    double average_dist = 0.0
+    double average_dist = 0.0;
     for (int b = 0; b < (vecsize / batch_size); b++) {
         readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
         readXvec<float>(base_input, batch.data(), vecdim, batch_size);
