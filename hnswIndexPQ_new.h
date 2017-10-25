@@ -221,29 +221,29 @@ namespace hnswlib {
                 /** Find NN centroids to source centroid **/
                 const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
 
-                auto nn_centroids = quantizer->searchKnn((void *) centroid, n_subcentroids + 1);
+                auto nn_centroids_raw = quantizer->searchKnn((void *) centroid, n_subcentroids + 1);
 
                 /** Remove source centroid from consideration **/
-                std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw;
-                while (nn_centroids.size() > 1) {
-                    nn_centroids_raw.emplace(nn_centroids.top());
-                    nn_centroids.pop();
-                }
+//                std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw;
+//                while (nn_centroids.size() > 1) {
+//                    nn_centroids_raw.emplace(nn_centroids.top());
+//                    nn_centroids.pop();
+//                }
 
                 /** Pruning **/
                 //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_raw, maxM);
-                size_t nc = nn_centroids_raw.size() + include_zero_centroid;
-                //std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
 
+                size_t nc = nn_centroids_raw.size() + include_zero_centroid;
+                std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
 
                 nn_centroid_idxs[centroid_num].reserve(nc);
                 idx_t *nn_centroid_idx = nn_centroid_idxs[centroid_num].data();
 
-                if (include_zero_centroid)
-                    nn_centroids_idx[0] = centroid_num;
+                //if (include_zero_centroid)
+                //    nn_centroids_idx[0] = centroid_num;
 
-                while (nn_centroids_raw.size() > 0) {
-                    nn_centroids_idx[nn_centroids_raw.size() - !include_zero_centroid] = nn_centroids_raw.top().second;
+                while (nn_centroids_raw.size() > !include_zero_centroid) {
+                    nn_centroids_idx[nn_centroids_raw.size() - 1 - !include_zero_centroid] = nn_centroids_raw.top().second;
                     nn_centroids_raw.pop();
                 }
 
@@ -283,10 +283,8 @@ namespace hnswlib {
 
                 /** Modified Quantization Error **/
 
-                std::vector<float> reconstructed_x(groupsize * vecdim);
-
-                for (int c = 0; c < ncentroids; c++) {
-                    float *subcentroid = subcentroids.data() + c * vecdim;
+                for (int c = 0; c < nc; c++) {
+                    float *subcentroid = subcentroids.data() + c * d;
                     std::vector<idx_t> idx = idxs[c];
 
                     for (idx_t id : idx) {

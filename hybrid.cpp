@@ -451,8 +451,8 @@ void check_idea(Index *index, const char *path_centroids,
 {
     StopW stopw = StopW();
     const bool include_zero_centroid = true;
-    //const int nc = 499;
-    const int maxM = 1000;
+    const int nc = 256;
+    const int maxM = 128;
     const char *path_groups = "groups1M_10000.bin";
 
     if (!exists_test(path_groups)) {
@@ -473,7 +473,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 200;
+    const int ngroups = 1000;
     float average_nc = 0;
 
 #pragma omp parallel for num_threads(16)
@@ -696,9 +696,9 @@ void hybrid_test(const char *path_centroids,
         std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
 
-        save_groups(index, "/home/dbaranchuk/data/groups/groups999973.dat", path_data,
-                    path_precomputed_idxs, vecdim, vecsize);
-        //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
+        //save_groups(index, "/home/dbaranchuk/data/groups/groups999973.dat", path_data,
+        //            path_precomputed_idxs, vecdim, vecsize);
+        check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {
         /** Add elements **/
         size_t batch_size = 1000000;
