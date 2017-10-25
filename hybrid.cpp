@@ -476,12 +476,13 @@ void check_idea(Index *index, const char *path_centroids,
     const int ngroups = 999973;
 
     int j1 = 0;
-#pragma omp parallel for num_threads(24)
+#pragma omp parallel for num_threads(16)
     for (int g = 0; g < ngroups; g++) {
         /** Read Original vectors from Group file**/
         idx_t centroid_num;
         int groupsize;
         std::vector<float> data;
+        const float *centroid;
 #pragma omp critical
         {
             //input.read((char *) &centroid_num, sizeof(idx_t));
@@ -496,6 +497,7 @@ void check_idea(Index *index, const char *path_centroids,
                 std::cout << "Wrong groupsize\n";
                 exit(1);
             }
+            centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
             if (g % 100000 == 0)
                 std::cout << g << std::endl;
         }
@@ -504,7 +506,6 @@ void check_idea(Index *index, const char *path_centroids,
             continue;
 
         /** Find NN centroids to source centroid **/
-        const float *centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
         int nc = groupsize;
 //        auto nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nc + 1);
 //
@@ -554,7 +555,7 @@ void check_idea(Index *index, const char *path_centroids,
         for (int i = 0; i < groupsize; i++) {
             baseline_average += faiss::fvec_L2sqr(centroid, data.data() + i * vecdim, vecdim);
             //compute_vector(point_vectors.data() + i * vecdim, data.data() + i * vecdim, centroid, vecdim);
-            //av_dist += faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim);
+            //baseline_average += faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim);
         }
         //std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
         //baseline_average += av_dist;// / groupsize;
