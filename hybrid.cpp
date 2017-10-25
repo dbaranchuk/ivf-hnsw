@@ -453,7 +453,7 @@ void check_idea(Index *index, const char *path_centroids,
     const bool include_zero_centroid = true;
     const int nc = 256;
     const int maxM = 128;
-    const char *path_groups = "groups1M_10000.bin";
+    const char *path_groups = "/home/data/groups/groups999973.dat";
 
     if (!exists_test(path_groups)) {
         std::cout << "Precompute Group file first\n";
@@ -473,22 +473,24 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 1000;
+    const int ngroups = 100;
     float average_nc = 0;
 
-#pragma omp parallel for num_threads(16)
+    int j1 = 0;
+//#pragma omp parallel for num_threads(16)
     for (int g = 0; g < ngroups; g++) {
         /** Read Original vectors from Group file**/
         idx_t centroid_num;
         int groupsize;
         std::vector<float> data;
-#pragma omp critical
+//#pragma omp critical
         {
-            input.read((char *) &centroid_num, sizeof(idx_t));
+            //input.read((char *) &centroid_num, sizeof(idx_t));
             input.read((char *) &groupsize, sizeof(int));
             //std::cout << centroid_num << " " << groupsize << std::endl;
             data.reserve(groupsize * vecdim);
             readXvecs<float>(input, data.data(), vecdim, groupsize);
+            centroid_num = j1++;
         }
 
         if (groupsize != index->ids[centroid_num].size()){
@@ -500,7 +502,6 @@ void check_idea(Index *index, const char *path_centroids,
 
         /** Find NN centroids to source centroid **/
         float *centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
-        index->quantizer->ef_ = groupsize+1;
         int nc = groupsize;
         auto nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nc + 1);
 
@@ -568,60 +569,60 @@ void check_idea(Index *index, const char *path_centroids,
         modified_average += compute_idxs(idxs, data.data(), subcentroids.data(),
                                          vecdim, ncentroids, groupsize);
 
-        /** Baseline Quantization Error **/
-        {
-            std::vector<idx_t> keys(groupsize);
-            for (int i = 0; i < groupsize; i++)
-                keys[i] = centroid_num;
-
-            std::vector<uint8_t> codes = index->codes[centroid_num];
-
-            std::vector<float> decoded_residuals(groupsize * vecdim);
-            index->pq->decode(codes.data(), decoded_residuals.data(), groupsize);
-
-            std::vector<float> reconstructed_x(groupsize * vecdim);
-            index->reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(), keys.data());
-
-            double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
-            //std::cout << "[Baseline] Quantization Error: " << error << std::endl;
-            baseline_error += error;
-        }
-        /** Modified Quantization Error **/
-        {
-            std::vector<float> reconstructed_x(groupsize * vecdim);
-
-            for (int c = 0; c < ncentroids; c++){
-                float *subcentroid = subcentroids.data() + c * vecdim;
-                std::vector<idx_t> idx = idxs[c];
-
-                for (idx_t id : idx) {
-                    float *point = data.data() + id * vecdim;
-
-                    float residual[vecdim];
-                    for (int j = 0; j < vecdim; j++)
-                        residual[j] = point[j] - subcentroid[j];
-
-                    uint8_t code[index->pq->code_size];
-                    index->pq->compute_code(residual, code);
-
-                    float decoded_residual[vecdim];
-                    index->pq->decode(code, decoded_residual);
-
-                    float *rx = reconstructed_x.data() + id * vecdim;
-                    for (int j = 0; j < vecdim; j++)
-                        rx[j] = subcentroid[j] + decoded_residual[j];
-                }
-            }
-            double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
-            //std::cout << "[Modified] Quantization Error: " << error << std::endl;
-            modified_error += error;
-        }
+//        /** Baseline Quantization Error **/
+//        {
+//            std::vector<idx_t> keys(groupsize);
+//            for (int i = 0; i < groupsize; i++)
+//                keys[i] = centroid_num;
+//
+//            std::vector<uint8_t> codes = index->codes[centroid_num];
+//
+//            std::vector<float> decoded_residuals(groupsize * vecdim);
+//            index->pq->decode(codes.data(), decoded_residuals.data(), groupsize);
+//
+//            std::vector<float> reconstructed_x(groupsize * vecdim);
+//            index->reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(), keys.data());
+//
+//            double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
+//            //std::cout << "[Baseline] Quantization Error: " << error << std::endl;
+//            baseline_error += error;
+//        }
+//        /** Modified Quantization Error **/
+//        {
+//            std::vector<float> reconstructed_x(groupsize * vecdim);
+//
+//            for (int c = 0; c < ncentroids; c++){
+//                float *subcentroid = subcentroids.data() + c * vecdim;
+//                std::vector<idx_t> idx = idxs[c];
+//
+//                for (idx_t id : idx) {
+//                    float *point = data.data() + id * vecdim;
+//
+//                    float residual[vecdim];
+//                    for (int j = 0; j < vecdim; j++)
+//                        residual[j] = point[j] - subcentroid[j];
+//
+//                    uint8_t code[index->pq->code_size];
+//                    index->pq->compute_code(residual, code);
+//
+//                    float decoded_residual[vecdim];
+//                    index->pq->decode(code, decoded_residual);
+//
+//                    float *rx = reconstructed_x.data() + id * vecdim;
+//                    for (int j = 0; j < vecdim; j++)
+//                        rx[j] = subcentroid[j] + decoded_residual[j];
+//                }
+//            }
+//            double error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
+//            //std::cout << "[Modified] Quantization Error: " << error << std::endl;
+//            modified_error += error;
+//        }
     }
-    std::cout << "Average ncentroids: " << average_nc / ngroups << std::endl;
+//    std::cout << "Average ncentroids: " << average_nc / ngroups << std::endl;
     std::cout << "[Global Baseline] Average Distance: " << baseline_average / ngroups << std::endl;
     std::cout << "[Global Modified] Average Distance: " << modified_average / ngroups << std::endl;
-    std::cout << "[Global Baseline] Average Error: " << baseline_error / ngroups << std::endl;
-    std::cout << "[Global Modified] Average Error: " << modified_error / ngroups << std::endl;
+//    std::cout << "[Global Baseline] Average Error: " << baseline_error / ngroups << std::endl;
+//    std::cout << "[Global Modified] Average Error: " << modified_error / ngroups << std::endl;
 
     std::cout << "Time(s): " << stopw.getElapsedTimeMicro() / 1000000 << std::endl;
     input.close();
