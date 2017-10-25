@@ -503,7 +503,7 @@ void check_idea(Index *index, const char *path_centroids,
             continue;
 
         /** Find NN centroids to source centroid **/
-        float *centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
+        const float *centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
         int nc = groupsize;
         auto nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nc + 1);
 
@@ -525,14 +525,15 @@ void check_idea(Index *index, const char *path_centroids,
             exit(1);
         }
 
-        std::vector<std::pair<float, idx_t>> nn_centroids(ncentroids);
+        std::vector<idx_t> nn_centroids(ncentroids);
+        //std::vector<std::pair<float, idx_t>> nn_centroids(ncentroids);
 
         if (include_zero_centroid)
-            nn_centroids[0] = std::make_pair(0.0, centroid_num);
+            nn_centroids[0] = centroid_num;
 
         while (nn_centroids_before_heuristic.size() > 0) {
             nn_centroids[nn_centroids_before_heuristic.size() -
-                         !include_zero_centroid] = nn_centroids_before_heuristic.top();
+                         !include_zero_centroid] = nn_centroids_before_heuristic.top().second;
             nn_centroids_before_heuristic.pop();
         }
 
@@ -541,7 +542,7 @@ void check_idea(Index *index, const char *path_centroids,
         std::vector<float> point_vectors(groupsize * vecdim);
 
 //        for (int i = 0; i < ncentroids; i++) {
-//            float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i].second);
+//            float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i]);
 //            compute_vector(normalized_centroid_vectors.data() + i * vecdim, neighbor_centroid, centroid, vecdim);
 //
 //            /** Normalize them **/
