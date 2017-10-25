@@ -422,11 +422,11 @@ float compute_alpha(const float *centroid_vectors, const float *point_vectors,
     return (counter_positive > counter_negative) ? positive_alpha : negative_alpha;
 }
 
-float compute_idxs(std::vector<std::vector<idx_t>> &idxs,
+double compute_idxs(std::vector<std::vector<idx_t>> &idxs,
                   const float *points, const float *subcentroids,
                   const int vecdim, const int ncentroids, const int groupsize)
 {
-    float av_dist = 0.0;
+    double av_dist = 0.0;
     for (int i = 0; i < groupsize; i++) {
         const float *point = points + i * vecdim;
         std::priority_queue<std::pair<float, idx_t>> max_heap;
@@ -440,7 +440,7 @@ float compute_idxs(std::vector<std::vector<idx_t>> &idxs,
         idxs[idx].push_back(i);
         av_dist += -max_heap.top().first;
     }
-    return av_dist / groupsize;
+    return av_dist;
     //std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
 }
 
@@ -529,7 +529,6 @@ void check_idea(Index *index, const char *path_centroids,
         }
 
         std::vector<idx_t> nn_centroids(ncentroids);
-        std::vector<std::pair<float, idx_t>> nn_centroids(ncentroids);
 
         if (include_zero_centroid)
             nn_centroids[0] = centroid_num;
