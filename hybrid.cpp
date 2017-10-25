@@ -312,7 +312,7 @@ void collect_groups(const char *path_groups, const char *path_data, const char *
 void save_groups(Index *index, const char *path_groups, const char *path_data,
                  const char *path_precomputed_idxs, const int vecdim, const int vecsize)
 {
-    const int ncentroids = 900000;
+    const int ncentroids = 999973;
     std::vector<std::vector<float>> data(ncentroids);
 
     const int batch_size = 1000000;
@@ -326,7 +326,7 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
         readXvec<float>(base_input, batch.data(), vecdim, batch_size);
 
         for (size_t i = 0; i < batch_size; i++) {
-            if (idx_batch[i] < 600000 || idx_batch[i] >= ncentroids)
+            if (idx_batch[i] < 900000)
                 continue;
 
             idx_t cur_idx = idx_batch[i];
@@ -340,7 +340,7 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
     base_input.close();
 
     FILE *fout = fopen(path_groups, "wb");
-    for (int i = 600000; i < ncentroids; i++) {
+    for (int i = 900000; i < ncentroids; i++) {
         int groupsize = data[i].size() / vecdim;
 
         if (groupsize != index->ids[i].size()){
@@ -696,7 +696,7 @@ void hybrid_test(const char *path_centroids,
         std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
 
-        save_groups(index, "/home/dbaranchuk/data/groups/groups900000.dat", path_data,
+        save_groups(index, "/home/dbaranchuk/data/groups/groups999973.dat", path_data,
                     path_precomputed_idxs, vecdim, vecsize);
         //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {

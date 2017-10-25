@@ -189,7 +189,10 @@ namespace hnswlib {
 
         /** NEW **/
         std::vector < std::vector < std::vector<idx_t> > > ids;
-        std::vector < idx_t > nn_centroid_idxs;
+
+        typedef unsigned char sub_idx_t;
+        std::vector < std::vector < sub_idx_t > > nn_centroid_idxs;
+
         std::vector < float > alphas;
 
         size_t n_subcentroids = 128;
@@ -218,28 +221,30 @@ namespace hnswlib {
                 /** Find NN centroids to source centroid **/
                 const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
 
-                auto nn_centroids_raw = quantizer->searchKnn((void *) centroid, n_subcentroids + 1);
+                auto nn_centroids = quantizer->searchKnn((void *) centroid, n_subcentroids + 1);
 
                 /** Remove source centroid from consideration **/
-                std::priority_queue<std::pair<float, idx_t>> nn_centroids_before_heuristic;
-                while (nn_centroids_raw.size() > 1) {
-                    nn_centroids_before_heuristic.emplace(nn_centroids_raw.top());
-                    nn_centroids_raw.pop();
+                std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw;
+                while (nn_centroids.size() > 1) {
+                    nn_centroids_raw.emplace(nn_centroids.top());
+                    nn_centroids.pop();
                 }
 
                 /** Pruning **/
-                //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
-                size_t nc = nn_centroids_before_heuristic.size() + include_zero_centroid;
+                //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_raw, maxM);
+                size_t nc = nn_centroids_raw.size() + include_zero_centroid;
                 //std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
 
-                std::vector<std::pair<float, idx_t>> nn_centroids(nc);
-                if (include_zero_centroid)
-                    nn_centroids[0] = std::make_pair(0.0, centroid_num);
 
-                while (nn_centroids_before_heuristic.size() > 0) {
-                    nn_centroids[nn_centroids_before_heuristic.size() -
-                                 !include_zero_centroid] = nn_centroids_before_heuristic.top();
-                    nn_centroids_before_heuristic.pop();
+                nn_centroid_idxs[centroid_num].reserve(nc);
+                idx_t *nn_centroid_idx = nn_centroid_idxs[centroid_num].data();
+
+                if (include_zero_centroid)
+                    nn_centroids_idx[0] = centroid_num;
+
+                while (nn_centroids_raw.size() > 0) {
+                    nn_centroids_idx[nn_centroids_raw.size() - !include_zero_centroid] = nn_centroids_raw.top().second;
+                    nn_centroids_raw.pop();
                 }
 
                 /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
@@ -247,7 +252,7 @@ namespace hnswlib {
                 std::vector<float> point_vectors(groupsize * d);
 
                 for (int i = 0; i < nc; i++) {
-                    const float *neighbor_centroid = (float *) quantizer->getDataByInternalId(nn_centroids[i].second);
+                    const float *neighbor_centroid = (float *) quantizer->getDataByInternalId(nn_centroid_idx[i]);
                     compute_vector(normalized_centroid_vectors.data() + i * d, centroid, neighbor_centroid);
 
                     /** Normalize them **/
@@ -288,18 +293,40 @@ namespace hnswlib {
                         float *point = data.data() + id * vecdim;
 
                         float residual[vecdim];
-                        for (int j = 0; j < vecdim; j++)
+                        for (int j = 0; j < d; j++)
                             residual[j] = point[j] - subcentroid[j];
 
-                        uint8_t code[index->pq->code_size];
-                        index->pq->compute_code(residual, code);
+                        uint8_t code[pq->code_size];
+                        pq->compute_code(residual, code);
 
-                        float decoded_residual[vecdim];
-                        index->pq->decode(code, decoded_residual);
+                    }
 
-                        float *rx = reconstructed_x.data() + id * vecdim;
-                        for (int j = 0; j < vecdim; j++)
-                            rx[j] = subcentroid[j] + decoded_residual[j];
+
+
+                    uint8_t *xcodes = new uint8_t [n * code_size];
+                    pq->compute_codes (residuals, xcodes, n);
+
+                    float *decoded_residuals = new float[n * d];
+                    pq->decode(xcodes, decoded_residuals, n);
+
+                    float *reconstructed_x = new float[n * d];
+                    reconstruct(n, reconstructed_x, decoded_residuals, idx);
+
+                    float *norms = new float[n];
+                    faiss::fvec_norms_L2sqr (norms, reconstructed_x, d, n);
+
+                    uint8_t *xnorm_codes = new uint8_t[n];
+                    norm_pq->compute_codes(norms, xnorm_codes, n);
+
+                    for (size_t i = 0; i < n; i++) {
+                        idx_t key = idx[i];
+                        idx_t id = xids[i];
+                        ids[key].push_back(id);
+                        uint8_t *code = xcodes + i * code_size;
+                        for (size_t j = 0; j < code_size; j++)
+                            codes[key].push_back(code[j]);
+
+                        norm_codes[key].push_back(xnorm_codes[i]);
                     }
                 }
 
