@@ -489,7 +489,8 @@ void check_idea(Index *index, const char *path_centroids,
             input.read((char *) &groupsize, sizeof(int));
             //std::cout << centroid_num << " " << groupsize << std::endl;
             data.reserve(groupsize * vecdim);
-            readXvecs<float>(input, data.data(), vecdim, groupsize);
+            input.read((char *) data.data(), groupsize * vecdim * sizeof(float));
+            //readXvecs<float>(input, data.data(), vecdim, groupsize);
             centroid_num = j1++;
         }
 
