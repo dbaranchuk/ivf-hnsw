@@ -473,7 +473,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 99973;
+    const int ngroups = 999973;
 
     int j1 = 0;
 //#pragma omp parallel for num_threads(24)
@@ -496,6 +496,8 @@ void check_idea(Index *index, const char *path_centroids,
                 std::cout << "Wrong groupsize\n";
                 exit(1);
             }
+            if (g % 100000 == 0)
+                std::cout << g << std::endl;
         }
 
         if (groupsize == 0)
@@ -548,13 +550,14 @@ void check_idea(Index *index, const char *path_centroids,
 //            normalize_vector(normalized_centroid_vectors.data() + i * vecdim, vecdim);
 //        }
 
-        double av_dist = 0.0;
+        //double av_dist = 0.0;
         for (int i = 0; i < groupsize; i++) {
-            compute_vector(point_vectors.data() + i * vecdim, data.data() + i * vecdim, centroid, vecdim);
-            av_dist += faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim);
+            baseline_average += faiss::fvec_L2sqr(centroid, data.data() + i * vecdim, vecdim);
+            //compute_vector(point_vectors.data() + i * vecdim, data.data() + i * vecdim, centroid, vecdim);
+            //av_dist += faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim);
         }
         //std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
-        baseline_average += av_dist;// / groupsize;
+        //baseline_average += av_dist;// / groupsize;
 
 //        /** Find alphas for vectors **/
 //        float alpha = compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(),
