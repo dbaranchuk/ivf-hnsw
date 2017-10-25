@@ -473,9 +473,10 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 999973;
+    const int ngroups = 1000;//999973;
     int nc = 128;
 
+    int total_groupsizes = 0;
     int j1 = 0;
 //#pragma omp parallel for num_threads(16)
     for (int g = 0; g < ngroups; g++) {
@@ -501,78 +502,76 @@ void check_idea(Index *index, const char *path_centroids,
             centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
             if (g % 100000 == 0)
                 std::cout << g << std::endl;
+
+            total_groupsizes += groupsize;
         }
 
         if (groupsize == 0)
             continue;
 
         /** Find NN centroids to source centroid **/
-//        auto nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nc + 1);
-//
-//        /** Remove source centroid from consideration **/
-//        std::priority_queue<std::pair<float, idx_t>> nn_centroids_before_heuristic;
-//        while (nn_centroids_raw.size() > 1) {
-//            nn_centroids_before_heuristic.emplace(nn_centroids_raw.top());
-//            nn_centroids_raw.pop();
-//        }
+        auto nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nc + 1);
+
+        /** Remove source centroid from consideration **/
+        std::priority_queue<std::pair<float, idx_t>> nn_centroids_before_heuristic;
+        while (nn_centroids_raw.size() > 1) {
+            nn_centroids_before_heuristic.emplace(nn_centroids_raw.top());
+            nn_centroids_raw.pop();
+        }
 
         /** Pruning **/
         //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
-        //size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
+        size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
         //std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
 
-//        if (ncentroids > nc + include_zero_centroid) {
-//            std::cout << "Wrong number of nn centroids\n";
-//            exit(1);
-//        }
+        if (ncentroids > nc + include_zero_centroid) {
+            std::cout << "Wrong number of nn centroids\n";
+            exit(1);
+        }
 
-//        std::vector<idx_t> nn_centroids(ncentroids);
-        //std::vector<std::pair<float, idx_t>> nn_centroids(ncentroids);
+        std::vector<idx_t> nn_centroids(ncentroids);
+        std::vector<std::pair<float, idx_t>> nn_centroids(ncentroids);
 
-//        if (include_zero_centroid)
-//            nn_centroids[0] = centroid_num;
-//
-//        while (nn_centroids_before_heuristic.size() > 0) {
-//            nn_centroids[nn_centroids_before_heuristic.size() -
-//                         !include_zero_centroid] = nn_centroids_before_heuristic.top().second;
-//            nn_centroids_before_heuristic.pop();
-//        }
+        if (include_zero_centroid)
+            nn_centroids[0] = centroid_num;
+
+        while (nn_centroids_before_heuristic.size() > 0) {
+            nn_centroids[nn_centroids_before_heuristic.size() -
+                         !include_zero_centroid] = nn_centroids_before_heuristic.top().second;
+            nn_centroids_before_heuristic.pop();
+        }
 
         /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
-        //std::vector<float> normalized_centroid_vectors(ncentroids * vecdim);
+        std::vector<float> normalized_centroid_vectors(ncentroids * vecdim);
         std::vector<float> point_vectors(groupsize * vecdim);
 
-//        for (int i = 0; i < ncentroids; i++) {
-//            float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i]);
-//            compute_vector(normalized_centroid_vectors.data() + i * vecdim, neighbor_centroid, centroid, vecdim);
-//
-//            /** Normalize them **/
-//            if (include_zero_centroid && (i == 0)) continue;
-//            normalize_vector(normalized_centroid_vectors.data() + i * vecdim, vecdim);
-//        }
+        for (int i = 0; i < ncentroids; i++) {
+            float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i]);
+            compute_vector(normalized_centroid_vectors.data() + i * vecdim, neighbor_centroid, centroid, vecdim);
 
-        //double av_dist = 0.0;
+            /** Normalize them **/
+            if (include_zero_centroid && (i == 0)) continue;
+            normalize_vector(normalized_centroid_vectors.data() + i * vecdim, vecdim);
+        }
+
         for (int i = 0; i < groupsize; i++) {
-            //baseline_average += faiss::fvec_L2sqr(centroid, data.data() + i * vecdim, vecdim);
             compute_vector(point_vectors.data() + i * vecdim, data.data() + i * vecdim, centroid, vecdim);
             baseline_average += faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim);
         }
-        //std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
-        //baseline_average += av_dist;// / groupsize;
 
-//        /** Find alphas for vectors **/
-//        float alpha = compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(),
-//                                    centroid, vecdim, ncentroids, groupsize);
-//
-//        /** Compute final subcentroids **/
-//        std::vector<float> subcentroids(ncentroids * vecdim);
-//        compute_subcentroids(subcentroids.data(), centroid, normalized_centroid_vectors.data(),
-//                             alpha, vecdim, ncentroids, groupsize);
-//
-//        /** Compute sub idxs for group points **/
-//        std::vector<std::vector<idx_t>> idxs(ncentroids);
-//        modified_average += compute_idxs(idxs, data.data(), subcentroids.data(),
-//                                         vecdim, ncentroids, groupsize);
+        /** Find alphas for vectors **/
+        float alpha = compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(),
+                                    centroid, vecdim, ncentroids, groupsize);
+
+        /** Compute final subcentroids **/
+        std::vector<float> subcentroids(ncentroids * vecdim);
+        compute_subcentroids(subcentroids.data(), centroid, normalized_centroid_vectors.data(),
+                             alpha, vecdim, ncentroids, groupsize);
+
+        /** Compute sub idxs for group points **/
+        std::vector<std::vector<idx_t>> idxs(ncentroids);
+        modified_average += compute_idxs(idxs, data.data(), subcentroids.data(),
+                                         vecdim, ncentroids, groupsize);
 
 //        /** Baseline Quantization Error **/
 //        {
@@ -623,9 +622,8 @@ void check_idea(Index *index, const char *path_centroids,
 //            modified_error += error;
 //        }
     }
-//    std::cout << "Average ncentroids: " << average_nc / ngroups << std::endl;
-    std::cout << "[Global Baseline] Average Distance: " << baseline_average / vecsize << std::endl;
-    std::cout << "[Global Modified] Average Distance: " << modified_average / vecsize << std::endl;
+    std::cout << "[Global Baseline] Average Distance: " << baseline_average / total_groupsizes << std::endl;
+    std::cout << "[Global Modified] Average Distance: " << modified_average / total_groupsizes << std::endl;
 //    std::cout << "[Global Baseline] Average Error: " << baseline_error / ngroups << std::endl;
 //    std::cout << "[Global Modified] Average Error: " << modified_error / ngroups << std::endl;
 
