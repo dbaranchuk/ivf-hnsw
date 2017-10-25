@@ -476,13 +476,13 @@ void check_idea(Index *index, const char *path_centroids,
     const int ngroups = 999973;
 
     int j1 = 0;
-//#pragma omp parallel for num_threads(24)
+#pragma omp parallel for num_threads(24)
     for (int g = 0; g < ngroups; g++) {
         /** Read Original vectors from Group file**/
         idx_t centroid_num;
         int groupsize;
         std::vector<float> data;
-//#pragma omp critical
+#pragma omp critical
         {
             //input.read((char *) &centroid_num, sizeof(idx_t));
             input.read((char *) &groupsize, sizeof(int));
@@ -624,7 +624,7 @@ void check_idea(Index *index, const char *path_centroids,
     }
 //    std::cout << "Average ncentroids: " << average_nc / ngroups << std::endl;
     std::cout << "[Global Baseline] Average Distance: " << baseline_average / vecsize << std::endl;
-    std::cout << "[Global Modified] Average Distance: " << modified_average / ngroups << std::endl;
+    std::cout << "[Global Modified] Average Distance: " << modified_average / vecsize << std::endl;
 //    std::cout << "[Global Baseline] Average Error: " << baseline_error / ngroups << std::endl;
 //    std::cout << "[Global Modified] Average Error: " << modified_error / ngroups << std::endl;
 
