@@ -453,7 +453,7 @@ void check_idea(Index *index, const char *path_centroids,
     const bool include_zero_centroid = true;
     const int nc = 256;
     const int maxM = 128;
-    const char *path_groups = "/home/data/groups/groups999973.dat";
+    const char *path_groups = "/home/dbaranchuk/data/groups/groups999973.dat";
 
     if (!exists_test(path_groups)) {
         std::cout << "Precompute Group file first\n";
