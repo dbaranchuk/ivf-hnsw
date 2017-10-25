@@ -473,7 +473,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 1000;//999973;
+    const int ngroups = 10000;//999973;
 
     int total_groupsizes = 0;
     int j1 = 0;
