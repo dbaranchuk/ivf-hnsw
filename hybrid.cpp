@@ -451,7 +451,7 @@ void check_idea(Index *index, const char *path_centroids,
 {
     StopW stopw = StopW();
     const bool include_zero_centroid = false;
-    const int nc = 256;
+    const int nc = 128;
     const int maxM = 128;
     const char *path_groups = "/home/dbaranchuk/data/groups/groups999973.dat";
 
@@ -473,7 +473,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 1000000;
+    const int ngroups = 99973;
     float average_nc = 0;
 
     int j1 = 0;
@@ -492,12 +492,13 @@ void check_idea(Index *index, const char *path_centroids,
             input.read((char *) data.data(), groupsize * vecdim * sizeof(float));
             //readXvecs<float>(input, data.data(), vecdim, groupsize);
             centroid_num = j1++;
+
+            if (groupsize != index->ids[centroid_num].size()){
+                std::cout << "Wrong groupsize\n";
+                exit(1);
+            }
         }
 
-        if (groupsize != index->ids[centroid_num].size()){
-            std::cout << "Wrong groupsize\n";
-            exit(1);
-        }
         if (groupsize == 0)
             continue;
 
@@ -514,7 +515,7 @@ void check_idea(Index *index, const char *path_centroids,
         }
 
         /** Pruning **/
-        index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
+        //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
         size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
         //std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
         average_nc += ncentroids;
@@ -539,18 +540,18 @@ void check_idea(Index *index, const char *path_centroids,
         std::vector<float> normalized_centroid_vectors(ncentroids * vecdim);
         std::vector<float> point_vectors(groupsize * vecdim);
 
-        for (int i = 0; i < ncentroids; i++) {
-            float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i].second);
-            compute_vector(normalized_centroid_vectors.data() + i * vecdim, centroid, neighbor_centroid, vecdim);
-
-            /** Normalize them **/
-            if (include_zero_centroid && (i == 0)) continue;
-            normalize_vector(normalized_centroid_vectors.data() + i * vecdim, vecdim);
-        }
+//        for (int i = 0; i < ncentroids; i++) {
+//            float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i].second);
+//            compute_vector(normalized_centroid_vectors.data() + i * vecdim, neighbor_centroid, centroid, vecdim);
+//
+//            /** Normalize them **/
+//            if (include_zero_centroid && (i == 0)) continue;
+//            normalize_vector(normalized_centroid_vectors.data() + i * vecdim, vecdim);
+//        }
 
         double av_dist = 0.0;
         for (int i = 0; i < groupsize; i++) {
-            compute_vector(point_vectors.data() + i * vecdim, centroid, data.data() + i * vecdim, vecdim);
+            compute_vector(point_vectors.data() + i * vecdim, data.data() + i * vecdim, centroid, vecdim);
             av_dist += faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim);
         }
         //std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
