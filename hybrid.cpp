@@ -473,7 +473,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 99973;
+    const int ngroups = 999973;
     float average_nc = 0;
 
     int j1 = 0;
@@ -518,7 +518,7 @@ void check_idea(Index *index, const char *path_centroids,
         //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
         size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
         //std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
-        average_nc += ncentroids;
+        //average_nc += ncentroids;
 
         if (ncentroids > nc + include_zero_centroid) {
             std::cout << "Wrong number of nn centroids\n";
