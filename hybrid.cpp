@@ -516,9 +516,8 @@ void check_idea(Index *index, const char *path_centroids,
         }
 
         /** Pruning **/
-        //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
+        index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
         size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
-        //std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
 
         if (ncentroids > nc + include_zero_centroid) {
             std::cout << "Wrong number of nn centroids\n";
