@@ -312,7 +312,7 @@ void collect_groups(const char *path_groups, const char *path_data, const char *
 void save_groups(Index *index, const char *path_groups, const char *path_data,
                  const char *path_precomputed_idxs, const int vecdim, const int vecsize)
 {
-    const int ncentroids = 300000;
+    const int ncentroids = 600000;
     std::vector<std::vector<float>> data(ncentroids);
 
     const int batch_size = 1000000;
@@ -325,9 +325,8 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
         readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
         readXvec<float>(base_input, batch.data(), vecdim, batch_size);
 
-    //#pragma omp parallel for num_threads(16)
         for (size_t i = 0; i < batch_size; i++) {
-            if (idx_batch[i] >= ncentroids)
+            if (idx_batch[i] < 300000 && idx_batch[i] >= ncentroids)
                 continue;
 
             idx_t cur_idx = idx_batch[i];
@@ -341,7 +340,7 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
     base_input.close();
 
     FILE *fout = fopen(path_groups, "wb");
-    for (int i = 0; i < ncentroids; i++) {
+    for (int i = 300000; i < ncentroids; i++) {
         int groupsize = data[i].size() / vecdim;
 
         if (groupsize != index->ids[i].size()){
@@ -697,7 +696,7 @@ void hybrid_test(const char *path_centroids,
         std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
 
-        save_groups(index, "/home/dbaranchuk/data/groups/groups400000.dat", path_data,
+        save_groups(index, "/home/dbaranchuk/data/groups/groups600000.dat", path_data,
                     path_precomputed_idxs, vecdim, vecsize);
         //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {
