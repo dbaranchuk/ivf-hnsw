@@ -473,7 +473,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 999973;
+    const int ngroups = 99973;
 
     int j1 = 0;
 //#pragma omp parallel for num_threads(24)
@@ -554,7 +554,7 @@ void check_idea(Index *index, const char *path_centroids,
             av_dist += faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim);
         }
         //std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
-        baseline_average += av_dist / groupsize;
+        baseline_average += av_dist;// / groupsize;
 
 //        /** Find alphas for vectors **/
 //        float alpha = compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(),
@@ -620,7 +620,7 @@ void check_idea(Index *index, const char *path_centroids,
 //        }
     }
 //    std::cout << "Average ncentroids: " << average_nc / ngroups << std::endl;
-    std::cout << "[Global Baseline] Average Distance: " << baseline_average / ngroups << std::endl;
+    std::cout << "[Global Baseline] Average Distance: " << baseline_average / vecsize << std::endl;
     std::cout << "[Global Modified] Average Distance: " << modified_average / ngroups << std::endl;
 //    std::cout << "[Global Baseline] Average Error: " << baseline_error / ngroups << std::endl;
 //    std::cout << "[Global Modified] Average Error: " << modified_error / ngroups << std::endl;
@@ -729,11 +729,11 @@ void hybrid_test(const char *path_centroids,
         /** Load Index **/
         std::cout << "Loading index from " << path_index << std::endl;
         //index->read(path_index);
-        compute_average_distance(path_data, path_centroids, path_precomputed_idxs, ncentroids, vecdim, vecsize);
+        //compute_average_distance(path_data, path_centroids, path_precomputed_idxs, ncentroids, vecdim, vecsize);
 
         //save_groups(index, "/home/dbaranchuk/data/groups/groups999973.dat", path_data,
         //            path_precomputed_idxs, vecdim, vecsize);
-        //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
+        check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {
         /** Add elements **/
         size_t batch_size = 1000000;
