@@ -450,9 +450,9 @@ void check_idea(Index *index, const char *path_centroids,
                 const int vecsize, const int vecdim)
 {
     StopW stopw = StopW();
-    //const bool include_zero_centroid = false;
-    //const int nc = 128;
-    //const int maxM = 128;
+    const bool include_zero_centroid = false;
+    const int nc = 128;
+    const int maxM = 128;
     const char *path_groups = "/home/dbaranchuk/data/groups/groups999973.dat";
 
     if (!exists_test(path_groups)) {
@@ -474,7 +474,6 @@ void check_idea(Index *index, const char *path_centroids,
     double modified_error = 0.0;
 
     const int ngroups = 1000;//999973;
-    int nc = 128;
 
     int total_groupsizes = 0;
     int j1 = 0;
