@@ -450,9 +450,9 @@ void check_idea(Index *index, const char *path_centroids,
                 const int vecsize, const int vecdim)
 {
     StopW stopw = StopW();
-    const bool include_zero_centroid = false;
-    const int nc = 128;
-    const int maxM = 128;
+    //const bool include_zero_centroid = false;
+    //const int nc = 128;
+    //const int maxM = 128;
     const char *path_groups = "/home/dbaranchuk/data/groups/groups999973.dat";
 
     if (!exists_test(path_groups)) {
@@ -731,7 +731,7 @@ void hybrid_test(const char *path_centroids,
     if (exists_test(path_index)){
         /** Load Index **/
         std::cout << "Loading index from " << path_index << std::endl;
-        //index->read(path_index);
+        index->read(path_index);
         //compute_average_distance(path_data, path_centroids, path_precomputed_idxs, ncentroids, vecdim, vecsize);
 
         //save_groups(index, "/home/dbaranchuk/data/groups/groups999973.dat", path_data,
