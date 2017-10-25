@@ -473,7 +473,7 @@ void check_idea(Index *index, const char *path_centroids,
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
-    const int ngroups = 10000;
+    const int ngroups = 100000;
     float average_nc = 0;
 
     int j1 = 0;
@@ -551,7 +551,7 @@ void check_idea(Index *index, const char *path_centroids,
         double av_dist = 0.0;
         for (int i = 0; i < groupsize; i++) {
             compute_vector(point_vectors.data() + i * vecdim, centroid, data.data() + i * vecdim, vecdim);
-            av_dist += sqrt(faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim));
+            av_dist += faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim);
         }
         //std::cout << "[Baseline] Average Distance: " << av_dist / groupsize << std::endl;
         baseline_average += av_dist / groupsize;
