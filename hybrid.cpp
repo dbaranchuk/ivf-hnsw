@@ -326,7 +326,7 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
         readXvec<float>(base_input, batch.data(), vecdim, batch_size);
 
         for (size_t i = 0; i < batch_size; i++) {
-            if (idx_batch[i] < 300000 && idx_batch[i] >= ncentroids)
+            if (idx_batch[i] < 300000 || idx_batch[i] >= ncentroids)
                 continue;
 
             idx_t cur_idx = idx_batch[i];

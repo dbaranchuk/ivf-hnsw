@@ -105,6 +105,9 @@ namespace hnswlib {
         float *c_norm_table = NULL;
 		HierarchicalNSW<float, float> *quantizer;
 
+        /** NEW **/
+        std::vector < std::vector<idx_t> > nn_centroid_ids;
+        std::vector < float > alphas;
     public:
 		Index(size_t dim, size_t ncentroids,
 			  size_t bytes_per_code, size_t nbits_per_idx):
