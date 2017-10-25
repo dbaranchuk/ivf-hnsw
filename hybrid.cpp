@@ -474,16 +474,15 @@ void check_idea(Index *index, const char *path_centroids,
     double modified_error = 0.0;
 
     const int ngroups = 999973;
-    float average_nc = 0;
 
     int j1 = 0;
-#pragma omp parallel for num_threads(24)
+//#pragma omp parallel for num_threads(24)
     for (int g = 0; g < ngroups; g++) {
         /** Read Original vectors from Group file**/
         idx_t centroid_num;
         int groupsize;
         std::vector<float> data;
-#pragma omp critical
+//#pragma omp critical
         {
             //input.read((char *) &centroid_num, sizeof(idx_t));
             input.read((char *) &groupsize, sizeof(int));
@@ -505,37 +504,36 @@ void check_idea(Index *index, const char *path_centroids,
         /** Find NN centroids to source centroid **/
         const float *centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
         int nc = groupsize;
-        auto nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nc + 1);
-
-        /** Remove source centroid from consideration **/
-        std::priority_queue<std::pair<float, idx_t>> nn_centroids_before_heuristic;
-        while (nn_centroids_raw.size() > 1) {
-            nn_centroids_before_heuristic.emplace(nn_centroids_raw.top());
-            nn_centroids_raw.pop();
-        }
+//        auto nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nc + 1);
+//
+//        /** Remove source centroid from consideration **/
+//        std::priority_queue<std::pair<float, idx_t>> nn_centroids_before_heuristic;
+//        while (nn_centroids_raw.size() > 1) {
+//            nn_centroids_before_heuristic.emplace(nn_centroids_raw.top());
+//            nn_centroids_raw.pop();
+//        }
 
         /** Pruning **/
         //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
-        size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
+        //size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
         //std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
-        //average_nc += ncentroids;
 
-        if (ncentroids > nc + include_zero_centroid) {
-            std::cout << "Wrong number of nn centroids\n";
-            exit(1);
-        }
+//        if (ncentroids > nc + include_zero_centroid) {
+//            std::cout << "Wrong number of nn centroids\n";
+//            exit(1);
+//        }
 
-        std::vector<idx_t> nn_centroids(ncentroids);
+//        std::vector<idx_t> nn_centroids(ncentroids);
         //std::vector<std::pair<float, idx_t>> nn_centroids(ncentroids);
 
-        if (include_zero_centroid)
-            nn_centroids[0] = centroid_num;
-
-        while (nn_centroids_before_heuristic.size() > 0) {
-            nn_centroids[nn_centroids_before_heuristic.size() -
-                         !include_zero_centroid] = nn_centroids_before_heuristic.top().second;
-            nn_centroids_before_heuristic.pop();
-        }
+//        if (include_zero_centroid)
+//            nn_centroids[0] = centroid_num;
+//
+//        while (nn_centroids_before_heuristic.size() > 0) {
+//            nn_centroids[nn_centroids_before_heuristic.size() -
+//                         !include_zero_centroid] = nn_centroids_before_heuristic.top().second;
+//            nn_centroids_before_heuristic.pop();
+//        }
 
         /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
         std::vector<float> normalized_centroid_vectors(ncentroids * vecdim);
@@ -631,6 +629,38 @@ void check_idea(Index *index, const char *path_centroids,
     input.close();
 }
 
+void compute_average_distance(const char *path_data, const char *path_centroids, const char *path_precomputed_idxs,
+                              const int ncentroids, const int vecdim, const int vecsize)
+{
+    std::ifstream centroids_input(path_centroids, ios::binary);
+    std::vector<float> centroids(ncentroids*vecdim);
+    readXvec<float>(centroids_input, centroids.data(), vecdim, ncentroids);
+    centroids_input.close();
+
+    const int batch_size = 1000000;
+    std::ifstream base_input(path_data, ios::binary);
+    std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+    std::vector<float> batch(batch_size * vecdim);
+    std::vector<idx_t> idx_batch(batch_size);
+
+    double average_dist = 0.0
+    for (int b = 0; b < (vecsize / batch_size); b++) {
+        readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+        readXvec<float>(base_input, batch.data(), vecdim, batch_size);
+
+        for (size_t i = 0; i < batch_size; i++) {
+            const float *centroid = centroids[idx_batch[i] * vecdim];
+            average_dist += faiss::fvec_L2sqr(batch.data() + i*vecdim, centroid, vecdim);
+        }
+
+        if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
+    }
+    idx_input.close();
+    base_input.close();
+
+    std::cout << "Average: " << average_dist / 1000000000 << std::endl;
+}
+
 void hybrid_test(const char *path_centroids,
                  const char *path_index, const char *path_precomputed_idxs,
                  const char *path_pq, const char *path_norm_pq,
@@ -698,11 +728,12 @@ void hybrid_test(const char *path_centroids,
     if (exists_test(path_index)){
         /** Load Index **/
         std::cout << "Loading index from " << path_index << std::endl;
-        index->read(path_index);
+        //index->read(path_index);
+        compute_average_distance(path_data, path_centroids, path_precomputed_idxs, ncentroids, vecdim, vecsize);
 
         //save_groups(index, "/home/dbaranchuk/data/groups/groups999973.dat", path_data,
         //            path_precomputed_idxs, vecdim, vecsize);
-        check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
+        //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {
         /** Add elements **/
         size_t batch_size = 1000000;
