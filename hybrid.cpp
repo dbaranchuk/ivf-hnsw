@@ -477,13 +477,13 @@ void check_idea(Index *index, const char *path_centroids,
     float average_nc = 0;
 
     int j1 = 0;
-//#pragma omp parallel for num_threads(16)
+#pragma omp parallel for num_threads(16)
     for (int g = 0; g < ngroups; g++) {
         /** Read Original vectors from Group file**/
         idx_t centroid_num;
         int groupsize;
         std::vector<float> data;
-//#pragma omp critical
+#pragma omp critical
         {
             //input.read((char *) &centroid_num, sizeof(idx_t));
             input.read((char *) &groupsize, sizeof(int));
