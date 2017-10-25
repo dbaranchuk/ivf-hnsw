@@ -187,6 +187,125 @@ namespace hnswlib {
 		}
 
 
+        /** NEW **/
+        std::vector < std::vector < std::vector<idx_t> > > ids;
+        std::vector < idx_t > nn_centroid_idxs;
+        std::vector < float > alphas;
+
+        size_t n_subcentroids = 128;
+        bool include_zero_centroid = false;
+
+        void add2(const char *path_groups)
+        {
+            int j1 = 0;
+#pragma omp parallel for num_threads(16)
+            for (int g = 0; g < ncentroids; g++) {
+                /** Read Original vectors from Group file**/
+                idx_t centroid_num;
+                int groupsize;
+                std::vector<float> data;
+
+                #pragma omp critical
+                {
+                    input.read((char *) &groupsize, sizeof(int));
+                    data.reserve(groupsize * vecdim);
+                    readXvecs<float>(input, data.data(), vecdim, groupsize);
+                    centroid_num = j1++;
+                }
+                if (groupsize == 0)
+                    continue;
+
+                /** Find NN centroids to source centroid **/
+                const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
+
+                auto nn_centroids_raw = quantizer->searchKnn((void *) centroid, n_subcentroids + 1);
+
+                /** Remove source centroid from consideration **/
+                std::priority_queue<std::pair<float, idx_t>> nn_centroids_before_heuristic;
+                while (nn_centroids_raw.size() > 1) {
+                    nn_centroids_before_heuristic.emplace(nn_centroids_raw.top());
+                    nn_centroids_raw.pop();
+                }
+
+                /** Pruning **/
+                //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
+                size_t nc = nn_centroids_before_heuristic.size() + include_zero_centroid;
+                //std::cout << "Number of centroids after pruning: " << ncentroids << std::endl;
+
+                std::vector<std::pair<float, idx_t>> nn_centroids(nc);
+                if (include_zero_centroid)
+                    nn_centroids[0] = std::make_pair(0.0, centroid_num);
+
+                while (nn_centroids_before_heuristic.size() > 0) {
+                    nn_centroids[nn_centroids_before_heuristic.size() -
+                                 !include_zero_centroid] = nn_centroids_before_heuristic.top();
+                    nn_centroids_before_heuristic.pop();
+                }
+
+                /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
+                std::vector<float> normalized_centroid_vectors(nc * d);
+                std::vector<float> point_vectors(groupsize * d);
+
+                for (int i = 0; i < nc; i++) {
+                    const float *neighbor_centroid = (float *) quantizer->getDataByInternalId(nn_centroids[i].second);
+                    compute_vector(normalized_centroid_vectors.data() + i * d, centroid, neighbor_centroid);
+
+                    /** Normalize them **/
+                    if (include_zero_centroid && (i == 0)) continue;
+                    normalize_vector(normalized_centroid_vectors.data() + i * d);
+                }
+
+                double av_dist = 0.0;
+                for (int i = 0; i < groupsize; i++) {
+                    compute_vector(point_vectors.data() + i * d, centroid, data.data() + i * d);
+                    av_dist += faiss::fvec_norm_L2sqr(point_vectors.data() + i * d, d);
+                }
+                baseline_average += av_dist / groupsize;
+
+                /** Find alphas for vectors **/
+                alphas[centroid_num] = compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(),
+                                                    centroid, nc, groupsize);
+
+                /** Compute final subcentroids **/
+                std::vector<float> subcentroids(nc * d);
+                compute_subcentroids(subcentroids.data(), centroid, normalized_centroid_vectors.data(),
+                                     alpha, ncentroids, groupsize);
+
+                /** Compute sub idxs for group points **/
+                std::vector<std::vector<idx_t>> idxs(nc);
+                modified_average += compute_idxs(idxs, data.data(), subcentroids.data(),
+                                                 vecdim, nc, groupsize);
+
+                /** Modified Quantization Error **/
+
+                std::vector<float> reconstructed_x(groupsize * vecdim);
+
+                for (int c = 0; c < ncentroids; c++) {
+                    float *subcentroid = subcentroids.data() + c * vecdim;
+                    std::vector<idx_t> idx = idxs[c];
+
+                    for (idx_t id : idx) {
+                        float *point = data.data() + id * vecdim;
+
+                        float residual[vecdim];
+                        for (int j = 0; j < vecdim; j++)
+                            residual[j] = point[j] - subcentroid[j];
+
+                        uint8_t code[index->pq->code_size];
+                        index->pq->compute_code(residual, code);
+
+                        float decoded_residual[vecdim];
+                        index->pq->decode(code, decoded_residual);
+
+                        float *rx = reconstructed_x.data() + id * vecdim;
+                        for (int j = 0; j < vecdim; j++)
+                            rx[j] = subcentroid[j] + decoded_residual[j];
+                    }
+                }
+
+            }
+        }
+
 		void add(idx_t n, float * x, const idx_t *xids, const idx_t *idx)
 		{
             float *residuals = new float [n * d];
@@ -392,11 +511,6 @@ namespace hnswlib {
                 fwrite(&size, sizeof(size_t), 1, fout);
                 fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
             }
-
-//            fwrite(c_norm_table, sizeof(float), csize, fout);
-//            fwrite(c_size_table, sizeof(size_t), csize, fout);
-//            fwrite(c_var_table, sizeof(float), csize, fout);
-
             fclose(fout);
         }
 
@@ -431,59 +545,7 @@ namespace hnswlib {
                 norm_codes[i].resize(size);
                 fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
             }
-
-            //fread(c_norm_table, sizeof(float), csize, fin);
-            //fread(c_size_table, sizeof(size_t), csize, fin);
-            //fread(c_var_table, sizeof(float), csize, fin);
-
             fclose(fin);
-        }
-
-        void update_centroids(const char *path_data, const char *path_precomputed_idxs,
-                              const char *path_updated_centroids)
-        {
-            if (!c_size_table){
-                std::cout << "Precompute centroid size table first\n";
-                return;
-            }
-            float *c_e_table = new float[csize*d];
-
-            for (int i = 0; i < csize*d; i++)
-                c_e_table[i] = 0.0;
-
-            size_t batch_size = 1000000;
-            std::ifstream base_input(path_data, ios::binary);
-            std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-            std::vector<float> batch(batch_size * d);
-            std::vector<idx_t> idx_batch(batch_size);
-
-            for (int b = 0; b < 1000; b++) {
-                readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-                readXvec<float>(base_input, batch.data(), d, batch_size);
-
-                #pragma omp parallel for num_threads(16)
-                for (int i = 0; i < batch_size; i++) {
-                    idx_t key = idx_batch[i];
-                    add_vector(batch.data() + i*d, c_e_table + key*d);
-                }
-            }
-
-            for (int i = 0; i < csize; i++) {
-                size_t size = c_size_table[i];
-                for (int j = 0; j < d; j++)
-                    c_e_table[i * d + j] /= size;
-            }
-
-            idx_input.close();
-            base_input.close();
-
-            FILE* fout = fopen(path_updated_centroids, "wb");
-            for (int i = 0; i < csize; i++) {
-                fwrite((int *) &d, sizeof(int), 1, fout);
-                fwrite((c_e_table + i*d), sizeof(float), d, fout);
-            }
-            fclose(fout);
-            delete c_e_table;
         }
 
         void compute_centroid_norm_table()
