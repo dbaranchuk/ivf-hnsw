@@ -773,7 +773,6 @@ void hybrid_test(const char *path_centroids,
 
         if (exists_test(path_modified_index)){
             modifiedIndex->read(path_modified_index);
-
         } else {
             modifiedIndex->add(path_groups, path_idxs);
             modifiedIndex->write(path_modified_index);
