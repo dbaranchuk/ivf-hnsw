@@ -706,9 +706,13 @@ void hybrid_test(const char *path_centroids,
     SpaceInterface<float> *l2space = new L2Space(vecdim);
 
     /** Create Index **/
-    Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
+    const char *path_groups = "/home/dbaranchuk/data/groups/groups999973.dat";
+    const char *path_idxs = "/home/dbaranchuk/data/groups/idxs999973.ivecs";
+
+    ModifiedIndex *index = new ModifiedIndex(vecdim, ncentroids, M_PQ, 8);
     index->buildQuantizer(l2space, path_centroids, path_info, path_edges, 500);
-    index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
+    //index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
+
 
     /** Train PQ **/
     std::ifstream learn_input(path_learn, ios::binary);
@@ -746,100 +750,30 @@ void hybrid_test(const char *path_centroids,
         std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
         //compute_average_distance(path_data, path_centroids, path_precomputed_idxs, ncentroids, vecdim, vecsize);
-
-        const char *path_modified_pq = "/home/dbaranchuk/modified_pq.pq";
-        const char *path_modified_norm_pq = "/home/dbaranchuk/modified_norm_pq.pq";
-        const char *path_modified_index = "/home/dbaranchuk/modified_indexPQ16.index";
-        const char *path_groups = "/home/dbaranchuk/data/groups/groups999973.dat";
-        const char *path_idxs = "/home/dbaranchuk/data/groups/idxs999973.ivecs";
-
-        ModifiedIndex *modifiedIndex = new ModifiedIndex(index);
-        /** Train PQ **/
-        if (exists_test(path_modified_pq) && exists_test(path_modified_norm_pq)) {
-            std::cout << "Loading PQ codebook from " << path_modified_pq << std::endl;
-            read_pq(path_modified_pq, index->pq);
-
-            std::cout << "Loading norm PQ codebook from " << path_modified_norm_pq << std::endl;
-            read_pq(path_modified_norm_pq, index->norm_pq);
-        } else {
-            modifiedIndex->train_pq(nt, trainvecs.data());
-
-            std::cout << "Saving PQ codebook to " << path_modified_pq << std::endl;
-            write_pq(path_modified_pq, index->pq);
-
-            std::cout << "Saving norm PQ codebook to " << path_modified_norm_pq << std::endl;
-            write_pq(path_modified_norm_pq, index->norm_pq);
-        }
-
-        if (exists_test(path_modified_index)){
-            modifiedIndex->read(path_modified_index);
-        } else {
-            modifiedIndex->add(path_groups, path_idxs);
-            modifiedIndex->write(path_modified_index);
-        }
-
-
-        /** Parse groundtruth **/
-        vector<std::priority_queue< std::pair<float, labeltype >>> answers;
-        std::cout << "Parsing gt:\n";
-        get_gt<float>(massQA, qsize, answers, gt_dim);
-
-        /** Set search parameters **/
-        int correct = 0;
-        idx_t results[k];
-
-        modifiedIndex->max_codes = max_codes;
-        modifiedIndex->nprobe = nprobes;
-        modifiedIndex->index->quantizer->ef_ = efSearch;
-
-        /** Search **/
-        StopW stopw = StopW();
-        for (int i = 0; i < qsize; i++) {
-            modifiedIndex->search(massQ+i*vecdim, k, results);
-
-            std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
-            unordered_set<labeltype> g;
-
-            while (gt.size()) {
-                g.insert(gt.top().second);
-                gt.pop();
-            }
-
-            for (int j = 0; j < k; j++)
-                if (g.count(results[j]) != 0){
-                    correct++;
-                    break;
-                }
-        }
-        /**Represent results**/
-        float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
-        std::cout << "Recall@" << k << ": " << 1.0f*correct / qsize << std::endl;
-        std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
-
-        delete modifiedIndex;
         //save_groups(index, "/home/dbaranchuk/data/groups/groups999973.dat", path_data,
         //            path_precomputed_idxs, vecdim, vecsize);
         //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {
         /** Add elements **/
-        size_t batch_size = 1000000;
-        std::ifstream base_input(path_data, ios::binary);
-        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-        std::vector<float> batch(batch_size * vecdim);
-        std::vector<idx_t> idx_batch(batch_size);
-        std::vector<idx_t> ids(vecsize);
-
-        for (int b = 0; b < (vecsize / batch_size); b++) {
-            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-            readXvec<float>(base_input, batch.data(), vecdim, batch_size);
-            for (size_t i = 0; i < batch_size; i++)
-                ids[batch_size*b + i] = batch_size*b + i;
-
-            printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
-            index->add(batch_size, batch.data(), ids.data() + batch_size*b, idx_batch.data());
-        }
-        idx_input.close();
-        base_input.close();
+        index->add(path_groups, path_idxs);
+//        size_t batch_size = 1000000;
+//        std::ifstream base_input(path_data, ios::binary);
+//        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+//        std::vector<float> batch(batch_size * vecdim);
+//        std::vector<idx_t> idx_batch(batch_size);
+//        std::vector<idx_t> ids(vecsize);
+//
+//        for (int b = 0; b < (vecsize / batch_size); b++) {
+//            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+//            readXvec<float>(base_input, batch.data(), vecdim, batch_size);
+//            for (size_t i = 0; i < batch_size; i++)
+//                ids[batch_size*b + i] = batch_size*b + i;
+//
+//            printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
+//            index->add(batch_size, batch.data(), ids.data() + batch_size*b, idx_batch.data());
+//        }
+//        idx_input.close();
+//        base_input.close();
 
         /** Save index, pq and norm_pq **/
         std::cout << "Saving index to " << path_index << std::endl;
@@ -851,45 +785,42 @@ void hybrid_test(const char *path_centroids,
 //    std::cout << "Computing centroid norms"<< std::endl;
 //    index->compute_centroid_norm_table();
 
-    //const char *path_index_new = "/home/dbaranchuk/hybrid8M_PQ16_new.index";
-    //index->write(path_index_new);
-
     /** Parse groundtruth **/
-//    vector<std::priority_queue< std::pair<float, labeltype >>> answers;
-//    std::cout << "Parsing gt:\n";
-//    get_gt<float>(massQA, qsize, answers, gt_dim);
+    vector<std::priority_queue< std::pair<float, labeltype >>> answers;
+    std::cout << "Parsing gt:\n";
+    get_gt<float>(massQA, qsize, answers, gt_dim);
 
     /** Set search parameters **/
-//    int correct = 0;
-//    idx_t results[k];
-//
-//    index->max_codes = max_codes;
-//    index->nprobe = nprobes;
-//    index->quantizer->ef_ = efSearch;
+    int correct = 0;
+    idx_t results[k];
+
+    index->max_codes = max_codes;
+    index->nprobe = nprobes;
+    index->quantizer->ef_ = efSearch;
 
     /** Search **/
-//    StopW stopw = StopW();
-//    for (int i = 0; i < qsize; i++) {
-//        index->search(massQ+i*vecdim, k, results);
-//
-//        std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
-//        unordered_set<labeltype> g;
-//
-//        while (gt.size()) {
-//            g.insert(gt.top().second);
-//            gt.pop();
-//        }
-//
-//        for (int j = 0; j < k; j++)
-//            if (g.count(results[j]) != 0){
-//                correct++;
-//                break;
-//            }
-//    }
+    StopW stopw = StopW();
+    for (int i = 0; i < qsize; i++) {
+        index->search(massQ+i*vecdim, k, results);
+
+        std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
+        unordered_set<labeltype> g;
+
+        while (gt.size()) {
+            g.insert(gt.top().second);
+            gt.pop();
+        }
+
+        for (int j = 0; j < k; j++)
+            if (g.count(results[j]) != 0){
+                correct++;
+                break;
+            }
+    }
     /**Represent results**/
-//    float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
-//    std::cout << "Recall@" << k << ": " << 1.0f*correct / qsize << std::endl;
-//    std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
+    float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
+    std::cout << "Recall@" << k << ": " << 1.0f*correct / qsize << std::endl;
+    std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
 
 
     //std::cout << "Check precomputed idxs"<< std::endl;
