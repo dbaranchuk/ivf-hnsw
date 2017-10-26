@@ -35,7 +35,7 @@ namespace hnswlib {
 
         size_t size;
         fread (&size, sizeof(size_t), 1, fin);
-        pq->centroids.reserve(size);
+        pq->centroids.resize(size);
 
         float *centroids = pq->centroids.data();
         fread(centroids, sizeof(float), size, fin);

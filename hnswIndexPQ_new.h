@@ -50,8 +50,6 @@ namespace hnswlib {
         std::vector < std::vector < idx_t > > nn_centroid_idxs;
         std::vector < float > alphas;
 
-        //std::vector < float > c_norm_table;
-
     public:
 		ModifiedIndex(Index *trained_index, size_t nsubcentroids = 128):
                 index(trained_index), nsubc(nsubcentroids)
@@ -90,25 +88,31 @@ namespace hnswlib {
 
             /** Find NN centroids to source centroid **/
             std::cout << "Find NN centroids to source centroids\n";
+            std::vector< std::vector<float> > centroid_vector_norms_L2sqr(nc);
+
             #pragma omp parallel for num_threads(16)
             for (int i = 0; i < nc; i++) {
                 const float *centroid = (float *) index->quantizer->getDataByInternalId(i);
                 std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nsubc + 1);
 
+                centroid_vector_norms_L2sqr[i].resize(nsubc);
                 while (nn_centroids_raw.size() > 1) {
+                    centroid_vector_norms_L2sqr[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().first;
                     nn_centroid_idxs[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
                     nn_centroids_raw.pop();
                 }
             }
 
-            FILE *fout = fopen("/home/dbaranchuk/data/groups/nn_centroid_idxs.ivecs", "wb");
-            for(int i = 0; i < nc; i++) {
-                int size = nn_centroid_idxs[i].size();
-                fwrite(&size, sizeof(int), 1, fout);
-                fwrite(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fout);
-            }
-            fclose(fout);
+//            FILE *fout = fopen("/home/dbaranchuk/data/groups/nn_centroid_idxs.ivecs", "wb");
+//            for(int i = 0; i < nc; i++) {
+//                int size = nn_centroid_idxs[i].size();
+//                fwrite(&size, sizeof(int), 1, fout);
+//                fwrite(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fout);
+//            }
+//            fclose(fout);
 
+            /** Adding groups to index **/
+            std::cout << "Adding groups to index\n";
             int j1 = 0;
             #pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(16)
             for (int c = 0; c < nc; c++) {
@@ -146,23 +150,23 @@ namespace hnswlib {
                 //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
 
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
+                const float *centroid_vector_norms = centroid_vector_norms_L2sqr[centroid_num];
+
                 /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
-                std::vector<float> normalized_centroid_vectors(nc * d);
+                std::vector<float> centroid_vectors(nsubc * d);
                 for (int i = 0; i < nsubc; i++) {
                     float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i]);
-                    sub_vectors(normalized_centroid_vectors.data() + i * d, neighbor_centroid, centroid);
-
-                    /** Normalize them **/
-                    normalize_vector(normalized_centroid_vectors.data() + i * d);
+                    sub_vectors(centroid_vectors.data() + i * d, neighbor_centroid, centroid);
                 }
 
                 /** Find alphas for vectors **/
-                alphas[centroid_num] = compute_alpha(normalized_centroid_vectors.data(), data.data(), centroid, groupsize);
+                alphas[centroid_num] = compute_alpha(centroid_vectors.data(), data.data(), centroid,
+                                                     centroid_vector_norms, groupsize);
 
                 /** Compute final subcentroids **/
                 std::vector<float> subcentroids(nsubc * d);
                 for (int subc = 0; subc < nsubc; subc++) {
-                    const float *centroid_vector = normalized_centroid_vectors.data() + subc * d;
+                    const float *centroid_vector = centroid_vectors.data() + subc * d;
                     float *subcentroid = subcentroids.data() + subc * d;
 
                     linear_op(subcentroid, centroid_vector, centroid, alphas[centroid_num]);
@@ -219,7 +223,6 @@ namespace hnswlib {
             input_groups.close();
             input_idxs.close();
         }
-
 
         struct CompareByFirst {
             constexpr bool operator()(std::pair<float, idx_t> const &a,
@@ -457,10 +460,10 @@ namespace hnswlib {
 //            }
 //        }
 //
-//		void compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys)
+//		void compute_residuals(size_t n, float *residuals, const float *x, const idx_t *keys)
 //		{
 //            for (idx_t i = 0; i < n; i++) {
-//                float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
+//                float *centroid = (float *) index->quantizer->getDataByInternalId(keys[i]);
 //                for (int j = 0; j < d; j++) {
 //                    residuals[i*d + j] = x[i*d + j] - centroid[j];
 //                }
@@ -533,8 +536,17 @@ namespace hnswlib {
 
         }
 
+        void compute_vectors(float *target, const float *x, const float *centroid, const int n)
+        {
+            //#pragma omp parallel for num_threads(16)
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < d; j++)
+                    target[i*d + j] = x[i*d + j] - centroid[j];
+        }
+
         float compute_alpha(const float *centroid_vectors, const float *points,
-                            const float *centroid, const int groupsize)
+                            const float *centroid, const float *centroid_vector_norms_L2sqr,
+                            const int groupsize)
         {
             int counter_positive = 0;
             int counter_negative = 0;
@@ -542,11 +554,7 @@ namespace hnswlib {
             float negative_alpha = 0.0;
 
             std::vector<float> point_vectors(groupsize*d);
-            //#pragma omp parallel for num_threads(16)
-            for (int i = 0; i < groupsize; i++) {
-                float *point_vector = point_vectors.data() + i * d;
-                sub_vectors(point_vector, points + i * d, centroid);
-            }
+            compute_vectors(point_vectors.data(), points, centroid, groupsize);
 
             for (int i = 0; i < groupsize; i++) {
                 const float *point_vector = point_vectors.data() + i * d;
@@ -554,10 +562,12 @@ namespace hnswlib {
                 std::priority_queue<std::pair<float, float>> max_heap;
                 for (int subc = 0; subc < nsubc; subc++){
                     const float *centroid_vector = centroid_vectors + subc * d;
+                    const float centroid_vector_norm_L2sqr = centroid_vector_norms_L2sqr + subc * d;
+
                     float alpha = faiss::fvec_inner_product (centroid_vector, point_vector, d);
+                    alpha /= centroid_vector_norm_L2sqr;
 
                     std::vector<float> subcentroid(d);
-
                     linear_op(subcentroid.data(), centroid_vector, centroid, alpha);
 
                     float dist = faiss::fvec_L2sqr(point_vector, subcentroid.data(), d);
