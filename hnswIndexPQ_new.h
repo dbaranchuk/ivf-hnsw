@@ -42,7 +42,7 @@ namespace hnswlib {
 		{
             nc = index->csize;
             d = index->d;
-            code_size = index->pq->code_size;
+            code_size = index->code_size;
 
             codes.reserve(nc);
             norm_codes.reserve(nc);
@@ -64,7 +64,7 @@ namespace hnswlib {
 
         void add(const char *path_groups, const char *path_idxs)
         {
-            int total_groupsizes = 0;
+            omp_set_num_threads(16);
 
             std::ifstream input_groups(path_groups, ios::binary);
             std::ifstream input_idxs(path_idxs, ios::binary);
@@ -75,14 +75,15 @@ namespace hnswlib {
             /** Find NN centroids to source centroid **/
             std::vector<std::priority_queue<std::pair<float, idx_t>>> nn_centroids_raw(nc);
 
-            #pragma omp parallel for num_threads(16)
+            std::cout << "Find NN centroids to source centroids\n";
+            #pragma omp parallel for
             for (int i = 0; i < nc; i++) {
                 const float *centroid = (float *) index->quantizer->getDataByInternalId(i);
                 nn_centroids_raw[i] = index->quantizer->searchKnn((void *) centroid, nsubc + 1);
             }
 
             int j1 = 0;
-//#pragma omp parallel for num_threads(16)
+            #pragma omp parallel for reduction(+:baseline_average, modified_average)
             for (int c = 0; c < nc; c++) {
                 /** Read Original vectors from Group file**/
                 idx_t centroid_num;
@@ -92,7 +93,7 @@ namespace hnswlib {
 
                 const float *centroid;
 
-//#pragma omp critical
+                #pragma omp critical
                 {
                     input_groups.read((char *) &groupsize, sizeof(int));
                     input_idxs.read((char *) &groupsize, sizeof(int));
@@ -107,9 +108,8 @@ namespace hnswlib {
                     centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
 
                     if (j1 % 10000 == 0)
-                        std::cout << j1 << std::endl;
+                        std::cout << (100. * j1)/1000000 << "%" << std::endl;
 
-                    total_groupsizes += groupsize;
                     if (groupsize == 0)
                         continue;
                 }
@@ -191,8 +191,8 @@ namespace hnswlib {
                     norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_code);
                 }
             }
-            std::cout << "[Baseline] Average Distance: " << baseline_average / total_groupsizes << std::endl;
-            std::cout << "[Modified] Average Distance: " << modified_average / total_groupsizes << std::endl;
+            std::cout << "[Baseline] Average Distance: " << baseline_average / 1000000000 << std::endl;
+            std::cout << "[Modified] Average Distance: " << modified_average / 1000000000 << std::endl;
 
             input_groups.close();
             input_idxs.close();

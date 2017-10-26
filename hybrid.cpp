@@ -692,6 +692,7 @@ void hybrid_test(const char *path_centroids,
         ModifiedIndex *modifiedIndex = new ModifiedIndex(index);
         modifiedIndex->add(path_groups, path_idxs);
         modifiedIndex->write(path_modified_index);
+        delete modifiedIndex;
         //save_groups(index, "/home/dbaranchuk/data/groups/groups999973.dat", path_data,
         //            path_precomputed_idxs, vecdim, vecsize);
         //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
