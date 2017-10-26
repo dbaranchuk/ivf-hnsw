@@ -125,11 +125,10 @@ namespace hnswlib {
 
                     if (j1 % 10000 == 0)
                         std::cout << (100. * j1)/1000000 << "%" << std::endl;
-
-                    if (groupsize == 0)
-                        continue;
                 }
 
+                if (groupsize == 0)
+                    continue;
 
                 /** Remove source centroid from consideration **/
                 std::vector<idx_t> &nn_centroids = nn_centroid_idxs[centroid_num];
