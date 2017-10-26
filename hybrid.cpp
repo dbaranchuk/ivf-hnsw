@@ -7,7 +7,7 @@
 #include <faiss/ProductQuantizer.h>
 #include <faiss/index_io.h>
 #include "hnswIndexPQ.h"
-#include "hnswIndexPQ_new.h"
+//#include "hnswIndexPQ_new.h"
 #include "hnswlib.h"
 
 #include <cmath>
@@ -584,6 +584,70 @@ void check_idea(Index *index, const char *path_centroids,
     input.close();
 }
 
+void check_groups(const char *path_data, const char *path_precomputed_idxs,
+                  const char *path_groups, const char *path_groups_idxs)
+{
+
+    const int d = 96;
+    /** Read Group **/
+    std::ifstream input_groups(path_groups, ios::binary);
+    std::ifstream input_groups_idxs(path_groups_idxs, ios::binary);
+
+    int groupsize;
+    input_groups.read((char *) &groupsize, sizeof(int));
+    input_groups_idxs.read((char *) &groupsize, sizeof(int));
+
+    std::vector<float> group(groupsize*d);
+    std::vector<idx_t> group_idxs(groupsize);
+
+    input_groups.read((char *) group.data(), groupsize * d * sizeof(float));
+    input_groups_idxs.read((char *) group_idxs.data(), groupsize * sizeof(idx_t));
+
+    input_groups.close();
+    input_groups_idxs.close();
+
+    /** Make set of idxs **/
+    std::unordered_set<idx_t > idx_set;
+    for (int i = 0; i < groupsize; i++)
+        idx_set.insert(group_idxs[i]);
+
+    /** Loop **/
+    std::ifstream base_input(path_data, ios::binary);
+    std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+
+    const int batch_size = 1000000;
+    std::ifstream base_input(path_data, ios::binary);
+    std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+    std::vector<float> batch(batch_size * vecdim);
+    std::vector<idx_t> idx_batch(batch_size);
+
+    for (int b = 0; b < (vecsize / batch_size); b++) {
+        readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+        readXvec<float>(base_input, batch.data(), vecdim, batch_size);
+
+        for (size_t i = 0; i < batch_size; i++) {
+            if (idx_set.count(b*batch_size + i) == 0)
+                continue;
+
+            const float *x = batch.data() + i*d;
+            for (int j = 0; j < groupsize; j++){
+                if (group_idxs[j] != b*batch_size + i)
+                    continue;
+
+                const float *y = group.data() + j * d;
+
+                std::cout << faiss::fvec_L2sqr(x, y, d) << std::endl;
+                break;
+            }
+        }
+
+        if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
+    }
+    idx_input.close();
+    base_input.close();
+
+}
+
 void compute_average_distance(const char *path_data, const char *path_centroids, const char *path_precomputed_idxs,
                               const int ncentroids, const int vecdim, const int vecsize)
 {
@@ -689,10 +753,13 @@ void hybrid_test(const char *path_centroids,
         const char *path_modified_index = "/home/dbaranchuk/modified_indexPQ16.index";
         const char *path_groups = "/home/dbaranchuk/data/groups/groups999973.dat";
         const char *path_idxs = "/home/dbaranchuk/data/groups/idxs999973.ivecs";
-        ModifiedIndex *modifiedIndex = new ModifiedIndex(index);
-        modifiedIndex->add(path_groups, path_idxs);
-        modifiedIndex->write(path_modified_index);
-        delete modifiedIndex;
+
+        check_groups(path_data, path_precomputed_idxs, path_groups, path_idxs);
+        //ModifiedIndex *modifiedIndex = new ModifiedIndex(index);
+        //modifiedIndex->add(path_groups, path_idxs);
+        //modifiedIndex->write(path_modified_index);
+        //delete modifiedIndex;
+
         //save_groups(index, "/home/dbaranchuk/data/groups/groups999973.dat", path_data,
         //            path_precomputed_idxs, vecdim, vecsize);
         //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);

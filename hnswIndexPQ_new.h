@@ -82,24 +82,43 @@ namespace hnswlib {
         {
             StopW stopw = StopW();
 
-            std::ifstream input_groups(path_groups, ios::binary);
-            std::ifstream input_idxs(path_idxs, ios::binary);
-
-            double baseline_average = 0.0;
-            double modified_average = 0.0;
-
             /** Find NN centroids to source centroid **/
-            std::vector<std::priority_queue<std::pair<float, idx_t>>> nn_centroids_raw(nc);
-
             std::cout << "Find NN centroids to source centroids\n";
             #pragma omp parallel for num_threads(16)
             for (int i = 0; i < nc; i++) {
                 const float *centroid = (float *) index->quantizer->getDataByInternalId(i);
-                nn_centroids_raw[i] = index->quantizer->searchKnn((void *) centroid, nsubc + 1);
+                std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nsubc + 1);
+
+                while (nn_centroids_raw.size() > 1) {
+                    nn_centroids[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
+                    nn_centroids_raw.pop();
+                }
             }
 
+//            /** Add elements by batches **/
+//            const int batch_size = 1000;
+//            std::ifstream input_groups(path_groups, ios::binary);
+//            std::ifstream input_idxs(path_idxs, ios::binary);
+//
+//            double baseline_average = 0.0;
+//            double modified_average = 0.0;
+//
+//            std::vector< std::vector<float> > batch(batch_size);
+//            std::vector< std::vector<float> > batch_idxs(batch_size);
+//
+//            for (int i = 0; i < batch_size; i++){
+//                input_groups.read((char *) &groupsize, sizeof(int));
+//                input_idxs.read((char *) &groupsize, sizeof(int));
+//
+//                batch[i].reserve(groupsize * d);
+//                batch_idxs[i].reserve(groupsize);
+//
+//                input_groups.read((char *) batch[i].data(), groupsize * d * sizeof(float));
+//                input_idxs.read((char *) batch_idxs[i].data(), groupsize * sizeof(idx_t));
+//            }
+
             int j1 = 0;
-            #pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(16)
+            //#pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(16)
             for (int c = 0; c < nc; c++) {
                 /** Read Original vectors from Group file**/
                 idx_t centroid_num;
@@ -130,13 +149,6 @@ namespace hnswlib {
 
                 if (groupsize == 0)
                     continue;
-
-                /** Remove source centroid from consideration **/
-                std::vector<idx_t> &nn_centroids = nn_centroid_idxs[centroid_num];
-                while (nn_centroids_raw[centroid_num].size() > 1) {
-                    nn_centroids[nn_centroids_raw[centroid_num].size() - 1] = nn_centroids_raw[centroid_num].top().second;
-                    nn_centroids_raw[centroid_num].pop();
-                }
 
                 /** Pruning **/
                 //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
@@ -375,6 +387,52 @@ namespace hnswlib {
 //            }
 //        }
 
+        void train_norm_pq(idx_t n, const float *x)
+        {
+            idx_t *assigned = new idx_t [n]; // assignement to coarse centroids
+            assign (n, x, assigned);
+
+            float *residuals = new float [n * d];
+            compute_residuals (n, x, residuals, assigned);
+
+            uint8_t * xcodes = new uint8_t [n * code_size];
+            pq->compute_codes (residuals, xcodes, n);
+
+            float *decoded_residuals = new float[n * d];
+            pq->decode(xcodes, decoded_residuals, n);
+
+            float *reconstructed_x = new float[n * d];
+            reconstruct(n, reconstructed_x, decoded_residuals, assigned);
+
+            float *trainset = new float[n];
+            faiss::fvec_norms_L2sqr (trainset, reconstructed_x, d, n);
+
+            norm_pq->verbose = true;
+            norm_pq->train (n, trainset);
+
+            delete assigned;
+            delete residuals;
+            delete xcodes;
+            delete decoded_residuals;
+            delete reconstructed_x;
+            delete trainset;
+        }
+
+        void train_residual_pq(idx_t n, const float *x)
+        {
+            idx_t *assigned = new idx_t [n];
+            assign (n, x, assigned);
+
+            std::vector<float> residuals(n * d);
+            compute_residuals (n, x, residuals, assigned);
+
+            printf ("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
+                    pq->M, pq->ksub, n, d);
+            pq->verbose = true;
+            pq->train (n, residuals);
+
+            delete assigned;
+        }
 
 	private:
         float *dis_table;
