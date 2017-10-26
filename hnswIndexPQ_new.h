@@ -118,7 +118,7 @@ namespace hnswlib {
                 std::vector<idx_t> &nn_centroids = nn_centroid_idxs[centroid_num];
                 while (nn_centroids_raw[centroid_num].size() > 1) {
                     nn_centroids[nn_centroids_raw[centroid_num].size() - 1] = nn_centroids_raw.top().second;
-                    nn_centroids_raw[centroid_num.pop();
+                    nn_centroids_raw[centroid_num].pop();
                 }
 
                 /** Pruning **/
@@ -161,12 +161,12 @@ namespace hnswlib {
                     /** Find subcentroid idx **/
                     std::priority_queue<std::pair<float, idx_t>> max_heap;
                     for (int subc = 0; subc < nsubc; subc++) {
-                        const float *subcentroid = subcentroids + subc * d;
+                        const float *subcentroid = subcentroids.data() + subc * d;
                         float dist = faiss::fvec_L2sqr(subcentroid, point, d);
                         max_heap.emplace(std::make_pair(-dist, subc));
                     }
                     idx_t subcentroid_idx = max_heap.top().second;
-                    const float *subcentroid = subcentroids + subcentroid_idx * d;
+                    const float *subcentroid = subcentroids.data() + subcentroid_idx * d;
 
                     ids[centroid_num][subcentroid_idx].push_back(idx);
                     modified_average += -max_heap.top().first;
@@ -179,7 +179,7 @@ namespace hnswlib {
 
                     /** Compute norm code **/
                     float decoded_residuals[d];
-                    index->pq->decode(xcodes, decoded_residuals);
+                    index->pq->decode(xcode, decoded_residuals);
 
                     float reconstructed_x[d];
                     add_vectors(reconstructed_x, decoded_residuals, subcentroid);
