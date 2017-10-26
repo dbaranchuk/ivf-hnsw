@@ -173,7 +173,7 @@ namespace hnswlib {
             /** Adding groups to index **/
             std::cout << "Adding groups to index\n";
             int j1 = 0;
-            #pragma omp parallel for num_threads(18)
+            //#pragma omp parallel for num_threads(18)
             for (int c = 0; c < nc; c++) {
                 /** Read Original vectors from Group file**/
                 idx_t centroid_num;
@@ -183,7 +183,7 @@ namespace hnswlib {
 
                 const float *centroid;
 
-                #pragma omp critical
+                //#pragma omp critical
                 {
                     input_groups.read((char *) &groupsize, sizeof(int));
                     input_idxs.read((char *) &groupsize, sizeof(int));
@@ -261,7 +261,7 @@ namespace hnswlib {
                 norm_pq->compute_codes(norms.data(), xnorm_codes.data(), groupsize);
 
                 /** Add codes **/
-                #pragma omp critical
+                //#pragma omp critical
                 {
                     for (int i = 0; i < groupsize; i++) {
                         const idx_t idx = idxs[i];
@@ -630,7 +630,7 @@ namespace hnswlib {
     public:
         void compute_residuals(size_t n, float *residuals, const float *points, const float *subcentroids, const idx_t *keys)
 		{
-            //#pragma omp parallel for num_threads(16)
+            #pragma omp parallel for num_threads(16)
             for (idx_t i = 0; i < n; i++) {
                 const float *subcentroid = subcentroids + keys[i]*d;
                 const float *point = points + i*d;
@@ -642,7 +642,7 @@ namespace hnswlib {
 
         void reconstruct(size_t n, float *x, const float *decoded_residuals, const float *subcentroids, const idx_t *keys)
         {
-            //#pragma omp parallel for num_threads(16)
+            #pragma omp parallel for num_threads(16)
             for (idx_t i = 0; i < n; i++) {
                 const float *subcentroid = subcentroids + keys[i]*d;
                 const float *decoded_residual = decoded_residuals + i*d;
@@ -673,7 +673,7 @@ namespace hnswlib {
         void compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
                                       const float *points, const int groupsize)
         {
-            //#pragma omp parallel for num_threads(16)
+            #pragma omp parallel for num_threads(16)
             for (int i = 0; i < groupsize; i++) {
                 std::priority_queue<std::pair<float, idx_t>> max_heap;
                 for (int subc = 0; subc < nsubc; subc++) {
