@@ -132,7 +132,7 @@ namespace hnswlib {
         {
             #pragma omp parallel for num_threads(16)
             for (int i = 0; i < n; i++)
-                idxs[i] = index->quantizer->searchKnn(const_cast<float *>(data + i*d), 1).top().second;
+                idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i*d), 1).top().second;
         }
 
         void add(const char *path_groups, const char *path_idxs)
@@ -310,7 +310,7 @@ namespace hnswlib {
                 std::vector<uint8_t> norm_code = group_norm_codes[subc];
                 int groupsize = norm_code.size();
 
-                index->norm_pq->decode(norm_code.data(), norms.data(), groupsize);
+                norm_pq->decode(norm_code.data(), norms.data(), groupsize);
 
                 for (int i = 0; i < groupsize; i++){
                     float q_r = fstdistfunc(code.data() + i*code_size);
@@ -626,10 +626,10 @@ namespace hnswlib {
             int dim = code_size >> 2;
             int m = 0;
             for (int i = 0; i < dim; i++) {
-                result += dis_table[index->pq->ksub * m + code[m]]; m++;
-                result += dis_table[index->pq->ksub * m + code[m]]; m++;
-                result += dis_table[index->pq->ksub * m + code[m]]; m++;
-                result += dis_table[index->pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[pq->ksub * m + code[m]]; m++;
             }
             return result;
         }
@@ -669,13 +669,6 @@ namespace hnswlib {
             for (int i = 0; i < d; i++)
                 target[i] = x[i] - y[i];
         }
-
-//        void normalize_vector(float *x)
-//        {
-//            float norm = sqrt(faiss::fvec_norm_L2sqr(x, d));
-//            for (int i = 0; i < d; i++)
-//                x[i] /= norm;
-//        }
 
         void linear_op(float *target, const float *x, const float *y, const float alpha)
         {
