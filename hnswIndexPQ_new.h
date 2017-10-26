@@ -33,10 +33,10 @@ namespace hnswlib {
 	{
         Index *index;
 
-		size_t d;
-		size_t nc;
-        size_t nsubc;
-        size_t code_size;
+		size_t d;             /** Vector Dimension **/
+		size_t nc;            /** Number of Centroids **/
+        size_t nsubc;         /** Number of Subcentroids **/
+        size_t code_size;     /** PQ Code Size **/
 
         /** Query members **/
         size_t nprobe = 16;
@@ -95,30 +95,16 @@ namespace hnswlib {
                 }
             }
 
-//            /** Add elements by batches **/
-//            const int batch_size = 1000;
-//            std::ifstream input_groups(path_groups, ios::binary);
-//            std::ifstream input_idxs(path_idxs, ios::binary);
-//
-//            double baseline_average = 0.0;
-//            double modified_average = 0.0;
-//
-//            std::vector< std::vector<float> > batch(batch_size);
-//            std::vector< std::vector<float> > batch_idxs(batch_size);
-//
-//            for (int i = 0; i < batch_size; i++){
-//                input_groups.read((char *) &groupsize, sizeof(int));
-//                input_idxs.read((char *) &groupsize, sizeof(int));
-//
-//                batch[i].reserve(groupsize * d);
-//                batch_idxs[i].reserve(groupsize);
-//
-//                input_groups.read((char *) batch[i].data(), groupsize * d * sizeof(float));
-//                input_idxs.read((char *) batch_idxs[i].data(), groupsize * sizeof(idx_t));
-//            }
+            FILE *fout = fopen("/home/dbaranchuk/data/groups/nn_centroid_idxs.ivecs", "wb");
+            for(int i = 0; i < nc; i++) {
+                int size = nn_centroid_idxs[i].size();
+                fwrite(&size, sizeof(int), 1, fout);
+                fwrite(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fout);
+            }
+            fclose(fout);
 
             int j1 = 0;
-            //#pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(16)
+            #pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(16)
             for (int c = 0; c < nc; c++) {
                 /** Read Original vectors from Group file**/
                 idx_t centroid_num;
@@ -290,6 +276,7 @@ namespace hnswlib {
             fwrite(&nsubc, sizeof(size_t), 1, fout);
 
             idx_t size;
+            /** Save Vector Indexes per  **/
             for (size_t i = 0; i < nc; i++)
                 for (size_t j = 0; j < nsubc; j++) {
                     size = ids[i][j].size();
@@ -297,7 +284,7 @@ namespace hnswlib {
                     fwrite(ids[i][j].data(), sizeof(idx_t), size, fout);
                 }
 
-
+            /** Save PQ Codes **/
             for(int i = 0; i < nc; i++)
                 for (size_t j = 0; j < nsubc; j++) {
                     size = codes[i][j].size();
@@ -305,7 +292,7 @@ namespace hnswlib {
                     fwrite(codes[i][j].data(), sizeof(uint8_t), size, fout);
                 }
 
-
+            /** Save Norm Codes **/
             for(int i = 0; i < nc; i++)
                 for (size_t j = 0; j < nsubc; j++) {
                     size = norm_codes[i][j].size();
@@ -313,12 +300,14 @@ namespace hnswlib {
                     fwrite(norm_codes[i][j].data(), sizeof(uint8_t), size, fout);
                 }
 
+            /** Save NN Centroid Indexes **/
             for(int i = 0; i < nc; i++) {
                 size = nn_centroid_idxs[i].size();
                 fwrite(&size, sizeof(idx_t), 1, fout);
                 fwrite(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fout);
             }
 
+            /** Save Alphas **/
             fwrite(alphas.data(), sizeof(float), nc, fout);
 
             fclose(fout);
