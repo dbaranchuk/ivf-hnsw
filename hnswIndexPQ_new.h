@@ -433,7 +433,7 @@ namespace hnswlib {
                 const float *point_vector = point_vectors + i * d;
                 std::priority_queue<std::pair<float, float>> max_heap;
 
-                for (int subc = 0; c < nsubc; subc++){
+                for (int subc = 0; subc < nsubc; subc++){
                     const float *centroid_vector = centroid_vectors + subc * d;
                     float alpha = faiss::fvec_inner_product (centroid_vector, point_vector, d);
 
@@ -441,7 +441,7 @@ namespace hnswlib {
 
                     linear_op(subcentroid.data(), centroid_vector, centroid, alpha);
 
-                    float dist = faiss::fvec_L2sqr(point_vector, subcentroid.data(), vecdim);
+                    float dist = faiss::fvec_L2sqr(point_vector, subcentroid.data(), d);
                     max_heap.emplace(std::make_pair(-dist, alpha));
                 }
                 float optim_alpha = max_heap.top().second;
