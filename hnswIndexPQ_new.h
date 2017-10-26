@@ -85,6 +85,9 @@ namespace hnswlib {
             double baseline_average = 0.0;
             double modified_average = 0.0;
 
+            std::ifstream input_groups(path_groups, ios::binary);
+            std::ifstream input_idxs(path_idxs, ios::binary);
+
             /** Find NN centroids to source centroid **/
             std::cout << "Find NN centroids to source centroids\n";
             #pragma omp parallel for num_threads(16)
@@ -380,52 +383,52 @@ namespace hnswlib {
 //            }
 //        }
 
-        void train_norm_pq(idx_t n, const float *x)
-        {
-            idx_t *assigned = new idx_t [n]; // assignement to coarse centroids
-            assign (n, x, assigned);
-
-            float *residuals = new float [n * d];
-            compute_residuals (n, x, residuals, assigned);
-
-            uint8_t * xcodes = new uint8_t [n * code_size];
-            pq->compute_codes (residuals, xcodes, n);
-
-            float *decoded_residuals = new float[n * d];
-            pq->decode(xcodes, decoded_residuals, n);
-
-            float *reconstructed_x = new float[n * d];
-            reconstruct(n, reconstructed_x, decoded_residuals, assigned);
-
-            float *trainset = new float[n];
-            faiss::fvec_norms_L2sqr (trainset, reconstructed_x, d, n);
-
-            norm_pq->verbose = true;
-            norm_pq->train (n, trainset);
-
-            delete assigned;
-            delete residuals;
-            delete xcodes;
-            delete decoded_residuals;
-            delete reconstructed_x;
-            delete trainset;
-        }
-
-        void train_residual_pq(idx_t n, const float *x)
-        {
-            idx_t *assigned = new idx_t [n];
-            assign (n, x, assigned);
-
-            std::vector<float> residuals(n * d);
-            compute_residuals (n, x, residuals, assigned);
-
-            printf ("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
-                    pq->M, pq->ksub, n, d);
-            pq->verbose = true;
-            pq->train (n, residuals);
-
-            delete assigned;
-        }
+//        void train_norm_pq(idx_t n, const float *x)
+//        {
+//            idx_t *assigned = new idx_t [n]; // assignement to coarse centroids
+//            assign (n, x, assigned);
+//
+//            float *residuals = new float [n * d];
+//            compute_residuals (n, x, residuals, assigned);
+//
+//            uint8_t * xcodes = new uint8_t [n * code_size];
+//            pq->compute_codes (residuals, xcodes, n);
+//
+//            float *decoded_residuals = new float[n * d];
+//            pq->decode(xcodes, decoded_residuals, n);
+//
+//            float *reconstructed_x = new float[n * d];
+//            reconstruct(n, reconstructed_x, decoded_residuals, assigned);
+//
+//            float *trainset = new float[n];
+//            faiss::fvec_norms_L2sqr (trainset, reconstructed_x, d, n);
+//
+//            norm_pq->verbose = true;
+//            norm_pq->train (n, trainset);
+//
+//            delete assigned;
+//            delete residuals;
+//            delete xcodes;
+//            delete decoded_residuals;
+//            delete reconstructed_x;
+//            delete trainset;
+//        }
+//
+//        void train_residual_pq(idx_t n, const float *x)
+//        {
+//            idx_t *assigned = new idx_t [n];
+//            assign (n, x, assigned);
+//
+//            std::vector<float> residuals(n * d);
+//            compute_residuals (n, x, residuals, assigned);
+//
+//            printf ("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
+//                    pq->M, pq->ksub, n, d);
+//            pq->verbose = true;
+//            pq->train (n, residuals);
+//
+//            delete assigned;
+//        }
 
 	private:
         float *dis_table;
