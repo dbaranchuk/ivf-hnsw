@@ -54,7 +54,7 @@ namespace hnswlib {
                 ids[i].reserve(nsubc);
                 codes[i].reserve(nsubc);
                 norm_codes[i].reserve(nsubc);
-                nn_centroids_idxs[i].reserve(nsubc);
+                nn_centroid_idxs[i].reserve(nsubc);
             }
         }
 
@@ -76,9 +76,10 @@ namespace hnswlib {
             std::vector<std::priority_queue<std::pair<float, idx_t>>> nn_centroids_raw(nc);
 
             #pragma omp parallel for num_threads(16)
-            for (int i = 0; i < nc; i++)
-                nn_centroids_raw[i] = quantizer->searchKnn((void *) centroid, nsubc + 1);
-
+            for (int i = 0; i < nc; i++) {
+                const float *centroid = (float *) quantizer->getDataByInternalId(i);
+                nn_centroids_raw[i] = index->quantizer->searchKnn((void *) centroid, nsubc + 1);
+            }
 
             int j1 = 0;
 //#pragma omp parallel for num_threads(16)
