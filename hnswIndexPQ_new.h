@@ -82,7 +82,7 @@ namespace hnswlib {
         {
             #pragma omp parallel for num_threads(16)
             for (int i = 0; i < n; i++)
-                idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i*d), 1).top().second;
+                idxs[i] = index->quantizer->searchKnn(const_cast<float *>(data + i*d), 1).top().second;
         }
 
         void add(const char *path_groups, const char *path_idxs)

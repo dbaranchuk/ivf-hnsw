@@ -764,9 +764,13 @@ void hybrid_test(const char *path_centroids,
             read_pq(path_modified_norm_pq, index->norm_pq);
         }
         else {
-            index->train_pq(nt, trainvecs.data());
-            std::cout << "Saving norm PQ codebook to " << path_norm_pq << std::endl;
-            write_pq(path_norm_pq, index->norm_pq);
+            modifiedIndex->train_pq(nt, trainvecs.data());
+
+            std::cout << "Saving PQ codebook to " << path_modified_pq << std::endl;
+            write_pq(path_modified_pq, index->pq);
+
+            std::cout << "Saving norm PQ codebook to " << path_modified_norm_pq << std::endl;
+            write_pq(path_modified_norm_pq, index->norm_pq);
         }
 
         modifiedIndex->add(path_groups, path_idxs);
