@@ -613,9 +613,6 @@ void check_groups(const char *path_data, const char *path_precomputed_idxs,
         idx_set.insert(group_idxs[i]);
 
     /** Loop **/
-    std::ifstream base_input(path_data, ios::binary);
-    std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-
     const int batch_size = 1000000;
     std::ifstream base_input(path_data, ios::binary);
     std::ifstream idx_input(path_precomputed_idxs, ios::binary);
