@@ -442,9 +442,6 @@ namespace hnswlib {
 //
         void train_pq(const idx_t n, const float *x)
         {
-            if (n != 131072)
-                return;
-
             std::vector< float > train_norms;
             std::vector< float > train_residuals;
 
@@ -462,7 +459,7 @@ namespace hnswlib {
             for (auto p : group_map) {
                 const idx_t centroid_num = p.first;
                 const float *centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
-                const float *data = p.second;
+                const vector<float> data = p.second;
                 const int groupsize = data.size() / d;
 
                 std::vector<idx_t> nn_centroids(nsubc);
@@ -534,10 +531,10 @@ namespace hnswlib {
             printf ("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
                     index->pq->M, index->pq->ksub, n, d);
             index->pq->verbose = true;
-            index->pq->train (n, train_residuals);
+            index->pq->train (n, train_residuals.data());
 
             index->norm_pq->verbose = true;
-            index->norm_pq->train (n, train_norms);
+            index->norm_pq->train (n, train_norms.data());
 
         }
 

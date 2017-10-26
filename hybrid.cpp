@@ -754,7 +754,7 @@ void hybrid_test(const char *path_centroids,
         const char *path_idxs = "/home/dbaranchuk/data/groups/idxs999973.ivecs";
 
         ModifiedIndex *modifiedIndex = new ModifiedIndex(index);
-        
+
         /** Train PQ **/
         if (exists_test(path_modified_pq) && exists_test(path_modified_norm_pq)) {
             std::cout << "Loading PQ codebook from " << path_modified_pq << std::endl;
