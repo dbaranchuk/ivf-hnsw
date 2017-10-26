@@ -11,6 +11,22 @@
 
 using namespace std;
 
+class StopW {
+    std::chrono::steady_clock::time_point time_begin;
+public:
+    StopW() {
+        time_begin = std::chrono::steady_clock::now();
+    }
+    float getElapsedTimeMicro() {
+        std::chrono::steady_clock::time_point time_end = std::chrono::steady_clock::now();
+        return (std::chrono::duration_cast<std::chrono::microseconds>(time_end - time_begin).count());
+    }
+    void reset() {
+        time_begin = std::chrono::steady_clock::now();
+    }
+
+};
+
 namespace hnswlib {
 
     struct ModifiedIndex
@@ -64,7 +80,7 @@ namespace hnswlib {
 
         void add(const char *path_groups, const char *path_idxs)
         {
-            omp_set_num_threads(16);
+            StopW stopw = StopW();
 
             std::ifstream input_groups(path_groups, ios::binary);
             std::ifstream input_idxs(path_idxs, ios::binary);
@@ -76,14 +92,14 @@ namespace hnswlib {
             std::vector<std::priority_queue<std::pair<float, idx_t>>> nn_centroids_raw(nc);
 
             std::cout << "Find NN centroids to source centroids\n";
-            #pragma omp parallel for
+            #pragma omp parallel for num_threads(16)
             for (int i = 0; i < nc; i++) {
                 const float *centroid = (float *) index->quantizer->getDataByInternalId(i);
                 nn_centroids_raw[i] = index->quantizer->searchKnn((void *) centroid, nsubc + 1);
             }
 
             int j1 = 0;
-            #pragma omp parallel for reduction(+:baseline_average, modified_average)
+            #pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(16)
             for (int c = 0; c < nc; c++) {
                 /** Read Original vectors from Group file**/
                 idx_t centroid_num;
@@ -193,7 +209,7 @@ namespace hnswlib {
             }
             std::cout << "[Baseline] Average Distance: " << baseline_average / 1000000000 << std::endl;
             std::cout << "[Modified] Average Distance: " << modified_average / 1000000000 << std::endl;
-
+            std::cout << "Time(s): " << stopw.getElapsedTimeMicro() / 1000000 << std::endl;
             input_groups.close();
             input_idxs.close();
         }
