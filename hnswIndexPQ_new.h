@@ -7,30 +7,9 @@
 #include <limits>
 #include <cmath>
 
-#include "L2space.h"
-#include "hnswalg.h"
-#include <faiss/ProductQuantizer.h>
-#include <faiss/utils.h>
-#include <faiss/index_io.h>
+#include "hnswIndexPQ.h"
 
 using namespace std;
-
-typedef unsigned int idx_t;
-typedef unsigned char uint8_t;
-
-template <typename format>
-void readXvec(std::ifstream &input, format *mass, const int d, const int n = 1)
-{
-    int in = 0;
-    for (int i = 0; i < n; i++) {
-        input.read((char *) &in, sizeof(int));
-        if (in != d) {
-            std::cout << "file error\n";
-            exit(1);
-        }
-        input.read((char *)(mass+i*d), in * sizeof(format));
-    }
-}
 
 namespace hnswlib {
 
@@ -55,8 +34,7 @@ namespace hnswlib {
         std::vector < std::vector < idx_t > > nn_centroid_idxs;
         std::vector < float > alphas;
 
-
-        std::vector < float > c_norm_table;
+        //std::vector < float > c_norm_table;
 
     public:
 		ModifiedIndex(Index *trained_index, size_t nsubcentroids = 128):
@@ -74,6 +52,8 @@ namespace hnswlib {
 
             for (int i = 0; i < nc; i++){
                 ids[i].reserve(nsubc);
+                codes[i].reserve(nsubc);
+                norm_codes[i].reserve(nsubc);
                 nn_centroids_idxs[i].reserve(nsubc);
             }
         }
@@ -82,17 +62,25 @@ namespace hnswlib {
 		~ModifiedIndex() {}
 
 
-        void add(const char *path_groups, const char *path_precomputed_idxs)
+        void add(const char *path_groups, const char *path_idxs)
         {
             StopW stopw = StopW();
 
             int total_groupsizes = 0;
-            const char *path_groups = "/home/dbaranchuk/data/groups/groups999973.dat";
 
-            std::ifstream input(path_groups, ios::binary);
+            std::ifstream input_groups(path_groups, ios::binary);
+            std::ifstream input_idxs(path_idxs, ios::binary);
 
             double baseline_average = 0.0;
             double modified_average = 0.0;
+
+            /** Find NN centroids to source centroid **/
+            std::vector<std::priority_queue<std::pair<float, idx_t>>> nn_centroids_raw(nc);
+
+            #pragma omp parallel for num_threads(16)
+            for (int i = 0; i < nc; i++)
+                nn_centroids_raw[i] = quantizer->searchKnn((void *) centroid, nsubc + 1);
+
 
             int j1 = 0;
 //#pragma omp parallel for num_threads(16)
@@ -101,18 +89,25 @@ namespace hnswlib {
                 idx_t centroid_num;
                 int groupsize;
                 std::vector<float> data;
+                std::vector<idx_t> idxs;
+
                 const float *centroid;
 
 //#pragma omp critical
                 {
-                    input.read((char *) &groupsize, sizeof(int));
-                    data.reserve(groupsize * vecdim);
-                    input.read((char *) data.data(), groupsize * vecdim * sizeof(float));
+                    input_groups.read((char *) &groupsize, sizeof(int));
+                    input_idxs.read((char *) &groupsize, sizeof(int));
+
+                    data.reserve(groupsize * d);
+                    idxs.reserve(groupsize);
+
+                    input_groups.read((char *) data.data(), groupsize * d * sizeof(float));
+                    input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
 
                     centroid_num = j1++;
                     centroid = (float *) quantizer->getDataByInternalId(centroid_num);
 
-                    if (j1 % 100000 == 0)
+                    if (j1 % 10000 == 0)
                         std::cout << j1 << std::endl;
 
                     total_groupsizes += groupsize;
@@ -120,14 +115,12 @@ namespace hnswlib {
                         continue;
                 }
 
-                /** Find NN centroids to source centroid **/
-                auto nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
 
                 /** Remove source centroid from consideration **/
                 std::vector<idx_t> &nn_centroids = nn_centroid_idxs[centroid_num];
-                while (nn_centroids_raw.size() > 1) {
-                    nn_centroids[nn_centroids_raw.size() - 1] = nn_centroids_raw.top().second;
-                    nn_centroids_raw.pop();
+                while (nn_centroids_raw[centroid_num].size() > 1) {
+                    nn_centroids[nn_centroids_raw[centroid_num].size() - 1] = nn_centroids_raw.top().second;
+                    nn_centroids_raw[centroid_num.pop();
                 }
 
                 /** Pruning **/
@@ -169,7 +162,6 @@ namespace hnswlib {
 
                     /** Find subcentroid idx **/
                     std::priority_queue<std::pair<float, idx_t>> max_heap;
-
                     for (int subc = 0; subc < nsubc; subc++) {
                         const float *subcentroid = subcentroids + subc * d;
                         float dist = faiss::fvec_L2sqr(subcentroid, point, d);
@@ -183,20 +175,20 @@ namespace hnswlib {
 
                     /** Compute code **/
                     uint8_t xcode[code_size];
-                    pq->compute_code(residual, xcode);
+                    index->pq->compute_code(residual, xcode);
                     for (int j = 0; j < d; j++)
                         codes[centroid_num][subcentroid_idx].push_back(xcode[j]);
 
                     /** Compute norm code **/
                     float decoded_residuals[d];
-                    pq->decode(xcodes, decoded_residuals);
+                    index->pq->decode(xcodes, decoded_residuals);
 
                     float reconstructed_x[d];
-                    reconstruct(reconstructed_x, decoded_residuals, subcentroid);
+                    add_vectors(reconstructed_x, decoded_residuals, subcentroid);
 
                     float norm = faiss::fvec_norm_L2sqr (reconstructed_x, d);
                     uint8_t xnorm_code;
-                    norm_pq->compute_code(norm, xnorm_code);
+                    index->norm_pq->compute_code(norm, xnorm_code);
                     norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_code);
                 }
             }
@@ -268,27 +260,39 @@ namespace hnswlib {
             fwrite(&d, sizeof(size_t), 1, fout);
             fwrite(&nc, sizeof(size_t), 1, fout);
             fwrite(&nsubc, sizeof(size_t), 1, fout);
-            fwrite(&nprobe, sizeof(size_t), 1, fout);
-            fwrite(&max_codes, sizeof(size_t), 1, fout);
 
-            size_t size;
-            for (size_t i = 0; i < csize; i++) {
-                size = ids[i].size();
-                fwrite(&size, sizeof(size_t), 1, fout);
-                fwrite(ids[i].data(), sizeof(idx_t), size, fout);
+            idx_t size;
+            for (size_t i = 0; i < nc; i++)
+                for (size_t j = 0; j < nsubc; j++) {
+                    size = ids[i][j].size();
+                    fwrite(&size, sizeof(idx_t), 1, fout);
+                    fwrite(ids[i][j].data(), sizeof(idx_t), size, fout);
+                }
+
+
+            for(int i = 0; i < nc; i++)
+                for (size_t j = 0; j < nsubc; j++) {
+                    size = codes[i][j].size();
+                    fwrite(&size, sizeof(idx_t), 1, fout);
+                    fwrite(codes[i][j].data(), sizeof(uint8_t), size, fout);
+                }
+
+
+            for(int i = 0; i < nc; i++)
+                for (size_t j = 0; j < nsubc; j++) {
+                    size = norm_codes[i][j].size();
+                    fwrite(&size, sizeof(idx_t), 1, fout);
+                    fwrite(norm_codes[i][j].data(), sizeof(uint8_t), size, fout);
+                }
+
+            for(int i = 0; i < nc; i++) {
+                size = nn_centroid_idxs[i].size();
+                fwrite(&size, sizeof(idx_t), 1, fout);
+                fwrite(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fout);
             }
 
-            for(int i = 0; i < csize; i++) {
-                size = codes[i].size();
-                fwrite(&size, sizeof(size_t), 1, fout);
-                fwrite(codes[i].data(), sizeof(uint8_t), size, fout);
-            }
+            fwrite(alphas.data(), sizeof(float), nc, fout);
 
-            for(int i = 0; i < csize; i++) {
-                size = norm_codes[i].size();
-                fwrite(&size, sizeof(size_t), 1, fout);
-                fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
-            }
             fclose(fout);
         }
 
@@ -299,42 +303,61 @@ namespace hnswlib {
             fread(&d, sizeof(size_t), 1, fin);
             fread(&nc, sizeof(size_t), 1, fin);
             fread(&nsubc, sizeof(size_t), 1, fin);
-            fread(&nprobe, sizeof(size_t), 1, fin);
-            fread(&max_codes, sizeof(size_t), 1, fin);
 
-            ids = std::vector<std::vector<idx_t>>(csize);
-            codes = std::vector<std::vector<uint8_t>>(csize);
-            norm_codes = std::vector<std::vector<uint8_t>>(csize);
+            ids.reserve(nc);
+            codes.reserve(nc);
+            norm_codes.reserve(nc);
+            alphas.reserve(nc);
+            nn_centroid_idxs.reserve(nc);
 
-            size_t size;
-            for (size_t i = 0; i < csize; i++) {
-                fread(&size, sizeof(size_t), 1, fin);
-                ids[i].resize(size);
-                fread(ids[i].data(), sizeof(idx_t), size, fin);
+            for (int i = 0; i < nc; i++){
+                ids[i].reserve(nsubc);
+                codes[i].reserve(nsubc);
+                norm_codes[i].reserve(nsubc);
             }
 
-            for(size_t i = 0; i < csize; i++){
-                fread(&size, sizeof(size_t), 1, fin);
-                codes[i].resize(size);
-                fread(codes[i].data(), sizeof(uint8_t), size, fin);
+            idx_t size;
+            for (size_t i = 0; i < nc; i++)
+                for (size_t j = 0; j < nsubc; j++) {
+                    fread(&size, sizeof(idx_t), 1, fin);
+                    ids[i][j].reserve(size);
+                    fread(ids[i][j].data(), sizeof(idx_t), size, fin);
+                }
+
+            for(size_t i = 0; i < nc; i++)
+                for (size_t j = 0; j < nsubc; j++) {
+                    fread(&size, sizeof(idx_t), 1, fin);
+                    codes[i][j].reserve(size);
+                    fread(codes[i][j].data(), sizeof(uint8_t), size, fin);
+                }
+
+            for(size_t i = 0; i < nc; i++)
+                for (size_t j = 0; j < nsubc; j++) {
+                    fread(&size, sizeof(idx_t), 1, fin);
+                    norm_codes[i][j].reserve(size);
+                    fread(norm_codes[i][j].data(), sizeof(uint8_t), size, fin);
+                }
+
+
+            for(int i = 0; i < nc; i++) {
+                fread(&size, sizeof(idx_t), 1, fin);
+                nn_centroids_idxs[i].reserve(size);
+                fread(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fin);
             }
 
-            for(size_t i = 0; i < csize; i++){
-                fread(&size, sizeof(size_t), 1, fin);
-                norm_codes[i].resize(size);
-                fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
-            }
+            fread(alphas.data(), sizeof(float), nc, fin);
+
             fclose(fin);
         }
 
-        void compute_centroid_norm_table()
-        {
-            c_norm_table.reserve(nc);
-            for (int i = 0; i < nc; i++){
-                const float *centroid = (float *)quantizer->getDataByInternalId(i);
-                faiss::fvec_norm_L2sqr(c_norm_table.data() + i, centroid, d);
-            }
-        }
+//        void compute_centroid_norm_table()
+//        {
+//            c_norm_table.reserve(nc);
+//            for (int i = 0; i < nc; i++){
+//                const float *centroid = (float *)quantizer->getDataByInternalId(i);
+//                faiss::fvec_norm_L2sqr(c_norm_table.data() + i, centroid, d);
+//            }
+//        }
 
 
 	private:

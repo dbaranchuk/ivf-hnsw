@@ -7,6 +7,7 @@
 #include <faiss/ProductQuantizer.h>
 #include <faiss/index_io.h>
 #include "hnswIndexPQ.h"
+#include "hnswIndexPQ_new.h"
 #include "hnswlib.h"
 
 #include <cmath>
@@ -685,8 +686,14 @@ void hybrid_test(const char *path_centroids,
         index->read(path_index);
         //compute_average_distance(path_data, path_centroids, path_precomputed_idxs, ncentroids, vecdim, vecsize);
 
-        save_groups(index, "/home/dbaranchuk/data/groups/groups999973.dat", path_data,
-                    path_precomputed_idxs, vecdim, vecsize);
+        const char *path_modified_index = "/home/dbaranchuk/modified_indexPQ16.index";
+        const char *path_groups = "/home/dbaranchuk/data/groups/groups999973.dat";
+        const char *path_idxs = "/home/dbaranchuk/data/groups/idxs999973.ivecs";
+        ModifiedIndex *modifiedIndex = new ModifiedIndex(index);
+        modifiedIndex->add(path_groups, path_idxs);
+        modifiedIndex->write(path_modified_index);
+        //save_groups(index, "/home/dbaranchuk/data/groups/groups999973.dat", path_data,
+        //            path_precomputed_idxs, vecdim, vecsize);
         //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {
         /** Add elements **/
