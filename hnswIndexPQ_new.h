@@ -99,7 +99,7 @@ namespace hnswlib {
             }
 
             int j1 = 0;
-            #pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(16)
+            //#pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(16)
             for (int c = 0; c < nc; c++) {
                 /** Read Original vectors from Group file**/
                 idx_t centroid_num;
@@ -109,7 +109,7 @@ namespace hnswlib {
 
                 const float *centroid;
 
-                #pragma omp critical
+                //#pragma omp critical
                 {
                     input_groups.read((char *) &groupsize, sizeof(int));
                     input_idxs.read((char *) &groupsize, sizeof(int));
@@ -142,8 +142,6 @@ namespace hnswlib {
 
                 /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
                 std::vector<float> normalized_centroid_vectors(nc * d);
-                std::vector<float> point_vectors(groupsize * d);
-
                 for (int i = 0; i < nsubc; i++) {
                     float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i]);
                     sub_vectors(normalized_centroid_vectors.data() + i * d, neighbor_centroid, centroid);
@@ -152,13 +150,8 @@ namespace hnswlib {
                     normalize_vector(normalized_centroid_vectors.data() + i * d);
                 }
 
-                for (int i = 0; i < groupsize; i++) {
-                    sub_vectors(point_vectors.data() + i * d, data.data() + i * d, centroid);
-                    baseline_average += faiss::fvec_norm_L2sqr(point_vectors.data() + i * d, d);
-                }
-
                 /** Find alphas for vectors **/
-                compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(), centroid, centroid_num, groupsize);
+                alphas[centroid_num] = compute_alpha(normalized_centroid_vectors.data(), data.data(), centroid, groupsize);
 
                 /** Compute final subcentroids **/
                 std::vector<float> subcentroids(nsubc * d);
@@ -169,41 +162,47 @@ namespace hnswlib {
                     linear_op(subcentroid, centroid_vector, centroid, alphas[centroid_num]);
                 }
 
-                for (int i = 0; i < groupsize; i++) {
-                    const float *point = data.data() + i * d;
-                    const float *residual = point_vectors.data() + i*d;
-                    const idx_t idx = idxs[i];
+                /** Find subcentroid idx **/
+                std::vector<idx_t> subcentroid_idxs(groupsize);
+                compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data.data(), groupsize);
 
-                    /** Find subcentroid idx **/
-                    std::priority_queue<std::pair<float, idx_t>> max_heap;
-                    for (int subc = 0; subc < nsubc; subc++) {
-                        const float *subcentroid = subcentroids.data() + subc * d;
-                        float dist = faiss::fvec_L2sqr(subcentroid, point, d);
-                        max_heap.emplace(std::make_pair(-dist, subc));
-                    }
-                    idx_t subcentroid_idx = max_heap.top().second;
-                    const float *subcentroid = subcentroids.data() + subcentroid_idx * d;
+                /** Compute Residuals **/
+                std::vector<float> residuals(groupsize*d);
+                compute_residuals(groupsize, residuals.data(), data.data(), subcentroids.data(), subcentroid_idxs.data());
+
+                /** Compute Codes **/
+                std::vector<uint8_t> xcodes(groupsize * code_size);
+                index->pq->compute_codes(point_vectors.data(), xcodes.data(), groupsize);
+
+                /** Decode Codes **/
+                std::vector<float> decoded_residuals(groupsize*d);
+                index->pq->decode(xcodes.data(), decoded_residuals.data(), groupsize);
+
+                /** Reconstruct Data **/
+                std::vector<float> reconstructed_x(groupsize*d);
+                reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(),
+                            subcentroids.data(), subcentroid_idxs.data());
+
+                /** Compute norms **/
+                std::vector<float> norms(groupsize);
+                faiss::fvec_norms_L2sqr (norms.data(), reconstructed_x.data(), d, groupsize);
+
+                /** Compute norm codes **/
+                std::vector<uint8_t > xnorm_codes(groupsize);
+                index->norm_pq->compute_codes(norms.data(), xnorm_codes.data());
+
+                /** Add codes **/
+                for (int i = 0; i < groupsize; i++) {
+                    const idx_t idx = idxs[i];
+                    const idx_t subcentroid_idx = subcentroid_idxs[i];
 
                     ids[centroid_num][subcentroid_idx].push_back(idx);
-                    modified_average += -max_heap.top().first;
-
-                    /** Compute code **/
-                    uint8_t xcode[code_size];
-                    index->pq->compute_code(residual, xcode);
-                    for (int j = 0; j < d; j++)
-                        codes[centroid_num][subcentroid_idx].push_back(xcode[j]);
-
-                    /** Compute norm code **/
-                    float decoded_residuals[d];
-                    index->pq->decode(xcode, decoded_residuals);
-
-                    float reconstructed_x[d];
-                    add_vectors(reconstructed_x, decoded_residuals, subcentroid);
-
-                    float norm = faiss::fvec_norm_L2sqr (reconstructed_x, d);
-                    uint8_t xnorm_code;
-                    index->norm_pq->compute_code(&norm, &xnorm_code);
                     norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_code);
+                    for (int j = 0; j < d; j++)
+                        codes[centroid_num][subcentroid_idx].push_back(xcodes[i*code_size + j]);
+                    
+                    baseline_average += faiss::fvec_L2sqr(centroid, point, d);
+                    modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
                 }
             }
             std::cout << "[Baseline] Average Distance: " << baseline_average / 1000000000 << std::endl;
@@ -411,6 +410,29 @@ namespace hnswlib {
 //            }
 //		}
 
+        void compute_residuals(size_t n, float *residuals, const float *points, const float *subcentroids, const idx_t *keys)
+		{
+            #pragma omp parallel for num_threads(16)
+            for (idx_t i = 0; i < n; i++) {
+                const float *subcentroid = subcentroids + keys[i]*d;
+                const float *point = points + i*d;
+                for (int j = 0; j < d; j++) {
+                    residuals[i*d + j] = point[j] - centroid[j];
+                }
+            }
+		}
+
+        void reconstruct(size_t n, float *x, const float *decoded_residuals, const float *subcentroids, const idx_t *keys)
+        {
+            #pragma omp parallel for num_threads(16)
+            for (idx_t i = 0; i < n; i++) {
+                const float *subcentroid = subcentroids + keys[i]*d;
+                const float *decoded_residual = decoded_residuals + i*d;
+                for (int j = 0; j < d; j++)
+                    x[i*d + j] = subcentroid[j] + decoded_residual[j];
+            }
+        }
+
         /** NEW **/
         void add_vectors(float *target, const float *x, const float *y)
         {
@@ -437,18 +459,38 @@ namespace hnswlib {
                 target[i] = x[i] * alpha + y[i];
         }
 
-        void compute_alpha(const float *centroid_vectors, const float *point_vectors,
-                            const float *centroid, const int centroid_num, const int groupsize)
+        void compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
+                                      const float *points, const int groupsize)
+        {
+            #pragma omp parallel for num_threads(16)
+            for (int i = 0; i < groupsize; i++) {
+                std::priority_queue<std::pair<float, idx_t>> max_heap;
+                for (int subc = 0; subc < nsubc; subc++) {
+                    const float *subcentroid = subcentroids + subc * d;
+                    const float *point = points + i * d;
+                    float dist = faiss::fvec_L2sqr(subcentroid, point, d);
+                    max_heap.emplace(std::make_pair(-dist, subc));
+                }
+                subcentroid_idxs[i] = max_heap.top().second;
+            }
+
+        }
+
+        void compute_alpha(const float *centroid_vectors, const float *points,
+                            const float *centroid, const int groupsize)
         {
             int counter_positive = 0;
             int counter_negative = 0;
             float positive_alpha = 0.0;
             float negative_alpha = 0.0;
 
-            for (int i = 0; i < groupsize; i++) {
-                const float *point_vector = point_vectors + i * d;
-                std::priority_queue<std::pair<float, float>> max_heap;
+            std::vector<float> point_vectors(groupsize*d);
 
+            for (int i = 0; i < groupsize; i++) {
+                float *point_vector = point_vectors.data() + i * d;
+                sub_vectors(point_vector, points.data() + i * d, centroid);
+
+                std::priority_queue<std::pair<float, float>> max_heap;
                 for (int subc = 0; subc < nsubc; subc++){
                     const float *centroid_vector = centroid_vectors + subc * d;
                     float alpha = faiss::fvec_inner_product (centroid_vector, point_vector, d);
@@ -481,7 +523,7 @@ namespace hnswlib {
 //        std::cout << "Negative Alpha: every alphas is positive" << std::endl;
 //    else
 //        std::cout << "Negative Alpha: " << negative_alpha << std::endl;
-            alphas[centroid_num] = (counter_positive > counter_negative) ? positive_alpha : negative_alpha;
+            return (counter_positive > counter_negative) ? positive_alpha : negative_alpha;
         }
 	};
 
