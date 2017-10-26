@@ -712,7 +712,7 @@ void hybrid_test(const char *path_centroids,
 
     /** Train PQ **/
     std::ifstream learn_input(path_learn, ios::binary);
-    int nt = 65536;
+    int nt = 131072;
     std::vector<float> trainvecs(nt * vecdim);
 
     readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
@@ -747,11 +747,28 @@ void hybrid_test(const char *path_centroids,
         index->read(path_index);
         //compute_average_distance(path_data, path_centroids, path_precomputed_idxs, ncentroids, vecdim, vecsize);
 
+        const char *path_modified_pq = "/home/dbaranchuk/modified_pq.pq";
+        const char *path_modified_norm_pq = "/home/dbaranchuk/modified_norm_pq.pq";
         const char *path_modified_index = "/home/dbaranchuk/modified_indexPQ16.index";
         const char *path_groups = "/home/dbaranchuk/data/groups/groups999973.dat";
         const char *path_idxs = "/home/dbaranchuk/data/groups/idxs999973.ivecs";
 
         ModifiedIndex *modifiedIndex = new ModifiedIndex(index);
+        
+        /** Train PQ **/
+        if (exists_test(path_modified_pq) && exists_test(path_modified_norm_pq)) {
+            std::cout << "Loading PQ codebook from " << path_modified_pq << std::endl;
+            read_pq(path_modified_pq, index->pq);
+
+            std::cout << "Loading norm PQ codebook from " << path_modified_norm_pq << std::endl;
+            read_pq(path_modified_norm_pq, index->norm_pq);
+        }
+        else {
+            index->train_pq(nt, trainvecs.data());
+            std::cout << "Saving norm PQ codebook to " << path_norm_pq << std::endl;
+            write_pq(path_norm_pq, index->norm_pq);
+        }
+
         modifiedIndex->add(path_groups, path_idxs);
         modifiedIndex->write(path_modified_index);
         delete modifiedIndex;

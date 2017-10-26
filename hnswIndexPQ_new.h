@@ -78,6 +78,12 @@ namespace hnswlib {
 
 		~ModifiedIndex() {}
 
+        void assign(size_t n, const float *data, idx_t *idxs)
+        {
+            #pragma omp parallel for num_threads(16)
+            for (int i = 0; i < n; i++)
+                idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i*d), 1).top().second;
+        }
 
         void add(const char *path_groups, const char *path_idxs)
         {
@@ -364,28 +370,28 @@ namespace hnswlib {
             for (size_t i = 0; i < nc; i++)
                 for (size_t j = 0; j < nsubc; j++) {
                     fread(&size, sizeof(idx_t), 1, fin);
-                    ids[i][j].reserve(size);
+                    ids[i][j].resize(size);
                     fread(ids[i][j].data(), sizeof(idx_t), size, fin);
                 }
 
             for(size_t i = 0; i < nc; i++)
                 for (size_t j = 0; j < nsubc; j++) {
                     fread(&size, sizeof(idx_t), 1, fin);
-                    codes[i][j].reserve(size);
+                    codes[i][j].resize(size);
                     fread(codes[i][j].data(), sizeof(uint8_t), size, fin);
                 }
 
             for(size_t i = 0; i < nc; i++)
                 for (size_t j = 0; j < nsubc; j++) {
                     fread(&size, sizeof(idx_t), 1, fin);
-                    norm_codes[i][j].reserve(size);
+                    norm_codes[i][j].resize(size);
                     fread(norm_codes[i][j].data(), sizeof(uint8_t), size, fin);
                 }
 
 
             for(int i = 0; i < nc; i++) {
                 fread(&size, sizeof(idx_t), 1, fin);
-                nn_centroid_idxs[i].reserve(size);
+                nn_centroid_idxs[i].resize(size);
                 fread(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fin);
             }
 
@@ -434,21 +440,106 @@ namespace hnswlib {
 //            delete trainset;
 //        }
 //
-//        void train_residual_pq(idx_t n, const float *x)
-//        {
-//            idx_t *assigned = new idx_t [n];
-//            assign (n, x, assigned);
-//
-//            std::vector<float> residuals(n * d);
-//            compute_residuals (n, x, residuals, assigned);
-//
-//            printf ("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
-//                    pq->M, pq->ksub, n, d);
-//            pq->verbose = true;
-//            pq->train (n, residuals);
-//
-//            delete assigned;
-//        }
+        void train_pq(const idx_t n, const float *x)
+        {
+            if (n != 131072)
+                return;
+
+            std::vector< float > train_norms;
+            std::vector< float > train_residuals;
+
+            std::vector< idx_t > assigned(n);
+            assign (n, x, assigned.data());
+
+            std::unordered_map <idx_t, std::vector<float>> group_map;
+
+            for (int i = 0; i < n; i++) {
+                idx_t key = assigned[i];
+                for (int j = 0; j < d; j++)
+                    group_map[key].push_back(x[i*d + j]);
+            }
+
+            for (auto p : group_map) {
+                const idx_t centroid_num = p.first;
+                const float *centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
+                const float *data = p.second;
+                const int groupsize = data.size() / d;
+
+                std::vector<idx_t> nn_centroids(nsubc);
+                std::vector<float> centroid_vector_norms(nsubc);
+                std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nsubc + 1);
+
+                while (nn_centroids_raw.size() > 1) {
+                    centroid_vector_norms[nn_centroids_raw.size() - 2] = nn_centroids_raw.top().first;
+                    nn_centroids[nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
+                    nn_centroids_raw.pop();
+                }
+
+                /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
+                std::vector<float> centroid_vectors(nsubc * d);
+                for (int i = 0; i < nsubc; i++) {
+                    float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i]);
+                    sub_vectors(centroid_vectors.data() + i * d, neighbor_centroid, centroid);
+                }
+
+                /** Find alphas for vectors **/
+                float alpha = compute_alpha(centroid_vectors.data(), data.data(), centroid,
+                                            centroid_vector_norms.data(), groupsize);
+
+                /** Compute final subcentroids **/
+                std::vector<float> subcentroids(nsubc * d);
+                for (int subc = 0; subc < nsubc; subc++) {
+                    const float *centroid_vector = centroid_vectors.data() + subc * d;
+                    float *subcentroid = subcentroids.data() + subc * d;
+
+                    linear_op(subcentroid, centroid_vector, centroid, alpha);
+                }
+
+                /** Find subcentroid idx **/
+                std::vector<idx_t> subcentroid_idxs(groupsize);
+                compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data.data(), groupsize);
+
+                /** Compute Residuals **/
+                std::vector<float> residuals(groupsize*d);
+                compute_residuals(groupsize, residuals.data(), data.data(), subcentroids.data(), subcentroid_idxs.data());
+
+                /** Compute Codes **/
+                std::vector<uint8_t> xcodes(groupsize * code_size);
+                index->pq->compute_codes(residuals.data(), xcodes.data(), groupsize);
+
+                /** Decode Codes **/
+                std::vector<float> decoded_residuals(groupsize*d);
+                index->pq->decode(xcodes.data(), decoded_residuals.data(), groupsize);
+
+                /** Reconstruct Data **/
+                std::vector<float> reconstructed_x(groupsize*d);
+                reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(),
+                            subcentroids.data(), subcentroid_idxs.data());
+
+                /** Compute norms **/
+                std::vector<float> group_norms(groupsize);
+                faiss::fvec_norms_L2sqr (group_norms.data(), reconstructed_x.data(), d, groupsize);
+
+                for (int i = 0; i < groupsize; i++){
+                    train_norms.push_back(group_norms[i]);
+
+                    for (int j = 0; j < d; j++)
+                        train_residuals.push_back(residuals[i*d + j]);
+                }
+                if (train_norms.size() > 65536)
+                    break;
+            }
+
+
+            printf ("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
+                    index->pq->M, index->pq->ksub, n, d);
+            index->pq->verbose = true;
+            index->pq->train (n, train_residuals);
+
+            index->norm_pq->verbose = true;
+            index->norm_pq->train (n, train_norms);
+
+        }
 
 	private:
         std::vector<float> dis_table;
