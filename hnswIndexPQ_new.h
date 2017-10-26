@@ -150,7 +150,7 @@ namespace hnswlib {
                 //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
 
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
-                const float *centroid_vector_norms = centroid_vector_norms_L2sqr[centroid_num];
+                const float *centroid_vector_norms = centroid_vector_norms_L2sqr[centroid_num].data();
 
                 /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
                 std::vector<float> centroid_vectors(nsubc * d);
