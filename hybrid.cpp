@@ -286,7 +286,7 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
             //if (idx_batch[i] < 900000)
             //    continue;
 
-            //idx_t cur_idx = idx_batch[i];
+            idx_t cur_idx = idx_batch[i];
             //for (int d = 0; d < vecdim; d++)
             //    data[cur_idx].push_back(batch[i * vecdim + d]);
             idxs[cur_idx].push_back(b*batch_size + i);
@@ -426,7 +426,7 @@ void check_idea(Index *index, const char *path_centroids,
         for (idx_t i = 50000; i < 150000; i += 10)
             centroid_nums.insert(i);
 
-        collect_groups(path_groups, path_data, path_precomputed_idxs, centroid_nums, vecdim, vecsize);
+        //collect_groups(path_groups, path_data, path_precomputed_idxs, centroid_nums, vecdim, vecsize);
     }
 
     std::ifstream input(path_groups, ios::binary);
