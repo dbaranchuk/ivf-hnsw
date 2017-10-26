@@ -124,7 +124,8 @@ namespace hnswlib {
                     centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
 
                     if (j1 % 10000 == 0)
-                        std::cout << (100. * j1)/1000000 << "%" << std::endl;
+                        std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
+                                  << (100. * j1) / 1000000 << "%" << std::endl;
                 }
 
                 if (groupsize == 0)
@@ -210,7 +211,6 @@ namespace hnswlib {
             }
             std::cout << "[Baseline] Average Distance: " << baseline_average / 1000000000 << std::endl;
             std::cout << "[Modified] Average Distance: " << modified_average / 1000000000 << std::endl;
-            std::cout << "Time(s): " << stopw.getElapsedTimeMicro() / 1000000 << std::endl;
             input_groups.close();
             input_idxs.close();
         }
