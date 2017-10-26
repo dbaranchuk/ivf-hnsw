@@ -200,7 +200,10 @@ namespace hnswlib {
                     norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_code);
                     for (int j = 0; j < d; j++)
                         codes[centroid_num][subcentroid_idx].push_back(xcodes[i*code_size + j]);
-                    
+
+
+                    const float *subcentroid = subcentroids.data() + subcentroid_idx*d;
+                    const float *point = data.data() + i * d;
                     baseline_average += faiss::fvec_L2sqr(centroid, point, d);
                     modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
                 }
@@ -476,7 +479,7 @@ namespace hnswlib {
 
         }
 
-        void compute_alpha(const float *centroid_vectors, const float *points,
+        float compute_alpha(const float *centroid_vectors, const float *points,
                             const float *centroid, const int groupsize)
         {
             int counter_positive = 0;
@@ -485,10 +488,13 @@ namespace hnswlib {
             float negative_alpha = 0.0;
 
             std::vector<float> point_vectors(groupsize*d);
-
+            #pragma omp parallel for num_threads(16)
             for (int i = 0; i < groupsize; i++) {
                 float *point_vector = point_vectors.data() + i * d;
                 sub_vectors(point_vector, points.data() + i * d, centroid);
+            }
+            for (int i = 0; i < groupsize; i++) {
+                const float *point_vector = point_vectors.data() + i * d;
 
                 std::priority_queue<std::pair<float, float>> max_heap;
                 for (int subc = 0; subc < nsubc; subc++){
