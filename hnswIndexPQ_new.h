@@ -222,7 +222,6 @@ namespace hnswlib {
                         for (int j = 0; j < d; j++)
                             codes[centroid_num][subcentroid_idx].push_back(xcodes[i * code_size + j]);
 
-
                         const float *subcentroid = subcentroids.data() + subcentroid_idx * d;
                         const float *point = data.data() + i * d;
                         baseline_average += faiss::fvec_L2sqr(centroid, point, d);
@@ -442,7 +441,7 @@ namespace hnswlib {
 //            delete reconstructed_x;
 //            delete trainset;
 //        }
-//
+
         void train_pq(const idx_t n, const float *x)
         {
             std::vector< float > train_norms;
