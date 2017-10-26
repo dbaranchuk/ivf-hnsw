@@ -713,7 +713,6 @@ void hybrid_test(const char *path_centroids,
     index->buildQuantizer(l2space, path_centroids, path_info, path_edges, 500);
     //index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
 
-
     /** Train PQ **/
     std::ifstream learn_input(path_learn, ios::binary);
     int nt = 131072;
@@ -728,6 +727,7 @@ void hybrid_test(const char *path_centroids,
         read_pq(path_pq, index->pq);
     }
     else {
+        std::cout << "Training PQ codebook " << std::endl;
         index->train_residual_pq(nt, trainvecs.data());
         std::cout << "Saving PQ codebook to " << path_pq << std::endl;
         write_pq(path_pq, index->pq);
