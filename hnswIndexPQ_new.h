@@ -237,8 +237,8 @@ namespace hnswlib {
         void group_search(const float *x, const float q_c,
                           std::priority_queue <std::pair<float, idx_t> > &topResults, const int centroid_num)
         {
-            const idx_t *nn_centroids = nn_centroid_idxs[centroid_num];
-            const float *centroid = (float *) index->quantizer->getDataByInternalId(i);
+            const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
+            const float *centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
             const std::vector< std::vector < idx_t > > &group_ids = ids[centroid_num];
             const std::vector< std::vector < uint8_t > > &group_codes = codes[centroid_num];
             const std::vector< std::vector < uint8_t > > &group_norm_codes = norm_codes[centroid_num];
