@@ -562,7 +562,7 @@ namespace hnswlib {
                 std::priority_queue<std::pair<float, float>> max_heap;
                 for (int subc = 0; subc < nsubc; subc++){
                     const float *centroid_vector = centroid_vectors + subc * d;
-                    const float centroid_vector_norm_L2sqr = centroid_vector_norms_L2sqr + subc * d;
+                    const float centroid_vector_norm_L2sqr = centroid_vector_norms_L2sqr[subc * d];
 
                     float alpha = faiss::fvec_inner_product (centroid_vector, point_vector, d);
                     alpha /= centroid_vector_norm_L2sqr;
