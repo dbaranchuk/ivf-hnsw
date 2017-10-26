@@ -120,7 +120,7 @@ namespace hnswlib {
                 {
                     readXvec<float>(input, mass, d);
                     if (++j1 % report_every == 0)
-                        std::cout << j1 / (0.01 * csize) << " %\n";
+                        std::cout << j1 / (0.01 * nc) << " %\n";
                 }
                 quantizer->addPoint((void *) (mass), (size_t) j1);
             }
