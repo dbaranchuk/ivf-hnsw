@@ -609,9 +609,10 @@ void check_groups(const char *path_data, const char *path_precomputed_idxs,
 
     /** Make set of idxs **/
     std::unordered_set<idx_t > idx_set;
-    for (int i = 0; i < groupsize; i++)
+    for (int i = 0; i < groupsize; i++) {
+        std::cout << group_idxs[i] << std::endl;
         idx_set.insert(group_idxs[i]);
-
+    }
     /** Loop **/
     const int batch_size = 1000000;
     std::ifstream base_input(path_data, ios::binary);
