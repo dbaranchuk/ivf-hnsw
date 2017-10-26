@@ -265,55 +265,12 @@ double compute_quantization_error(const float *reconstructed_x, const float *x,
     return error;
 }
 
-
-void collect_groups(const char *path_groups, const char *path_data, const char *path_precomputed_idxs,
-                 std::unordered_set<idx_t> centroid_nums, const int vecdim, const int vecsize)
-{
-    std::unordered_map<idx_t, std::vector<float>> data;
-    const int ncentroids = centroid_nums.size();
-
-    const int batch_size = 1000000;
-    std::ifstream base_input(path_data, ios::binary);
-    std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-    std::vector<float> batch(batch_size * vecdim);
-    std::vector<idx_t> idx_batch(batch_size);
-
-    for (int b = 0; b < (vecsize / batch_size); b++) {
-        readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-        readXvec<float>(base_input, batch.data(), vecdim, batch_size);
-
-        for (size_t i = 0; i < batch_size; i++) {
-            if (centroid_nums.count(idx_batch[i]) == 0)
-                continue;
-
-            for (int d = 0; d < vecdim; d++)
-                data[idx_batch[i]].push_back(batch[i * vecdim + d]);
-        }
-        if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
-    }
-    idx_input.close();
-    base_input.close();
-
-
-    FILE *fout = fopen(path_groups, "wb");
-    for (idx_t centroid_num : centroid_nums) {
-        fwrite(&centroid_num, sizeof(int), 1, fout);
-        auto group_data = data[centroid_num];
-        int groupsize = group_data.size() / vecdim;
-        fwrite(&groupsize, sizeof(int), 1, fout);
-        for (int i = 0; i < groupsize; i++) {
-            fwrite(&vecdim, sizeof(int), 1, fout);
-            fwrite(group_data.data() + i * vecdim, sizeof(float), vecdim, fout);
-        }
-    }
-    fclose(fout);
-}
-
 void save_groups(Index *index, const char *path_groups, const char *path_data,
                  const char *path_precomputed_idxs, const int vecdim, const int vecsize)
 {
     const int ncentroids = 999973;
-    std::vector<std::vector<float>> data(ncentroids);
+    //std::vector<std::vector<float>> data(ncentroids);
+    std::vector<std::vector<idx_t>> idxs(ncentroids);
 
     const int batch_size = 1000000;
     std::ifstream base_input(path_data, ios::binary);
@@ -326,12 +283,13 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
         readXvec<float>(base_input, batch.data(), vecdim, batch_size);
 
         for (size_t i = 0; i < batch_size; i++) {
-            if (idx_batch[i] < 900000)
-                continue;
+            //if (idx_batch[i] < 900000)
+            //    continue;
 
-            idx_t cur_idx = idx_batch[i];
-            for (int d = 0; d < vecdim; d++)
-                data[cur_idx].push_back(batch[i * vecdim + d]);
+            //idx_t cur_idx = idx_batch[i];
+            //for (int d = 0; d < vecdim; d++)
+            //    data[cur_idx].push_back(batch[i * vecdim + d]);
+            idxs[cur_idx].push_back(b*batch_size + i);
         }
 
         if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
@@ -339,9 +297,12 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
     idx_input.close();
     base_input.close();
 
-    FILE *fout = fopen(path_groups, "wb");
-    for (int i = 900000; i < ncentroids; i++) {
-        int groupsize = data[i].size() / vecdim;
+    //FILE *fout = fopen(path_groups, "wb");
+    const char *path_idxs = "/home/dbaranchuk/data/groups/idxs999973.ivecs";
+    FILE *fout = fopen(path_idxs, "wb");
+    for (int i = 0; i < ncentroids; i++) {
+        //int groupsize = data[i].size() / vecdim;
+        int groupsize = idxs[i].size();
 
         if (groupsize != index->ids[i].size()){
             std::cout << "Wrong groupsize: " << groupsize << " vs "
@@ -350,7 +311,8 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
         }
 
         fwrite(&groupsize, sizeof(int), 1, fout);
-        fwrite(data[i].data(), sizeof(float), data[i].size(), fout);
+        fwrite(idxs[i].data(), sizeof(idx_t), idxs[i].size(), fout);
+        //fwrite(data[i].data(), sizeof(float), data[i].size(), fout);
     }
 }
 
@@ -468,9 +430,9 @@ void check_idea(Index *index, const char *path_centroids,
     }
 
     std::ifstream input(path_groups, ios::binary);
+
     double baseline_average = 0.0;
     double modified_average = 0.0;
-
     double baseline_error = 0.0;
     double modified_error = 0.0;
 
@@ -609,13 +571,13 @@ void check_idea(Index *index, const char *path_centroids,
                         rx[j] = subcentroid[j] + decoded_residual[j];
                 }
             }
-            modified_error = compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
+            modified_error += compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
         }
     }
     std::cout << "[Global Baseline] Average Distance: " << baseline_average / total_groupsizes << std::endl;
     std::cout << "[Global Modified] Average Distance: " << modified_average / total_groupsizes << std::endl;
-    std::cout << "[Global Baseline] Average Error: " << baseline_error / ngroups << std::endl;
-    std::cout << "[Global Modified] Average Error: " << modified_error / ngroups << std::endl;
+    std::cout << "[Global Baseline] Average Error: " << baseline_error / total_groupsizes << std::endl;
+    std::cout << "[Global Modified] Average Error: " << modified_error / total_groupsizes << std::endl;
 
     std::cout << "Time(s): " << stopw.getElapsedTimeMicro() / 1000000 << std::endl;
     input.close();
@@ -723,9 +685,9 @@ void hybrid_test(const char *path_centroids,
         index->read(path_index);
         //compute_average_distance(path_data, path_centroids, path_precomputed_idxs, ncentroids, vecdim, vecsize);
 
-        //save_groups(index, "/home/dbaranchuk/data/groups/groups999973.dat", path_data,
-        //            path_precomputed_idxs, vecdim, vecsize);
-        check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
+        save_groups(index, "/home/dbaranchuk/data/groups/groups999973.dat", path_data,
+                    path_precomputed_idxs, vecdim, vecsize);
+        //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {
         /** Add elements **/
         size_t batch_size = 1000000;
