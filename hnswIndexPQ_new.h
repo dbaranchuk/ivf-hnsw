@@ -36,8 +36,6 @@ namespace hnswlib {
 
     struct ModifiedIndex
 	{
-        Index *index;
-
 		size_t d;             /** Vector Dimension **/
 		size_t nc;            /** Number of Centroids **/
         size_t nsubc;         /** Number of Subcentroids **/
@@ -243,11 +241,11 @@ namespace hnswlib {
 
                 /** Compute Codes **/
                 std::vector<uint8_t> xcodes(groupsize * code_size);
-                index->pq->compute_codes(residuals.data(), xcodes.data(), groupsize);
+                pq->compute_codes(residuals.data(), xcodes.data(), groupsize);
 
                 /** Decode Codes **/
                 std::vector<float> decoded_residuals(groupsize*d);
-                index->pq->decode(xcodes.data(), decoded_residuals.data(), groupsize);
+                pq->decode(xcodes.data(), decoded_residuals.data(), groupsize);
 
                 /** Reconstruct Data **/
                 std::vector<float> reconstructed_x(groupsize*d);
@@ -260,7 +258,7 @@ namespace hnswlib {
 
                 /** Compute norm codes **/
                 std::vector<uint8_t > xnorm_codes(groupsize);
-                index->norm_pq->compute_codes(norms.data(), xnorm_codes.data(), groupsize);
+                norm_pq->compute_codes(norms.data(), xnorm_codes.data(), groupsize);
 
                 /** Add codes **/
                 #pragma omp critical
