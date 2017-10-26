@@ -77,7 +77,7 @@ namespace hnswlib {
 
             #pragma omp parallel for num_threads(16)
             for (int i = 0; i < nc; i++) {
-                const float *centroid = (float *) quantizer->getDataByInternalId(i);
+                const float *centroid = (float *) index->quantizer->getDataByInternalId(i);
                 nn_centroids_raw[i] = index->quantizer->searchKnn((void *) centroid, nsubc + 1);
             }
 
@@ -104,7 +104,7 @@ namespace hnswlib {
                     input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
 
                     centroid_num = j1++;
-                    centroid = (float *) quantizer->getDataByInternalId(centroid_num);
+                    centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
 
                     if (j1 % 10000 == 0)
                         std::cout << j1 << std::endl;
@@ -118,19 +118,19 @@ namespace hnswlib {
                 /** Remove source centroid from consideration **/
                 std::vector<idx_t> &nn_centroids = nn_centroid_idxs[centroid_num];
                 while (nn_centroids_raw[centroid_num].size() > 1) {
-                    nn_centroids[nn_centroids_raw[centroid_num].size() - 1] = nn_centroids_raw.top().second;
+                    nn_centroids[nn_centroids_raw[centroid_num].size() - 1] = nn_centroids_raw[centroid_num].top().second;
                     nn_centroids_raw[centroid_num].pop();
                 }
 
                 /** Pruning **/
-                //quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
+                //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
 
                 /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
                 std::vector<float> normalized_centroid_vectors(nc * d);
                 std::vector<float> point_vectors(groupsize * d);
 
                 for (int i = 0; i < nsubc; i++) {
-                    float *neighbor_centroid = (float *) quantizer->getDataByInternalId(nn_centroids[i]);
+                    float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i]);
                     sub_vectors(normalized_centroid_vectors.data() + i * d, neighbor_centroid, centroid);
 
                     /** Normalize them **/
@@ -138,7 +138,7 @@ namespace hnswlib {
                 }
 
                 for (int i = 0; i < groupsize; i++) {
-                    sub_vectors(point_vectors.data() + i * vecdim, data.data() + i * d, centroid);
+                    sub_vectors(point_vectors.data() + i * d, data.data() + i * d, centroid);
                     baseline_average += faiss::fvec_norm_L2sqr(point_vectors.data() + i * d, d);
                 }
 
@@ -155,7 +155,7 @@ namespace hnswlib {
                 }
 
                 for (int i = 0; i < groupsize; i++) {
-                    const float *point = points + i * d;
+                    const float *point = data.data() + i * d;
                     const float *residual = point_vectors.data() + i*d;
                     const idx_t idx = idxs[i];
 
@@ -187,7 +187,7 @@ namespace hnswlib {
 
                     float norm = faiss::fvec_norm_L2sqr (reconstructed_x, d);
                     uint8_t xnorm_code;
-                    index->norm_pq->compute_code(norm, xnorm_code);
+                    index->norm_pq->compute_code(&norm, &xnorm_code);
                     norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_code);
                 }
             }
@@ -340,7 +340,7 @@ namespace hnswlib {
 
             for(int i = 0; i < nc; i++) {
                 fread(&size, sizeof(idx_t), 1, fin);
-                nn_centroids_idxs[i].reserve(size);
+                nn_centroid_idxs[i].reserve(size);
                 fread(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fin);
             }
 
