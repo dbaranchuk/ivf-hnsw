@@ -754,7 +754,6 @@ void hybrid_test(const char *path_centroids,
         const char *path_idxs = "/home/dbaranchuk/data/groups/idxs999973.ivecs";
 
         ModifiedIndex *modifiedIndex = new ModifiedIndex(index);
-
         /** Train PQ **/
         if (exists_test(path_modified_pq) && exists_test(path_modified_norm_pq)) {
             std::cout << "Loading PQ codebook from " << path_modified_pq << std::endl;
@@ -762,8 +761,7 @@ void hybrid_test(const char *path_centroids,
 
             std::cout << "Loading norm PQ codebook from " << path_modified_norm_pq << std::endl;
             read_pq(path_modified_norm_pq, index->norm_pq);
-        }
-        else {
+        } else {
             modifiedIndex->train_pq(nt, trainvecs.data());
 
             std::cout << "Saving PQ codebook to " << path_modified_pq << std::endl;
@@ -773,10 +771,53 @@ void hybrid_test(const char *path_centroids,
             write_pq(path_modified_norm_pq, index->norm_pq);
         }
 
-        modifiedIndex->add(path_groups, path_idxs);
-        modifiedIndex->write(path_modified_index);
-        delete modifiedIndex;
+        if (exists_test(path_modified_index)){
+            modifiedIndex.read(path_modified_index);
 
+        } else {
+            modifiedIndex->add(path_groups, path_idxs);
+            modifiedIndex->write(path_modified_index);
+        }
+
+
+        /** Parse groundtruth **/
+        vector<std::priority_queue< std::pair<float, labeltype >>> answers;
+        std::cout << "Parsing gt:\n";
+        get_gt<float>(massQA, qsize, answers, gt_dim);
+
+        /** Set search parameters **/
+        int correct = 0;
+        idx_t results[k];
+
+        modifiedIndex->max_codes = max_codes;
+        modifiedIndex->nprobe = nprobes;
+        modifiedIndex->index->quantizer->ef_ = efSearch;
+
+        /** Search **/
+        StopW stopw = StopW();
+        for (int i = 0; i < qsize; i++) {
+            modifiedIndex->search(massQ+i*vecdim, k, results);
+
+            std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
+            unordered_set<labeltype> g;
+
+            while (gt.size()) {
+                g.insert(gt.top().second);
+                gt.pop();
+            }
+
+            for (int j = 0; j < k; j++)
+                if (g.count(results[j]) != 0){
+                    correct++;
+                    break;
+                }
+        }
+        /**Represent results**/
+        float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
+        std::cout << "Recall@" << k << ": " << 1.0f*correct / qsize << std::endl;
+        std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
+
+        delete modifiedIndex;
         //save_groups(index, "/home/dbaranchuk/data/groups/groups999973.dat", path_data,
         //            path_precomputed_idxs, vecdim, vecsize);
         //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
