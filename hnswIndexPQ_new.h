@@ -172,7 +172,7 @@ namespace hnswlib {
 
                 /** Compute Codes **/
                 std::vector<uint8_t> xcodes(groupsize * code_size);
-                index->pq->compute_codes(point_vectors.data(), xcodes.data(), groupsize);
+                index->pq->compute_codes(residuals.data(), xcodes.data(), groupsize);
 
                 /** Decode Codes **/
                 std::vector<float> decoded_residuals(groupsize*d);
@@ -189,7 +189,7 @@ namespace hnswlib {
 
                 /** Compute norm codes **/
                 std::vector<uint8_t > xnorm_codes(groupsize);
-                index->norm_pq->compute_codes(norms.data(), xnorm_codes.data());
+                index->norm_pq->compute_codes(norms.data(), xnorm_codes.data(), groupsize);
 
                 /** Add codes **/
                 for (int i = 0; i < groupsize; i++) {
@@ -420,7 +420,7 @@ namespace hnswlib {
                 const float *subcentroid = subcentroids + keys[i]*d;
                 const float *point = points + i*d;
                 for (int j = 0; j < d; j++) {
-                    residuals[i*d + j] = point[j] - centroid[j];
+                    residuals[i*d + j] = point[j] - subcentroid[j];
                 }
             }
 		}
@@ -491,8 +491,9 @@ namespace hnswlib {
             #pragma omp parallel for num_threads(16)
             for (int i = 0; i < groupsize; i++) {
                 float *point_vector = point_vectors.data() + i * d;
-                sub_vectors(point_vector, points.data() + i * d, centroid);
+                sub_vectors(point_vector, points + i * d, centroid);
             }
+
             for (int i = 0; i < groupsize; i++) {
                 const float *point_vector = point_vectors.data() + i * d;
 
