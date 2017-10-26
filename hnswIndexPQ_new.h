@@ -514,9 +514,6 @@ namespace hnswlib {
                 for (int i = 0; i < groupsize; i++)
                     for (int j = 0; j < d; j++)
                         train_residuals.push_back(residuals[i * d + j]);
-
-                if (train_residuals.size()/d > 65536)
-                    break;
             }
 
             printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
@@ -606,9 +603,6 @@ namespace hnswlib {
 
                 for (int i = 0; i < groupsize; i++)
                     train_norms.push_back(group_norms[i]);
-
-                if (train_norms.size() > 65536)
-                    break;
             }
             printf("Training %zdx%zd product quantizer on %ld vectors in 1D\n",
                    norm_pq->M, norm_pq->ksub, train_norms.size());
