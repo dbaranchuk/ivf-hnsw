@@ -70,6 +70,9 @@ namespace hnswlib {
                 norm_codes[i].resize(nsubc);
                 nn_centroid_idxs[i].resize(nsubc);
             }
+
+            dis_table.resize(index->pq->ksub * index->pq->M);
+            norms.resize(65536);
         }
 
 
@@ -230,52 +233,66 @@ namespace hnswlib {
                 return a.first < b.first;
             }
         };
-//		void search (float *x, idx_t k, idx_t *results)
-//		{
-//            idx_t keys[nprobe];
-//            float q_c[nprobe];
-//            if (!norms)
-//                norms = new float[65536];
-//            if (!dis_table)
-//                dis_table = new float [pq->ksub * pq->M];
-//
-//            pq->compute_inner_prod_table(x, dis_table);
-//            std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
-//            //std::priority_queue<std::pair<float, idx_t>> topResults;
-//
-//            auto coarse = quantizer->searchKnn(x, nprobe);
-//
-//            for (int i = nprobe - 1; i >= 0; i--) {
-//                auto elem = coarse.top();
-//                q_c[i] = elem.first;
-//                keys[i] = elem.second;
-//                coarse.pop();
-//            }
-//
-//            for (int i = 0; i < nprobe; i++){
-//                idx_t key = keys[i];
-//                std::vector<uint8_t> code = codes[key];
-//                std::vector<uint8_t> norm_code = norm_codes[key];
-//                float term1 = q_c[i] - c_norm_table[key];
-//                int ncodes = norm_code.size();
-//
-//                norm_pq->decode(norm_code.data(), norms, ncodes);
-//
-//                for (int j = 0; j < ncodes; j++){
-//                    float q_r = fstdistfunc(code.data() + j*code_size);
-//                    float dist = term1 - 2*q_r + norms[j];
-//                    idx_t label = ids[key][j];
-//                    topResults.emplace(std::make_pair(-dist, label));
-//                }
-//                if (topResults.size() > max_codes)
-//                    break;
-//            }
-//
-//            for (int i = 0; i < k; i++) {
-//                results[i] = topResults.top().second;
-//                topResults.pop();
-//            }
-//		}
+
+        void group_search(const float *x, const float q_c,
+                          std::priority_queue <std::pair<float, idx_t> > &topResults, const int centroid_num)
+        {
+            const idx_t *nn_centroids = nn_centroid_idxs[centroid_num];
+            const float *centroid = (float *) index->quantizer->getDataByInternalId(i);
+            const std::vector< std::vector < idx_t > > &group_ids = ids[centroid_num];
+            const std::vector< std::vector < uint8_t > > &group_codes = codes[centroid_num];
+            const std::vector< std::vector < uint8_t > > &group_norm_codes = norm_codes[centroid_num];
+            const float alpha = alphas[centroid_num];
+
+            for (int subc = 0; subc < nsubc; subc++){
+                const float *nn_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[subc]);
+                const float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
+
+                std::vector<uint8_t> code = group_codes[subc];
+                std::vector<uint8_t> norm_code = group_norm_codes[subc];
+                int groupsize = norm_code.size();
+
+                index->norm_pq->decode(norm_code.data(), norms.data(), groupsize);
+
+                for (int i = 0; i < groupsize; i++){
+                    float q_r = fstdistfunc(code.data() + i*code_size);
+                    float dist = (alpha - 1) * q_c - alpha*q_s - 2*q_r + norms[i];
+                    idx_t label = group_ids[subc][i];
+                    topResults.emplace(std::make_pair(-dist, label));
+                }
+            }
+        }
+
+		void search(float *x, idx_t k, idx_t *results)
+		{
+            idx_t keys[nprobe];
+            float q_c[nprobe];
+
+            index->pq->compute_inner_prod_table(x, dis_table.data());
+            //std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
+            std::priority_queue<std::pair<float, idx_t>> topResults;
+
+            auto coarse = index->quantizer->searchKnn(x, nprobe);
+
+            for (int i = nprobe - 1; i >= 0; i--) {
+                auto elem = coarse.top();
+                q_c[i] = elem.first;
+                keys[i] = elem.second;
+                coarse.pop();
+            }
+
+            for (int i = 0; i < nprobe; i++){
+                idx_t key = keys[i];
+                group_search(x, q_c[i], topResults, key);
+                if (topResults.size() > max_codes)
+                    break;
+            }
+
+            for (int i = 0; i < k; i++) {
+                results[i] = topResults.top().second;
+                topResults.pop();
+            }
+		}
 
         void write(const char *path_index)
         {
@@ -434,8 +451,8 @@ namespace hnswlib {
 //        }
 
 	private:
-        float *dis_table;
-        float *norms;
+        std::vector<float> dis_table;
+        std::vector<float> norms;
 
         float fstdistfunc(uint8_t *code)
         {
@@ -451,25 +468,6 @@ namespace hnswlib {
             return result;
         }
     public:
-//        void reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys)
-//        {
-//            for (idx_t i = 0; i < n; i++) {
-//                float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
-//                for (int j = 0; j < d; j++)
-//                    x[i*d + j] = centroid[j] + decoded_residuals[i*d + j];
-//            }
-//        }
-//
-//		void compute_residuals(size_t n, float *residuals, const float *x, const idx_t *keys)
-//		{
-//            for (idx_t i = 0; i < n; i++) {
-//                float *centroid = (float *) index->quantizer->getDataByInternalId(keys[i]);
-//                for (int j = 0; j < d; j++) {
-//                    residuals[i*d + j] = x[i*d + j] - centroid[j];
-//                }
-//            }
-//		}
-
         void compute_residuals(size_t n, float *residuals, const float *points, const float *subcentroids, const idx_t *keys)
 		{
             //#pragma omp parallel for num_threads(16)
