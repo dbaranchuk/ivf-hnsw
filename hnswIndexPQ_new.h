@@ -7,9 +7,14 @@
 #include <limits>
 #include <cmath>
 
-#include "hnswIndexPQ.h"
+#include "L2space.h"
+#include "hnswalg.h"
+#include <faiss/ProductQuantizer.h>
+#include <faiss/utils.h>
+#include <faiss/index_io.h>
 
-using namespace std;
+typedef unsigned int idx_t;
+typedef unsigned char uint8_t;
 
 class StopW {
     std::chrono::steady_clock::time_point time_begin;
@@ -109,7 +114,7 @@ namespace hnswlib {
 
             size_t report_every = 100000;
             #pragma omp parallel for num_threads(16)
-            for (int i = 1; i < csize; i++) {
+            for (int i = 1; i < nc; i++) {
                 float mass[d];
                 #pragma omp critical
                 {
@@ -604,7 +609,7 @@ namespace hnswlib {
                 for (int i = 0; i < groupsize; i++)
                     train_norms.push_back(group_norms[i]);
 
-                if (train_norm.size() > 65536)
+                if (train_norms.size() > 65536)
                     break;
             }
             printf("Training %zdx%zd product quantizer on %ld vectors in 1D\n",
