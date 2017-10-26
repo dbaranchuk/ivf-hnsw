@@ -755,21 +755,21 @@ void hybrid_test(const char *path_centroids,
 
         ModifiedIndex *modifiedIndex = new ModifiedIndex(index);
         /** Train PQ **/
-        if (exists_test(path_modified_pq) && exists_test(path_modified_norm_pq)) {
-            std::cout << "Loading PQ codebook from " << path_modified_pq << std::endl;
-            read_pq(path_modified_pq, index->pq);
-
-            std::cout << "Loading norm PQ codebook from " << path_modified_norm_pq << std::endl;
-            read_pq(path_modified_norm_pq, index->norm_pq);
-        } else {
-            modifiedIndex->train_pq(nt, trainvecs.data());
-
-            std::cout << "Saving PQ codebook to " << path_modified_pq << std::endl;
-            write_pq(path_modified_pq, index->pq);
-
-            std::cout << "Saving norm PQ codebook to " << path_modified_norm_pq << std::endl;
-            write_pq(path_modified_norm_pq, index->norm_pq);
-        }
+//        if (exists_test(path_modified_pq) && exists_test(path_modified_norm_pq)) {
+//            std::cout << "Loading PQ codebook from " << path_modified_pq << std::endl;
+//            read_pq(path_modified_pq, index->pq);
+//
+//            std::cout << "Loading norm PQ codebook from " << path_modified_norm_pq << std::endl;
+//            read_pq(path_modified_norm_pq, index->norm_pq);
+//        } else {
+//            modifiedIndex->train_pq(nt, trainvecs.data());
+//
+//            std::cout << "Saving PQ codebook to " << path_modified_pq << std::endl;
+//            write_pq(path_modified_pq, index->pq);
+//
+//            std::cout << "Saving norm PQ codebook to " << path_modified_norm_pq << std::endl;
+//            write_pq(path_modified_norm_pq, index->norm_pq);
+//        }
 
         if (exists_test(path_modified_index)){
             modifiedIndex->read(path_modified_index);
