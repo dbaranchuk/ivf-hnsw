@@ -72,17 +72,17 @@ namespace hnswlib {
             d = index->d;
             code_size = index->code_size;
 
-            codes.reserve(nc);
-            norm_codes.reserve(nc);
-            ids.reserve(nc);
-            alphas.reserve(nc);
-            nn_centroid_idxs.reserve(nc);
+            codes.resize(nc);
+            norm_codes.resize(nc);
+            ids.resize(nc);
+            alphas.resize(nc);
+            nn_centroid_idxs.resize(nc);
 
             for (int i = 0; i < nc; i++){
-                ids[i].reserve(nsubc);
-                codes[i].reserve(nsubc);
-                norm_codes[i].reserve(nsubc);
-                nn_centroid_idxs[i].reserve(nsubc);
+                ids[i].resize(nsubc);
+                codes[i].resize(nsubc);
+                norm_codes[i].resize(nsubc);
+                nn_centroid_idxs[i].resize(nsubc);
             }
         }
 
@@ -142,44 +142,44 @@ namespace hnswlib {
             fread(&nc, sizeof(size_t), 1, fin);
             fread(&nsubc, sizeof(size_t), 1, fin);
 
-            ids.reserve(nc);
-            codes.reserve(nc);
-            norm_codes.reserve(nc);
-            alphas.reserve(nc);
-            nn_centroid_idxs.reserve(nc);
+            ids.resize(nc);
+            codes.resize(nc);
+            norm_codes.resize(nc);
+            alphas.resize(nc);
+            nn_centroid_idxs.resize(nc);
 
             for (int i = 0; i < nc; i++){
-                ids[i].reserve(nsubc);
-                codes[i].reserve(nsubc);
-                norm_codes[i].reserve(nsubc);
+                ids[i].resize(nsubc);
+                codes[i].resize(nsubc);
+                norm_codes[i].resize(nsubc);
             }
 
-            idx_t size;
+            int size;
             for (size_t i = 0; i < nc; i++)
                 for (size_t j = 0; j < nsubc; j++) {
                     fread(&size, sizeof(int), 1, fin);
-                    ids[i][j].reserve(size);
+                    ids[i][j].resize(size);
                     fread(ids[i][j].data(), sizeof(idx_t), size, fin);
                 }
 
             for(size_t i = 0; i < nc; i++)
                 for (size_t j = 0; j < nsubc; j++) {
-                    fread(&size, sizeof(idx_t), 1, fin);
-                    codes[i][j].reserve(size);
+                    fread(&size, sizeof(int), 1, fin);
+                    codes[i][j].resize(size);
                     fread(codes[i][j].data(), sizeof(uint8_t), size, fin);
                 }
 
             for(size_t i = 0; i < nc; i++)
                 for (size_t j = 0; j < nsubc; j++) {
                     fread(&size, sizeof(int), 1, fin);
-                    norm_codes[i][j].reserve(size);
+                    norm_codes[i][j].resize(size);
                     fread(norm_codes[i][j].data(), sizeof(uint8_t), size, fin);
                 }
 
 
             for(int i = 0; i < nc; i++) {
                 fread(&size, sizeof(int), 1, fin);
-                nn_centroid_idxs[i].reserve(size);
+                nn_centroid_idxs[i].resize(size);
                 fread(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fin);
             }
 

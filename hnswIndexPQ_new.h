@@ -60,17 +60,17 @@ namespace hnswlib {
             d = index->d;
             code_size = index->code_size;
 
-            codes.reserve(nc);
-            norm_codes.reserve(nc);
-            ids.reserve(nc);
-            alphas.reserve(nc);
-            nn_centroid_idxs.reserve(nc);
+            codes.resize(nc);
+            norm_codes.resize(nc);
+            ids.resize(nc);
+            alphas.resize(nc);
+            nn_centroid_idxs.resize(nc);
 
             for (int i = 0; i < nc; i++){
-                ids[i].reserve(nsubc);
-                codes[i].reserve(nsubc);
-                norm_codes[i].reserve(nsubc);
-                nn_centroid_idxs[i].reserve(nsubc);
+                ids[i].resize(nsubc);
+                codes[i].resize(nsubc);
+                norm_codes[i].resize(nsubc);
+                nn_centroid_idxs[i].resize(nsubc);
             }
         }
 
@@ -125,8 +125,8 @@ namespace hnswlib {
                     input_groups.read((char *) &groupsize, sizeof(int));
                     input_idxs.read((char *) &groupsize, sizeof(int));
 
-                    data.reserve(groupsize * d);
-                    idxs.reserve(groupsize);
+                    data.resize(groupsize * d);
+                    idxs.resize(groupsize);
 
                     input_groups.read((char *) data.data(), groupsize * d * sizeof(float));
                     input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
@@ -328,16 +328,16 @@ namespace hnswlib {
             fread(&nc, sizeof(size_t), 1, fin);
             fread(&nsubc, sizeof(size_t), 1, fin);
 
-            ids.reserve(nc);
-            codes.reserve(nc);
-            norm_codes.reserve(nc);
-            alphas.reserve(nc);
-            nn_centroid_idxs.reserve(nc);
+            ids.resize(nc);
+            codes.resize(nc);
+            norm_codes.resize(nc);
+            alphas.resize(nc);
+            nn_centroid_idxs.resize(nc);
 
             for (int i = 0; i < nc; i++){
-                ids[i].reserve(nsubc);
-                codes[i].reserve(nsubc);
-                norm_codes[i].reserve(nsubc);
+                ids[i].resize(nsubc);
+                codes[i].resize(nsubc);
+                norm_codes[i].resize(nsubc);
             }
 
             idx_t size;
