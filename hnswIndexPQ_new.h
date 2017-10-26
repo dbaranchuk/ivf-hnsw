@@ -64,8 +64,6 @@ namespace hnswlib {
 
         void add(const char *path_groups, const char *path_idxs)
         {
-            StopW stopw = StopW();
-
             int total_groupsizes = 0;
 
             std::ifstream input_groups(path_groups, ios::binary);
@@ -195,8 +193,8 @@ namespace hnswlib {
             std::cout << "[Baseline] Average Distance: " << baseline_average / total_groupsizes << std::endl;
             std::cout << "[Modified] Average Distance: " << modified_average / total_groupsizes << std::endl;
 
-            std::cout << "Build Time(s): " << stopw.getElapsedTimeMicro() / 1000000 << std::endl;
-            input.close();
+            input_groups.close();
+            input_idxs.close();
         }
 
 
@@ -370,32 +368,32 @@ namespace hnswlib {
             int dim = code_size >> 2;
             int m = 0;
             for (int i = 0; i < dim; i++) {
-                result += dis_table[pq->ksub * m + code[m]]; m++;
-                result += dis_table[pq->ksub * m + code[m]]; m++;
-                result += dis_table[pq->ksub * m + code[m]]; m++;
-                result += dis_table[pq->ksub * m + code[m]]; m++;
+                result += dis_table[index->pq->ksub * m + code[m]]; m++;
+                result += dis_table[index->pq->ksub * m + code[m]]; m++;
+                result += dis_table[index->pq->ksub * m + code[m]]; m++;
+                result += dis_table[index->pq->ksub * m + code[m]]; m++;
             }
             return result;
         }
     public:
-        void reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys)
-        {
-            for (idx_t i = 0; i < n; i++) {
-                float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
-                for (int j = 0; j < d; j++)
-                    x[i*d + j] = centroid[j] + decoded_residuals[i*d + j];
-            }
-        }
-
-		void compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys)
-		{
-            for (idx_t i = 0; i < n; i++) {
-                float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
-                for (int j = 0; j < d; j++) {
-                    residuals[i*d + j] = x[i*d + j] - centroid[j];
-                }
-            }
-		}
+//        void reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys)
+//        {
+//            for (idx_t i = 0; i < n; i++) {
+//                float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
+//                for (int j = 0; j < d; j++)
+//                    x[i*d + j] = centroid[j] + decoded_residuals[i*d + j];
+//            }
+//        }
+//
+//		void compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys)
+//		{
+//            for (idx_t i = 0; i < n; i++) {
+//                float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
+//                for (int j = 0; j < d; j++) {
+//                    residuals[i*d + j] = x[i*d + j] - centroid[j];
+//                }
+//            }
+//		}
 
         /** NEW **/
         void add_vectors(float *target, const float *x, const float *y)
