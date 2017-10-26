@@ -197,7 +197,7 @@ namespace hnswlib {
                     const idx_t subcentroid_idx = subcentroid_idxs[i];
 
                     ids[centroid_num][subcentroid_idx].push_back(idx);
-                    norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_code);
+                    norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_codes[i]);
                     for (int j = 0; j < d; j++)
                         codes[centroid_num][subcentroid_idx].push_back(xcodes[i*code_size + j]);
 
