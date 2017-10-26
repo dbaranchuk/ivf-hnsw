@@ -82,6 +82,9 @@ namespace hnswlib {
         {
             StopW stopw = StopW();
 
+            double baseline_average = 0.0;
+            double modified_average = 0.0;
+
             /** Find NN centroids to source centroid **/
             std::cout << "Find NN centroids to source centroids\n";
             #pragma omp parallel for num_threads(16)
@@ -90,7 +93,7 @@ namespace hnswlib {
                 std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nsubc + 1);
 
                 while (nn_centroids_raw.size() > 1) {
-                    nn_centroids[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
+                    nn_centroid_idxs[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
                     nn_centroids_raw.pop();
                 }
             }
@@ -139,6 +142,7 @@ namespace hnswlib {
                 /** Pruning **/
                 //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
 
+                const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
                 /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
                 std::vector<float> normalized_centroid_vectors(nc * d);
                 for (int i = 0; i < nsubc; i++) {
