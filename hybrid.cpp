@@ -244,28 +244,6 @@ static void check_precomputing(Index *index, const char *path_data, const char *
     base_input.close();
 }
 
-void compute_vector(float *vector, const float *p1, const float *p2, const int d)
-{
-    for (int i = 0; i < d; i++)
-        vector[i] = p1[i] - p2[i];
-}
-
-void normalize_vector(float *vector, const int d)
-{
-    float norm = sqrt(faiss::fvec_norm_L2sqr(vector, d));
-    for (int i = 0; i < d; i++)
-        vector[i] /= norm;
-}
-
-double compute_quantization_error(const float *reconstructed_x, const float *x,
-                                 const int vecdim, const int n)
-{
-    double error = 0.0;
-    for (int i = 0; i < n; i++)
-        error += faiss::fvec_L2sqr(reconstructed_x + i*vecdim, x + i * vecdim, vecdim);
-    return error;
-}
-
 void save_groups(Index *index, const char *path_groups, const char *path_data,
                  const char *path_precomputed_idxs, const int vecdim, const int vecsize)
 {
@@ -317,73 +295,24 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
     }
 }
 
-void compute_subcentroids(float *subcentroids, const float *centroid,
-                          const float *centroid_vectors,
-                          const float alpha, const int vecdim,
-                          const int ncentroids, const int groupsize)
-{
-    for (int c = 0; c < ncentroids; c++) {
-        const float *centroid_vector = centroid_vectors + c * vecdim;
-        float *subcentroid = subcentroids + c * vecdim;
-
-        float check_norm = faiss::fvec_norm_L2sqr(centroid_vector, vecdim);
-        if (c != 0 && !(0.99999 <  check_norm < 1.00001)){
-            std::cout << "Centroid " << c << " has wrong norm: " << check_norm << std::endl;
-            exit(1);
-        }
-        for (int i = 0; i < vecdim; i++)
-            subcentroid[i] = centroid_vector[i] * alpha + centroid[i];
-    }
-}
-
-float compute_alpha(const float *centroid_vectors, const float *point_vectors,
-                    const float *centroid,
-                    const int vecdim, const int ncentroids, const int groupsize)
-{
-    int counter_positive = 0;
-    int counter_negative = 0;
-    float positive_alpha = 0.0;
-    float negative_alpha = 0.0;
-
-    for (int i = 0; i < groupsize; i++) {
-        const float *point_vector = point_vectors + i*vecdim;
-        std::priority_queue<std::pair<float, float>> max_heap;
-
-        for (int c = 0; c < ncentroids; c++){
-            const float *centroid_vector = centroid_vectors + c*vecdim;
-            float alpha = faiss::fvec_inner_product (centroid_vector, point_vector, vecdim);
-
-            std::vector<float> subcentroid(vecdim);
-            for (int d = 0; d < vecdim; d++)
-                subcentroid[d] = centroid_vector[d] * alpha + centroid[d];
-
-            float dist = faiss::fvec_L2sqr(point_vector, subcentroid.data(), vecdim);
-            max_heap.emplace(std::make_pair(-dist, alpha));
-        }
-        float optim_alpha = max_heap.top().second;
-        if (optim_alpha < 0) {
-            counter_negative++;
-            negative_alpha += optim_alpha;
-        } else {
-            counter_positive++;
-            positive_alpha += optim_alpha;
-        }
-    }
-    positive_alpha /= counter_positive;
-    negative_alpha /= counter_negative;
-
-//    if (counter_positive == 0)
-//        std::cout << "Positive Alpha: every alpha is negative" << std::endl;
-//    else
-//        std::cout << "Positive Alpha: " << positive_alpha << std::endl;
+//void compute_subcentroids(float *subcentroids, const float *centroid,
+//                          const float *centroid_vectors,
+//                          const float alpha, const int vecdim,
+//                          const int ncentroids, const int groupsize)
+//{
+//    for (int c = 0; c < ncentroids; c++) {
+//        const float *centroid_vector = centroid_vectors + c * vecdim;
+//        float *subcentroid = subcentroids + c * vecdim;
 //
-//    if (counter_negative == 0)
-//        std::cout << "Negative Alpha: every alphas is positive" << std::endl;
-//    else
-//        std::cout << "Negative Alpha: " << negative_alpha << std::endl;
-
-    return (counter_positive > counter_negative) ? positive_alpha : negative_alpha;
-}
+//        float check_norm = faiss::fvec_norm_L2sqr(centroid_vector, vecdim);
+//        if (c != 0 && !(0.99999 <  check_norm < 1.00001)){
+//            std::cout << "Centroid " << c << " has wrong norm: " << check_norm << std::endl;
+//            exit(1);
+//        }
+//        for (int i = 0; i < vecdim; i++)
+//            subcentroid[i] = centroid_vector[i] * alpha + centroid[i];
+//    }
+//}
 
 double compute_idxs(std::vector<std::vector<idx_t>> &idxs,
                   const float *points, const float *subcentroids,
