@@ -85,11 +85,6 @@ namespace hnswlib {
 
             /** Compute centroid norms **/
             centroid_norms.resize(nc);
-            #pragma omp parallel for num_threads(16)
-            for (int i = 0; i < nc; i++){
-                const float *centroid = (float *)quantizer->getDataByInternalId(i);
-                centroid_norms[i] = faiss::fvec_norm_L2sqr (centroid, d);
-            }
         }
 
 
@@ -609,6 +604,14 @@ namespace hnswlib {
             norm_pq->train(n, train_norms.data());
         }
 
+        void compute_centroid_norms()
+        {
+            #pragma omp parallel for num_threads(16)
+            for (int i = 0; i < nc; i++){
+                const float *centroid = (float *)quantizer->getDataByInternalId(i);
+                centroid_norms[i] = faiss::fvec_norm_L2sqr (centroid, d);
+            }
+        }
 	private:
         std::vector<float> dis_table;
         std::vector<float> norms;

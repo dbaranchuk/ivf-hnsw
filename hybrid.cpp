@@ -710,9 +710,9 @@ void hybrid_test(const char *path_centroids,
         std::cout << "       norm pq to " << path_norm_pq << std::endl;
         index->write(path_index);
     }
-//    /** Compute centroid norms **/
-//    std::cout << "Computing centroid norms"<< std::endl;
-//    index->compute_centroid_norm_table();
+    /** Computing Centroid Norms **/
+    std::cout << "Computing centroid norms"<< std::endl;
+    index->compute_centroid_norm_table();
 
     /** Parse groundtruth **/
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
