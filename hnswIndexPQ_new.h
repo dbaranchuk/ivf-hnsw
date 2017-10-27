@@ -212,7 +212,7 @@ namespace hnswlib {
                 /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
                 std::vector<float> centroid_vectors(nsubc * d);
                 for (int subc = 0; subc < nsubc; subc++) {
-                    float *neighbor_centroid = (float *) quantizer->getDataByInternalId(nn_centroids[i]);
+                    float *neighbor_centroid = (float *) quantizer->getDataByInternalId(nn_centroids[subc]);
                     sub_vectors(centroid_vectors.data() + subc * d, neighbor_centroid, centroid);
                 }
 
