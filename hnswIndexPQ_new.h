@@ -197,7 +197,7 @@ namespace hnswlib {
 
                 //centroid_num = j1++;
 
-                if (j1 % 10000 == 0)
+                if (c % 10000 == 0)
                     std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
                               << (100. * j1) / 1000000 << "%" << std::endl;
 
@@ -627,7 +627,7 @@ namespace hnswlib {
     public:
         void compute_residuals(size_t n, float *residuals, const float *points, const float *subcentroids, const idx_t *keys)
 		{
-            //#pragma omp parallel for num_threads(16)
+            #pragma omp parallel for num_threads(16)
             for (idx_t i = 0; i < n; i++) {
                 const float *subcentroid = subcentroids + keys[i]*d;
                 const float *point = points + i*d;
@@ -639,7 +639,7 @@ namespace hnswlib {
 
         void reconstruct(size_t n, float *x, const float *decoded_residuals, const float *subcentroids, const idx_t *keys)
         {
-            //#pragma omp parallel for num_threads(16)
+            #pragma omp parallel for num_threads(16)
             for (idx_t i = 0; i < n; i++) {
                 const float *subcentroid = subcentroids + keys[i]*d;
                 const float *decoded_residual = decoded_residuals + i*d;
@@ -674,7 +674,7 @@ namespace hnswlib {
 
         void compute_vectors(float *target, const float *x, const float *centroid, const int n)
         {
-            //#pragma omp parallel for num_threads(16)
+            #pragma omp parallel for num_threads(16)
             for (int i = 0; i < n; i++)
                 for (int j = 0; j < d; j++)
                     target[i*d + j] = x[i*d + j] - centroid[j];
