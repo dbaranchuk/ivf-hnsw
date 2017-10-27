@@ -354,7 +354,7 @@ namespace hnswlib {
 
             std::sort(candidates.begin(), candidates.end(), CompareByFirst());
             for (int i = 0; i < k; i++) {
-                results[i] = candidates[i];//topResults.top().second;
+                results[i] = candidates[i].second;//topResults.top().second;
                 //topResults.pop();
             }
 		}
