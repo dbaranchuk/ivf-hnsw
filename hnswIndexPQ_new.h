@@ -258,8 +258,6 @@ namespace hnswlib {
                 norm_pq->compute_codes(norms.data(), xnorm_codes.data(), groupsize);
 
                 /** Add codes **/
-                //#pragma omp critical
-                //{
                 for (int i = 0; i < groupsize; i++) {
                     const idx_t idx = idxs[i];
                     const idx_t subcentroid_idx = subcentroid_idxs[i];
@@ -288,35 +286,6 @@ namespace hnswlib {
             }
         };
 
-        void group_search(const float *x, const float q_c,
-                          std::priority_queue <std::pair<float, idx_t> > &topResults, const int centroid_num)
-        {
-            const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
-            const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
-            const std::vector< std::vector < idx_t > > &group_ids = ids[centroid_num];
-            const std::vector< std::vector < uint8_t > > &group_codes = codes[centroid_num];
-            const std::vector< std::vector < uint8_t > > &group_norm_codes = norm_codes[centroid_num];
-            const float alpha = alphas[centroid_num];
-
-            for (int subc = 0; subc < nsubc; subc++){
-                const float *nn_centroid = (float *) quantizer->getDataByInternalId(nn_centroids[subc]);
-                const float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
-
-                std::vector<uint8_t> code = group_codes[subc];
-                std::vector<uint8_t> norm_code = group_norm_codes[subc];
-                int groupsize = norm_code.size();
-
-                norm_pq->decode(norm_code.data(), norms.data(), groupsize);
-
-                for (int i = 0; i < groupsize; i++){
-                    float q_r = fstdistfunc(code.data() + i*code_size);
-                    float dist = (alpha - 1) * q_c - alpha*q_s - 2*q_r + norms[i];
-                    idx_t label = group_ids[subc][i];
-                    topResults.emplace(std::make_pair(-dist, label));
-                }
-            }
-        }
-
 		void search(float *x, idx_t k, idx_t *results)
 		{
             idx_t keys[nprobe];
@@ -335,10 +304,41 @@ namespace hnswlib {
                 coarse.pop();
             }
 
+            float max_dist = 0;
+            int max_codes_counter = 0;
+
             for (int i = 0; i < nprobe; i++){
-                idx_t key = keys[i];
-                group_search(x, q_c[i], topResults, key);
-                if (topResults.size() > max_codes)
+                idx_t centroid_num = keys[i];
+                const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
+                const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
+                const float alpha = alphas[centroid_num];
+                const float fst_term = (alpha - 1) * q_c[i];
+
+                for (int subc = 0; subc < nsubc; subc++){
+                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(nn_centroids[subc]);
+                    const float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
+                    const float snd_term = alpha * q_s;
+
+                    std::vector<uint8_t> &code = codes[centroid_num][subc];
+                    std::vector<uint8_t> &norm_code = norm_codes[centroid_num][subc];
+                    int groupsize = norm_code.size();
+
+                    norm_pq->decode(norm_code.data(), norms.data(), groupsize);
+
+                    for (int j = 0; j < groupsize; j++){
+                        float q_r = fstdistfunc(code.data() + j*code_size);
+                        float dist = fst_term - snd_term - 2*q_r + norms[j];
+
+                        if (dist > max_dist){
+                            max_dist = dist;
+                            continue;
+                        }
+                        idx_t label = ids[centroid_num][subc][j];
+                        topResults.emplace(std::make_pair(-dist, label));
+                    }
+                    max_codes_counter += groupsize;
+                }
+                if (max_codes_counter > max_codes)
                     break;
             }
 
@@ -390,7 +390,6 @@ namespace hnswlib {
 
             /** Save Alphas **/
             fwrite(alphas.data(), sizeof(float), nc, fout);
-
             fclose(fout);
         }
 
