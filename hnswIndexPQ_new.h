@@ -12,7 +12,6 @@
 #include <faiss/ProductQuantizer.h>
 #include <faiss/utils.h>
 #include <faiss/index_io.h>
-#include <algorithm>
 
 typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
@@ -305,17 +304,17 @@ namespace hnswlib {
             //std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
             std::priority_queue<std::pair<float, idx_t>> topResults;
 
-            auto coarse = quantizer->searchKnn(x, nprobe);
+            std::unordered_map<idx_t, float> q_s_map;
 
+            auto coarse = quantizer->searchKnn(x, nprobe);
             for (int i = nprobe - 1; i >= 0; i--) {
                 auto elem = coarse.top();
                 q_c[i] = elem.first;
                 keys[i] = elem.second;
                 coarse.pop();
-            }
 
-            std::vector <std::pair<float, idx_t>> candidates;
-            candidates.reserve(2*max_codes);
+                q_s_map.emplace({elem.second, elem.first});
+            }
 
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
@@ -326,10 +325,15 @@ namespace hnswlib {
 
                 for (int subc = 0; subc < nsubc; subc++){
                     idx_t subcentroid_num = nn_centroids[subc];
-                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
-                    const float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
+                    float q_s;
+                    if (q_s_map.count(subcentroid_num) != 0 )
+                        q_s = q_s_map[subcentroid_num];
+                    else {
+                        const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+                        q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
+                    }
                     const float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
-
+                    
                     std::vector<uint8_t> &code = codes[centroid_num][subc];
                     std::vector<uint8_t> &norm_code = norm_codes[centroid_num][subc];
                     int groupsize = norm_code.size();
@@ -341,21 +345,16 @@ namespace hnswlib {
                         float dist = fst_term + snd_term - 2*q_r + norms[j];
 
                         idx_t label = ids[centroid_num][subc][j];
-                        candidates.push_back(std::make_pair(dist, label));
-
-                        //topResults.emplace(std::make_pair(-dist, label));
+                        topResults.emplace(std::make_pair(-dist, label));
                     }
                 }
-                if (candidates.size() >= max_codes)
+                if (topResults.size() >= max_codes)
                     break;
-                //if (topResults.size() >= max_codes)
-                //    break;
             }
 
-            std::sort(candidates.begin(), candidates.end(), CompareByFirst());
             for (int i = 0; i < k; i++) {
-                results[i] = candidates[i].second;//topResults.top().second;
-                //topResults.pop();
+                results[i] = topResults.top().second;
+                topResults.pop();
             }
 		}
 
