@@ -704,7 +704,7 @@ namespace hnswlib {
 
             for (int i = 0; i < groupsize; i++) {
                 const float *point_vector = point_vectors.data() + i * d;
-                const float *point = points.data() + i * d;
+                const float *point = points + i * d;
 
                 std::priority_queue<std::pair<float, float>> max_heap;
                 for (int subc = 0; subc < nsubc; subc++){
