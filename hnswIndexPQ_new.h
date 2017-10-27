@@ -227,8 +227,7 @@ namespace hnswlib {
                 for (int subc = 0; subc < nsubc; subc++) {
                     const float *centroid_vector = centroid_vectors.data() + subc * d;
                     float *subcentroid = subcentroids.data() + subc * d;
-
-                    linear_op(subcentroid, centroid_vector, centroid, alphas[centroid_num]);
+                    faiss::fvec_madd (d, centroid, alphas[centroid_num], centroid_vector, subcentroid);
                 }
 
                 /** Find subcentroid idx **/
@@ -523,7 +522,6 @@ namespace hnswlib {
         void train_norm_pq (const size_t n, const float *x)
         {
             std::vector<float> train_norms;
-            std::vector<float> train_residuals;
 
             std::vector<idx_t> assigned(n);
             assign(n, x, assigned.data());
@@ -570,7 +568,7 @@ namespace hnswlib {
                     const float *centroid_vector = centroid_vectors.data() + subc * d;
                     float *subcentroid = subcentroids.data() + subc * d;
 
-                    linear_op(subcentroid, centroid_vector, centroid, alpha);
+                    faiss::fvec_madd (d, centroid, alpha, centroid_vector, subcentroid);
                 }
 
                 /** Find subcentroid idx **/
@@ -706,6 +704,7 @@ namespace hnswlib {
 
             for (int i = 0; i < groupsize; i++) {
                 const float *point_vector = point_vectors.data() + i * d;
+                const float *point = points.data() + i * d;
 
                 std::priority_queue<std::pair<float, float>> max_heap;
                 for (int subc = 0; subc < nsubc; subc++){
@@ -715,11 +714,10 @@ namespace hnswlib {
                     float alpha = faiss::fvec_inner_product (centroid_vector, point_vector, d);
                     alpha /= centroid_vector_norm_L2sqr;
 
-                    std::vector<float> alpha_vector(d);
-                    for (int j = 0; j < d; j++)
-                        alpha_vector[j] = alpha * centroid_vector[j];
+                    std::vector<float> subcentroid(d);
+                    faiss::fvec_madd (d, centroid, alpha, centroid_vector, subcentroid);
 
-                    float dist = faiss::fvec_L2sqr(point_vector, alpha_vector.data(), d);
+                    float dist = faiss::fvec_L2sqr(point, alpha_vector.data(), d);
                     max_heap.emplace(std::make_pair(-dist, alpha));
                 }
                 float optim_alpha = max_heap.top().second;
