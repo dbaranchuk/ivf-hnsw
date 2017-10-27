@@ -12,6 +12,7 @@
 #include <faiss/ProductQuantizer.h>
 #include <faiss/utils.h>
 #include <faiss/index_io.h>
+#include <algorithm>
 
 typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
@@ -313,6 +314,9 @@ namespace hnswlib {
                 coarse.pop();
             }
 
+            std::vector <std::pair<float, idx_t>> candidates;
+            candidates.reserve(2*max_codes);
+
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
@@ -321,9 +325,10 @@ namespace hnswlib {
                 const float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
                 for (int subc = 0; subc < nsubc; subc++){
-                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(nn_centroids[subc]);
+                    idx_t subcentroid_num = nn_centroids[subc];
+                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
                     const float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
-                    const float snd_term = alpha * (q_s - centroid_norms[nn_centroids[subc]]);
+                    const float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
 
                     std::vector<uint8_t> &code = codes[centroid_num][subc];
                     std::vector<uint8_t> &norm_code = norm_codes[centroid_num][subc];
@@ -336,16 +341,21 @@ namespace hnswlib {
                         float dist = fst_term + snd_term - 2*q_r + norms[j];
 
                         idx_t label = ids[centroid_num][subc][j];
-                        topResults.emplace(std::make_pair(-dist, label));
+                        candidates.push_back(std::make_pair(dist, label));
+
+                        //topResults.emplace(std::make_pair(-dist, label));
                     }
                 }
-                if (topResults.size() > max_codes)
+                if (candidates.size() >= max_codes)
                     break;
+                //if (topResults.size() >= max_codes)
+                //    break;
             }
 
+            std::sort(candidates.begin(), candidates.end(), CompareByFirst());
             for (int i = 0; i < k; i++) {
-                results[i] = topResults.top().second;
-                topResults.pop();
+                results[i] = candidates[i];//topResults.top().second;
+                //topResults.pop();
             }
 		}
 
