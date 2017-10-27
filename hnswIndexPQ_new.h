@@ -304,9 +304,6 @@ namespace hnswlib {
                 coarse.pop();
             }
 
-            //float max_dist = 0;
-            //int max_codes_counter = 0;
-
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
