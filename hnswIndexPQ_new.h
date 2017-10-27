@@ -149,7 +149,7 @@ namespace hnswlib {
             std::cout << "Find NN centroids to source centroids\n";
             std::vector< std::vector<float> > centroid_vector_norms_L2sqr(nc);
 
-            #pragma omp parallel for num_threads(18)
+            #pragma omp parallel for num_threads(16)
             for (int i = 0; i < nc; i++) {
                 const float *centroid = (float *) quantizer->getDataByInternalId(i);
                 std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid,
@@ -186,10 +186,7 @@ namespace hnswlib {
                 {
                     input_groups.read((char *) &groupsize, sizeof(int));
                     input_idxs.read((char *) &groupsize, sizeof(int));
-
-                    std::vector<float> data(groupsize * d);
-                    std::vector<idx_t> idxs(groupsize);
-
+                    
                     data.resize(groupsize * d);
                     idxs.resize(groupsize);
 
