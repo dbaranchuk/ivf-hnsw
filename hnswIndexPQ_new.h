@@ -173,7 +173,7 @@ namespace hnswlib {
             /** Adding groups to index **/
             std::cout << "Adding groups to index\n";
             int j1 = 0;
-            //#pragma omp parallel for redusction (+:baseline_average, modofied_average)num_threads(18)
+            #pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(18)
             for (int c = 0; c < nc; c++) {
                 /** Read Original vectors from Group file**/
                 idx_t centroid_num;
@@ -183,7 +183,7 @@ namespace hnswlib {
 
                 const float *centroid;
 
-                //#pragma omp critical
+                #pragma omp critical
                 {
                     input_groups.read((char *) &groupsize, sizeof(int));
                     input_idxs.read((char *) &groupsize, sizeof(int));
@@ -262,21 +262,20 @@ namespace hnswlib {
 
                 /** Add codes **/
                 //#pragma omp critical
-                {
-                    for (int i = 0; i < groupsize; i++) {
-                        const idx_t idx = idxs[i];
-                        const idx_t subcentroid_idx = subcentroid_idxs[i];
 
-                        ids[centroid_num][subcentroid_idx].push_back(idx);
-                        norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_codes[i]);
-                        for (int j = 0; j < d; j++)
-                            codes[centroid_num][subcentroid_idx].push_back(xcodes[i * code_size + j]);
+                for (int i = 0; i < groupsize; i++) {
+                    const idx_t idx = idxs[i];
+                    const idx_t subcentroid_idx = subcentroid_idxs[i];
 
-                        const float *subcentroid = subcentroids.data() + subcentroid_idx * d;
-                        const float *point = data.data() + i * d;
-                        baseline_average += faiss::fvec_L2sqr(centroid, point, d);
-                        modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
-                    }
+                    ids[centroid_num][subcentroid_idx].push_back(idx);
+                    norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_codes[i]);
+                    for (int j = 0; j < d; j++)
+                        codes[centroid_num][subcentroid_idx].push_back(xcodes[i * code_size + j]);
+
+                    const float *subcentroid = subcentroids.data() + subcentroid_idx * d;
+                    const float *point = data.data() + i * d;
+                    baseline_average += faiss::fvec_L2sqr(centroid, point, d);
+                    modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
                 }
             }
             std::cout << "[Baseline] Average Distance: " << baseline_average / 1000000000 << std::endl;
@@ -711,15 +710,16 @@ namespace hnswlib {
                 std::priority_queue<std::pair<float, float>> max_heap;
                 for (int subc = 0; subc < nsubc; subc++){
                     const float *centroid_vector = centroid_vectors + subc * d;
-                    const float centroid_vector_norm_L2sqr = centroid_vector_norms_L2sqr[subc * d];
+                    const float centroid_vector_norm_L2sqr = centroid_vector_norms_L2sqr[subc];
 
                     float alpha = faiss::fvec_inner_product (centroid_vector, point_vector, d);
                     alpha /= centroid_vector_norm_L2sqr;
 
-                    std::vector<float> subcentroid(d);
-                    linear_op(subcentroid.data(), centroid_vector, centroid, alpha);
+                    std::vector<float> alpha_vector(d);
+                    for (int j = 0; j < d; j++)
+                        alpha_vector[j] = alpha * centroid_vector[j];
 
-                    float dist = faiss::fvec_L2sqr(point_vector, subcentroid.data(), d);
+                    float dist = faiss::fvec_L2sqr(point_vector, alpha_vector.data(), d);
                     max_heap.emplace(std::make_pair(-dist, alpha));
                 }
                 float optim_alpha = max_heap.top().second;
