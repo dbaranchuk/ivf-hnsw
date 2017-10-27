@@ -304,8 +304,8 @@ namespace hnswlib {
                 coarse.pop();
             }
 
-            float max_dist = 0;
-            int max_codes_counter = 0;
+            //float max_dist = 0;
+            //int max_codes_counter = 0;
 
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
@@ -329,16 +329,11 @@ namespace hnswlib {
                         float q_r = fstdistfunc(code.data() + j*code_size);
                         float dist = fst_term - snd_term - 2*q_r + norms[j];
 
-                        if (dist > max_dist){
-                            max_dist = dist;
-                            continue;
-                        }
                         idx_t label = ids[centroid_num][subc][j];
                         topResults.emplace(std::make_pair(-dist, label));
                     }
-                    max_codes_counter += groupsize;
                 }
-                if (max_codes_counter > max_codes)
+                if (topResults.size() > max_codes)
                     break;
             }
 
