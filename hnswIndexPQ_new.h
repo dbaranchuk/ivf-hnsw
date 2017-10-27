@@ -82,6 +82,14 @@ namespace hnswlib {
             dis_table.resize(pq->ksub * pq->M);
             norms.resize(65536);
             code_size = pq->code_size;
+
+            /** Compute centroid norms **/
+            centroid_norms.resize(nc);
+            #pragma omp parallel for num_threads(16)
+            for (int i = 0; i < nc; i++){
+                const float *centroid = (float *)quantizer->getDataByInternalId(i);
+                centroid_norms[i] = faiss::fvec_norm_L2sqr (centroid, d);
+            }
         }
 
 
@@ -148,12 +156,15 @@ namespace hnswlib {
             /** Find NN centroids to source centroid **/
             std::cout << "Find NN centroids to source centroids\n";
             std::vector< std::vector<float> > centroid_vector_norms_L2sqr(nc);
+            //for (int i = 0; i < nc; i++)
+            //    centroid_vector_norms_L2sqr[i].resize(nsubc);
 
-            #pragma omp parallel for num_threads(24)
+
+            //#pragma omp parallel for num_threads(24)
             for (int i = 0; i < nc; i++) {
                 const float *centroid = (float *) quantizer->getDataByInternalId(i);
-                std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid,
-                                                                                                     nsubc + 1);
+                std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
+
                 centroid_vector_norms_L2sqr[i].resize(nsubc);
                 while (nn_centroids_raw.size() > 1) {
                     centroid_vector_norms_L2sqr[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().first;
@@ -258,19 +269,22 @@ namespace hnswlib {
                 norm_pq->compute_codes(norms.data(), xnorm_codes.data(), groupsize);
 
                 /** Add codes **/
-                for (int i = 0; i < groupsize; i++) {
-                    const idx_t idx = idxs[i];
-                    const idx_t subcentroid_idx = subcentroid_idxs[i];
+                #pragma omp critical
+                {
+                    for (int i = 0; i < groupsize; i++) {
+                        const idx_t idx = idxs[i];
+                        const idx_t subcentroid_idx = subcentroid_idxs[i];
 
-                    ids[centroid_num][subcentroid_idx].push_back(idx);
-                    norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_codes[i]);
-                    for (int j = 0; j < code_size; j++)
-                        codes[centroid_num][subcentroid_idx].push_back(xcodes[i * code_size + j]);
+                        ids[centroid_num][subcentroid_idx].push_back(idx);
+                        norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_codes[i]);
+                        for (int j = 0; j < code_size; j++)
+                            codes[centroid_num][subcentroid_idx].push_back(xcodes[i * code_size + j]);
 
-                    const float *subcentroid = subcentroids.data() + subcentroid_idx * d;
-                    const float *point = data.data() + i * d;
-                    baseline_average += faiss::fvec_L2sqr(centroid, point, d);
-                    modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
+                        //const float *subcentroid = subcentroids.data() + subcentroid_idx * d;
+                        //const float *point = data.data() + i * d;
+                        //baseline_average += faiss::fvec_L2sqr(centroid, point, d);
+                        //modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
+                    }
                 }
             }
             std::cout << "[Baseline] Average Distance: " << baseline_average / 1000000000 << std::endl;
@@ -309,12 +323,12 @@ namespace hnswlib {
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
                 const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 const float alpha = alphas[centroid_num];
-                const float fst_term = (alpha - 1) * q_c[i];
+                const float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
                 for (int subc = 0; subc < nsubc; subc++){
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(nn_centroids[subc]);
                     const float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
-                    const float snd_term = alpha * q_s;
+                    const float snd_term = alpha * (q_s - centroid_norms[nn_centroids[subc]]);
 
                     std::vector<uint8_t> &code = codes[centroid_num][subc];
                     std::vector<uint8_t> &norm_code = norm_codes[centroid_num][subc];
@@ -594,9 +608,11 @@ namespace hnswlib {
             norm_pq->verbose = true;
             norm_pq->train(n, train_norms.data());
         }
+
 	private:
         std::vector<float> dis_table;
         std::vector<float> norms;
+        std::vector<float> centroid_norms;
 
         float fstdistfunc(uint8_t *code)
         {
