@@ -130,7 +130,7 @@ namespace hnswlib {
 
         void assign(size_t n, const float *data, idx_t *idxs)
         {
-            #pragma omp parallel for num_threads(16)
+            #pragma omp parallel for num_threads(18)
             for (int i = 0; i < n; i++)
                 idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i*d), 1).top().second;
         }
@@ -149,7 +149,7 @@ namespace hnswlib {
             std::cout << "Find NN centroids to source centroids\n";
             std::vector< std::vector<float> > centroid_vector_norms_L2sqr(nc);
 
-            //#pragma omp parallel for num_threads(18)
+            #pragma omp parallel for num_threads(18)
             for (int i = 0; i < nc; i++) {
                 const float *centroid = (float *) quantizer->getDataByInternalId(i);
                 std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid,
@@ -173,34 +173,35 @@ namespace hnswlib {
             /** Adding groups to index **/
             std::cout << "Adding groups to index\n";
             int j1 = 0;
-            //#pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(18)
+            #pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(16)
             for (int c = 0; c < nc; c++) {
                 /** Read Original vectors from Group file**/
-                idx_t centroid_num = c;
+                idx_t centroid_num;
                 int groupsize;
-//                std::vector<float> data;
-//                std::vector<idx_t> idxs;
+                std::vector<float> data;
+                std::vector<idx_t> idxs;
+                const float *centroid;
 
-                //#pragma omp critical
+                #pragma omp critical
+                {
+                    input_groups.read((char *) &groupsize, sizeof(int));
+                    input_idxs.read((char *) &groupsize, sizeof(int));
 
-                input_groups.read((char *) &groupsize, sizeof(int));
-                input_idxs.read((char *) &groupsize, sizeof(int));
+                    std::vector<float> data(groupsize * d);
+                    std::vector<idx_t> idxs(groupsize);
 
-                std::vector<float> data(groupsize * d);
-                std::vector<idx_t> idxs(groupsize);
+                    data.resize(groupsize * d);
+                    idxs.resize(groupsize);
 
-//                    data.resize(groupsize * d);
-//                    idxs.resize(groupsize);
+                    input_groups.read((char *) data.data(), groupsize * d * sizeof(float));
+                    input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
 
-                input_groups.read((char *) data.data(), groupsize * d * sizeof(float));
-                input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
-
-                //centroid_num = j1++;
-
-                if (c % 10000 == 0)
-                    std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
-                              << (100. * j1) / 1000000 << "%" << std::endl;
-
+                    centroid_num = j1++;
+                    centroid = (float *) quantizer->getDataByInternalId(centroid_num);
+                    if (j1 % 10000 == 0)
+                        std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
+                                  << (100. * j1) / 1000000 << "%" << std::endl;
+                }
 
                 if (groupsize == 0)
                     continue;
@@ -208,7 +209,6 @@ namespace hnswlib {
                 /** Pruning **/
                 //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
 
-                const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
                 const float *centroid_vector_norms = centroid_vector_norms_L2sqr[centroid_num].data();
 
@@ -261,21 +261,22 @@ namespace hnswlib {
                 norm_pq->compute_codes(norms.data(), xnorm_codes.data(), groupsize);
 
                 /** Add codes **/
-                //#pragma omp critical
+                #pragma omp critical
+                {
+                    for (int i = 0; i < groupsize; i++) {
+                        const idx_t idx = idxs[i];
+                        const idx_t subcentroid_idx = subcentroid_idxs[i];
 
-                for (int i = 0; i < groupsize; i++) {
-                    const idx_t idx = idxs[i];
-                    const idx_t subcentroid_idx = subcentroid_idxs[i];
+                        ids[centroid_num][subcentroid_idx].push_back(idx);
+                        norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_codes[i]);
+                        for (int j = 0; j < d; j++)
+                            codes[centroid_num][subcentroid_idx].push_back(xcodes[i * code_size + j]);
 
-                    ids[centroid_num][subcentroid_idx].push_back(idx);
-                    norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_codes[i]);
-                    for (int j = 0; j < d; j++)
-                        codes[centroid_num][subcentroid_idx].push_back(xcodes[i * code_size + j]);
-
-                    const float *subcentroid = subcentroids.data() + subcentroid_idx * d;
-                    const float *point = data.data() + i * d;
-                    baseline_average += faiss::fvec_L2sqr(centroid, point, d);
-                    modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
+                        const float *subcentroid = subcentroids.data() + subcentroid_idx * d;
+                        const float *point = data.data() + i * d;
+                        baseline_average += faiss::fvec_L2sqr(centroid, point, d);
+                        modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
+                    }
                 }
             }
             std::cout << "[Baseline] Average Distance: " << baseline_average / 1000000000 << std::endl;
@@ -627,7 +628,7 @@ namespace hnswlib {
     public:
         void compute_residuals(size_t n, float *residuals, const float *points, const float *subcentroids, const idx_t *keys)
 		{
-            #pragma omp parallel for num_threads(16)
+            //#pragma omp parallel for num_threads(16)
             for (idx_t i = 0; i < n; i++) {
                 const float *subcentroid = subcentroids + keys[i]*d;
                 const float *point = points + i*d;
@@ -639,7 +640,7 @@ namespace hnswlib {
 
         void reconstruct(size_t n, float *x, const float *decoded_residuals, const float *subcentroids, const idx_t *keys)
         {
-            #pragma omp parallel for num_threads(16)
+            //#pragma omp parallel for num_threads(16)
             for (idx_t i = 0; i < n; i++) {
                 const float *subcentroid = subcentroids + keys[i]*d;
                 const float *decoded_residual = decoded_residuals + i*d;
@@ -674,7 +675,7 @@ namespace hnswlib {
 
         void compute_vectors(float *target, const float *x, const float *centroid, const int n)
         {
-            #pragma omp parallel for num_threads(16)
+            //#pragma omp parallel for num_threads(16)
             for (int i = 0; i < n; i++)
                 for (int j = 0; j < d; j++)
                     target[i*d + j] = x[i*d + j] - centroid[j];
