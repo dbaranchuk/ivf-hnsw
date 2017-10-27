@@ -304,17 +304,15 @@ namespace hnswlib {
             //std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
             std::priority_queue<std::pair<float, idx_t>> topResults;
 
-            std::unordered_map<idx_t, float> q_s_map;
-
             auto coarse = quantizer->searchKnn(x, nprobe);
             for (int i = nprobe - 1; i >= 0; i--) {
                 auto elem = coarse.top();
                 q_c[i] = elem.first;
                 keys[i] = elem.second;
                 coarse.pop();
-
-                q_s_map[elem.second] = elem.first;
             }
+
+            const float q_norm = faiss::fvec_norm_L2sqr(x, d);
 
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
@@ -325,14 +323,9 @@ namespace hnswlib {
 
                 for (int subc = 0; subc < nsubc; subc++){
                     idx_t subcentroid_num = nn_centroids[subc];
-                    float q_s;
-                    if (q_s_map.count(subcentroid_num) != 0 )
-                        q_s = q_s_map[subcentroid_num];
-                    else {
-                        const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
-                        q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
-                    }
-                    const float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
+                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+                    const float q_s = faiss::fvec_inner_product(x, nn_centroid, d);//faiss::fvec_L2sqr(x, nn_centroid, d);
+                    const float snd_term = alpha * (q_norm - 2*q_s /*- centroid_norms[subcentroid_num]*/);
 
                     std::vector<uint8_t> &code = codes[centroid_num][subc];
                     std::vector<uint8_t> &norm_code = norm_codes[centroid_num][subc];
