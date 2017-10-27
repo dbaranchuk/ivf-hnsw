@@ -676,7 +676,7 @@ void fvec_norms_L2sqr (float * __restrict nr,
                        const float * __restrict x,
                        size_t d, size_t nx)
 {
-#pragma omp parallel for num_threads(16)
+//#pragma omp parallel for num_threads(16)
     for (size_t i = 0; i < nx; i++)
         nr[i] = fvec_norm_L2sqr (x + i * d, d);
 }

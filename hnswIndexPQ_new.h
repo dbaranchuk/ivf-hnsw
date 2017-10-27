@@ -173,7 +173,7 @@ namespace hnswlib {
             /** Adding groups to index **/
             std::cout << "Adding groups to index\n";
             int j1 = 0;
-            //#pragma omp parallel for num_threads(18)
+            //#pragma omp parallel for redusction (+:baseline_average, modofied_average)num_threads(18)
             for (int c = 0; c < nc; c++) {
                 /** Read Original vectors from Group file**/
                 idx_t centroid_num;
@@ -521,7 +521,6 @@ namespace hnswlib {
             pq->verbose = true;
             pq->train(n, train_residuals.data());
         }
-
         void train_norm_pq (const size_t n, const float *x)
         {
             std::vector<float> train_norms;
@@ -609,7 +608,6 @@ namespace hnswlib {
             norm_pq->verbose = true;
             norm_pq->train(n, train_norms.data());
         }
-
 	private:
         std::vector<float> dis_table;
         std::vector<float> norms;
@@ -630,7 +628,7 @@ namespace hnswlib {
     public:
         void compute_residuals(size_t n, float *residuals, const float *points, const float *subcentroids, const idx_t *keys)
 		{
-            #pragma omp parallel for num_threads(16)
+            //#pragma omp parallel for num_threads(16)
             for (idx_t i = 0; i < n; i++) {
                 const float *subcentroid = subcentroids + keys[i]*d;
                 const float *point = points + i*d;
@@ -642,7 +640,7 @@ namespace hnswlib {
 
         void reconstruct(size_t n, float *x, const float *decoded_residuals, const float *subcentroids, const idx_t *keys)
         {
-            #pragma omp parallel for num_threads(16)
+            //#pragma omp parallel for num_threads(16)
             for (idx_t i = 0; i < n; i++) {
                 const float *subcentroid = subcentroids + keys[i]*d;
                 const float *decoded_residual = decoded_residuals + i*d;
@@ -673,7 +671,7 @@ namespace hnswlib {
         void compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
                                       const float *points, const int groupsize)
         {
-            #pragma omp parallel for num_threads(16)
+            //#pragma omp parallel for num_threads(16)
             for (int i = 0; i < groupsize; i++) {
                 std::priority_queue<std::pair<float, idx_t>> max_heap;
                 for (int subc = 0; subc < nsubc; subc++) {
