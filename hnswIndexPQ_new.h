@@ -333,7 +333,7 @@ namespace hnswlib {
 
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code.data() + j*code_size);
-                        float dist = fst_term - snd_term - 2*q_r + norms[j];
+                        float dist = fst_term + snd_term - 2*q_r + norms[j];
 
                         idx_t label = ids[centroid_num][subc][j];
                         topResults.emplace(std::make_pair(-dist, label));
