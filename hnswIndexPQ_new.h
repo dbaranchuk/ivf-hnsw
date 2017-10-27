@@ -313,7 +313,7 @@ namespace hnswlib {
                 keys[i] = elem.second;
                 coarse.pop();
 
-                q_s_map.emplace({elem.second, elem.first});
+                q_s_map[elem.second] = elem.first;
             }
 
             for (int i = 0; i < nprobe; i++){
@@ -333,7 +333,7 @@ namespace hnswlib {
                         q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
                     }
                     const float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
-                    
+
                     std::vector<uint8_t> &code = codes[centroid_num][subc];
                     std::vector<uint8_t> &norm_code = norm_codes[centroid_num][subc];
                     int groupsize = norm_code.size();
