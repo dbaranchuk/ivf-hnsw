@@ -715,9 +715,9 @@ namespace hnswlib {
                     alpha /= centroid_vector_norm_L2sqr;
 
                     std::vector<float> subcentroid(d);
-                    faiss::fvec_madd (d, centroid, alpha, centroid_vector, subcentroid);
+                    faiss::fvec_madd (d, centroid, alpha, centroid_vector, subcentroid.data());
 
-                    float dist = faiss::fvec_L2sqr(point, alpha_vector.data(), d);
+                    float dist = faiss::fvec_L2sqr(point, subcentroid.data(), d);
                     max_heap.emplace(std::make_pair(-dist, alpha));
                 }
                 float optim_alpha = max_heap.top().second;
