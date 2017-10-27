@@ -173,7 +173,7 @@ namespace hnswlib {
             /** Adding groups to index **/
             std::cout << "Adding groups to index\n";
             int j1 = 0;
-            #pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(16)
+            #pragma omp parallel for /*reduction(+:baseline_average, modified_average)*/ num_threads(16)
             for (int c = 0; c < nc; c++) {
                 /** Read Original vectors from Group file**/
                 idx_t centroid_num;
@@ -448,7 +448,6 @@ namespace hnswlib {
             }
 
             fread(alphas.data(), sizeof(float), nc, fin);
-
             fclose(fin);
         }
 
