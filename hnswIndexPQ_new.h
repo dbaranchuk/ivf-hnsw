@@ -299,6 +299,8 @@ namespace hnswlib {
             input_idxs.close();
         }
 
+        int empty_subgroups = 0;
+
 		void search(float *x, idx_t k, idx_t *results)
 		{
             idx_t keys[nprobe];
@@ -332,13 +334,16 @@ namespace hnswlib {
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
                 for (int subc = 0; subc < nsubc; subc++){
-
+                    int groupsize = group_sizes[centroid_num][subc];
+                    if (groupsize == 0) {
+                        empty_subgroups++;
+                        continue;
+                    }
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
                     float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
                     float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
-                    
-                    int groupsize = group_sizes[centroid_num][subc];
+
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(const_cast<uint8_t *>(code)+ j*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[j];

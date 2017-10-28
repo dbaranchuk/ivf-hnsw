@@ -746,6 +746,8 @@ void hybrid_test(const char *path_centroids,
                 break;
             }
     }
+    std::cout << "Empty subgroups: " << index->empty_subgroups << std::endl;
+    
     /**Represent results**/
     float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
     std::cout << "Recall@" << k << ": " << 1.0f*correct / qsize << std::endl;
