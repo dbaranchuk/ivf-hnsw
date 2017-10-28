@@ -186,10 +186,6 @@ namespace hnswlib {
 
                     centroid_num = j1++;
                     if (j1 % 10000 == 0) {
-                        std::cout << ids[centroid_num-1].size() << " "
-                                  << norm_codes[centroid_num-1].size() << " "
-                                  << codes[centroid_num-1].size() << std::endl;
-
                         std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
                                   << (100. * j1) / 1000000 << "%" << std::endl;
                     }
@@ -272,21 +268,26 @@ namespace hnswlib {
                     modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
                 }
                 /** Add codes **/
-                //#pragma omp critical
-                //{
-                    for (int subc = 0; subc < nsubc; subc++) {
-                        idx_t subcsize = construction_norm_codes[subc].size();
-                        group_sizes[centroid_num].push_back(subcsize);
-                        std::cout << subcsize << std::endl;
+                for (int subc = 0; subc < nsubc; subc++) {
+                    idx_t subcsize = construction_norm_codes[subc].size();
+                    group_sizes[centroid_num].push_back(subcsize);
 
-                        for (int i = 0; i < subcsize; i++) {
-                            ids[centroid_num].push_back(construction_ids[subc][i]);
-                            for (int j = 0; j < code_size; j++)
-                                codes[centroid_num].push_back(construction_codes[subc][i * code_size + j]);
-                            norm_codes[centroid_num].push_back(construction_norm_codes[subc][i]);
-                        }
+                    for (int i = 0; i < subcsize; i++) {
+                        ids[centroid_num].push_back(construction_ids[subc][i]);
+                        for (int j = 0; j < code_size; j++)
+                            codes[centroid_num].push_back(construction_codes[subc][i * code_size + j]);
+                        norm_codes[centroid_num].push_back(construction_norm_codes[subc][i]);
                     }
-                //}
+                }
+
+                #pragma omp critical
+                {
+                    if (centroid_num % 10000 == 0) {
+                        std::cout << group_sizes[centroid_num].size() << " "
+                                  << ids[centroid_num].size() << " "
+                                  << norm_codes[centroid_num].size() << " "
+                                  << codes[centroid_num].size() << std::endl;
+                };
             }
             std::cout << "[Baseline] Average Distance: " << baseline_average / 1000000000 << std::endl;
             std::cout << "[Modified] Average Distance: " << modified_average / 1000000000 << std::endl;
