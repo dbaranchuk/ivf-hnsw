@@ -323,7 +323,7 @@ namespace hnswlib {
 
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
-                norm_pq->decode(norm_codes[centroid_num], norms.data(), norm_codes[centroid_num].size());
+                norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), norm_codes[centroid_num].size());
 
                 const uint8_t *code = codes[centroid_num].data();
                 const float *norm = norms.data();
@@ -342,7 +342,7 @@ namespace hnswlib {
 
                     int groupsize = group_sizes[centroid_num][subc];
                     for (int j = 0; j < groupsize; j++){
-                        float q_r = fstdistfunc(code+ j*code_size);
+                        float q_r = fstdistfunc(const_cast<uint8_t *>(code)+ j*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
                         topResults.emplace(std::make_pair(-dist, id[j]));
                     }
