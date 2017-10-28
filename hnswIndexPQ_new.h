@@ -160,6 +160,7 @@ namespace hnswlib {
                 construction_ids[i].resize(nsubc);
                 construction_codes[i].resize(nsubc);
                 construction_norm_codes[i].resize(nsubc);
+                nn_centroid_idxs[i].resize(nsubc);
                 while (nn_centroids_raw.size() > 1) {
                     centroid_vector_norms_L2sqr[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().first;
                     nn_centroid_idxs[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
