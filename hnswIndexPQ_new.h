@@ -330,19 +330,16 @@ namespace hnswlib {
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
                 for (int subc = 0; subc < nsubc; subc++){
+
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
                     float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
                     float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
-                    std::cout << "HUI3\n";
+                    std::cout << centroid_num << " " << group_sizes[centroid_num].size() << " " << norm_codes[centroid_num].size() << "\n";
                     int groupsize = group_sizes[centroid_num][subc];
-                    std::cout << "HUI4\n";
                     for (int j = 0; j < groupsize; j++){
-                        std::cout << "HUI5\n";
                         float q_r = fstdistfunc(const_cast<uint8_t *>(code)+ j*code_size);
-                        std::cout << "HUI6\n";
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
-                        std::cout << "HUI7\n";
                         topResults.emplace(std::make_pair(-dist, id[j]));
                     }
                     /** Shift to the next group **/
