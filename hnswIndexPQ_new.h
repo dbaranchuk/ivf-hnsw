@@ -144,22 +144,16 @@ namespace hnswlib {
 
             /** Vectors for construction **/
             std::vector< std::vector<float> > centroid_vector_norms_L2sqr(nc);
-            std::vector < std::vector < std::vector<idx_t> > > construction_ids(nc);
-            std::vector < std::vector < std::vector<uint8_t> > > construction_codes(nc);
-            std::vector < std::vector < std::vector<uint8_t> > > construction_norm_codes(nc);
 
             /** Find NN centroids to source centroid **/
             std::cout << "Find NN centroids to source centroids\n";
 
-            #pragma omp parallel for num_threads(20)
+            //#pragma omp parallel for num_threads(20)
             for (int i = 0; i < nc; i++) {
                 const float *centroid = (float *) quantizer->getDataByInternalId(i);
                 std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
 
                 centroid_vector_norms_L2sqr[i].resize(nsubc);
-                construction_ids[i].resize(nsubc);
-                construction_codes[i].resize(nsubc);
-                construction_norm_codes[i].resize(nsubc);
                 nn_centroid_idxs[i].resize(nsubc);
                 while (nn_centroids_raw.size() > 1) {
                     centroid_vector_norms_L2sqr[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().first;
@@ -178,7 +172,6 @@ namespace hnswlib {
                 int groupsize;
                 std::vector<float> data;
                 std::vector<idx_t> idxs;
-                const float *centroid;
 
                 #pragma omp critical
                 {
@@ -192,7 +185,6 @@ namespace hnswlib {
                     input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
 
                     centroid_num = j1++;
-                    centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                     if (j1 % 10000 == 0)
                         std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
                                   << (100. * j1) / 1000000 << "%" << std::endl;
@@ -204,8 +196,9 @@ namespace hnswlib {
                 /** Pruning **/
                 //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
 
-                const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
+                const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 const float *centroid_vector_norms = centroid_vector_norms_L2sqr[centroid_num].data();
+                const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
 
                 /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
                 std::vector<float> centroid_vectors(nsubc * d);
@@ -255,54 +248,44 @@ namespace hnswlib {
                 std::vector<uint8_t > xnorm_codes(groupsize);
                 norm_pq->compute_codes(norms.data(), xnorm_codes.data(), groupsize);
 
-                /** Add codes **/
+                /** Distribute codes **/
+                std::vector < std::vector<idx_t> > construction_ids(nsubc);
+                std::vector < std::vector<uint8_t> > construction_codes(nsubc);
+                std::vector < std::vector<uint8_t> > construction_norm_codes(nsubc);
                 for (int i = 0; i < groupsize; i++) {
                     const idx_t idx = idxs[i];
                     const idx_t subcentroid_idx = subcentroid_idxs[i];
 
-                    construction_ids[centroid_num][subcentroid_idx].push_back(idx);
-                    construction_norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_codes[i]);
+                    construction_ids[subcentroid_idx].push_back(idx);
+                    construction_norm_codes[subcentroid_idx].push_back(xnorm_codes[i]);
                     for (int j = 0; j < code_size; j++)
-                        construction_codes[centroid_num][subcentroid_idx].push_back(xcodes[i * code_size + j]);
+                        construction_codes[subcentroid_idx].push_back(xcodes[i * code_size + j]);
 
                     const float *subcentroid = subcentroids.data() + subcentroid_idx * d;
                     const float *point = data.data() + i * d;
                     baseline_average += faiss::fvec_L2sqr(centroid, point, d);
                     modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
                 }
+                /** Add codes **/
+                for (int subc; subc < nsubc; subc++) {
+                    idx_t subcsize = construction_norm_codes[subc].size();
+                    group_sizes[centroid_num].push_back(subcsize);
 
+                    for (int i = 0; i < subcsize; i++) {
+                        ids[centroid_num].push_back(construction_ids[subc][i]);
+                        for (int j = 0; j < code_size; j++)
+                            codes[centroid_num].push_back(construction_codes[subc][i * code_size + j]);
+                        norm_codes[centroid_num].push_back(construction_norm_codes[subc][i]);
+                    }
+                }
             }
             std::cout << "[Baseline] Average Distance: " << baseline_average / 1000000000 << std::endl;
             std::cout << "[Modified] Average Distance: " << modified_average / 1000000000 << std::endl;
 
-            /** Rewrite data to compact structures **/
-            compact_data(construction_ids, construction_codes, construction_norm_codes);
+            //compact_data(construction_ids, construction_codes, construction_norm_codes);
 
             input_groups.close();
             input_idxs.close();
-        }
-
-        void compact_data(std::vector < std::vector < std::vector<idx_t> > > &construction_ids,
-                          std::vector < std::vector < std::vector<uint8_t> > > &construction_codes,
-                          std::vector < std::vector < std::vector<uint8_t> > > &construction_norm_codes)
-        {
-            for (int c = 0; c < nc; c++) {
-                for (int subc; subc < nsubc; subc++) {
-                    idx_t groupsize = construction_norm_codes[c][subc].size();
-                    group_sizes[c].push_back(groupsize);
-
-                    auto group_ids = construction_ids[c][subc];
-                    auto group_codes = construction_codes[c][subc];
-                    auto group_norm_codes = construction_norm_codes[c][subc];
-
-                    for (int i = 0; i < groupsize; i++) {
-                        ids[c].push_back(group_ids[i]);
-                        for (int j = 0; j < code_size; j++)
-                            codes[c].push_back(group_codes[i * code_size + j]);
-                        norm_codes[c].push_back(group_norm_codes[i]);
-                    }
-                }
-            }
         }
 
 		void search(float *x, idx_t k, idx_t *results)
