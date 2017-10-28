@@ -148,7 +148,7 @@ namespace hnswlib {
             /** Find NN centroids to source centroid **/
             std::cout << "Find NN centroids to source centroids\n";
 
-            //#pragma omp parallel for num_threads(20)
+            #pragma omp parallel for num_threads(20)
             for (int i = 0; i < nc; i++) {
                 const float *centroid = (float *) quantizer->getDataByInternalId(i);
                 std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
@@ -185,9 +185,14 @@ namespace hnswlib {
                     input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
 
                     centroid_num = j1++;
-                    if (j1 % 10000 == 0)
+                    if (j1 % 10000 == 0) {
+                        std::cout << ids[centroid_num-1].size() << " "
+                                  << norm_codes[centroid_num-1].size() << " "
+                                  << codes[centroid_num-1].size() << std::endl;
+
                         std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
                                   << (100. * j1) / 1000000 << "%" << std::endl;
+                    }
                 }
 
                 if (groupsize == 0)
@@ -267,8 +272,8 @@ namespace hnswlib {
                     modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
                 }
                 /** Add codes **/
-                #pragma omp critical
-                {
+                //#pragma omp critical
+                //{
                     for (int subc = 0; subc < nsubc; subc++) {
                         idx_t subcsize = construction_norm_codes[subc].size();
                         group_sizes[centroid_num].push_back(subcsize);
@@ -280,12 +285,7 @@ namespace hnswlib {
                             norm_codes[centroid_num].push_back(construction_norm_codes[subc][i]);
                         }
                     }
-                    if (j1 % 10000 == 0) {
-                        std::cout << ids[j1-1].size() << " "
-                                  << norm_codes[j1-1].size() << " "
-                                  << codes[j1-1].size() << std::endl;
-                    }
-                }
+                //}
             }
             std::cout << "[Baseline] Average Distance: " << baseline_average / 1000000000 << std::endl;
             std::cout << "[Modified] Average Distance: " << modified_average / 1000000000 << std::endl;
