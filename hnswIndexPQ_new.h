@@ -275,7 +275,7 @@ namespace hnswlib {
             std::cout << "[Modified] Average Distance: " << modified_average / 1000000000 << std::endl;
 
             /** Rewrite data to compact structures **/
-            compact_data();
+            compact_data(construction_ids, construction_codes, construction_norm_codes);
 
             input_groups.close();
             input_idxs.close();
@@ -288,7 +288,7 @@ namespace hnswlib {
             for (int c = 0; c < nc; c++) {
                 for (int subc; subc < nsubc; subc++) {
                     idx_t groupsize = construction_norm_codes[c][subc].size();
-                    group_sizes.push_back(groupsize);
+                    group_sizes[c].push_back(groupsize);
 
                     auto group_ids = construction_ids[c][subc];
                     auto group_codes = construction_codes[c][subc];
@@ -333,7 +333,7 @@ namespace hnswlib {
 
                 const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
-                
+
                 for (int subc = 0; subc < nsubc; subc++){
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
