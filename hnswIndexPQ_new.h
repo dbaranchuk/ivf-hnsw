@@ -327,7 +327,7 @@ namespace hnswlib {
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
                     const float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
                     const float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
-                    snd_term.emplace(std::make_pair(-snd_term, subc));
+                    snd_terms.emplace(std::make_pair(-snd_term, subc));
                 }
 
                 while (snd_terms.size() > 64){
