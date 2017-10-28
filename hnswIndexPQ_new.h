@@ -46,11 +46,11 @@ namespace hnswlib {
         size_t max_codes = 10000;
 
         /** NEW **/
-        std::vector < std::vector < std::vector<idx_t> > > ids;
-        std::vector < std::vector < std::vector<uint8_t> > > codes;
-        std::vector < std::vector < std::vector<uint8_t> > > norm_codes;
-
+        std::vector < std::vector < idx_t > > ids;
+        std::vector < std::vector < uint8_t > > codes;
+        std::vector < std::vector < uint8_t > > norm_codes;
         std::vector < std::vector < idx_t > > nn_centroid_idxs;
+        std::vector < std::vector < idx_t > > group_sizes;
         std::vector < float > alphas;
 
         faiss::ProductQuantizer *norm_pq;
@@ -68,13 +68,7 @@ namespace hnswlib {
             ids.resize(nc);
             alphas.resize(nc);
             nn_centroid_idxs.resize(nc);
-
-            for (int i = 0; i < nc; i++){
-                ids[i].resize(nsubc);
-                codes[i].resize(nsubc);
-                norm_codes[i].resize(nsubc);
-                nn_centroid_idxs[i].resize(nsubc);
-            }
+            group_sizes.resize(nc);
 
             pq = new faiss::ProductQuantizer(d, bytes_per_code, nbits_per_idx);
             norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
@@ -148,12 +142,14 @@ namespace hnswlib {
             std::ifstream input_groups(path_groups, ios::binary);
             std::ifstream input_idxs(path_idxs, ios::binary);
 
+            /** Vectors for construction **/
+            std::vector< std::vector<float> > centroid_vector_norms_L2sqr(nc);
+            std::vector < std::vector < std::vector<idx_t> > > construction_ids(nc);
+            std::vector < std::vector < std::vector<uint8_t> > > construction_codes(nc);
+            std::vector < std::vector < std::vector<uint8_t> > > construction_norm_codes(nc);
+
             /** Find NN centroids to source centroid **/
             std::cout << "Find NN centroids to source centroids\n";
-            std::vector< std::vector<float> > centroid_vector_norms_L2sqr(nc);
-            //for (int i = 0; i < nc; i++)
-            //    centroid_vector_norms_L2sqr[i].resize(nsubc);
-
 
             //#pragma omp parallel for num_threads(24)
             for (int i = 0; i < nc; i++) {
@@ -161,6 +157,9 @@ namespace hnswlib {
                 std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
 
                 centroid_vector_norms_L2sqr[i].resize(nsubc);
+                construction_ids[i].resize(nsubc);
+                construction_codes[i].resize(nsubc);
+                construction_norm_codes[i].resize(nsubc);
                 while (nn_centroids_raw.size() > 1) {
                     centroid_vector_norms_L2sqr[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().first;
                     nn_centroid_idxs[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
@@ -168,18 +167,10 @@ namespace hnswlib {
                 }
             }
 
-//            FILE *fout = fopen("/home/dbaranchuk/data/groups/nn_centroid_idxs.ivecs", "wb");
-//            for(int i = 0; i < nc; i++) {
-//                int size = nn_centroid_idxs[i].size();
-//                fwrite(&size, sizeof(int), 1, fout);
-//                fwrite(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fout);
-//            }
-//            fclose(fout);
-
             /** Adding groups to index **/
             std::cout << "Adding groups to index\n";
             int j1 = 0;
-            #pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(16)
+            #pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(20)
             for (int c = 0; c < nc; c++) {
                 /** Read Original vectors from Group file**/
                 idx_t centroid_num;
@@ -264,36 +255,54 @@ namespace hnswlib {
                 norm_pq->compute_codes(norms.data(), xnorm_codes.data(), groupsize);
 
                 /** Add codes **/
-                #pragma omp critical
-                {
-                    for (int i = 0; i < groupsize; i++) {
-                        const idx_t idx = idxs[i];
-                        const idx_t subcentroid_idx = subcentroid_idxs[i];
+                for (int i = 0; i < groupsize; i++) {
+                    const idx_t idx = idxs[i];
+                    const idx_t subcentroid_idx = subcentroid_idxs[i];
 
-                        ids[centroid_num][subcentroid_idx].push_back(idx);
-                        norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_codes[i]);
-                        for (int j = 0; j < code_size; j++)
-                            codes[centroid_num][subcentroid_idx].push_back(xcodes[i * code_size + j]);
+                    construction_ids[centroid_num][subcentroid_idx].push_back(idx);
+                    construction_norm_codes[centroid_num][subcentroid_idx].push_back(xnorm_codes[i]);
+                    for (int j = 0; j < code_size; j++)
+                        construction_codes[centroid_num][subcentroid_idx].push_back(xcodes[i * code_size + j]);
 
-                        //const float *subcentroid = subcentroids.data() + subcentroid_idx * d;
-                        //const float *point = data.data() + i * d;
-                        //baseline_average += faiss::fvec_L2sqr(centroid, point, d);
-                        //modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
-                    }
+                    const float *subcentroid = subcentroids.data() + subcentroid_idx * d;
+                    const float *point = data.data() + i * d;
+                    baseline_average += faiss::fvec_L2sqr(centroid, point, d);
+                    modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
                 }
+
             }
             std::cout << "[Baseline] Average Distance: " << baseline_average / 1000000000 << std::endl;
             std::cout << "[Modified] Average Distance: " << modified_average / 1000000000 << std::endl;
+
+            /** Rewrite data to compact structures **/
+            compact_data();
+
             input_groups.close();
             input_idxs.close();
         }
 
-        struct CompareByFirst {
-            constexpr bool operator()(std::pair<float, idx_t> const &a,
-                                      std::pair<float, idx_t> const &b) const noexcept {
-                return a.first < b.first;
+        void compact_data(std::vector < std::vector < std::vector<idx_t> > > &construction_ids,
+                          std::vector < std::vector < std::vector<uint8_t> > > &construction_codes,
+                          std::vector < std::vector < std::vector<uint8_t> > > &construction_norm_codes)
+        {
+            for (int c = 0; c < nc; c++) {
+                for (int subc; subc < nsubc; subc++) {
+                    idx_t groupsize = construction_norm_codes[c][subc].size();
+                    group_sizes.push_back(groupsize);
+
+                    auto group_ids = construction_ids[c][subc];
+                    auto group_codes = construction_codes[c][subc];
+                    auto group_norm_codes = construction_norm_codes[c][subc];
+
+                    for (int i = 0; i < groupsize; i++) {
+                        ids[c].push_back(group_ids[i]);
+                        for (int j = 0; j < code_size; j++)
+                            codes[c].push_back(group_codes[i * code_size + j]);
+                        norm_codes[c].push_back(group_norm_codes[i]);
+                    }
+                }
             }
-        };
+        }
 
 		void search(float *x, idx_t k, idx_t *results)
 		{
@@ -314,43 +323,33 @@ namespace hnswlib {
 
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
-                const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
-                const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
-                const float alpha = alphas[centroid_num];
-                const float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
+                norm_pq->decode(norm_codes[centroid_num], norms.data(), norm_codes[centroid_num].size());
 
-//                std::priority_queue<std::pair<float, idx_t>> snd_terms;
-//                for (int subc = 0; subc < nsubc; subc++){
-//                    idx_t subcentroid_num = nn_centroids[subc];
-//                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
-//                    const float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
-//                    const float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
-//                    snd_terms.emplace(std::make_pair(-snd_term, subc));
-//                }
-//
-//                while (snd_terms.size() > ){
-//                    auto pair = snd_terms.top();
-//                    idx_t subc = pair.second;
-//                    float snd_term = -pair.first;
-//                    snd_terms.pop();
+                const uint8_t *code = codes[centroid_num].data();
+                const float *norm = norms.data();
+                const idx_t *id = ids[centroid_num].data();
+                const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
+                float alpha = alphas[centroid_num];
+
+                const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
+                float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
+                
                 for (int subc = 0; subc < nsubc; subc++){
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
-                    const float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
-                    const float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
+                    float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
+                    float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
 
-                    std::vector<uint8_t> &code = codes[centroid_num][subc];
-                    std::vector<uint8_t> &norm_code = norm_codes[centroid_num][subc];
-                    int groupsize = norm_code.size();
-
-                    norm_pq->decode(norm_code.data(), norms.data(), groupsize);
-
+                    int groupsize = group_sizes[centroid_num][subc];
                     for (int j = 0; j < groupsize; j++){
-                        float q_r = fstdistfunc(code.data() + j*code_size);
-                        float dist = fst_term + snd_term - 2*q_r + norms[j];
-                        idx_t label = ids[centroid_num][subc][j];
-                        topResults.emplace(std::make_pair(-dist, label));
+                        float q_r = fstdistfunc(code+ j*code_size);
+                        float dist = fst_term + snd_term - 2*q_r + norm[j];
+                        topResults.emplace(std::make_pair(-dist, id[j]));
                     }
+                    /** Shift to the next group **/
+                    code += groupsize*code_size;
+                    norm += groupsize;
+                    id += groupsize;
                 }
                 if (topResults.size() >= max_codes)
                     break;
@@ -372,36 +371,41 @@ namespace hnswlib {
 
             idx_t size;
             /** Save Vector Indexes per  **/
-            for (size_t i = 0; i < nc; i++)
-                for (size_t j = 0; j < nsubc; j++) {
-                    size = ids[i][j].size();
-                    fwrite(&size, sizeof(idx_t), 1, fout);
-                    fwrite(ids[i][j].data(), sizeof(idx_t), size, fout);
-                }
-
+            for (size_t i = 0; i < nc; i++) {
+                //for (size_t j = 0; j < nsubc; j++) {
+                size = ids[i].size();
+                fwrite(&size, sizeof(idx_t), 1, fout);
+                fwrite(ids[i].data(), sizeof(idx_t), size, fout);
+                //}
+            }
             /** Save PQ Codes **/
-            for(int i = 0; i < nc; i++)
-                for (size_t j = 0; j < nsubc; j++) {
-                    size = codes[i][j].size();
-                    fwrite(&size, sizeof(idx_t), 1, fout);
-                    fwrite(codes[i][j].data(), sizeof(uint8_t), size, fout);
-                }
-
+            for(int i = 0; i < nc; i++) {
+                //for (size_t j = 0; j < nsubc; j++) {
+                size = codes[i].size();
+                fwrite(&size, sizeof(idx_t), 1, fout);
+                fwrite(codes[i].data(), sizeof(uint8_t), size, fout);
+                //}
+            }
             /** Save Norm Codes **/
-            for(int i = 0; i < nc; i++)
-                for (size_t j = 0; j < nsubc; j++) {
-                    size = norm_codes[i][j].size();
-                    fwrite(&size, sizeof(idx_t), 1, fout);
-                    fwrite(norm_codes[i][j].data(), sizeof(uint8_t), size, fout);
-                }
-
+            for(int i = 0; i < nc; i++) {
+                //for (size_t j = 0; j < nsubc; j++) {
+                size = norm_codes[i].size();
+                fwrite(&size, sizeof(idx_t), 1, fout);
+                fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
+                //}
+            }
             /** Save NN Centroid Indexes **/
             for(int i = 0; i < nc; i++) {
                 size = nn_centroid_idxs[i].size();
                 fwrite(&size, sizeof(idx_t), 1, fout);
                 fwrite(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fout);
             }
-
+            /** Write Group Sizes **/
+            for(int i = 0; i < nc; i++) {
+                size = group_sizes[i].size();
+                fwrite(&size, sizeof(idx_t), 1, fout);
+                fwrite(group_sizes[i].data(), sizeof(idx_t), size, fout);
+            }
             /** Save Alphas **/
             fwrite(alphas.data(), sizeof(float), nc, fout);
             fclose(fout);
@@ -421,39 +425,48 @@ namespace hnswlib {
             alphas.resize(nc);
             nn_centroid_idxs.resize(nc);
 
-            for (int i = 0; i < nc; i++){
-                ids[i].resize(nsubc);
-                codes[i].resize(nsubc);
-                norm_codes[i].resize(nsubc);
-            }
+//            for (int i = 0; i < nc; i++){
+//                ids[i].resize(nsubc);
+//                codes[i].resize(nsubc);
+//                norm_codes[i].resize(nsubc);
+//            }
 
             idx_t size;
-            for (size_t i = 0; i < nc; i++)
-                for (size_t j = 0; j < nsubc; j++) {
-                    fread(&size, sizeof(idx_t), 1, fin);
-                    ids[i][j].reserve(size);
-                    fread(ids[i][j].data(), sizeof(idx_t), size, fin);
-                }
-
-            for(size_t i = 0; i < nc; i++)
-                for (size_t j = 0; j < nsubc; j++) {
-                    fread(&size, sizeof(idx_t), 1, fin);
-                    codes[i][j].reserve(size);
-                    fread(codes[i][j].data(), sizeof(uint8_t), size, fin);
-                }
-
-            for(size_t i = 0; i < nc; i++)
-                for (size_t j = 0; j < nsubc; j++) {
-                    fread(&size, sizeof(idx_t), 1, fin);
-                    norm_codes[i][j].resize(size);
-                    fread(norm_codes[i][j].data(), sizeof(uint8_t), size, fin);
-                }
-
-
-            for(int i = 0; i < nc; i++) {
+            /** Read Indexes **/
+            for (size_t i = 0; i < nc; i++) {
+                //for (size_t j = 0; j < nsubc; j++) {
                 fread(&size, sizeof(idx_t), 1, fin);
-                nn_centroid_idxs[i].reserve(size);
+                ids[i].resize(size);
+                fread(ids[i].data(), sizeof(idx_t), size, fin);
+                //}
+            }
+            /** Read Codes **/
+            for(size_t i = 0; i < nc; i++) {
+                //for (size_t j = 0; j < nsubc; j++) {
+                fread(&size, sizeof(idx_t), 1, fin);
+                codes[i].resize(size);
+                fread(codes[i].data(), sizeof(uint8_t), size, fin);
+                //}
+            }
+            /** Read Norm Codes **/
+            for(size_t i = 0; i < nc; i++) {
+                //for (size_t j = 0; j < nsubc; j++) {
+                fread(&size, sizeof(idx_t), 1, fin);
+                norm_codes[i].resize(size);
+                fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
+                //}
+            }
+            /** Read NN Centroid Indexes **/
+            for(size_t i = 0; i < nc; i++) {
+                fread(&size, sizeof(idx_t), 1, fin);
+                nn_centroid_idxs[i].resize(size);
                 fread(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fin);
+            }
+            /** Read Group Sizes **/
+            for(size_t i = 0; i < nc; i++) {
+                fread(&size, sizeof(idx_t), 1, fin);
+                nn_centroid_idxs[i].resize(size);
+                fread(group_sizes[i].data(), sizeof(idx_t), size, fin);
             }
 
             fread(alphas.data(), sizeof(float), nc, fin);
@@ -740,18 +753,15 @@ namespace hnswlib {
             }
             positive_alpha /= counter_positive;
             negative_alpha /= counter_negative;
-
-//    if (counter_positive == 0)
-//        std::cout << "Positive Alpha: every alpha is negative" << std::endl;
-//    else
-//        std::cout << "Positive Alpha: " << positive_alpha << std::endl;
-//
-//    if (counter_negative == 0)
-//        std::cout << "Negative Alpha: every alphas is positive" << std::endl;
-//    else
-//        std::cout << "Negative Alpha: " << negative_alpha << std::endl;
             return (counter_positive > counter_negative) ? positive_alpha : negative_alpha;
         }
+
+        struct CompareByFirst {
+            constexpr bool operator()(std::pair<float, idx_t> const &a,
+                                      std::pair<float, idx_t> const &b) const noexcept {
+                return a.first < b.first;
+            }
+        };
 	};
 
 }
