@@ -299,8 +299,6 @@ namespace hnswlib {
             input_idxs.close();
         }
 
-        int empty_subgroups = 0;
-
 		void search(float *x, idx_t k, idx_t *results)
 		{
             idx_t keys[nprobe];
@@ -335,10 +333,9 @@ namespace hnswlib {
 
                 for (int subc = 0; subc < nsubc; subc++){
                     int groupsize = group_sizes[centroid_num][subc];
-                    if (groupsize == 0) {
-                        empty_subgroups++;
+                    if (groupsize == 0)
                         continue;
-                    }
+
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
                     float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
