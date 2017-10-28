@@ -467,7 +467,7 @@ namespace hnswlib {
             /** Read Group Sizes **/
             for(size_t i = 0; i < nc; i++) {
                 fread(&size, sizeof(idx_t), 1, fin);
-                nn_centroid_idxs[i].resize(size);
+                group_sizes[i].resize(size);
                 fread(group_sizes[i].data(), sizeof(idx_t), size, fin);
             }
 
