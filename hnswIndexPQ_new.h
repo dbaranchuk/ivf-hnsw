@@ -318,6 +318,8 @@ namespace hnswlib {
 
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
+                if (group_sizes[centroid_num].size() == 0)
+                    continue;
                 norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), norm_codes[centroid_num].size());
 
                 const uint8_t *code = codes[centroid_num].data();
@@ -335,7 +337,7 @@ namespace hnswlib {
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
                     float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
                     float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
-                    std::cout << centroid_num << " " << group_sizes[centroid_num].size() << " " << norm_codes[centroid_num].size() << "\n";
+                    
                     int groupsize = group_sizes[centroid_num][subc];
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(const_cast<uint8_t *>(code)+ j*code_size);
