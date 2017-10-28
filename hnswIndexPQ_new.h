@@ -279,9 +279,11 @@ namespace hnswlib {
                                 codes[centroid_num].push_back(construction_codes[subc][i * code_size + j]);
                             norm_codes[centroid_num].push_back(construction_norm_codes[subc][i]);
                         }
-                        std::cout << ids[centroid_num].size() << std::endl;
-                        std::cout << norm_codes[centroid_num].size() << std::endl;
-                        std::cout << codes[centroid_num].size() << std::endl;
+                    }
+                    if (j1 % 10000 == 0) {
+                        std::cout << ids[centroid_num].size() << " "
+                                  << norm_codes[centroid_num].size() << " "
+                                  << codes[centroid_num].size() << std::endl;
                     }
                 }
             }
