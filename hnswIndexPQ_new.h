@@ -277,6 +277,7 @@ namespace hnswlib {
                     for (int subc = 0; subc < nsubc; subc++) {
                         idx_t subcsize = construction_norm_codes[subc].size();
                         group_sizes[centroid_num].push_back(subcsize);
+                        std::cout << subcsize << std::endl;
 
                         for (int i = 0; i < subcsize; i++) {
                             ids[centroid_num].push_back(construction_ids[subc][i]);
