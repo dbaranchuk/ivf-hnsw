@@ -148,7 +148,7 @@ namespace hnswlib {
             /** Find NN centroids to source centroid **/
             std::cout << "Find NN centroids to source centroids\n";
 
-            //#pragma omp parallel for num_threads(20)
+            #pragma omp parallel for num_threads(20)
             for (int i = 0; i < nc; i++) {
                 const float *centroid = (float *) quantizer->getDataByInternalId(i);
                 std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
@@ -267,15 +267,21 @@ namespace hnswlib {
                     modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
                 }
                 /** Add codes **/
-                for (int subc; subc < nsubc; subc++) {
-                    idx_t subcsize = construction_norm_codes[subc].size();
-                    group_sizes[centroid_num].push_back(subcsize);
+                #pragma omp critical
+                {
+                    for (int subc; subc < nsubc; subc++) {
+                        idx_t subcsize = construction_norm_codes[subc].size();
+                        group_sizes[centroid_num].push_back(subcsize);
 
-                    for (int i = 0; i < subcsize; i++) {
-                        ids[centroid_num].push_back(construction_ids[subc][i]);
-                        for (int j = 0; j < code_size; j++)
-                            codes[centroid_num].push_back(construction_codes[subc][i * code_size + j]);
-                        norm_codes[centroid_num].push_back(construction_norm_codes[subc][i]);
+                        for (int i = 0; i < subcsize; i++) {
+                            ids[centroid_num].push_back(construction_ids[subc][i]);
+                            for (int j = 0; j < code_size; j++)
+                                codes[centroid_num].push_back(construction_codes[subc][i * code_size + j]);
+                            norm_codes[centroid_num].push_back(construction_norm_codes[subc][i]);
+                        }
+                        std::cout << ids[centroid_num].size() << std::endl;
+                        std::cout << norm_codes[centroid_num].size() << std::endl;
+                        std::cout << codes[centroid_num].size() << std::endl;
                     }
                 }
             }
