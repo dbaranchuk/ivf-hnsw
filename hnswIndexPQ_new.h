@@ -287,7 +287,8 @@ namespace hnswlib {
                                   << ids[centroid_num].size() << " "
                                   << norm_codes[centroid_num].size() << " "
                                   << codes[centroid_num].size() << std::endl;
-                };
+                    }
+                }
             }
             std::cout << "[Baseline] Average Distance: " << baseline_average / 1000000000 << std::endl;
             std::cout << "[Modified] Average Distance: " << modified_average / 1000000000 << std::endl;
