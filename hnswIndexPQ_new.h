@@ -431,14 +431,14 @@ namespace hnswlib {
             for (size_t i = 0; i < nc; i++)
                 for (size_t j = 0; j < nsubc; j++) {
                     fread(&size, sizeof(idx_t), 1, fin);
-                    ids[i][j].resize(size);
+                    ids[i][j].reserve(size);
                     fread(ids[i][j].data(), sizeof(idx_t), size, fin);
                 }
 
             for(size_t i = 0; i < nc; i++)
                 for (size_t j = 0; j < nsubc; j++) {
                     fread(&size, sizeof(idx_t), 1, fin);
-                    codes[i][j].resize(size);
+                    codes[i][j].reserve(size);
                     fread(codes[i][j].data(), sizeof(uint8_t), size, fin);
                 }
 
@@ -452,7 +452,7 @@ namespace hnswlib {
 
             for(int i = 0; i < nc; i++) {
                 fread(&size, sizeof(idx_t), 1, fin);
-                nn_centroid_idxs[i].resize(size);
+                nn_centroid_idxs[i].reserve(size);
                 fread(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fin);
             }
 
