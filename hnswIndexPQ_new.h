@@ -321,11 +321,25 @@ namespace hnswlib {
                 const float alpha = alphas[centroid_num];
                 const float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
+                std::priority_queue<std::pair<float, idx_t>> snd_terms;
                 for (int subc = 0; subc < nsubc; subc++){
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
                     const float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
-                    const float fst_snd_term = fst_term + alpha * (q_s - centroid_norms[subcentroid_num]);
+                    const float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
+                    snd_term.emplace(std::make_pair(-snd_term, subc));
+                }
+
+                while (snd_terms.size() > 64){
+                    auto pair = snd_terms.top();
+                    idx_t subc = pair.second;
+                    float snd_term = -pair.first;
+                    snd_terms.pop();
+                //for (int subc = 0; subc < nsubc; subc++){
+                    //idx_t subcentroid_num = nn_centroids[subc];
+                    //const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+                    //const float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
+                    //const float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
 
                     std::vector<uint8_t> &code = codes[centroid_num][subc];
                     std::vector<uint8_t> &norm_code = norm_codes[centroid_num][subc];
@@ -335,8 +349,7 @@ namespace hnswlib {
 
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code.data() + j*code_size);
-                        float dist = fst_snd_term - 2*q_r + norms[j];
-
+                        float dist = fst_term + snd_term - 2*q_r + norms[j];
                         idx_t label = ids[centroid_num][subc][j];
                         topResults.emplace(std::make_pair(-dist, label));
                     }
