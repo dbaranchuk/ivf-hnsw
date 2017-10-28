@@ -316,41 +316,39 @@ namespace hnswlib {
                 coarse.pop();
             }
 
-            std::cout << "HUI1\n";
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
                 norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), norm_codes[centroid_num].size());
 
-                std::cout << "HUI2\n";
                 const uint8_t *code = codes[centroid_num].data();
                 const float *norm = norms.data();
                 const idx_t *id = ids[centroid_num].data();
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
                 float alpha = alphas[centroid_num];
 
-                std::cout << "HUI3\n";
                 const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
-                std::cout << "HUI4\n";
                 for (int subc = 0; subc < nsubc; subc++){
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
                     float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
                     float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
-                    std::cout << "HUI5\n";
+                    std::cout << "HUI3\n";
                     int groupsize = group_sizes[centroid_num][subc];
+                    std::cout << "HUI4\n";
                     for (int j = 0; j < groupsize; j++){
+                        std::cout << "HUI5\n";
                         float q_r = fstdistfunc(const_cast<uint8_t *>(code)+ j*code_size);
+                        std::cout << "HUI6\n";
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
+                        std::cout << "HUI7\n";
                         topResults.emplace(std::make_pair(-dist, id[j]));
                     }
-                    std::cout << "HUI6\n";
                     /** Shift to the next group **/
                     code += groupsize*code_size;
                     norm += groupsize;
                     id += groupsize;
-                    std::cout << "HUI7\n";
                 }
                 if (topResults.size() >= max_codes)
                     break;
