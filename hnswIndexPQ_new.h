@@ -134,6 +134,7 @@ namespace hnswlib {
 
         void add(const char *path_groups, const char *path_idxs)
         {
+            size_t maxM = 64;
             StopW stopw = StopW();
 
             double baseline_average = 0.0;
@@ -151,15 +152,30 @@ namespace hnswlib {
             #pragma omp parallel for num_threads(20)
             for (int i = 0; i < nc; i++) {
                 const float *centroid = (float *) quantizer->getDataByInternalId(i);
-                std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
+                std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, 2*nsubc + 1);
+
+                /** Pruning **/
+                std::priority_queue<std::pair<float, idx_t>> heuristic_nn_centroids;
+                while (nn_centroids_raw.size() > 1) {
+                    heuristic_nn_centroids.emplace(nn_centroids_raw.top());
+                    nn_centroids_raw.pop();
+                }
+                quantizer->getNeighborsByHeuristicMerge(heuristic_nn_centroids, maxM);
 
                 centroid_vector_norms_L2sqr[i].resize(nsubc);
                 nn_centroid_idxs[i].resize(nsubc);
-                while (nn_centroids_raw.size() > 1) {
-                    centroid_vector_norms_L2sqr[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().first;
-                    nn_centroid_idxs[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
-                    nn_centroids_raw.pop();
+                while (heuristic_nn_centroids.size() > 0) {
+                    centroid_vector_norms_L2sqr[i][heuristic_nn_centroids.size() - 1] = heuristic_nn_centroids.top().first;
+                    nn_centroid_idxs[i][heuristic_nn_centroids.size() - 1] = heuristic_nn_centroids.top().second;
+                    nn_centroids_heuristic.pop();
                 }
+//                centroid_vector_norms_L2sqr[i].resize(nsubc);
+//                nn_centroid_idxs[i].resize(nsubc);
+//                while (nn_centroids_raw.size() > 1) {
+//                    centroid_vector_norms_L2sqr[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().first;
+//                    nn_centroid_idxs[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
+//                    nn_centroids_raw.pop();
+//                }
             }
 
             /** Adding groups to index **/
@@ -193,9 +209,6 @@ namespace hnswlib {
 
                 if (groupsize == 0)
                     continue;
-
-                /** Pruning **/
-                //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
 
                 const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 const float *centroid_vector_norms = centroid_vector_norms_L2sqr[centroid_num].data();
