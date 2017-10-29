@@ -6,8 +6,9 @@ void hybrid_test(const char *, const char *, const char *,
                  const char *, const char *,
                  const char *, const char *, const char *,
                  const char *, const char *, const char *,
+                 const char *, const char *,
                  const int, const int, const int, const int, const int, const int,
-                 const int, const int, const int, const int, const int);
+                 const int, const int, const int, const int, const int, const int);
 
 //void deep_test10M();
 void hnsw_test( const char *,
@@ -52,6 +53,7 @@ int main(int argc, char **argv) {
     size_t M = 4;
     size_t efConstruction = 240;
     size_t ncentroids;
+    size_t nsubcentroids;
     size_t efSearch = 240;
     size_t M_PQ = 16;
     size_t nprobes = 64;
@@ -72,6 +74,9 @@ int main(int argc, char **argv) {
     const char *path_norm_pq = NULL;
     const char *path_learn = NULL;
     const char *path_centroids = NULL;
+
+    const char *path_groups;
+    const char *path_idxs;
 
     const char *l2space_type = NULL; //{int, float, new_pq}
     int k = 1, ret, ep;
@@ -125,6 +130,12 @@ int main(int argc, char **argv) {
         else if (!strcmp (a, "-path_centroids") && i+1 < argc) {
             path_centroids = argv[++i];
         }
+        else if (!strcmp (a, "-path_groups") && i+1 < argc) {
+            path_groups = argv[++i];
+        }
+        else if (!strcmp (a, "-path_idxs") && i+1 < argc) {
+            path_idxs = argv[++i];
+        }
         /** Int Parameters **/
         else if (!strcmp (a, "-k") && i+1 < argc) {
             ret = sscanf (argv[++i], "%d", &k);
@@ -173,6 +184,10 @@ int main(int argc, char **argv) {
             ret = sscanf (argv[++i], "%d", &max_codes);
             assert (ret);
         }
+        else if (!strcmp (a, "-nsubcentroids") && i+1 < argc) {
+            ret = sscanf (argv[++i], "%d", &nsubcentroids);
+            assert (ret);
+        }
     }
 
     if ((!path_codebooks && path_tables) || (path_codebooks && !path_tables)) {
@@ -194,8 +209,9 @@ int main(int argc, char **argv) {
     hybrid_test(path_centroids, path_index, path_precomputed_idxs,
                 path_pq, path_norm_pq, path_learn, path_data, path_q,
                 path_gt, path_info, path_edges,
+                path_groups, path_idxs,
                 k, vecsize, ncentroids, qsize, vecdim, efConstruction, efSearch, M,
-                M_PQ, nprobes, max_codes);
+                M_PQ, nprobes, max_codes, nsubcentroids);
 
 
     return 0;  

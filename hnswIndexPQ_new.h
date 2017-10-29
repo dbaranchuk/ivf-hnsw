@@ -38,7 +38,7 @@ namespace hnswlib {
 	{
 		size_t d = 96;             /** Vector Dimension **/
 		size_t nc = 999973;            /** Number of Centroids **/
-        size_t nsubc = 128;         /** Number of Subcentroids **/
+        size_t nsubc;         /** Number of Subcentroids **/
         size_t code_size = 16;     /** PQ Code Size **/
 
         /** Query members **/
@@ -60,7 +60,7 @@ namespace hnswlib {
     public:
 
 		ModifiedIndex(size_t dim, size_t ncentroids, size_t bytes_per_code,
-                    size_t nbits_per_idx, size_t nsubcentroids = 128):
+                    size_t nbits_per_idx, size_t nsubcentroids = 64):
                  d(dim), nc(ncentroids), nsubc(nsubcentroids)
 		{
             codes.resize(nc);
@@ -280,15 +280,15 @@ namespace hnswlib {
                     }
                 }
 
-                #pragma omp critical
-                {
-                    if (centroid_num % 10000 == 0) {
-                        std::cout << group_sizes[centroid_num].size() << " "
-                                  << ids[centroid_num].size() << " "
-                                  << norm_codes[centroid_num].size() << " "
-                                  << codes[centroid_num].size() << std::endl;
-                    }
-                }
+                //#pragma omp critical
+                //{
+                //    if (centroid_num % 10000 == 0) {
+                //        std::cout << group_sizes[centroid_num].size() << " "
+                //                  << ids[centroid_num].size() << " "
+                //                  << norm_codes[centroid_num].size() << " "
+                //                  << codes[centroid_num].size() << std::endl;
+                //    }
+                //}
             }
             std::cout << "[Baseline] Average Distance: " << baseline_average / 1000000000 << std::endl;
             std::cout << "[Modified] Average Distance: " << modified_average / 1000000000 << std::endl;

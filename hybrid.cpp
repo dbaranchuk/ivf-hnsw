@@ -611,6 +611,7 @@ void hybrid_test(const char *path_centroids,
                  const char *path_pq, const char *path_norm_pq,
                  const char *path_learn, const char *path_data, const char *path_q,
                  const char *path_gt, const char *path_info, const char *path_edges,
+                 const char *path_groups, const char *path_idxs,
                  const int k,
                  const int vecsize,
                  const int ncentroids,
@@ -621,7 +622,8 @@ void hybrid_test(const char *path_centroids,
                  const int M,
                  const int M_PQ,
                  const int nprobes,
-                 const int max_codes)
+                 const int max_codes,
+                 const int nsubcentroids)
 {
     cout << "Loading GT:\n";
     const int gt_dim = 1;
@@ -635,10 +637,7 @@ void hybrid_test(const char *path_centroids,
     SpaceInterface<float> *l2space = new L2Space(vecdim);
 
     /** Create Index **/
-    const char *path_groups = "/home/dbaranchuk/data/groups/groups999973.dat";
-    const char *path_idxs = "/home/dbaranchuk/data/groups/idxs999973.ivecs";
-
-    ModifiedIndex *index = new ModifiedIndex(vecdim, ncentroids, M_PQ, 8);
+    ModifiedIndex *index = new ModifiedIndex(vecdim, ncentroids, M_PQ, 8, nsubcentroids);
     index->buildQuantizer(l2space, path_centroids, path_info, path_edges, 500);
     //index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
 
@@ -678,10 +677,6 @@ void hybrid_test(const char *path_centroids,
         /** Load Index **/
         std::cout << "Loading index from " << path_index << std::endl;
         index->read(path_index);
-        //compute_average_distance(path_data, path_centroids, path_precomputed_idxs, ncentroids, vecdim, vecsize);
-        //save_groups(index, "/home/dbaranchuk/data/groups/groups999973.dat", path_data,
-        //            path_precomputed_idxs, vecdim, vecsize);
-        //check_idea(index, path_centroids, path_precomputed_idxs, path_data, vecsize, vecdim);
     } else {
         /** Add elements **/
         index->add(path_groups, path_idxs);
