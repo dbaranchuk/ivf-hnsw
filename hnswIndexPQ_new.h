@@ -167,7 +167,7 @@ namespace hnswlib {
                 while (heuristic_nn_centroids.size() > 0) {
                     centroid_vector_norms_L2sqr[i][heuristic_nn_centroids.size() - 1] = heuristic_nn_centroids.top().first;
                     nn_centroid_idxs[i][heuristic_nn_centroids.size() - 1] = heuristic_nn_centroids.top().second;
-                    nn_centroids_heuristic.pop();
+                    heuristic_nn_centroids.pop();
                 }
 //                centroid_vector_norms_L2sqr[i].resize(nsubc);
 //                nn_centroid_idxs[i].resize(nsubc);
