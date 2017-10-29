@@ -9,7 +9,7 @@
 # tested on CentOS 7, Ubuntu 16 and Ubuntu 14, see below to adjust flags to distribution.
 
 
-CC=g++
+CC=g++-4.6
 
 CFLAGS=-fPIC -m64 -Wall -g -O3 -mavx -msse4 -mpopcnt -fopenmp -Wno-sign-compare -std=c++11 -fopenmp
 LDFLAGS=-g -fPIC  -fopenmp
