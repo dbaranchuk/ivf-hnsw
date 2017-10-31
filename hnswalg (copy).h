@@ -166,7 +166,7 @@ namespace hnswlib {
         {
             size_t *param = params;
             while (internal_id >= param[i_threshold]) param += params_num;
-            return param;
+            return params;
         };
 
         inline char *getDataByInternalId(tableint internal_id) const
@@ -265,7 +265,6 @@ namespace hnswlib {
         searchBaseLayerST(tableint ep, void *datapoint, size_t ef, int q_idx = -1)
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
-            //VisitedSet *vs = visitedsetpool->getFreeVisitedSet();
             vl_type *massVisited = vl->mass;
             vl_type currentV = vl->curV;
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> topResults;
@@ -281,7 +280,6 @@ namespace hnswlib {
             topResults.emplace(dist, ep);
             candidateSet.emplace(-dist, ep);
             massVisited[ep] = currentV;
-//          vs->insert(ep);
             dist_t lowerBound = dist;
 
             while (!candidateSet.empty()) {
@@ -308,8 +306,6 @@ namespace hnswlib {
                     _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
                     _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
 
-//                    if (vs->count(tnum) == 0){
-//                        vs->insert(tnum);
                     if (!(massVisited[tnum] == currentV)) {
                         massVisited[tnum] = currentV;
 
@@ -318,7 +314,8 @@ namespace hnswlib {
                             dist = space->fstdistfuncST(getDataByInternalId(tnum));
                         else
                             dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
-                        
+
+                        dists[j] = dist;
                         dist_calc++;
                         if (topResults.top().first > dist || topResults.size() < ef) {
                             candidateSet.emplace(-dist, tnum);
@@ -334,7 +331,6 @@ namespace hnswlib {
                     }
                 }
             }
-            //visitedsetpool->releaseVisitedSet(vs);
             visitedlistpool->releaseVisitedList(vl);
             return topResults;
         }
@@ -359,7 +355,8 @@ namespace hnswlib {
                 resultSet.pop();
                 bool good = true;
                 for (std::pair<dist_t, tableint> curen2 : returnlist) {
-                    dist_t curdist = space->fstdistfunc(getDataByInternalId(curen2.second), getDataByInternalId(curen.second));
+                    dist_t curdist = space->fstdistfunc(getDataByInternalId(curen2.second),
+                                                        getDataByInternalId(curen.second));
                     if (curdist < dist_to_query) {
                         good = false;
                         break;
@@ -735,6 +732,7 @@ namespace hnswlib {
 
             /** Hierarcy **/
             linkLists_ = (char **) malloc(sizeof(void *) * maxelements_);
+            distances = new float[maxelements_*params[i_maxM0]];
 
             elementLevels = vector<char>(maxelements_);
             maxlevel_ = 0;
