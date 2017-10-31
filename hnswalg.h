@@ -424,6 +424,9 @@ namespace hnswlib {
 
                     getNeighborsByHeuristicMerge(candidates, rezMmax);
 
+                    if (candidates.size() != 32)
+                        std::cout << candidates.size() << std::endl;
+
                     int indx = 0;
                     while (candidates.size() > 0) {
                         data[indx] = candidates.top().second;

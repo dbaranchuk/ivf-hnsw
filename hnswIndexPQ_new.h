@@ -532,7 +532,7 @@ namespace hnswlib {
 
                 if (size != 32){
                     std::cerr << "Wrong list size: " << size << std::endl;
-                    //exit(1);
+                    exit(1);
                 }
                 for (int j = 0; j < size; j++){
                     tableint curElement = *(ll + j);
@@ -617,7 +617,7 @@ namespace hnswlib {
 
                 if (size != 32){
                     std::cerr << "Wrong list size: " << size << std::endl;
-                    //exit(1);
+                    exit(1);
                 }
                 for (int j = 0; j < size; j++){
                     tableint curElement = *(ll + j);
