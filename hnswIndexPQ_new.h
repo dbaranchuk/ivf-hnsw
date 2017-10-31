@@ -538,8 +538,8 @@ namespace hnswlib {
                 }
                 for (int j = 0; j < size; j++){
                     tableint curElement = *(ll + j);
-                    centroid_vector_norms_L2sqr[i][j] = quantizer->space->fstdistfunc(centroid, quantizer->getDataByInternalId(curElement));
-                    nn_centroid_idxs[i][j] = curElement;
+                    centroid_vector_norms[i][j] = quantizer->space->fstdistfunc(centroid, quantizer->getDataByInternalId(curElement));
+                    nn_centroids[i][j] = curElement;
                 }
 
 //                while (nn_centroids_raw.size() > 1) {
@@ -623,8 +623,8 @@ namespace hnswlib {
                 }
                 for (int j = 0; j < size; j++){
                     tableint curElement = *(ll + j);
-                    centroid_vector_norms_L2sqr[i][j] = quantizer->space->fstdistfunc(centroid, quantizer->getDataByInternalId(curElement));
-                    nn_centroid_idxs[i][j] = curElement;
+                    centroid_vector_norms[i][j] = quantizer->space->fstdistfunc(centroid, quantizer->getDataByInternalId(curElement));
+                    nn_centroids[i][j] = curElement;
                 }
 
 //                while (nn_centroids_raw.size() > 1) {
