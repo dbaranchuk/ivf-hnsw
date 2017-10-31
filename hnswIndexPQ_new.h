@@ -374,6 +374,8 @@ namespace hnswlib {
 //                size_t size = *(ll_centroid);
 //                tableint *ll = (tableint *)(ll_centroid + 1);
 
+                std::priority_queue<std::pair<float, idx_t>> subgroups;
+
                 std::vector< float > q_s(nsubc);
                 std::vector< float > r(nsubc);
                 double average_r = 0.0;
@@ -383,15 +385,15 @@ namespace hnswlib {
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
 
                     q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
-                    //r[subc] = (1-alpha) * q_c[i] + alpha * (alpha-1) * s_c[centroid_num][subc] + alpha * q_s[subc];
-                    r[subc] = (1+alpha) * q_c[i] + alpha * (alpha+1) * s_c[centroid_num][subc] - alpha * q_s[subc];
+                    r[subc] = (1-alpha) * q_c[i] + alpha * (alpha-1) * s_c[centroid_num][subc] + alpha * q_s[subc];
+                    //r[subc] = (1+alpha) * q_c[i] + alpha * (alpha+1) * s_c[centroid_num][subc] - alpha * q_s[subc];
                     average_r += r[subc];
+                    subgroups.emplace(std::make_pair(-r[subc], subc));
                 }
                 average_r /= nsubc;
 
-                for (int subc = 0; subc < nsubc; subc++){
-                    if (r[subc] > average_r)
-                        continue;
+                while(subgroups.size() > 0){
+                    idx_t subc = subgroups.top().second;
 
                     int groupsize = group_sizes[centroid_num][subc];
                     if (groupsize == 0)
@@ -412,6 +414,29 @@ namespace hnswlib {
                     norm += groupsize;
                     id += groupsize;
                 }
+//                for (int subc = 0; subc < nsubc; subc++){
+//                    if (r[subc] > average_r)
+//                        continue;
+//
+//                    int groupsize = group_sizes[centroid_num][subc];
+//                    if (groupsize == 0)
+//                        continue;
+//
+//                    idx_t subcentroid_num = nn_centroids[subc];
+//                    //const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+//                    //float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
+//                    float snd_term = alpha * (q_s[subc] - centroid_norms[subcentroid_num]);
+//
+//                    for (int j = 0; j < groupsize; j++){
+//                        float q_r = fstdistfunc(const_cast<uint8_t *>(code)+ j*code_size);
+//                        float dist = fst_term + snd_term - 2*q_r + norm[j];
+//                        topResults.emplace(std::make_pair(-dist, id[j]));
+//                    }
+//                    /** Shift to the next group **/
+//                    code += groupsize*code_size;
+//                    norm += groupsize;
+//                    id += groupsize;
+//                }
                 if (topResults.size() >= max_codes)
                     break;
             }
