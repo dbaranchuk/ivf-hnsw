@@ -532,7 +532,7 @@ namespace hnswlib {
                 size_t size = *(ll_centroid);
                 tableint *ll = (tableint *)(ll_centroid + 1);
 
-                if (size != maxM){
+                if (size != 32){
                     std::cout << "Wrong list size\n";
                     exit(1);
                 }
@@ -617,7 +617,7 @@ namespace hnswlib {
                 size_t size = *(ll_centroid);
                 tableint *ll = (tableint *)(ll_centroid + 1);
 
-                if (size != maxM){
+                if (size != 32){
                     std::cout << "Wrong list size\n";
                     exit(1);
                 }
