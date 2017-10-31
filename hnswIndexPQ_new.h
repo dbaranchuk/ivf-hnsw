@@ -155,24 +155,23 @@ namespace hnswlib {
                 const float *centroid = (float *) quantizer->getDataByInternalId(i);
                 //std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, 2*nsubc + 1);
                 std::cerr << "HUI" << std::endl;
-                linklistsizeint *ll_centroid = quantizer->get_linklist0(i);
-                size_t size = *(ll_centroid);
-                tableint *ll = (tableint *)(ll_centroid + 1);
+                //linklistsizeint *ll_centroid = quantizer->get_linklist0(i);
+                //size_t size = *(ll_centroid);
+                //tableint *ll = (tableint *)(ll_centroid + 1);
                 std::cerr << "HUI0" << std::endl;
 //                if (size != maxM){
 //                    std::cerr << "Wrong list size\n";
 //                    exit(1);
 //                }
-                std::cerr << "HUI1" << std::endl;
                 centroid_vector_norms_L2sqr[i].resize(nsubc);
                 nn_centroid_idxs[i].resize(nsubc);
-                for (int j = 0; j < size; j++){
-                    tableint curElement = *(ll + j);
-                    std::cerr << curElement << std::endl;
-                    //centroid_vector_norms_L2sqr[i][j] = quantizer->space->fstdistfunc((void *) centroid,
-                    //                                                                  (void *)quantizer->getDataByInternalId(curElement));
-                    nn_centroid_idxs[i][j] = curElement;
-                }
+                //for (int j = 0; j < size; j++){
+                //    tableint curElement = *(ll + j);
+                //    std::cerr << curElement << std::endl;
+                //    centroid_vector_norms_L2sqr[i][j] = quantizer->space->fstdistfunc((void *) centroid,
+                // (void *)quantizer->getDataByInternalId(curElement));
+                //    nn_centroid_idxs[i][j] = curElement;
+                //}
 
                 /** Pruning **/
 //                std::priority_queue<std::pair<float, idx_t>> heuristic_nn_centroids;
