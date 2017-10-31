@@ -149,21 +149,21 @@ namespace hnswlib {
             /** Find NN centroids to source centroid **/
             std::cout << "Find NN centroids to source centroids\n";
 
-            #pragma omp parallel for num_threads(20)
-            for (int i = 0; i < nc; i++) {
-                const float *centroid = (float *) quantizer->getDataByInternalId(i);
-                //std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, 2*nsubc + 1);
-                linklistsizeint *ll_centroid = quantizer->get_linklist0(i);
-                size_t size = *(ll_centroid);
-                tableint *ll = (tableint *)(ll_centroid + 1);
-
-                centroid_vector_norms_L2sqr[i].resize(size);
-                nn_centroid_idxs[i].resize(size);
-                for (int j = 0; j < size; j++){
-                    tableint curElement = *(ll + j);
-                    centroid_vector_norms_L2sqr[i][j] = quantizer->space->fstdistfunc((void *) centroid, (void *)quantizer->getDataByInternalId(curElement));
-                    nn_centroid_idxs[i][j] = curElement;
-                }
+//            #pragma omp parallel for num_threads(20)
+//            for (int i = 0; i < nc; i++) {
+//                const float *centroid = (float *) quantizer->getDataByInternalId(i);
+//                //std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, 2*nsubc + 1);
+//                linklistsizeint *ll_centroid = quantizer->get_linklist0(i);
+//                size_t size = *(ll_centroid);
+//                tableint *ll = (tableint *)(ll_centroid + 1);
+//
+//                centroid_vector_norms_L2sqr[i].resize(size);
+//                nn_centroid_idxs[i].resize(size);
+//                for (int j = 0; j < size; j++){
+//                    tableint curElement = *(ll + j);
+//                    centroid_vector_norms_L2sqr[i][j] = quantizer->space->fstdistfunc((void *) centroid, (void *)quantizer->getDataByInternalId(curElement));
+//                    nn_centroid_idxs[i][j] = curElement;
+//                }
 
                 /** Pruning **/
 //                std::priority_queue<std::pair<float, idx_t>> heuristic_nn_centroids;
@@ -188,7 +188,7 @@ namespace hnswlib {
 //                    nn_centroid_idxs[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
 //                    nn_centroids_raw.pop();
 //                }
-            }
+//            }
 
             /** Adding groups to index **/
             std::cout << "Adding groups to index\n";
@@ -222,7 +222,21 @@ namespace hnswlib {
                 if (groupsize == 0)
                     continue;
 
-                const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
+
+                const float *centroid = (float *) quantizer->getDataByInternalId(i);
+                linklistsizeint *ll_centroid = quantizer->get_linklist0(i);
+                size_t size = *(ll_centroid);
+                tableint *ll = (tableint *)(ll_centroid + 1);
+
+                centroid_vector_norms_L2sqr[i].resize(size);
+                nn_centroid_idxs[i].resize(size);
+                for (int j = 0; j < size; j++){
+                    tableint curElement = *(ll + j);
+                    centroid_vector_norms_L2sqr[i][j] = quantizer->space->fstdistfunc((void *) centroid, (void *)quantizer->getDataByInternalId(curElement));
+                    nn_centroid_idxs[i][j] = curElement;
+                }
+
+                //const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 const float *centroid_vector_norms = centroid_vector_norms_L2sqr[centroid_num].data();
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
 
