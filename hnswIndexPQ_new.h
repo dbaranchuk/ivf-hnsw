@@ -525,14 +525,28 @@ namespace hnswlib {
 
                 std::vector<idx_t> nn_centroids(nsubc);
                 std::vector<float> centroid_vector_norms(nsubc);
-                std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid,
-                                                                                                     nsubc + 1);
+                //std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
 
-                while (nn_centroids_raw.size() > 1) {
-                    centroid_vector_norms[nn_centroids_raw.size() - 2] = nn_centroids_raw.top().first;
-                    nn_centroids[nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
-                    nn_centroids_raw.pop();
+                //std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, 2*nsubc + 1);
+                linklistsizeint *ll_centroid = quantizer->get_linklist0(centroid_num);
+                size_t size = *(ll_centroid);
+                tableint *ll = (tableint *)(ll_centroid + 1);
+
+                if (size != maxM){
+                    std::cout << "Wrong list size\n";
+                    exit(1);
                 }
+                for (int j = 0; j < size; j++){
+                    tableint curElement = *(ll + j);
+                    centroid_vector_norms_L2sqr[i][j] = quantizer->space->fstdistfunc(centroid, quantizer->getDataByInternalId(curElement));
+                    nn_centroid_idxs[i][j] = curElement;
+                }
+
+//                while (nn_centroids_raw.size() > 1) {
+//                    centroid_vector_norms[nn_centroids_raw.size() - 2] = nn_centroids_raw.top().first;
+//                    nn_centroids[nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
+//                    nn_centroids_raw.pop();
+//                }
 
                 /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
                 std::vector<float> centroid_vectors(nsubc * d);
@@ -597,14 +611,27 @@ namespace hnswlib {
 
                 std::vector<idx_t> nn_centroids(nsubc);
                 std::vector<float> centroid_vector_norms(nsubc);
-                std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid,
-                                                                                                     nsubc + 1);
+                //std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
 
-                while (nn_centroids_raw.size() > 1) {
-                    centroid_vector_norms[nn_centroids_raw.size() - 2] = nn_centroids_raw.top().first;
-                    nn_centroids[nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
-                    nn_centroids_raw.pop();
+                linklistsizeint *ll_centroid = quantizer->get_linklist0(centroid_num);
+                size_t size = *(ll_centroid);
+                tableint *ll = (tableint *)(ll_centroid + 1);
+
+                if (size != maxM){
+                    std::cout << "Wrong list size\n";
+                    exit(1);
                 }
+                for (int j = 0; j < size; j++){
+                    tableint curElement = *(ll + j);
+                    centroid_vector_norms_L2sqr[i][j] = quantizer->space->fstdistfunc(centroid, quantizer->getDataByInternalId(curElement));
+                    nn_centroid_idxs[i][j] = curElement;
+                }
+
+//                while (nn_centroids_raw.size() > 1) {
+//                    centroid_vector_norms[nn_centroids_raw.size() - 2] = nn_centroids_raw.top().first;
+//                    nn_centroids[nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
+//                    nn_centroids_raw.pop();
+//                }
 
                 /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
                 std::vector<float> centroid_vectors(nsubc * d);
