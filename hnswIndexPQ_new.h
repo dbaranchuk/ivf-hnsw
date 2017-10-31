@@ -97,7 +97,7 @@ namespace hnswlib {
                 quantizer->printListsize();
                 return;
             }
-            quantizer = new HierarchicalNSW<float, float>(l2space, {{nc, {32, 32}}}, 500);
+            quantizer = new HierarchicalNSW<float, float>(l2space, {{nc, {64, 32}}}, 500);
             quantizer->ef_ = efSearch;
 
             std::cout << "Constructing quantizer\n";
