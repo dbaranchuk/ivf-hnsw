@@ -169,8 +169,8 @@ namespace hnswlib {
                 for (int j = 0; j < size; j++){
                     tableint curElement = *(ll + j);
                     std::cerr << curElement << std::endl;
-                    centroid_vector_norms_L2sqr[i][j] = quantizer->space->fstdistfunc((void *) centroid,
-                                                                                      (void *)quantizer->getDataByInternalId(curElement));
+                    //centroid_vector_norms_L2sqr[i][j] = quantizer->space->fstdistfunc((void *) centroid,
+                    //                                                                  (void *)quantizer->getDataByInternalId(curElement));
                     nn_centroid_idxs[i][j] = curElement;
                 }
 
