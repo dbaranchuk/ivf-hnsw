@@ -156,12 +156,9 @@ namespace hnswlib {
                 linklistsizeint *ll_centroid = quantizer->get_linklist0(i);
                 size_t size = *(ll_centroid);
                 tableint *ll = (tableint *)(ll_centroid + 1);
-                if (size != maxM){
-                    std::cerr << "Wrong list size: " << size << std::endl;
 
-                }
-                centroid_vector_norms_L2sqr[i].resize(nsubc);
-                nn_centroid_idxs[i].resize(nsubc);
+                centroid_vector_norms_L2sqr[i].resize(size);
+                nn_centroid_idxs[i].resize(size);
                 for (int j = 0; j < size; j++){
                     tableint curElement = *(ll + j);
                     centroid_vector_norms_L2sqr[i][j] = quantizer->space->fstdistfunc((void *) centroid, (void *)quantizer->getDataByInternalId(curElement));
@@ -230,19 +227,19 @@ namespace hnswlib {
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
 
                 /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
-                std::vector<float> centroid_vectors(nsubc * d);
-                for (int subc = 0; subc < nsubc; subc++) {
+                std::vector<float> centroid_vectors(size * d);
+                for (int subc = 0; subc < size; subc++) {
                     float *neighbor_centroid = (float *) quantizer->getDataByInternalId(nn_centroids[subc]);
                     sub_vectors(centroid_vectors.data() + subc * d, neighbor_centroid, centroid);
                 }
 
                 /** Find alphas for vectors **/
                 alphas[centroid_num] = compute_alpha(centroid_vectors.data(), data.data(), centroid,
-                                                     centroid_vector_norms, groupsize);
+                                                     centroid_vector_norms, groupsize, size);
 
                 /** Compute final subcentroids **/
-                std::vector<float> subcentroids(nsubc * d);
-                for (int subc = 0; subc < nsubc; subc++) {
+                std::vector<float> subcentroids(size * d);
+                for (int subc = 0; subc < size; subc++) {
                     const float *centroid_vector = centroid_vectors.data() + subc * d;
                     float *subcentroid = subcentroids.data() + subc * d;
                     faiss::fvec_madd (d, centroid, alphas[centroid_num], centroid_vector, subcentroid);
@@ -250,7 +247,7 @@ namespace hnswlib {
 
                 /** Find subcentroid idx **/
                 std::vector<idx_t> subcentroid_idxs(groupsize);
-                compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data.data(), groupsize);
+                compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data.data(), groupsize, size);
 
                 /** Compute Residuals **/
                 std::vector<float> residuals(groupsize*d);
@@ -278,9 +275,9 @@ namespace hnswlib {
                 norm_pq->compute_codes(norms.data(), xnorm_codes.data(), groupsize);
 
                 /** Distribute codes **/
-                std::vector < std::vector<idx_t> > construction_ids(nsubc);
-                std::vector < std::vector<uint8_t> > construction_codes(nsubc);
-                std::vector < std::vector<uint8_t> > construction_norm_codes(nsubc);
+                std::vector < std::vector<idx_t> > construction_ids(size);
+                std::vector < std::vector<uint8_t> > construction_codes(size);
+                std::vector < std::vector<uint8_t> > construction_norm_codes(size);
                 for (int i = 0; i < groupsize; i++) {
                     const idx_t idx = idxs[i];
                     const idx_t subcentroid_idx = subcentroid_idxs[i];
@@ -296,7 +293,7 @@ namespace hnswlib {
                     modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
                 }
                 /** Add codes **/
-                for (int subc = 0; subc < nsubc; subc++) {
+                for (int subc = 0; subc < size; subc++) {
                     idx_t subcsize = construction_norm_codes[subc].size();
                     group_sizes[centroid_num].push_back(subcsize);
 
@@ -521,8 +518,8 @@ namespace hnswlib {
                 const vector<float> data = p.second;
                 const int groupsize = data.size() / d;
 
-                std::vector<idx_t> nn_centroids(nsubc);
-                std::vector<float> centroid_vector_norms(nsubc);
+//                std::vector<idx_t> nn_centroids(nsubc);
+//                std::vector<float> centroid_vector_norms(nsubc);
                 //std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
 
                 //std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, 2*nsubc + 1);
@@ -530,10 +527,12 @@ namespace hnswlib {
                 size_t size = *(ll_centroid);
                 tableint *ll = (tableint *)(ll_centroid + 1);
 
-                if (size != 32){
-                    std::cerr << "Wrong list size: " << size << std::endl;
-                    exit(1);
-                }
+//                if (size != 32){
+//                    std::cerr << "Wrong list size: " << size << std::endl;
+//                    exit(1);
+//                }
+                std::vector<idx_t> nn_centroids(size);
+                std::vector<float> centroid_vector_norms(size);
                 for (int j = 0; j < size; j++){
                     tableint curElement = *(ll + j);
                     centroid_vector_norms[j] = quantizer->space->fstdistfunc(centroid, quantizer->getDataByInternalId(curElement));
@@ -547,19 +546,19 @@ namespace hnswlib {
 //                }
 
                 /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
-                std::vector<float> centroid_vectors(nsubc * d);
-                for (int i = 0; i < nsubc; i++) {
+                std::vector<float> centroid_vectors(size * d);
+                for (int i = 0; i < size; i++) {
                     const float *neighbor_centroid = (float *) quantizer->getDataByInternalId(nn_centroids[i]);
                     sub_vectors(centroid_vectors.data() + i * d, neighbor_centroid, centroid);
                 }
 
                 /** Find alphas for vectors **/
                 float alpha = compute_alpha(centroid_vectors.data(), data.data(), centroid,
-                                            centroid_vector_norms.data(), groupsize);
+                                            centroid_vector_norms.data(), groupsize, size);
 
                 /** Compute final subcentroids **/
-                std::vector<float> subcentroids(nsubc * d);
-                for (int subc = 0; subc < nsubc; subc++) {
+                std::vector<float> subcentroids(size * d);
+                for (int subc = 0; subc < size; subc++) {
                     const float *centroid_vector = centroid_vectors.data() + subc * d;
                     float *subcentroid = subcentroids.data() + subc * d;
 
@@ -568,7 +567,7 @@ namespace hnswlib {
 
                 /** Find subcentroid idx **/
                 std::vector<idx_t> subcentroid_idxs(groupsize);
-                compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data.data(), groupsize);
+                compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data.data(), groupsize, size);
 
                 /** Compute Residuals **/
                 std::vector<float> residuals(groupsize * d);
@@ -607,18 +606,16 @@ namespace hnswlib {
                 const vector<float> data = p.second;
                 const int groupsize = data.size() / d;
 
-                std::vector<idx_t> nn_centroids(nsubc);
-                std::vector<float> centroid_vector_norms(nsubc);
+//                std::vector<idx_t> nn_centroids(nsubc);
+//                std::vector<float> centroid_vector_norms(nsubc);
                 //std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
 
                 linklistsizeint *ll_centroid = quantizer->get_linklist0(centroid_num);
                 size_t size = *(ll_centroid);
                 tableint *ll = (tableint *)(ll_centroid + 1);
 
-                if (size != 32){
-                    std::cerr << "Wrong list size: " << size << std::endl;
-                    exit(1);
-                }
+                std::vector<idx_t> nn_centroids(size);
+                std::vector<float> centroid_vector_norms(size);
                 for (int j = 0; j < size; j++){
                     tableint curElement = *(ll + j);
                     centroid_vector_norms[j] = quantizer->space->fstdistfunc(centroid, quantizer->getDataByInternalId(curElement));
@@ -632,19 +629,19 @@ namespace hnswlib {
 //                }
 
                 /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
-                std::vector<float> centroid_vectors(nsubc * d);
-                for (int i = 0; i < nsubc; i++) {
+                std::vector<float> centroid_vectors(size * d);
+                for (int i = 0; i < size; i++) {
                     const float *neighbor_centroid = (float *) quantizer->getDataByInternalId(nn_centroids[i]);
                     sub_vectors(centroid_vectors.data() + i * d, neighbor_centroid, centroid);
                 }
 
                 /** Find alphas for vectors **/
                 float alpha = compute_alpha(centroid_vectors.data(), data.data(), centroid,
-                                            centroid_vector_norms.data(), groupsize);
+                                            centroid_vector_norms.data(), groupsize, size);
 
                 /** Compute final subcentroids **/
-                std::vector<float> subcentroids(nsubc * d);
-                for (int subc = 0; subc < nsubc; subc++) {
+                std::vector<float> subcentroids(size * d);
+                for (int subc = 0; subc < size; subc++) {
                     const float *centroid_vector = centroid_vectors.data() + subc * d;
                     float *subcentroid = subcentroids.data() + subc * d;
 
@@ -653,7 +650,7 @@ namespace hnswlib {
 
                 /** Find subcentroid idx **/
                 std::vector<idx_t> subcentroid_idxs(groupsize);
-                compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data.data(), groupsize);
+                compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data.data(), groupsize, size);
 
                 /** Compute Residuals **/
                 std::vector<float> residuals(groupsize * d);
@@ -744,12 +741,12 @@ namespace hnswlib {
         }
 
         void compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
-                                      const float *points, const int groupsize)
+                                      const float *points, const int groupsize, const int size)
         {
             //#pragma omp parallel for num_threads(16)
             for (int i = 0; i < groupsize; i++) {
                 std::priority_queue<std::pair<float, idx_t>> max_heap;
-                for (int subc = 0; subc < nsubc; subc++) {
+                for (int subc = 0; subc < size; subc++) {
                     const float *subcentroid = subcentroids + subc * d;
                     const float *point = points + i * d;
                     float dist = faiss::fvec_L2sqr(subcentroid, point, d);
@@ -770,7 +767,7 @@ namespace hnswlib {
 
         float compute_alpha(const float *centroid_vectors, const float *points,
                             const float *centroid, const float *centroid_vector_norms_L2sqr,
-                            const int groupsize)
+                            const int groupsize, const int size)
         {
             int counter_positive = 0;
             int counter_negative = 0;
@@ -785,7 +782,7 @@ namespace hnswlib {
                 const float *point = points + i * d;
 
                 std::priority_queue<std::pair<float, float>> max_heap;
-                for (int subc = 0; subc < nsubc; subc++){
+                for (int subc = 0; subc < size; subc++){
                     const float *centroid_vector = centroid_vectors + subc * d;
                     const float centroid_vector_norm_L2sqr = centroid_vector_norms_L2sqr[subc];
 

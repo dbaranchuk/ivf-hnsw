@@ -164,12 +164,16 @@ namespace hnswlib {
 
         inline size_t *getParametersByInternalId(tableint internal_id) const
         {
+            size_t *param = params;
+            while (internal_id >= param[i_threshold]) param += params_num;
             return params;
         };
 
         inline char *getDataByInternalId(tableint internal_id) const
         {
-            return (data_level0_memory_ + params[i_partOffset] + internal_id * params[i_size_data_per_element] + params[i_offsetData]);
+            size_t *param = getParametersByInternalId(internal_id);
+            tableint ref_id = (param == params) ? internal_id : internal_id - (param - params_num)[i_threshold];
+            return (data_level0_memory_ + param[i_partOffset] + ref_id * param[i_size_data_per_element] + param[i_offsetData]);
         }
 
         inline float *getDistancesByInternalId(tableint internal_id) const
@@ -183,12 +187,17 @@ namespace hnswlib {
 
         inline linklistsizeint *get_linklist0(tableint internal_id) const
         {
-            return (linklistsizeint *) (data_level0_memory_ + params[i_partOffset] + internal_id * params[i_size_data_per_element]);
+            size_t *param = getParametersByInternalId(internal_id);
+            tableint ref_id = (param == params) ? internal_id : internal_id - (param - params_num)[i_threshold];
+
+            return (linklistsizeint *) (data_level0_memory_ + param[i_partOffset] + ref_id * param[i_size_data_per_element]);
         };
 
         inline linklistsizeint* get_linklist(tableint cur_c, int level) const
         {
-            return (linklistsizeint *)(linkLists_[cur_c] + (level - 1) * params[i_size_links_per_element]);
+            size_t *param = getParametersByInternalId(cur_c);
+            //In Smart hnsw only clusters on the above levels
+            return (linklistsizeint *)(linkLists_[cur_c] + (level - 1) * param[i_size_links_per_element]);
         };
 
 
@@ -261,9 +270,13 @@ namespace hnswlib {
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> topResults;
             std::priority_queue<std::pair<dist_t, tableint>, vector<pair<dist_t, tableint>>, CompareByFirst> candidateSet;
 
-            dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(ep));
-            dist_calc++;
+            dist_t dist;
+            if (q_idx != -1)
+                dist = space->fstdistfuncST(getDataByInternalId(ep));
+            else
+                dist = space->fstdistfunc(datapoint, getDataByInternalId(ep));
 
+            dist_calc++;
             topResults.emplace(dist, ep);
             candidateSet.emplace(-dist, ep);
             massVisited[ep] = currentV;
@@ -296,9 +309,13 @@ namespace hnswlib {
                     if (!(massVisited[tnum] == currentV)) {
                         massVisited[tnum] = currentV;
 
-                        dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
-                        dists[j] = dist;
+                        dist_t dist;
+                        if (q_idx != -1)
+                            dist = space->fstdistfuncST(getDataByInternalId(tnum));
+                        else
+                            dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
 
+                        dists[j] = dist;
                         dist_calc++;
                         if (topResults.top().first > dist || topResults.size() < ef) {
                             candidateSet.emplace(-dist, tnum);
@@ -422,7 +439,7 @@ namespace hnswlib {
                     for (int j = 0; j < sz_link_list_other; j++)
                         candidates.emplace(space->fstdistfunc(getDataByInternalId(data[j]), getDataByInternalId(rez[idx])), data[j]);
 
-                    getNeighborsByHeuristic(candidates, rezMmax);
+                    getNeighborsByHeuristicMerge(candidates, rezMmax);
 
                     int indx = 0;
                     while (candidates.size() > 0) {
@@ -430,7 +447,6 @@ namespace hnswlib {
                         candidates.pop();
                         indx++;
                     }
-
                     *ll_other = indx;
                 }
 
@@ -557,7 +573,11 @@ namespace hnswlib {
                         if (cand < 0 || cand > maxelements_)
                             throw runtime_error("cand error");
 
-                        dist_t d = space->fstdistfunc(query_data, getDataByInternalId(cand));
+                        dist_t d;
+                        if (q_idx != -1)
+                            d = space->fstdistfuncST(getDataByInternalId(cand));
+                        else
+                            d = space->fstdistfunc(query_data, getDataByInternalId(cand));
 
                         dist_calc++;
                         if (d < curdist) {
