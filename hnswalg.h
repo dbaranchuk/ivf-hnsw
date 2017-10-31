@@ -422,7 +422,7 @@ namespace hnswlib {
                     for (int j = 0; j < sz_link_list_other; j++)
                         candidates.emplace(space->fstdistfunc(getDataByInternalId(data[j]), getDataByInternalId(rez[idx])), data[j]);
 
-                    getNeighborsByHeuristic(candidates, rezMmax);
+                    //getNeighborsByHeuristic(candidates, rezMmax);
 
                     int indx = 0;
                     while (candidates.size() > 0) {
