@@ -151,7 +151,7 @@ namespace hnswlib {
 
             //#pragma omp parallel for num_threads(20)
             for (int i = 0; i < nc; i++) {
-                const float *centroid = (float *) quantizer->getDataByInternalId(i);
+                const float *centroid;// = (float *) quantizer->getDataByInternalId(i);
                 //std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, 2*nsubc + 1);
                 //linklistsizeint *ll_centroid = quantizer->get_linklist0(i);
                 //size_t size = *(ll_centroid);
