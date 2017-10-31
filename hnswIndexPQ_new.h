@@ -383,16 +383,15 @@ namespace hnswlib {
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
 
                     q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
-                    r[subc] = (1-alpha) * q_c[i] + alpha * (alpha-1) * s_c[i][subc] + alpha * q_s[subc];
+                    r[subc] = (1-alpha) * q_c[i] + alpha * (alpha-1) * s_c[centroid_num][subc] + alpha * q_s[subc];
                     average_r += r[subc];
                 }
                 average_r /= nsubc;
-                int counter  = 0;
+
                 for (int subc = 0; subc < nsubc; subc++){
-                    if (r[subc] > average_r && counter <= nsubc/2) {
-                        counter++;
+                    if (r[subc] > average_r)
                         continue;
-                    }
+
                     int groupsize = group_sizes[centroid_num][subc];
                     if (groupsize == 0)
                         continue;
@@ -723,9 +722,6 @@ namespace hnswlib {
                 centroid_norms[i] = faiss::fvec_norm_L2sqr (centroid, d);
             }
         }
-
-
-        double average_s_c = 0.0;
 
         void compute_s_c() {
             for (int i = 0; i < nc; i++){
