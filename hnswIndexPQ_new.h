@@ -102,7 +102,7 @@ namespace hnswlib {
 
                 quantizer->printListsize();
                 //quantizer->SaveInfo("/home/dbaranchuk/deep1m_ef500_M32_clusters_999973_merge.bin");
-                //quantizer->SaveEdges("/home/dbaranchuk/deep1m_ef500_M32_clusters_999973_reverse.ivecs");
+                //quantizer->SaveEdges("/home/dbaranchuk/deep1m_ef500_M32_clusters_999973_merge.ivecs");
                 quantizer->ef_ = efSearch;
                 return;
             }
