@@ -383,7 +383,8 @@ namespace hnswlib {
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
 
                     q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
-                    r[subc] = (1-alpha) * q_c[i] + alpha * (alpha-1) * s_c[centroid_num][subc] + alpha * q_s[subc];
+                    //r[subc] = (1-alpha) * q_c[i] + alpha * (alpha-1) * s_c[centroid_num][subc] + alpha * q_s[subc];
+                    r[subc] = (1+alpha) * q_c[i] + alpha * (alpha+1) * s_c[centroid_num][subc] - alpha * q_s[subc];
                     average_r += r[subc];
                 }
                 average_r /= nsubc;
