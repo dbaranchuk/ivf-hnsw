@@ -176,14 +176,14 @@ namespace hnswlib {
             return (data_level0_memory_ + param[i_partOffset] + ref_id * param[i_size_data_per_element] + param[i_offsetData]);
         }
 
-        inline float *getDistancesByInternalId(tableint internal_id) const
-        {
-            if (params[i_maxM] != 32){
-                std::cout << "Wrong max M\n";
-                exit(1);
-            }
-            return distances + internal_id*params[i_maxM];
-        }
+//        inline float *getDistancesByInternalId(tableint internal_id) const
+//        {
+//            if (params[i_maxM] != 32){
+//                std::cout << "Wrong max M\n";
+//                exit(1);
+//            }
+//            return distances + internal_id*params[i_maxM];
+//        }
 
         inline linklistsizeint *get_linklist0(tableint internal_id) const
         {
