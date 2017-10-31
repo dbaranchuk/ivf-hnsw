@@ -159,10 +159,10 @@ namespace hnswlib {
                 size_t size = *(ll_centroid);
                 tableint *ll = (tableint *)(ll_centroid + 1);
                 std::cerr << "HUI0" << std::endl;
-                if (size != maxM){
-                    std::cerr << "Wrong list size\n";
-                    exit(1);
-                }
+//                if (size != maxM){
+//                    std::cerr << "Wrong list size\n";
+//                    exit(1);
+//                }
                 std::cerr << "HUI1" << std::endl;
                 centroid_vector_norms_L2sqr[i].resize(nsubc);
                 nn_centroid_idxs[i].resize(nsubc);
