@@ -93,10 +93,10 @@ namespace hnswlib {
         {
             if (exists_test(path_info) && exists_test(path_edges)) {
                 quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
-                HierarchicalNSW<dist_t, vtype> *hnsw = new HierarchicalNSW<dist_t, vtype>(l2space,
-                                                                                          "/home/dbaranchuk/deep1m_ef500_M32_clusters_999973_reverse.bin",
-                                                                                          "/home/dbaranchuk/data/centroids1M_reverse.fvecs",
-                                                                                          "/home/dbaranchuk/deep1m_ef500_M32_clusters_999973_reverse.ivecs");
+                HierarchicalNSW<float, float> *hnsw = new HierarchicalNSW<dist_t, vtype>(l2space,
+                                                                                         "/home/dbaranchuk/deep1m_ef500_M32_clusters_999973_reverse.bin",
+                                                                                         "/home/dbaranchuk/data/centroids1M_reverse.fvecs",
+                                                                                         "/home/dbaranchuk/deep1m_ef500_M32_clusters_999973_reverse.ivecs");
                 quantizer->merge(hnsw);
                 delete hnsw;
 
