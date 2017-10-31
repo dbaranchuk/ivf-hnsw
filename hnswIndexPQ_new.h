@@ -223,8 +223,8 @@ namespace hnswlib {
                     continue;
 
 
-                const float *centroid = (float *) quantizer->getDataByInternalId(i);
-                linklistsizeint *ll_centroid = quantizer->get_linklist0(i);
+                const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
+                linklistsizeint *ll_centroid = quantizer->get_linklist0(centroid_num);
                 size_t size = *(ll_centroid);
                 tableint *ll = (tableint *)(ll_centroid + 1);
 
