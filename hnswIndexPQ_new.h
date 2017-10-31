@@ -387,11 +387,12 @@ namespace hnswlib {
                     average_r += r[subc];
                 }
                 average_r /= nsubc;
-
+                int counter  = 0;
                 for (int subc = 0; subc < nsubc; subc++){
-                    if (q_s[subc] > average_r)
+                    if (q_s[subc] > average_r && counter <= nsubc/2) {
+                        counter++;
                         continue;
-
+                    }
                     int groupsize = group_sizes[centroid_num][subc];
                     if (groupsize == 0)
                         continue;
