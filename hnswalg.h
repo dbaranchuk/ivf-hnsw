@@ -711,6 +711,7 @@ namespace hnswlib {
 
             /** Hierarcy **/
             linkLists_ = (char **) malloc(sizeof(void *) * maxelements_);
+            distances = new float [maxelements_*params[i_maxM]];
 
             elementLevels = vector<char>(maxelements_);
             maxlevel_ = 0;
