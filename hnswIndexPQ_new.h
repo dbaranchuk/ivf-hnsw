@@ -81,7 +81,7 @@ namespace hnswlib {
 
             /** Compute centroid norms **/
             centroid_norms.resize(nc);
-            c_s.resize(nc);
+            s_c.resize(nc);
         }
 
 
