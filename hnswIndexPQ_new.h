@@ -60,7 +60,7 @@ namespace hnswlib {
     public:
 
 		ModifiedIndex(size_t dim, size_t ncentroids, size_t bytes_per_code,
-                    size_t nbits_per_idx, size_t nsubcentroids = 64):
+                    size_t nbits_per_idx, size_t nsubcentroids = 32):
                  d(dim), nc(ncentroids), nsubc(nsubcentroids)
 		{
             codes.resize(nc);
@@ -134,7 +134,7 @@ namespace hnswlib {
 
         void add(const char *path_groups, const char *path_idxs)
         {
-            size_t maxM = 64;
+            size_t maxM = 32;
             StopW stopw = StopW();
 
             double baseline_average = 0.0;
@@ -152,23 +152,40 @@ namespace hnswlib {
             #pragma omp parallel for num_threads(20)
             for (int i = 0; i < nc; i++) {
                 const float *centroid = (float *) quantizer->getDataByInternalId(i);
-                std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, 2*nsubc + 1);
+                //std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, 2*nsubc + 1);
+                linklistsizeint *ll_centroid = quantizer->get_linklist0(i);
+                size_t size = *(ll_centroid);
+                tableint ll = (tableint *)(ll_centroid + 1);
 
-                /** Pruning **/
-                std::priority_queue<std::pair<float, idx_t>> heuristic_nn_centroids;
-                while (nn_centroids_raw.size() > 1) {
-                    heuristic_nn_centroids.emplace(nn_centroids_raw.top());
-                    nn_centroids_raw.pop();
+                if (size != maxM){
+                    std::cout << "Wrong list size\n";
+                    exit(1);
                 }
-                quantizer->getNeighborsByHeuristicMerge(heuristic_nn_centroids, maxM);
 
                 centroid_vector_norms_L2sqr[i].resize(nsubc);
                 nn_centroid_idxs[i].resize(nsubc);
-                while (heuristic_nn_centroids.size() > 0) {
-                    centroid_vector_norms_L2sqr[i][heuristic_nn_centroids.size() - 1] = heuristic_nn_centroids.top().first;
-                    nn_centroid_idxs[i][heuristic_nn_centroids.size() - 1] = heuristic_nn_centroids.top().second;
-                    heuristic_nn_centroids.pop();
+                for (int j = 0; j < size; j++){
+                    tableint curElement = *(ll + j);
+                    centroid_vector_norms_L2sqr[i][j] = quantizer->space->fstdistfunc(centroid, quantizer->getDataByInternalId(curElement));
+                    nn_centroid_idxs[i][j] = curElement;
                 }
+
+                /** Pruning **/
+//                std::priority_queue<std::pair<float, idx_t>> heuristic_nn_centroids;
+//                while (nn_centroids_raw.size() > 1) {
+//                    heuristic_nn_centroids.emplace(nn_centroids_raw.top());
+//                    nn_centroids_raw.pop();
+//                }
+//                quantizer->getNeighborsByHeuristicMerge(heuristic_nn_centroids, maxM);
+//
+//                centroid_vector_norms_L2sqr[i].resize(nsubc);
+//                nn_centroid_idxs[i].resize(nsubc);
+//                while (heuristic_nn_centroids.size() > 0) {
+//                    centroid_vector_norms_L2sqr[i][heuristic_nn_centroids.size() - 1] = heuristic_nn_centroids.top().first;
+//                    nn_centroid_idxs[i][heuristic_nn_centroids.size() - 1] = heuristic_nn_centroids.top().second;
+//                    heuristic_nn_centroids.pop();
+//                }
+                /** Without heuristic **/
 //                centroid_vector_norms_L2sqr[i].resize(nsubc);
 //                nn_centroid_idxs[i].resize(nsubc);
 //                while (nn_centroids_raw.size() > 1) {
