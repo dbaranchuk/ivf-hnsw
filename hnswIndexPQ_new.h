@@ -94,6 +94,7 @@ namespace hnswlib {
             if (exists_test(path_info) && exists_test(path_edges)) {
                 quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
                 quantizer->ef_ = efSearch;
+                quantizer->printListsize();
                 return;
             }
             quantizer = new HierarchicalNSW<float, float>(l2space, {{nc, {32, 32}}}, 500);
@@ -370,7 +371,12 @@ namespace hnswlib {
                 const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
-                for (int subc = 0; subc < nsubc; subc++){
+                /** NEW **/
+                linklistsizeint *ll_centroid = quantizer->get_linklist0(centroid_num);
+                size_t size = *(ll_centroid);
+                tableint *ll = (tableint *)(ll_centroid + 1);
+
+                for (int subc = 0; subc < size; subc++){
                     int groupsize = group_sizes[centroid_num][subc];
                     if (groupsize == 0)
                         continue;
