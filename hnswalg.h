@@ -296,7 +296,7 @@ namespace hnswlib {
                 linklistsizeint *ll_cur = get_linklist0(curNodeNum);
                 linklistsizeint size = *ll_cur;
                 tableint *data = (tableint *)(ll_cur + 1);
-                float *dists = getDistancesByInternalId(curNodeNum);
+                //float *dists = getDistancesByInternalId(curNodeNum);
 
                 _mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
                 _mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
