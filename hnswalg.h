@@ -109,7 +109,7 @@ namespace hnswlib {
             linkLists_ = (char **) malloc(sizeof(void *) * maxelements_);
             mult_ = 1 / log(1.0 * params[0*params_num + i_M]);
 
-            distances = new float[maxelements_*params[i_maxM0]];
+            //distances = new float[maxelements_*params[i_maxM0]];
         }
 
         ~HierarchicalNSW()
@@ -123,7 +123,7 @@ namespace hnswlib {
             delete visitedsetpool;
             delete visitedlistpool;
             delete params;
-            delete distances;
+            //delete distances;
         }
         // Fields
         SpaceInterface<dist_t> *space;
@@ -160,7 +160,7 @@ namespace hnswlib {
 
 
         /**Distances**/
-        float *distances;
+        //float *distances;
 
         inline size_t *getParametersByInternalId(tableint internal_id) const
         {
