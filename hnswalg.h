@@ -430,6 +430,7 @@ namespace hnswlib {
                         candidates.pop();
                         indx++;
                     }
+
                     *ll_other = indx;
                 }
 
@@ -816,6 +817,9 @@ namespace hnswlib {
             }
             for (std::pair<dist_t, tableint> curen2 : returnlist)
                 topResults.emplace(-curen2.first, curen2.second);
+
+            if (topResults.size() != 32)
+                std::cout << topResults.size() << std::endl;
         }
 
         void merge(const HierarchicalNSW<dist_t, vtype> *hnsw)
