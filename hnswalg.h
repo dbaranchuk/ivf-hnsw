@@ -318,7 +318,7 @@ namespace hnswlib {
                             dist = space->fstdistfuncST(getDataByInternalId(tnum));
                         else
                             dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
-                        
+
                         dist_calc++;
                         if (topResults.top().first > dist || topResults.size() < ef) {
                             candidateSet.emplace(-dist, tnum);
@@ -359,7 +359,8 @@ namespace hnswlib {
                 resultSet.pop();
                 bool good = true;
                 for (std::pair<dist_t, tableint> curen2 : returnlist) {
-                    dist_t curdist = space->fstdistfunc(getDataByInternalId(curen2.second), getDataByInternalId(curen.second));
+                    dist_t curdist = space->fstdistfunc(getDataByInternalId(curen2.second),
+                                                        getDataByInternalId(curen.second));
                     if (curdist < dist_to_query) {
                         good = false;
                         break;
