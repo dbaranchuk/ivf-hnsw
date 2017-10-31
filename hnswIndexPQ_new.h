@@ -57,6 +57,8 @@ namespace hnswlib {
         faiss::ProductQuantizer *pq;
 
         HierarchicalNSW<float, float> *quantizer;
+
+        std::vector< std::vector<float> > c_s;
     public:
 
 		ModifiedIndex(size_t dim, size_t ncentroids, size_t bytes_per_code,
@@ -79,6 +81,7 @@ namespace hnswlib {
 
             /** Compute centroid norms **/
             centroid_norms.resize(nc);
+            c_s.resize(nc);
         }
 
 
@@ -221,7 +224,6 @@ namespace hnswlib {
                 if (groupsize == 0)
                     continue;
 
-//
 //                const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
 //                linklistsizeint *ll_centroid = quantizer->get_linklist0(centroid_num);
 //                size_t size = *(ll_centroid);
@@ -331,8 +333,6 @@ namespace hnswlib {
             std::cout << "[Baseline] Average Distance: " << baseline_average / 1000000000 << std::endl;
             std::cout << "[Modified] Average Distance: " << modified_average / 1000000000 << std::endl;
 
-            //compact_data(construction_ids, construction_codes, construction_norm_codes);
-
             input_groups.close();
             input_idxs.close();
         }
@@ -374,15 +374,32 @@ namespace hnswlib {
 //                size_t size = *(ll_centroid);
 //                tableint *ll = (tableint *)(ll_centroid + 1);
 
+                std::vector< float > q_s(nsubc);
+                std::vector< float > r(nsubc);
+                double average_r = 0.0;
+
+                for (int subc = 0; subc < nsubc; subc++) {
+                    idx_t subcentroid_num = nn_centroids[subc];
+                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+
+                    q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
+                    r[subc] = (1-alpha) * q_c[i] + alpha(alpha-1)*s_c[i][subc] + alpha * q_s[subc];
+                    average_r += r[subc];
+                }
+                average_r /= nsubc;
+
                 for (int subc = 0; subc < nsubc; subc++){
+                    if (q_s[subc] > average_r)
+                        continue;
+
                     int groupsize = group_sizes[centroid_num][subc];
                     if (groupsize == 0)
                         continue;
 
-                    idx_t subcentroid_num = nn_centroids[subc];
-                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
-                    float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
-                    float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
+                    //idx_t subcentroid_num = nn_centroids[subc];
+                    //const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+                    //float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
+                    float snd_term = alpha * (q_s[subc] - centroid_norms[subcentroid_num]);
 
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(const_cast<uint8_t *>(code)+ j*code_size);
@@ -705,6 +722,23 @@ namespace hnswlib {
                 centroid_norms[i] = faiss::fvec_norm_L2sqr (centroid, d);
             }
         }
+
+
+        double average_s_c = 0.0;
+
+        void compute_s_c() {
+            for (int i = 0; i < nc; i++){
+                const float *centroid = (float *) quantizer->getDataByInternalId(i);
+                s_c[i].resize(nsubc);
+                for (int subc = 0; subc < nsubc; subc++){
+                    idx_t subc_idx = nn_centroid_idxs[i][subc];
+                    const float *subcentroid = (float *) quantizer->getDataByInternalId(subc_idx);
+                    s_c[i][subc] = faiss::fvec_L2sqr(subcentroid, centroid, d);
+                }
+            }
+
+        }
+
 	private:
         std::vector<float> dis_table;
         std::vector<float> norms;
