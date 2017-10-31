@@ -228,8 +228,8 @@ namespace hnswlib {
                 size_t size = *(ll_centroid);
                 tableint *ll = (tableint *)(ll_centroid + 1);
 
-                centroid_vector_norms_L2sqr[i].resize(size);
-                nn_centroid_idxs[i].resize(size);
+                centroid_vector_norms_L2sqr[centroid_num].resize(size);
+                nn_centroid_idxs[centroid_num].resize(size);
                 for (int j = 0; j < size; j++){
                     tableint curElement = *(ll + j);
                     centroid_vector_norms_L2sqr[centroid_num][j] = quantizer->space->fstdistfunc((void *) centroid, (void *)quantizer->getDataByInternalId(curElement));
