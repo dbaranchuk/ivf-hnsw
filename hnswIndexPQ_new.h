@@ -438,7 +438,7 @@ namespace hnswlib {
 //                    norm += groupsize;
 //                    id += groupsize;
 //                }
-                if (topResults.size() >= max_codes/2)
+                if (topResults.size() >= max_codes)
                     break;
             }
 
