@@ -637,9 +637,10 @@ void hybrid_test(const char *path_centroids,
     SpaceInterface<float> *l2space = new L2Space(vecdim);
 
     /** Create Index **/
-    ModifiedIndex *index = new ModifiedIndex(vecdim, ncentroids, M_PQ, 8, nsubcentroids);
+    //ModifiedIndex *index = new ModifiedIndex(vecdim, ncentroids, M_PQ, 8, nsubcentroids);
+    Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
     index->buildQuantizer(l2space, path_centroids, path_info, path_edges, 500);
-    //index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
+    index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
 
     /** Train PQ **/
     std::ifstream learn_input(path_learn, ios::binary);
