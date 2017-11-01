@@ -46,7 +46,6 @@ namespace hnswlib {
                         const string &edgeLocation, bool nmslib = false)
         {
             LoadInfo(infoLocation, s);
-            data_level0_memory_ = (char *) malloc(total_size);
             LoadData(dataLocation);
             LoadEdges(edgeLocation);
         }
@@ -65,7 +64,7 @@ namespace hnswlib {
             offsetData = size_links_level0;
 
             std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
-            data_level0_memory_ = (char *) malloc(total_size);
+            data_level0_memory_ = (char *) malloc(maxelements_ * size_data_per_element);
             std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
 
             cout << "Size Mb: " << (maxelements_ * size_data_per_element) / (1000 * 1000) << "\n";
@@ -566,6 +565,8 @@ namespace hnswlib {
             readBinaryPOD(input, M_);
             readBinaryPOD(input, maxM_);
             readBinaryPOD(input, size_links_level0);
+
+            data_level0_memory_ = (char *) malloc(maxelements_ * size_data_per_element);
 
             efConstruction_ = 0;
             cur_element_count = maxelements_;
