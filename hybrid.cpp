@@ -680,25 +680,25 @@ void hybrid_test(const char *path_centroids,
         index->read(path_index);
     } else {
         /** Add elements **/
-        index->add(path_groups, path_idxs);
-//        size_t batch_size = 1000000;
-//        std::ifstream base_input(path_data, ios::binary);
-//        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-//        std::vector<float> batch(batch_size * vecdim);
-//        std::vector<idx_t> idx_batch(batch_size);
-//        std::vector<idx_t> ids(vecsize);
-//
-//        for (int b = 0; b < (vecsize / batch_size); b++) {
-//            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-//            readXvec<float>(base_input, batch.data(), vecdim, batch_size);
-//            for (size_t i = 0; i < batch_size; i++)
-//                ids[batch_size*b + i] = batch_size*b + i;
-//
-//            printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
-//            index->add(batch_size, batch.data(), ids.data() + batch_size*b, idx_batch.data());
-//        }
-//        idx_input.close();
-//        base_input.close();
+        //index->add(path_groups, path_idxs);
+        size_t batch_size = 1000000;
+        std::ifstream base_input(path_data, ios::binary);
+        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+        std::vector<float> batch(batch_size * vecdim);
+        std::vector<idx_t> idx_batch(batch_size);
+        std::vector<idx_t> ids(vecsize);
+
+        for (int b = 0; b < (vecsize / batch_size); b++) {
+            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+            readXvec<float>(base_input, batch.data(), vecdim, batch_size);
+            for (size_t i = 0; i < batch_size; i++)
+                ids[batch_size*b + i] = batch_size*b + i;
+
+            printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
+            index->add(batch_size, batch.data(), ids.data() + batch_size*b, idx_batch.data());
+        }
+        idx_input.close();
+        base_input.close();
 
         /** Save index, pq and norm_pq **/
         std::cout << "Saving index to " << path_index << std::endl;
@@ -709,7 +709,7 @@ void hybrid_test(const char *path_centroids,
     /** Computing Centroid Norms **/
     std::cout << "Computing centroid norms"<< std::endl;
     index->compute_centroid_norms();
-    index->compute_s_c();
+    //index->compute_s_c();
 
     /** Parse groundtruth **/
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
