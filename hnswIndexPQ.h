@@ -100,8 +100,6 @@ namespace hnswlib {
         std::vector < std::vector<uint8_t> > codes;
         std::vector < std::vector<uint8_t> > norm_codes;
 
-        size_t *c_size_table = NULL;
-        float *c_var_table = NULL;
         float *c_norm_table = NULL;
 		HierarchicalNSW<float, float> *quantizer;
 
@@ -130,12 +128,6 @@ namespace hnswlib {
 
             if (c_norm_table)
                 delete c_norm_table;
-
-//            if (c_var_table)
-//                delete c_var_table;
-//
-//            if (c_size_table)
-//                delete c_size_table;
 
             delete pq;
             delete norm_pq;
@@ -392,11 +384,6 @@ namespace hnswlib {
                 fwrite(&size, sizeof(size_t), 1, fout);
                 fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
             }
-
-//            fwrite(c_norm_table, sizeof(float), csize, fout);
-//            fwrite(c_size_table, sizeof(size_t), csize, fout);
-//            fwrite(c_var_table, sizeof(float), csize, fout);
-
             fclose(fout);
         }
 
@@ -432,58 +419,7 @@ namespace hnswlib {
                 fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
             }
 
-            //fread(c_norm_table, sizeof(float), csize, fin);
-            //fread(c_size_table, sizeof(size_t), csize, fin);
-            //fread(c_var_table, sizeof(float), csize, fin);
-
             fclose(fin);
-        }
-
-        void update_centroids(const char *path_data, const char *path_precomputed_idxs,
-                              const char *path_updated_centroids)
-        {
-            if (!c_size_table){
-                std::cout << "Precompute centroid size table first\n";
-                return;
-            }
-            float *c_e_table = new float[csize*d];
-
-            for (int i = 0; i < csize*d; i++)
-                c_e_table[i] = 0.0;
-
-            size_t batch_size = 1000000;
-            std::ifstream base_input(path_data, ios::binary);
-            std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-            std::vector<float> batch(batch_size * d);
-            std::vector<idx_t> idx_batch(batch_size);
-
-            for (int b = 0; b < 1000; b++) {
-                readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-                readXvec<float>(base_input, batch.data(), d, batch_size);
-
-                #pragma omp parallel for num_threads(16)
-                for (int i = 0; i < batch_size; i++) {
-                    idx_t key = idx_batch[i];
-                    add_vector(batch.data() + i*d, c_e_table + key*d);
-                }
-            }
-
-            for (int i = 0; i < csize; i++) {
-                size_t size = c_size_table[i];
-                for (int j = 0; j < d; j++)
-                    c_e_table[i * d + j] /= size;
-            }
-
-            idx_input.close();
-            base_input.close();
-
-            FILE* fout = fopen(path_updated_centroids, "wb");
-            for (int i = 0; i < csize; i++) {
-                fwrite((int *) &d, sizeof(int), 1, fout);
-                fwrite((c_e_table + i*d), sizeof(float), d, fout);
-            }
-            fclose(fout);
-            delete c_e_table;
         }
 
         void compute_centroid_norm_table()
