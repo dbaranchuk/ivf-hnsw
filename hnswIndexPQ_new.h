@@ -181,7 +181,7 @@ namespace hnswlib {
                     std::cout  <<  nn_centroids_raw.top().first << " " << nn_centroids_raw.top().second << std::endl;
                     nn_centroids_raw.pop();
                 }
-                if (nn_centroids_raw.top().second != i) {
+                if (nn_centroids_raw.top().second == i) {
                     std::cout << "Missed NN centroid: " << nn_centroids_raw.top().first << " "
                               << nn_centroids_raw.top().second  << " " << i << std::endl;
                     exit(1);
