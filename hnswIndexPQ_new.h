@@ -378,7 +378,7 @@ namespace hnswlib {
 
                 std::vector< float > q_s(nsubc);
                 std::vector< float > r(nsubc);
-                double average_r = 0.0;
+                //double average_r = 0.0;
 
                 for (int subc = 0; subc < nsubc; subc++) {
                     idx_t subcentroid_num = nn_centroids[subc];
@@ -387,13 +387,14 @@ namespace hnswlib {
                     q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
                     r[subc] = (1-alpha) * q_c[i] + alpha * (alpha-1) * s_c[centroid_num][subc] + alpha * q_s[subc];
                     //r[subc] = (1+alpha) * q_c[i] + alpha * (alpha+1) * s_c[centroid_num][subc] - alpha * q_s[subc];
-                    average_r += r[subc];
+                    //average_r += r[subc];
                     subgroups.emplace(std::make_pair(-r[subc], subc));
                 }
-                average_r /= nsubc;
+                //average_r /= nsubc;
 
                 while(subgroups.size() > 0){
                     idx_t subc = subgroups.top().second;
+                    subgroups.pop();
 
                     int groupsize = group_sizes[centroid_num][subc];
                     if (groupsize == 0)
@@ -437,7 +438,7 @@ namespace hnswlib {
 //                    norm += groupsize;
 //                    id += groupsize;
 //                }
-                if (topResults.size() >= max_codes)
+                if (topResults.size() >= max_codes/2)
                     break;
             }
 
