@@ -345,7 +345,7 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
 
     const char *path_data_pq = "/home/dbaranchuk/deep_base_pq.bvecs";
 
-    const std::map<size_t, std::pair<size_t, size_t>> M_map = {{vecsize, {M, M}}};
+    const std::map<size_t, std::pair<size_t, size_t>> M_map = {{vecsize, {M, 2*M}}};
     //const std::map<size_t, std::pair<size_t, size_t>> M_map = {{vecsize/3, {M, 2*M}}, {vecsize, {M/2+2, 2*M/2}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{specsize, {16, 32}}, {vecsize, {M, 2*M}}};
     //const map<size_t, pair<size_t, size_t>> M_map = {{100000000, {16, 32}}, {200000000, {12, 24}}, {400000000, {8, 16}},
@@ -399,14 +399,11 @@ static void _hnsw_test(const char *path_pq, const char *path_learn,
 
 //        appr_alg->SaveInfo("/sata2/dbaranchuk/to_vision/deep4m_ef260_clusters3993883_M16_hnsw_merge.bin");
 //        appr_alg->SaveEdges("/sata2/dbaranchuk/to_vision/deep4m_ef260_clusters3993883_M16_hnsw_merge.ivecs");
-//        appr_alg->SaveInfo("/sata2/dbaranchuk/to_vision/sift/sift1m_ef320_M16_hnsw_merge.bin");
-//        appr_alg->SaveEdges("/sata2/dbaranchuk/to_vision/sift/sift1m_ef320_M16_hnsw_merge.ivecs");
         cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
     } else {
         cout << "Building index:\n";
         size_t j1 = 0;
-        appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, M_map, efConstruction);
-        //appr_alg->setElementLevels(false);
+        appr_alg = new HierarchicalNSW<dist_t, vtype>(l2space, vecsize, M, 2*M, efConstruction);
 
         StopW stopw = StopW();
         StopW stopw_full = StopW();

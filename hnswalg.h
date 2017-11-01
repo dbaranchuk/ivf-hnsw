@@ -305,7 +305,7 @@ namespace hnswlib {
                 topResults.pop();
             }
             {
-                linklistsizeint *ll_cur = level ? get_linklist(cur_c, level) : get_linklist0(cur_c);
+                linklistsizeint *ll_cur = get_linklist0(cur_c);
 
                 if (*ll_cur) {
                     cout << *ll_cur << "\n";
@@ -456,7 +456,7 @@ namespace hnswlib {
                 bool changed = true;
                 while (changed) {
                     changed = false;
-                    linklistsizeint *data = get_linklist(currObj, level);
+                    linklistsizeint *data = get_linklist0(currObj);
                     linklistsizeint size = *data;
                     tableint *datal = (tableint *) (data + 1);
                     for (linklistsizeint i = 0; i < size; i++) {
