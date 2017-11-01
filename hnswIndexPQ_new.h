@@ -178,10 +178,12 @@ namespace hnswlib {
                 while (nn_centroids_raw.size() > 1) {
                     centroid_vector_norms_L2sqr[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().first;
                     nn_centroid_idxs[i][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
+                    std::cout  <<  nn_centroids_raw.top().first << " " << nn_centroids_raw.top().second << std::endl;
                     nn_centroids_raw.pop();
                 }
                 if (nn_centroids_raw.top().second != i) {
-                    std::cout << "Missed NN centroid\n";
+                    std::cout << "Missed NN centroid: " << nn_centroids_raw.top().first << " "
+                              << nn_centroids_raw.top().second  << " " << i << std::endl;
                     exit(1);
                 }
             }
