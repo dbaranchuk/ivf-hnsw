@@ -390,16 +390,16 @@ namespace hnswlib {
                 average_r /= nsubc;
 
                 for (int subc = 0; subc < nsubc; subc++){
+                    int groupsize = group_sizes[centroid_num][subc];
+                    if (groupsize == 0)
+                        continue;
+
                     if (r[subc] > average_r) {
                         code += groupsize*code_size;
                         norm += groupsize;
                         id += groupsize;
                         continue;
                     }
-
-                    int groupsize = group_sizes[centroid_num][subc];
-                    if (groupsize == 0)
-                        continue;
 
                     idx_t subcentroid_num = nn_centroids[subc];
                     //const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
