@@ -295,223 +295,6 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
     }
 }
 
-//void compute_subcentroids(float *subcentroids, const float *centroid,
-//                          const float *centroid_vectors,
-//                          const float alpha, const int vecdim,
-//                          const int ncentroids, const int groupsize)
-//{
-//    for (int c = 0; c < ncentroids; c++) {
-//        const float *centroid_vector = centroid_vectors + c * vecdim;
-//        float *subcentroid = subcentroids + c * vecdim;
-//
-//        float check_norm = faiss::fvec_norm_L2sqr(centroid_vector, vecdim);
-//        if (c != 0 && !(0.99999 <  check_norm < 1.00001)){
-//            std::cout << "Centroid " << c << " has wrong norm: " << check_norm << std::endl;
-//            exit(1);
-//        }
-//        for (int i = 0; i < vecdim; i++)
-//            subcentroid[i] = centroid_vector[i] * alpha + centroid[i];
-//    }
-//}
-
-double compute_idxs(std::vector<std::vector<idx_t>> &idxs,
-                  const float *points, const float *subcentroids,
-                  const int vecdim, const int ncentroids, const int groupsize)
-{
-    double av_dist = 0.0;
-    for (int i = 0; i < groupsize; i++) {
-        const float *point = points + i * vecdim;
-        std::priority_queue<std::pair<float, idx_t>> max_heap;
-
-        for (int c = 0; c < ncentroids; c++) {
-            const float *subcentroid = subcentroids + c * vecdim;
-            float dist = faiss::fvec_L2sqr(subcentroid, point, vecdim);
-            max_heap.emplace(std::make_pair(-dist, c));
-        }
-        idx_t idx = max_heap.top().second;
-        idxs[idx].push_back(i);
-        av_dist += -max_heap.top().first;
-    }
-    return av_dist;
-    //std::cout << "[Modified] Average Distance: " << av_dist / groupsize << std::endl;
-}
-
-
-//void check_idea(Index *index, const char *path_centroids,
-//                const char *path_precomputed_idxs, const char *path_data,
-//                const int vecsize, const int vecdim)
-//{
-//    StopW stopw = StopW();
-//    const bool include_zero_centroid = false;
-//    const int nc = 128;
-//    const int maxM = 128;
-//    const int ngroups = 999973;
-//    int total_groupsizes = 0;
-//    const char *path_groups = "/home/dbaranchuk/data/groups/groups999973.dat";
-//
-//    if (!exists_test(path_groups)) {
-//        std::cout << "Precompute Group file first\n";
-//
-//        std::unordered_set<idx_t> centroid_nums;
-//        for (idx_t i = 50000; i < 150000; i += 10)
-//            centroid_nums.insert(i);
-//
-//        //collect_groups(path_groups, path_data, path_precomputed_idxs, centroid_nums, vecdim, vecsize);
-//    }
-//
-//    std::ifstream input(path_groups, ios::binary);
-//
-//    double baseline_average = 0.0;
-//    double modified_average = 0.0;
-//    double baseline_error = 0.0;
-//    double modified_error = 0.0;
-//
-//    int j1 = 0;
-////#pragma omp parallel for num_threads(16)
-//    for (int g = 0; g < ngroups; g++) {
-//        /** Read Original vectors from Group file**/
-//        idx_t centroid_num;
-//        int groupsize;
-//        std::vector<float> data;
-//        const float *centroid;
-////#pragma omp critical
-//        {
-//            //input.read((char *) &centroid_num, sizeof(idx_t));
-//            input.read((char *) &groupsize, sizeof(int));
-//            //std::cout << centroid_num << " " << groupsize << std::endl;
-//            data.reserve(groupsize * vecdim);
-//            input.read((char *) data.data(), groupsize * vecdim * sizeof(float));
-//            //readXvecs<float>(input, data.data(), vecdim, groupsize);
-//            centroid_num = j1++;
-//
-//            if (groupsize != index->ids[centroid_num].size()){
-//                std::cout << "Wrong groupsize\n";
-//                exit(1);
-//            }
-//            centroid = (float *) index->quantizer->getDataByInternalId(centroid_num);
-//            if (g % 100000 == 0)
-//                std::cout << g << std::endl;
-//
-//            total_groupsizes += groupsize;
-//            if (groupsize == 0)
-//                continue;
-//        }
-//
-//        /** Find NN centroids to source centroid **/
-//        auto nn_centroids_raw = index->quantizer->searchKnn((void *) centroid, nc + 1);
-//
-//        /** Remove source centroid from consideration **/
-//        std::priority_queue<std::pair<float, idx_t>> nn_centroids_before_heuristic;
-//        while (nn_centroids_raw.size() > 1) {
-//            nn_centroids_before_heuristic.emplace(nn_centroids_raw.top());
-//            nn_centroids_raw.pop();
-//        }
-//
-//        /** Pruning **/
-//        //index->quantizer->getNeighborsByHeuristicMerge(nn_centroids_before_heuristic, maxM);
-//        size_t ncentroids = nn_centroids_before_heuristic.size() + include_zero_centroid;
-//
-//        if (ncentroids > nc + include_zero_centroid) {
-//            std::cout << "Wrong number of nn centroids\n";
-//            exit(1);
-//        }
-//
-//        std::vector<idx_t> nn_centroids(ncentroids);
-//
-//        if (include_zero_centroid)
-//            nn_centroids[0] = centroid_num;
-//
-//        while (nn_centroids_before_heuristic.size() > 0) {
-//            nn_centroids[nn_centroids_before_heuristic.size() -
-//                         !include_zero_centroid] = nn_centroids_before_heuristic.top().second;
-//            nn_centroids_before_heuristic.pop();
-//        }
-//
-//        /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
-//        std::vector<float> normalized_centroid_vectors(ncentroids * vecdim);
-//        std::vector<float> point_vectors(groupsize * vecdim);
-//
-//        for (int i = 0; i < ncentroids; i++) {
-//            float *neighbor_centroid = (float *) index->quantizer->getDataByInternalId(nn_centroids[i]);
-//            compute_vector(normalized_centroid_vectors.data() + i * vecdim, neighbor_centroid, centroid, vecdim);
-//
-//            /** Normalize them **/
-//            if (include_zero_centroid && (i == 0)) continue;
-//            normalize_vector(normalized_centroid_vectors.data() + i * vecdim, vecdim);
-//        }
-//
-//        for (int i = 0; i < groupsize; i++) {
-//            compute_vector(point_vectors.data() + i * vecdim, data.data() + i * vecdim, centroid, vecdim);
-//            baseline_average += faiss::fvec_norm_L2sqr(point_vectors.data() + i * vecdim, vecdim);
-//        }
-//
-//        /** Find alphas for vectors **/
-//        float alpha = compute_alpha(normalized_centroid_vectors.data(), point_vectors.data(),
-//                                    centroid, vecdim, ncentroids, groupsize);
-//
-//        /** Compute final subcentroids **/
-//        std::vector<float> subcentroids(ncentroids * vecdim);
-//        compute_subcentroids(subcentroids.data(), centroid, normalized_centroid_vectors.data(),
-//                             alpha, vecdim, ncentroids, groupsize);
-//
-//        /** Compute sub idxs for group points **/
-//        std::vector<std::vector<idx_t>> idxs(ncentroids);
-//        modified_average += compute_idxs(idxs, data.data(), subcentroids.data(),
-//                                         vecdim, ncentroids, groupsize);
-//
-//        /** Baseline Quantization Error **/
-//        {
-//            std::vector<idx_t> keys(groupsize);
-//            for (int i = 0; i < groupsize; i++)
-//                keys[i] = centroid_num;
-//
-//            std::vector<uint8_t> codes = index->codes[centroid_num];
-//
-//            std::vector<float> decoded_residuals(groupsize * vecdim);
-//            index->pq->decode(codes.data(), decoded_residuals.data(), groupsize);
-//
-//            std::vector<float> reconstructed_x(groupsize * vecdim);
-//            index->reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(), keys.data());
-//
-//            baseline_error += compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
-//        }
-//        /** Modified Quantization Error **/
-//        {
-//            std::vector<float> reconstructed_x(groupsize * vecdim);
-//
-//            for (int c = 0; c < ncentroids; c++){
-//                float *subcentroid = subcentroids.data() + c * vecdim;
-//                std::vector<idx_t> idx = idxs[c];
-//
-//                for (idx_t id : idx) {
-//                    float *point = data.data() + id * vecdim;
-//
-//                    float residual[vecdim];
-//                    for (int j = 0; j < vecdim; j++)
-//                        residual[j] = point[j] - subcentroid[j];
-//
-//                    uint8_t code[index->pq->code_size];
-//                    index->pq->compute_code(residual, code);
-//
-//                    float decoded_residual[vecdim];
-//                    index->pq->decode(code, decoded_residual);
-//
-//                    float *rx = reconstructed_x.data() + id * vecdim;
-//                    for (int j = 0; j < vecdim; j++)
-//                        rx[j] = subcentroid[j] + decoded_residual[j];
-//                }
-//            }
-//            modified_error += compute_quantization_error(reconstructed_x.data(), data.data(), vecdim, groupsize);
-//        }
-//    }
-//    std::cout << "[Global Baseline] Average Distance: " << baseline_average / total_groupsizes << std::endl;
-//    std::cout << "[Global Modified] Average Distance: " << modified_average / total_groupsizes << std::endl;
-//    std::cout << "[Global Baseline] Average Error: " << baseline_error / total_groupsizes << std::endl;
-//    std::cout << "[Global Modified] Average Error: " << modified_error / total_groupsizes << std::endl;
-//
-//    std::cout << "Time(s): " << stopw.getElapsedTimeMicro() / 1000000 << std::endl;
-//    input.close();
-//}
 
 void check_groups(const char *path_data, const char *path_precomputed_idxs,
                   const char *path_groups, const char *path_groups_idxs)
@@ -637,8 +420,8 @@ void hybrid_test(const char *path_centroids,
     SpaceInterface<float> *l2space = new L2Space(vecdim);
 
     /** Create Index **/
-    //ModifiedIndex *index = new ModifiedIndex(vecdim, ncentroids, M_PQ, 8, nsubcentroids);
-    Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
+    ModifiedIndex *index = new ModifiedIndex(vecdim, ncentroids, M_PQ, 8, nsubcentroids);
+    //Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
     index->buildQuantizer(l2space, path_centroids, path_info, path_edges, 500);
     index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
 
@@ -680,25 +463,25 @@ void hybrid_test(const char *path_centroids,
         index->read(path_index);
     } else {
         /** Add elements **/
-        //index->add(path_groups, path_idxs);
-        size_t batch_size = 1000000;
-        std::ifstream base_input(path_data, ios::binary);
-        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-        std::vector<float> batch(batch_size * vecdim);
-        std::vector<idx_t> idx_batch(batch_size);
-        std::vector<idx_t> ids(vecsize);
-
-        for (int b = 0; b < (vecsize / batch_size); b++) {
-            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-            readXvec<float>(base_input, batch.data(), vecdim, batch_size);
-            for (size_t i = 0; i < batch_size; i++)
-                ids[batch_size*b + i] = batch_size*b + i;
-
-            printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
-            index->add(batch_size, batch.data(), ids.data() + batch_size*b, idx_batch.data());
-        }
-        idx_input.close();
-        base_input.close();
+        index->add(path_groups, path_idxs);
+//        size_t batch_size = 1000000;
+//        std::ifstream base_input(path_data, ios::binary);
+//        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+//        std::vector<float> batch(batch_size * vecdim);
+//        std::vector<idx_t> idx_batch(batch_size);
+//        std::vector<idx_t> ids(vecsize);
+//
+//        for (int b = 0; b < (vecsize / batch_size); b++) {
+//            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+//            readXvec<float>(base_input, batch.data(), vecdim, batch_size);
+//            for (size_t i = 0; i < batch_size; i++)
+//                ids[batch_size*b + i] = batch_size*b + i;
+//
+//            printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
+//            index->add(batch_size, batch.data(), ids.data() + batch_size*b, idx_batch.data());
+//        }
+//        idx_input.close();
+//        base_input.close();
 
         /** Save index, pq and norm_pq **/
         std::cout << "Saving index to " << path_index << std::endl;
@@ -708,9 +491,9 @@ void hybrid_test(const char *path_centroids,
     }
     /** Computing Centroid Norms **/
     std::cout << "Computing centroid norms"<< std::endl;
-    index->compute_centroid_norm_table();
-    //index->compute_centroid_norms();
-    //index->compute_s_c();
+//    index->compute_centroid_norm_table();
+    index->compute_centroid_norms();
+    index->compute_s_c();
 
     /** Parse groundtruth **/
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
