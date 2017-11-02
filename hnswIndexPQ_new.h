@@ -782,6 +782,7 @@ namespace hnswlib {
                 }
                 std::cout << k << " " << correct / qsize << std::endl;
             }
+            std::cout << "HUI" << std::endl;
         }
 
 	private:
