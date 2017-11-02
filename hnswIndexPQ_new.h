@@ -749,7 +749,7 @@ namespace hnswlib {
 //                        average_r /= nsubc;
 
                         int prev_correct = correct;
-                        while (ordered_subc.size() > probes/2){
+                        while (ordered_subc.size() > nsubc/2){
                             idx_t subc = ordered_subc.top().second;
                             ordered_subc.pop();
                         //for (int subc = 0; subc < nsubc; subc++) {
