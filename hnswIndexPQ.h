@@ -421,7 +421,7 @@ namespace hnswlib {
             }
         }
 
-        void compute_graphic(float *x, const idx_t *groundtruth, size_t qsize)
+        void compute_graphic(float *x, const idx_t *groundtruth, size_t gt_dim, size_t qsize)
         {
             for (int k = 0; k < 20; k++) {
                 const size_t maxcodes = 1 << k;
@@ -447,7 +447,7 @@ namespace hnswlib {
 
                         for (int j = 0; j < groupsize; j++) {
                             idx_t label = ids[key][j];
-                            if (label == groundtruth[q_idx])
+                            if (label == groundtruth[gt_dim * q_idx])
                                 correct++;
                             counter++;
                             if (counter == maxcodes)
