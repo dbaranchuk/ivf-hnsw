@@ -673,7 +673,6 @@ namespace hnswlib {
                 idx_t keys[probes];
                 float q_c[nprobe];
 
-
                 for (int q_idx = 0; q_idx < qsize; q_idx++) {
                     auto coarse = quantizer->searchKnn(x + q_idx*d, probes);
                     idx_t gt = groundtruth[gt_dim * q_idx];
