@@ -671,13 +671,17 @@ namespace hnswlib {
 
                 double correct = 0;
                 idx_t keys[probes];
+                float q_c[nprobe];
+
 
                 for (int q_idx = 0; q_idx < qsize; q_idx++) {
                     auto coarse = quantizer->searchKnn(x + q_idx*d, probes);
                     idx_t gt = groundtruth[gt_dim * q_idx];
 
-                    for (int i = probes - 1; i >= 0; i--) {
-                        keys[i] = coarse.top().second;
+                    for (int i = nprobe - 1; i >= 0; i--) {
+                        auto elem = coarse.top();
+                        q_c[i] = elem.first;
+                        keys[i] = elem.second;
                         coarse.pop();
                     }
 
