@@ -225,12 +225,8 @@ namespace hnswlib {
 		{
             idx_t keys[nprobe];
             float q_c[nprobe];
-            if (!norms)
-                norms = new float[65536];
-            if (!dis_table)
-                dis_table = new float [pq->ksub * pq->M];
 
-            pq->compute_inner_prod_table(x, dis_table);
+            pq->compute_inner_prod_table(x, dis_table.data());
             std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
             //std::priority_queue<std::pair<float, idx_t>> topResults;
 
@@ -250,7 +246,7 @@ namespace hnswlib {
                 float term1 = q_c[i] - centroid_norms[key];
                 int ncodes = norm_code.size();
 
-                norm_pq->decode(norm_code.data(), norms, ncodes);
+                norm_pq->decode(norm_code.data(), norms.data(), ncodes);
 
                 for (int j = 0; j < ncodes; j++){
                     float q_r = fstdistfunc(code.data() + j*code_size);
