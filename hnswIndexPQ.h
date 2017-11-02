@@ -443,7 +443,7 @@ namespace hnswlib {
 
                     for (int i = 0; i < probes; i++) {
                         idx_t key = keys[i];
-                        int groupsize = norm_code.size();
+                        int groupsize = norm_codes[key].size();
 
                         for (int j = 0; j < groupsize; j++) {
                             idx_t label = ids[key][j];
