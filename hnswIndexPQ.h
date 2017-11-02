@@ -434,6 +434,7 @@ namespace hnswlib {
 
                 for (int q_idx = 0; q_idx < qsize; q_idx++) {
                     auto coarse = quantizer->searchKnn(x + q_idx*d, probes);
+                    idx_t gt = groundtruth[gt_dim * q_idx];
 
                     for (int i = probes - 1; i >= 0; i--) {
                         keys[i] = coarse.top().second;
@@ -444,17 +445,21 @@ namespace hnswlib {
                         idx_t key = keys[i];
                         int groupsize = norm_codes[key].size();
 
+                        int prev_correct = correct;
                         for (int j = 0; j < groupsize; j++) {
                             idx_t label = ids[key][j];
-                            if (label == groundtruth[gt_dim * q_idx])
+                            if (label == gt) {
                                 correct++;
+                                break;
+                            }
                             counter++;
-                            if (counter == maxcodes)
+                            if (counter == maxcodes )
                                 break;
                         }
-                        if (counter == maxcodes)
+                        if (counter == maxcodes || correct == prev_correct + 1)
                             break;
                     }
+                    std::cout << counter << " ";
                 }
                 std::cout << k << " " << correct / qsize << std::endl;
             }
