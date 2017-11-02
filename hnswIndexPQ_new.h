@@ -726,9 +726,9 @@ namespace hnswlib {
                             ordered_subc.emplace(std::make_pair(-r[subc], subc));
 
                             if (subc == 0)
-                                offset[subc] = group_sizes[centroid_num][subc];
+                                offset[subc] = 0;
                             else
-                                offset[subc] = offset[subc-1] + group_sizes[centroid_num][subc];
+                                offset[subc] = offset[subc-1] + group_sizes[centroid_num][subc-1];
                         }
 
 //                        double max_r = 0.0;
