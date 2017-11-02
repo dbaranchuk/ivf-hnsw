@@ -660,7 +660,87 @@ namespace hnswlib {
                     s_c[i][subc] = faiss::fvec_L2sqr(subcentroid, centroid, d);
                 }
             }
+        }
 
+        void compute_graphic(float *x, const idx_t *groundtruth, size_t gt_dim, size_t qsize)
+        {
+            for (int k = 0; k < 21; k++) {
+                const size_t maxcodes = 1 << k;
+                const size_t probes = (k <= 15) ? 128 : 1280;
+                quantizer->ef_ = (k <= 15) ? 140 : 1280;
+
+                double correct = 0;
+                idx_t keys[probes];
+
+                for (int q_idx = 0; q_idx < qsize; q_idx++) {
+                    auto coarse = quantizer->searchKnn(x + q_idx*d, probes);
+                    idx_t gt = groundtruth[gt_dim * q_idx];
+
+                    for (int i = probes - 1; i >= 0; i--) {
+                        keys[i] = coarse.top().second;
+                        coarse.pop();
+                    }
+
+                    size_t counter = 0;
+                    for (int i = 0; i < probes; i++) {
+                        idx_t centroid_num = keys[i];
+                        if (group_sizes[centroid_num].size() == 0)
+                            continue;
+
+                        const idx_t *id = ids[centroid_num].data();
+                        const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
+                        float alpha = alphas[centroid_num];
+
+                        const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
+
+                        std::vector<float> q_s(nsubc);
+                        std::vector<float> r(nsubc);
+
+                        /** Filtering **/
+                        double average_r = 0.0;
+                        for (int subc = 0; subc < nsubc; subc++) {
+                            idx_t subcentroid_num = nn_centroids[subc];
+                            const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+
+                            q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
+                            r[subc] = (1 - alpha) * q_c[i] + alpha * (alpha - 1) * s_c[centroid_num][subc] +
+                                      alpha * q_s[subc];
+
+                            average_r += r[subc];
+                        }
+                        average_r /= nsubc;
+
+                        for (int subc = 0; subc < nsubc; subc++) {
+                            int groupsize = group_sizes[centroid_num][subc];
+                            if (groupsize == 0)
+                                continue;
+
+                            if (r[subc] > average_r) {
+                                id += groupsize;
+                                continue;
+                            }
+
+                            int prev_correct = correct;
+                            for (int j = 0; j < groupsize; j++) {
+                                if (id[j] == gt) {
+                                    correct++;
+                                    break;
+                                }
+                                counter++;
+                                if (counter == maxcodes)
+                                    break;
+                            }
+                            if (counter == maxcodes || correct == prev_correct + 1)
+                                break;
+                            /** Shift to the next group **/
+                            id += groupsize;
+                        }
+                        if (counter == maxcodes || correct == prev_correct + 1)
+                            break;
+                    }
+                }
+                std::cout << k << " " << correct / qsize << std::endl;
+            }
         }
 
 	private:
