@@ -710,6 +710,7 @@ namespace hnswlib {
                         }
                         average_r /= nsubc;
 
+                        int prev_correct = correct;
                         for (int subc = 0; subc < nsubc; subc++) {
                             int groupsize = group_sizes[centroid_num][subc];
                             if (groupsize == 0)
@@ -720,7 +721,6 @@ namespace hnswlib {
                                 continue;
                             }
 
-                            int prev_correct = correct;
                             for (int j = 0; j < groupsize; j++) {
                                 if (id[j] == gt) {
                                     correct++;
