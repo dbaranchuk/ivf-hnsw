@@ -700,6 +700,7 @@ namespace hnswlib {
                         std::vector<float> r(nsubc);
 
                         /** Filtering **/
+                        double max_r = 0.0;
                         double average_r = 0.0;
                         for (int subc = 0; subc < nsubc; subc++) {
                             idx_t subcentroid_num = nn_centroids[subc];
@@ -708,6 +709,9 @@ namespace hnswlib {
                             q_s[subc] = faiss::fvec_L2sqr(x+q_idx*d, nn_centroid, d);
                             r[subc] = (1 - alpha) * q_c[i] + alpha * (alpha - 1) * s_c[centroid_num][subc] +
                                       alpha * q_s[subc];
+
+                            if (r[subc] > max_r)
+                                max_r = r[subc];
 
                             average_r += r[subc];
                         }
@@ -719,7 +723,7 @@ namespace hnswlib {
                             if (groupsize == 0)
                                 continue;
 
-                            if (r[subc] > average_r) {
+                            if (r[subc] > (average_r+max_r)/2) {
                                 id += groupsize;
                                 continue;
                             }
