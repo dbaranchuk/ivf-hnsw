@@ -714,6 +714,7 @@ namespace hnswlib {
 
                         /** Filtering **/
 
+                        std::vector < int > offset(nsubc);
                         std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
                         for (int subc = 0; subc < nsubc; subc++) {
                             idx_t subcentroid_num = nn_centroids[subc];
@@ -723,8 +724,13 @@ namespace hnswlib {
                             r[subc] = (1-alpha) * q_c[i] + alpha * (alpha-1) * s_c[centroid_num][subc] + alpha * q_s[subc];
 
                             ordered_subc.emplace(std::make_pair(-r[subc], subc));
+
+                            if (subc == 0)
+                                offset[subc] = group_sizes[centroid_num][subc];
+                            else
+                                offset[subc] = offset[subc-1] + group_sizes[centroid_num][subc];
                         }
-//                        while (ordered_subc.size() > nprobe/2){
+
 //                        double max_r = 0.0;
 //                        double average_r = 0.0;
 //                        for (int subc = 0; subc < nsubc; subc++) {
@@ -751,13 +757,13 @@ namespace hnswlib {
                             if (groupsize == 0)
                                 continue;
 
-                            if (r[subc] > (average_r+max_r)/2) {
-                                id += groupsize;
-                                continue;
-                            }
+//                            if (r[subc] > (average_r+max_r)/2) {
+//                                id += groupsize;
+//                                continue;
+//                            }
 
                             for (int j = 0; j < groupsize; j++) {
-                                if (id[j] == gt) {
+                                if (id[offset[subc] + j] == gt) {
                                     correct++;
                                     break;
                                 }
@@ -768,7 +774,7 @@ namespace hnswlib {
                             if (counter == maxcodes || correct == prev_correct + 1)
                                 break;
                             /** Shift to the next group **/
-                            id += groupsize;
+                            //id += groupsize;
                         }
                         if (counter == maxcodes || correct == prev_correct + 1)
                             break;
