@@ -86,7 +86,7 @@ namespace hnswlib {
     struct Index
 	{
 		size_t d;
-		size_t csize;
+		size_t nc;
         size_t code_size;
 
         /** Query members **/
@@ -100,35 +100,30 @@ namespace hnswlib {
         std::vector < std::vector<uint8_t> > codes;
         std::vector < std::vector<uint8_t> > norm_codes;
 
-        float *c_norm_table = NULL;
+        std::vector < float > centroid_norms;
 		HierarchicalNSW<float, float> *quantizer;
 
     public:
 		Index(size_t dim, size_t ncentroids,
 			  size_t bytes_per_code, size_t nbits_per_idx):
-				d(dim), csize(ncentroids)
+				d(dim), nc(ncentroids)
 		{
-            codes.reserve(ncentroids);
-            norm_codes.reserve(ncentroids);
-            ids.reserve(ncentroids);
-
+            codes.resize(ncentroids);
+            norm_codes.resize(ncentroids);
+            ids.resize(ncentroids);
+            
             pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
             norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
 
+            centroid_norms.resize(ncentroids);
+            dis_table.resize(pq->ksub * pq->M);
+            norms.resize(65536);
+            
             code_size = pq->code_size;
         }
 
 
 		~Index() {
-            if (dis_table)
-                delete dis_table;
-
-            if (norms)
-                delete norms;
-
-            if (c_norm_table)
-                delete c_norm_table;
-
             delete pq;
             delete norm_pq;
             delete quantizer;
@@ -142,7 +137,7 @@ namespace hnswlib {
                 quantizer->ef_ = efSearch;
                 return;
             }
-            quantizer = new HierarchicalNSW<float, float>(l2space, csize, 16, 32, 500);
+            quantizer = new HierarchicalNSW<float, float>(l2space, nc, 16, 32, 500);
             quantizer->ef_ = efSearch;
 
 			std::cout << "Constructing quantizer\n";
@@ -155,13 +150,13 @@ namespace hnswlib {
 
 			size_t report_every = 100000;
 		#pragma omp parallel for num_threads(16)
-			for (int i = 1; i < csize; i++) {
+			for (int i = 1; i < nc; i++) {
 				float mass[d];
 		#pragma omp critical
 				{
 					readXvec<float>(input, mass, d);
 					if (++j1 % report_every == 0)
-						std::cout << j1 / (0.01 * csize) << " %\n";
+						std::cout << j1 / (0.01 * nc) << " %\n";
 				}
 				quantizer->addPoint((void *) (mass), (size_t) j1);
 			}
@@ -252,7 +247,7 @@ namespace hnswlib {
                 idx_t key = keys[i];
                 std::vector<uint8_t> code = codes[key];
                 std::vector<uint8_t> norm_code = norm_codes[key];
-                float term1 = q_c[i] - c_norm_table[key];
+                float term1 = q_c[i] - centroid_norms[key];
                 int ncodes = norm_code.size();
 
                 norm_pq->decode(norm_code.data(), norms, ncodes);
@@ -362,24 +357,24 @@ namespace hnswlib {
             FILE *fout = fopen(path_index, "wb");
 
             fwrite(&d, sizeof(size_t), 1, fout);
-            fwrite(&csize, sizeof(size_t), 1, fout);
+            fwrite(&nc, sizeof(size_t), 1, fout);
             fwrite(&nprobe, sizeof(size_t), 1, fout);
             fwrite(&max_codes, sizeof(size_t), 1, fout);
 
             size_t size;
-            for (size_t i = 0; i < csize; i++) {
+            for (size_t i = 0; i < nc; i++) {
                 size = ids[i].size();
                 fwrite(&size, sizeof(size_t), 1, fout);
                 fwrite(ids[i].data(), sizeof(idx_t), size, fout);
             }
 
-            for(int i = 0; i < csize; i++) {
+            for(int i = 0; i < nc; i++) {
                 size = codes[i].size();
                 fwrite(&size, sizeof(size_t), 1, fout);
                 fwrite(codes[i].data(), sizeof(uint8_t), size, fout);
             }
 
-            for(int i = 0; i < csize; i++) {
+            for(int i = 0; i < nc; i++) {
                 size = norm_codes[i].size();
                 fwrite(&size, sizeof(size_t), 1, fout);
                 fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
@@ -392,28 +387,28 @@ namespace hnswlib {
             FILE *fin = fopen(path_index, "rb");
 
             fread(&d, sizeof(size_t), 1, fin);
-            fread(&csize, sizeof(size_t), 1, fin);
+            fread(&nc, sizeof(size_t), 1, fin);
             fread(&nprobe, sizeof(size_t), 1, fin);
             fread(&max_codes, sizeof(size_t), 1, fin);
 
-            ids = std::vector<std::vector<idx_t>>(csize);
-            codes = std::vector<std::vector<uint8_t>>(csize);
-            norm_codes = std::vector<std::vector<uint8_t>>(csize);
+            ids = std::vector<std::vector<idx_t>>(nc);
+            codes = std::vector<std::vector<uint8_t>>(nc);
+            norm_codes = std::vector<std::vector<uint8_t>>(nc);
 
             size_t size;
-            for (size_t i = 0; i < csize; i++) {
+            for (size_t i = 0; i < nc; i++) {
                 fread(&size, sizeof(size_t), 1, fin);
                 ids[i].resize(size);
                 fread(ids[i].data(), sizeof(idx_t), size, fin);
             }
 
-            for(size_t i = 0; i < csize; i++){
+            for(size_t i = 0; i < nc; i++){
                 fread(&size, sizeof(size_t), 1, fin);
                 codes[i].resize(size);
                 fread(codes[i].data(), sizeof(uint8_t), size, fin);
             }
 
-            for(size_t i = 0; i < csize; i++){
+            for(size_t i = 0; i < nc; i++){
                 fread(&size, sizeof(size_t), 1, fin);
                 norm_codes[i].resize(size);
                 fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
@@ -422,18 +417,17 @@ namespace hnswlib {
             fclose(fin);
         }
 
-        void compute_centroid_norm_table()
+        void compute_centroid_norms()
         {
-            c_norm_table = new float[csize];
-            for (int i = 0; i < csize; i++){
+            for (int i = 0; i < nc; i++){
                 float *c = (float *)quantizer->getDataByInternalId(i);
-                faiss::fvec_norms_L2sqr (c_norm_table+i, c, d, 1);
+                centroid_norms[i] = faiss::fvec_norm_L2sqr(c, d);
             }
         }
 
 	private:
-        float *dis_table;
-        float *norms;
+        std::vector < float > dis_table;
+        std::vector < float > norms;
 
         float fstdistfunc(uint8_t *code)
         {
@@ -467,12 +461,6 @@ namespace hnswlib {
                 }
             }
 		}
-
-        void add_vector(const float *x, float *y)
-        {
-            for (int i = 0; i < d; i++)
-                y[i] += x[i];
-        }
 	};
 
 }

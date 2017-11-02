@@ -89,6 +89,7 @@ namespace hnswlib {
         {
             delete pq;
             delete norm_pq;
+            delete quantizer;
         }
 
         void buildQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
