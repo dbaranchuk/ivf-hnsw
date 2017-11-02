@@ -429,7 +429,6 @@ namespace hnswlib {
                 quantizer->ef_ = (k <= 16) ? 140 : 1280;
 
                 double correct = 0;
-                size_t counter = 0;
                 idx_t keys[probes];
 
                 for (int q_idx = 0; q_idx < qsize; q_idx++) {
@@ -441,6 +440,7 @@ namespace hnswlib {
                         coarse.pop();
                     }
 
+                    size_t counter = 0;
                     for (int i = 0; i < probes; i++) {
                         idx_t key = keys[i];
                         int groupsize = norm_codes[key].size();
@@ -453,13 +453,12 @@ namespace hnswlib {
                                 break;
                             }
                             counter++;
-                            if (counter == maxcodes )
+                            if (counter == maxcodes)
                                 break;
                         }
                         if (counter == maxcodes || correct == prev_correct + 1)
                             break;
                     }
-                    std::cout << counter << " ";
                 }
                 std::cout << k << " " << correct / qsize << std::endl;
             }
