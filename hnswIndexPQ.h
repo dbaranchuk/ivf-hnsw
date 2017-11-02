@@ -168,7 +168,7 @@ namespace hnswlib {
 
 		void assign(size_t n, const float *data, idx_t *idxs)
 		{
-		    #pragma omp parallel for num_threads(24)
+		    #pragma omp parallel for num_threads(16)
 			for (int i = 0; i < n; i++)
 				idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i*d), 1).top().second;
 		}
@@ -421,7 +421,48 @@ namespace hnswlib {
             }
         }
 
-	private:
+        void compute_graphic(const float *x, const idx_t *groundtruth, size_t qsize)
+        {
+            for (int k = 0; k < 20; k++) {
+                const size_t maxcodes = 1 << k;
+                const size_t probes = (k <= 16) ? 128 : 1280;
+                quantizer->ef_ = (k <= 16) ? 140 : 1280;
+
+                double correct = 0;
+                size_t counter = 0;
+                idx_t keys[probes];
+
+                for (int q_idx = 0; q_idx < qsize; q_idx++) {
+                    pq->compute_inner_prod_table(x + q_idx*d, dis_table.data());
+                    auto coarse = quantizer->searchKnn(x + q_idx*d, probes);
+
+                    for (int i = nprobe - 1; i >= 0; i--) {
+                        keys[i] = coarse.top().second;
+                        coarse.pop();
+                    }
+
+                    for (int i = 0; i < probes; i++) {
+                        idx_t key = keys[i];
+                        int groupsize = norm_code.size();
+
+                        for (int j = 0; j < groupsize; j++) {
+                            idx_t label = ids[key][j];
+                            if (label == groundtruth[q_idx])
+                                correct++;
+                            counter++;
+                            if (counter == maxcodes)
+                                break;
+                        }
+                        if (counter == maxcodes)
+                            break;
+                    }
+                }
+                std::cout << k << " " << correct / qsize << std::endl;
+            }
+        }
+
+
+    private:
         std::vector < float > dis_table;
         std::vector < float > norms;
 
