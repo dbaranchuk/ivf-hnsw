@@ -705,7 +705,7 @@ namespace hnswlib {
                             idx_t subcentroid_num = nn_centroids[subc];
                             const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
 
-                            q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
+                            q_s[subc] = faiss::fvec_L2sqr(x+q_idx*d, nn_centroid, d);
                             r[subc] = (1 - alpha) * q_c[i] + alpha * (alpha - 1) * s_c[centroid_num][subc] +
                                       alpha * q_s[subc];
 

@@ -492,7 +492,7 @@ void hybrid_test(const char *path_centroids,
     /** Computing Centroid Norms **/
     std::cout << "Computing centroid norms"<< std::endl;
     index->compute_centroid_norms();
-    //index->compute_s_c();
+    index->compute_s_c();
 
     /** Parse groundtruth **/
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
