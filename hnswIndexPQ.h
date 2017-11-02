@@ -421,7 +421,7 @@ namespace hnswlib {
             }
         }
 
-        void compute_graphic(const float *x, const idx_t *groundtruth, size_t qsize)
+        void compute_graphic(float *x, const idx_t *groundtruth, size_t qsize)
         {
             for (int k = 0; k < 20; k++) {
                 const size_t maxcodes = 1 << k;
