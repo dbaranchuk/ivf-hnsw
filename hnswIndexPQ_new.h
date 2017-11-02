@@ -725,7 +725,7 @@ namespace hnswlib {
                         }
 
                         int prev_correct = correct;
-                        while (ordered_subc.size() >= nsubc/4){
+                        while (ordered_subc.size() >= 48){
                             idx_t subc = ordered_subc.top().second;
                             ordered_subc.pop();
                             int groupsize = group_sizes[centroid_num][subc];
