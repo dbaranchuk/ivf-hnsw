@@ -677,8 +677,8 @@ namespace hnswlib {
         {
             for (int k = 0; k < 21; k++) {
                 const size_t maxcodes = 1 << k;
-                const size_t probes = (k <= 16) ? 128 : 1280;
-                quantizer->ef_ = (k <= 16) ? 140 : 1280;
+                const size_t probes = (k <= 14) ? 128 : 4096;
+                quantizer->ef_ = (k <= 14) ? 140 : 4096;
 
                 double correct = 0;
                 idx_t keys[probes];
