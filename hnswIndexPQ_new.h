@@ -341,8 +341,18 @@ namespace hnswlib {
                 std::vector< float > r(nsubc);
 
                 /** Filtering **/
-                //double average_r = 0.0;
+                std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
+                for (int subc = 0; subc < nsubc; subc++) {
+                    idx_t subcentroid_num = nn_centroids[subc];
+                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
 
+                    q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
+                    r[subc] = (1-alpha) * q_c[i] + alpha * (alpha-1) * s_c[centroid_num][subc] + alpha * q_s[subc];
+
+                    ordered_subc.emplace(std::make_pair(-r[subc], subc));
+                }
+
+                //double average_r = 0.0;
                 //for (int subc = 0; subc < nsubc; subc++) {
                 //    idx_t subcentroid_num = nn_centroids[subc];
                 //    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
@@ -354,7 +364,10 @@ namespace hnswlib {
                 //}
                 //average_r /= nsubc;
 
-                for (int subc = 0; subc < nsubc; subc++){
+                while (ordered_subc.size() > nprobe/2){
+                    idx_t subc = ordered_subc.top().second;
+                    ordered_subc.pop();
+                //for (int subc = 0; subc < nsubc; subc++){
                     int groupsize = group_sizes[centroid_num][subc];
                     if (groupsize == 0)
                         continue;
@@ -666,8 +679,8 @@ namespace hnswlib {
         {
             for (int k = 0; k < 21; k++) {
                 const size_t maxcodes = 1 << k;
-                const size_t probes = (k <= 15) ? 128 : 2560;
-                quantizer->ef_ = (k <= 15) ? 140 : 2560;
+                const size_t probes = (k <= 16) ? 128 : 1280;
+                quantizer->ef_ = (k <= 16) ? 140 : 1280;
 
                 double correct = 0;
                 idx_t keys[probes];
@@ -700,25 +713,40 @@ namespace hnswlib {
                         std::vector<float> r(nsubc);
 
                         /** Filtering **/
-                        double max_r = 0.0;
-                        double average_r = 0.0;
+
+                        std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
                         for (int subc = 0; subc < nsubc; subc++) {
                             idx_t subcentroid_num = nn_centroids[subc];
                             const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
 
-                            q_s[subc] = faiss::fvec_L2sqr(x+q_idx*d, nn_centroid, d);
-                            r[subc] = (1 - alpha) * q_c[i] + alpha * (alpha - 1) * s_c[centroid_num][subc] +
-                                      alpha * q_s[subc];
+                            q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
+                            r[subc] = (1-alpha) * q_c[i] + alpha * (alpha-1) * s_c[centroid_num][subc] + alpha * q_s[subc];
 
-                            if (r[subc] > max_r)
-                                max_r = r[subc];
-
-                            average_r += r[subc];
+                            ordered_subc.emplace(std::make_pair(-r[subc], subc));
                         }
-                        average_r /= nsubc;
+//                        while (ordered_subc.size() > nprobe/2){
+//                        double max_r = 0.0;
+//                        double average_r = 0.0;
+//                        for (int subc = 0; subc < nsubc; subc++) {
+//                            idx_t subcentroid_num = nn_centroids[subc];
+//                            const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+//
+//                            q_s[subc] = faiss::fvec_L2sqr(x+q_idx*d, nn_centroid, d);
+//                            r[subc] = (1 - alpha) * q_c[i] + alpha * (alpha - 1) * s_c[centroid_num][subc] +
+//                                      alpha * q_s[subc];
+//
+//                            if (r[subc] > max_r)
+//                                max_r = r[subc];
+//
+//                            average_r += r[subc];
+//                        }
+//                        average_r /= nsubc;
 
                         int prev_correct = correct;
-                        for (int subc = 0; subc < nsubc; subc++) {
+                        while (ordered_subc.size() > probes/2){
+                            idx_t subc = ordered_subc.top().second;
+                            ordered_subc.pop();
+                        //for (int subc = 0; subc < nsubc; subc++) {
                             int groupsize = group_sizes[centroid_num][subc];
                             if (groupsize == 0)
                                 continue;
