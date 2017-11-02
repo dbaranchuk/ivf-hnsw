@@ -433,10 +433,9 @@ namespace hnswlib {
                 idx_t keys[probes];
 
                 for (int q_idx = 0; q_idx < qsize; q_idx++) {
-                    pq->compute_inner_prod_table(x + q_idx*d, dis_table.data());
                     auto coarse = quantizer->searchKnn(x + q_idx*d, probes);
 
-                    for (int i = nprobe - 1; i >= 0; i--) {
+                    for (int i = probes - 1; i >= 0; i--) {
                         keys[i] = coarse.top().second;
                         coarse.pop();
                     }
