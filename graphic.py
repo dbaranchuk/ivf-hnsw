@@ -23,6 +23,27 @@ O_IMI_txt = '''
 '''
 
 Hybrid_txt = '''
+0.0003	
+0.0012	
+0.0018	
+0.0035	
+0.0059	
+0.0109	
+0.0199	
+0.0368	
+0.0717	
+0.1415	
+0.2611	
+0.3886	
+0.5109	
+0.6402	
+0.7506	
+0.8442	
+0.9105	
+0.9524	
+0.9786	
+0.9915	
+0.9967	
 '''
 
 Subgroups_50_txt = '''
@@ -82,29 +103,22 @@ k = range(21)
 O_IMI = re.findall(r"[0-9.]+", O_IMI_txt)
 Subgroups_50 = re.findall(r"[0-9.]+", Subgroups_50_txt)
 Subgroups_75 = re.findall(r"[0-9.]+", Subgroups_75_txt)
+Hybrid = re.findall(r"[0-9.]+", Hybrid_txt)
 
-plt.plot(k, O_IMI, 'r', label = 'O-IMI')
-plt.plot(k, Subgroups_50, '--b', label = 'Subgroups 50% Filter')
-plt.plot(k, Subgroups_75, 'b', label = 'Subgroups 75% Filter')
+lineIMI, = plt.plot(k, O_IMI, 'r', label = 'O-IMI')
+lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'Hybrid')
+lineSubgroups_50, = plt.plot(k, Subgroups_50, '--b', label = 'Subgroups Filter 50%')
+lineSubgroups_75, = plt.plot(k, Subgroups_75, 'b', label = 'Subgroups Filter 75%')
 
-# plt.plot(ef, cM2_M2, 'g', label = 'cM2_M2_ef_240')
-# plt.plot(ef, cM2_M2_ef_60, 'g--', label = 'cM2_M2_ef_60')
-#
-# plt.plot(ef, cM16_M2, 'b', label = 'cM16_M2_ef_240')
-# plt.plot(ef, cM16_M2_ef_60, 'b--', label = 'cM16_M2_ef_60')
+plt.xticks(range(21))
+plt.yticks(numpy.arange(0., 1.1, 0.1))
 
 plt.axis([0, 20, 0, 1])
 plt.xlabel('log2(R)', fontsize=12)
 plt.ylabel('Recall@R', fontsize=12)
-# plt.text(ef[-1]+1, cM16_M16[-1], 'cM16_M16_ef_240', fontsize=9, color=(1,0,0))
-# plt.text(ef[-1]+1, float(cM16_M2[-1])-0.1, 'cM16_M2_ef_240', fontsize=9, color=(0,0,1))
-# plt.text(ef[-1]+1, cM2_M2[-1], 'cM2_M2_ef_240', fontsize=9, color=(0,0.7,0))
-
 
 plt.title('DEEP1B')
-plt.legend(handles=[O_IMI], loc=1)
-plt.legend(handles=[Subgroups_50], loc=1)
-plt.legend(handles=[Subgroups_75], loc=1)
+plt.legend(fontsize=11, loc=2)
 #plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 #           ncol=3, mode="expand", borderaxespad=0., prop={'size': 11})
 plt.savefig('graphic.png')
