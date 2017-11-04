@@ -392,6 +392,7 @@ void compute_average_distance(const char *path_data, const char *path_centroids,
 
 void random_subset(const float *x, float *x_out, int d, int nx)
 {
+    int seed = 1234;
     std::vector<int> perm (nx);
     faiss::rand_perm (perm.data (), nx, seed);
 
