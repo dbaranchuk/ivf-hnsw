@@ -390,14 +390,13 @@ void compute_average_distance(const char *path_data, const char *path_centroids,
 }
 
 
-void random_subset(const float *x, float *x_out, int d, int nx)
+void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx)
 {
     int seed = 1234;
     std::vector<int> perm (nx);
     faiss::rand_perm (perm.data (), nx, seed);
 
-    nx = 65536;
-    for (idx_t i = 0; i < nx; i++)
+    for (idx_t i = 0; i < sub_nx; i++)
         memcpy (x_out + i * d, x + perm[i] * d, sizeof(x_out[0]) * d);
 }
 
@@ -439,14 +438,15 @@ void hybrid_test(const char *path_centroids,
 
     /** Train PQ **/
     std::ifstream learn_input(path_learn, ios::binary);
-    int nt = 10000000;//65536;//131072;
+    int nt = 10000000;
+    int sub_nt = 65536;
     std::vector<float> trainvecs(nt * vecdim);
     readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
     learn_input.close();
 
     /** Set Random Subset of 65536 trainvecs **/
-    std::vector<float> trainvecs_rnd_subset(65536 * vecdim);
-    random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), vecdim, nt);
+    std::vector<float> trainvecs_rnd_subset(sub_nt * vecdim);
+    random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), vecdim, nt, sub_nt);
 
     /** Train residual PQ **/
     if (exists_test(path_pq)) {
@@ -455,7 +455,7 @@ void hybrid_test(const char *path_centroids,
     }
     else {
         std::cout << "Training PQ codebook " << std::endl;
-        index->train_residual_pq(65536, trainvecs.data()+3465536*vecdim);
+        index->train_residual_pq(sub_nt, trainvecs_rnd_subset.data());
         std::cout << "Saving PQ codebook to " << path_pq << std::endl;
         write_pq(path_pq, index->pq);
     }
@@ -466,7 +466,7 @@ void hybrid_test(const char *path_centroids,
         read_pq(path_norm_pq, index->norm_pq);
     }
     else {
-        index->train_norm_pq(65536, trainvecs.data()+3465536*vecdim);
+        index->train_norm_pq(sub_nt, trainvecs_rnd_subset.data());
         std::cout << "Saving norm PQ codebook to " << path_norm_pq << std::endl;
         write_pq(path_norm_pq, index->norm_pq);
     }
