@@ -440,7 +440,7 @@ void hybrid_test(const char *path_centroids,
     }
     else {
         std::cout << "Training PQ codebook " << std::endl;
-        index->train_residual_pq(nt, trainvecs.data());
+        index->train_residual_pq(65536, trainvecs.data()+nt/2);
         std::cout << "Saving PQ codebook to " << path_pq << std::endl;
         write_pq(path_pq, index->pq);
     }
