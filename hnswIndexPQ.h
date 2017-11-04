@@ -8,7 +8,7 @@
 #include <cmath>
 
 #include "L2space.h"
-#include "hnswalg_prev.h"
+#include "hnswalg.h"
 #include <faiss/ProductQuantizer.h>
 #include <faiss/utils.h>
 #include <faiss/index_io.h>
