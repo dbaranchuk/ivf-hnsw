@@ -112,10 +112,10 @@ namespace hnswlib {
             quantizer->addPoint((void *) (mass), j1);
 
             size_t report_every = 100000;
-            //#pragma omp parallel for num_threads(16)
+            #pragma omp parallel for num_threads(16)
             for (int i = 1; i < nc; i++) {
                 float mass[d];
-            //    #pragma omp critical
+                #pragma omp critical
                 {
                     readXvec<float>(input, mass, d);
                     if (++j1 % report_every == 0)
