@@ -389,6 +389,17 @@ void compute_average_distance(const char *path_data, const char *path_centroids,
     std::cout << "Average: " << average_dist / 1000000000 << std::endl;
 }
 
+
+void random_subset(const float *x, float *x_out, int d, int nx)
+{
+    std::vector<int> perm (nx);
+    faiss::rand_perm (perm.data (), nx, seed);
+
+    nx = 65536;
+    for (idx_t i = 0; i < nx; i++)
+        memcpy (x_out + i * d, x + perm[i] * d, sizeof(x_out[0]) * d);
+}
+
 void hybrid_test(const char *path_centroids,
                  const char *path_index, const char *path_precomputed_idxs,
                  const char *path_pq, const char *path_norm_pq,
@@ -429,9 +440,12 @@ void hybrid_test(const char *path_centroids,
     std::ifstream learn_input(path_learn, ios::binary);
     int nt = 10000000;//65536;//131072;
     std::vector<float> trainvecs(nt * vecdim);
-
     readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
     learn_input.close();
+
+    /** Set Random Subset of 65536 trainvecs **/
+    std::vector<float> trainvecs_rnd_subset(65536 * vecdim);
+    random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), vecdim, nt);
 
     /** Train residual PQ **/
     if (exists_test(path_pq)) {
@@ -440,7 +454,7 @@ void hybrid_test(const char *path_centroids,
     }
     else {
         std::cout << "Training PQ codebook " << std::endl;
-        index->train_residual_pq(65536, trainvecs.data()+65536);
+        index->train_residual_pq(65536, trainvecs.data()+3465536*vecdim);
         std::cout << "Saving PQ codebook to " << path_pq << std::endl;
         write_pq(path_pq, index->pq);
     }
@@ -451,7 +465,7 @@ void hybrid_test(const char *path_centroids,
         read_pq(path_norm_pq, index->norm_pq);
     }
     else {
-        index->train_norm_pq(65536, trainvecs.data()+65536);
+        index->train_norm_pq(65536, trainvecs.data()+3465536*vecdim);
         std::cout << "Saving norm PQ codebook to " << path_norm_pq << std::endl;
         write_pq(path_norm_pq, index->norm_pq);
     }
