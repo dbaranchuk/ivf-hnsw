@@ -427,7 +427,7 @@ void hybrid_test(const char *path_centroids,
 
     /** Train PQ **/
     std::ifstream learn_input(path_learn, ios::binary);
-    int nt = 131072;
+    int nt = 65536;//131072;
     std::vector<float> trainvecs(nt * vecdim);
 
     readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
