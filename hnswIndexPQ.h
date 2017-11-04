@@ -137,8 +137,7 @@ namespace hnswlib {
                 quantizer->ef_ = efSearch;
                 return;
             }
-            quantizer = new HierarchicalNSW<float, float > (l2space, {{nc, {16, 32}}}, 500);
-            //quantizer = new HierarchicalNSW<float, float>(l2space, nc, 16, 32, 500);
+            quantizer = new HierarchicalNSW<float, float>(l2space, nc, 16, 32, 500);
             quantizer->ef_ = efSearch;
 
 			std::cout << "Constructing quantizer\n";
@@ -228,8 +227,8 @@ namespace hnswlib {
             float q_c[nprobe];
 
             pq->compute_inner_prod_table(x, dis_table.data());
-            std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
-            //std::priority_queue<std::pair<float, idx_t>> topResults;
+            //std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
+            std::priority_queue<std::pair<float, idx_t>> topResults;
 
             auto coarse = quantizer->searchKnn(x, nprobe);
 
