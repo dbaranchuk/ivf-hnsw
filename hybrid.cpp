@@ -395,6 +395,39 @@ void compute_average_distance(const char *path_data, const char *path_centroids,
     std::cout << "Average: " << average_dist / 1000000000 << std::endl;
 }
 
+void compute_average_distance_sift(const char *path_data, const char *path_centroids, const char *path_precomputed_idxs,
+                              const int ncentroids, const int vecdim, const int vecsize)
+{
+    std::ifstream centroids_input(path_centroids, ios::binary);
+    std::vector<float> centroids(ncentroids*vecdim);
+    readXvec<float>(centroids_input, centroids.data(), vecdim, ncentroids);
+    centroids_input.close();
+
+    const int batch_size = 1000000;
+    std::ifstream base_input(path_data, ios::binary);
+    std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+    std::vector<uint8_t > batch_b(batch_size * vecdim);
+    std::vector<float > batch(batch_size * vecdim);
+    std::vector<idx_t> idx_batch(batch_size);
+
+    double average_dist = 0.0;
+    for (int b = 0; b < (vecsize / batch_size); b++) {
+        readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+        readXvec<uint8_t>(base_input, batch_b.data(), vecdim, batch_size);
+        bvec2fvec(batch.data(), batch_b.data(), vecdim, batch_size);
+
+        for (size_t i = 0; i < batch_size; i++) {
+            const float *centroid = centroids.data() + idx_batch[i] * vecdim;
+            average_dist += faiss::fvec_L2sqr(batch.data() + i*vecdim, centroid, vecdim);
+        }
+
+        if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
+    }
+    idx_input.close();
+    base_input.close();
+
+    std::cout << "Average: " << average_dist / 1000000000 << std::endl;
+}
 
 void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx)
 {
@@ -407,6 +440,12 @@ void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx)
 }
 
 void bvec2fvec(float *target, const uint8_t *x, int d, int n)
+{
+    for (int i = 0; i < n*d; i++)
+        target[i] = (1.0)*x[i];
+}
+
+void fvec2bvec(uint8_t *target, const float *x, int d, int n)
 {
     for (int i = 0; i < n*d; i++)
         target[i] = (1.0)*x[i];
@@ -431,6 +470,10 @@ void hybrid_test(const char *path_centroids,
                  const int max_codes,
                  const int nsubcentroids)
 {
+    compute_average_distance_sift("/home/dbaranchuk/data/bigann/bigann_base.bvecs",
+                                  "/home/dbaranchuk/data/sift1B_centroids1M.fvecs",
+                                  "/home/dbaranchuk/sift1B_precomputed_idxs_9993127.ivecs", 128, vecsize);
+
     cout << "Loading GT:\n";
     const int gt_dim = 1;
     idx_t *massQA = new idx_t[qsize * gt_dim];
