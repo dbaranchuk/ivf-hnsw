@@ -280,25 +280,25 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
     const char *path_idxs = "/home/dbaranchuk/data/groups/sift1B_idxs9993127.ivecs";
     FILE *fout = fopen(path_idxs, "wb");
 
-    size_t counter = 0;
+//    size_t counter = 0;
     for (int i = 0; i < ncentroids; i++) {
-        //int groupsize = data[i].size() / vecdim;
-        counter += idxs[i].size();
+        int groupsize = data[i].size() / vecdim;
+//        counter += idxs[i].size();
 
-//        if (groupsize != index->ids[i].size()){
-//            std::cout << "Wrong groupsize: " << groupsize << " vs "
-//                      << index->ids[i].size() <<std::endl;
-//            exit(1);
-//        }
+        if (groupsize != index->ids[i].size()){
+            std::cout << "Wrong groupsize: " << groupsize << " vs "
+                      << index->ids[i].size() <<std::endl;
+            exit(1);
+        }
 
         fwrite(&groupsize, sizeof(int), 1, fout);
         fwrite(idxs[i].data(), sizeof(idx_t), idxs[i].size(), fout);
         //fwrite(data[i].data(), sizeof(float), data[i].size(), fout);
     }
-    if (counter != 9993127){
-        std::cout << "Wrong poitns num\n";
-        exit(1);
-    }
+//    if (counter != 9993127){
+//        std::cout << "Wrong poitns num\n";
+//        exit(1);
+//    }
 }
 
 
