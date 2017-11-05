@@ -386,7 +386,7 @@ namespace hnswlib {
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(const_cast<uint8_t *>(code) + (offset[subc] + j)*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[offset[subc] + j];
-                        topResults.emplace(std::make_pair(-dist, id[j]));
+                        topResults.emplace(std::make_pair(-dist, id[offset[subc] + j]));
                     }
                     /** Shift to the next group **/
 //                    code += groupsize*code_size;
