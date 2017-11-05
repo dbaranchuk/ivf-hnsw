@@ -339,7 +339,7 @@ namespace hnswlib {
 
                 std::vector< float > q_s(nsubc);
                 std::vector< float > r(nsubc);
-                std::vector< idx_t > offset(nsubc);
+                std::vector< size_t > offsets(nsubc);
                 /** Filtering **/
                 std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
                 for (int subc = 0; subc < nsubc; subc++) {
@@ -349,7 +349,7 @@ namespace hnswlib {
                     q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
                     r[subc] = (1-alpha) * q_c[i] + alpha * (alpha-1) * s_c[centroid_num][subc] + alpha * q_s[subc];
 
-                    offset[subc] = (subc == 0) ? 0 : offset[subc-1] + group_sizes[centroid_num][subc-1];
+                    offsets[subc] = (subc == 0) ? 0 : offsets[subc-1] + group_sizes[centroid_num][subc-1];
                     ordered_subc.emplace(std::make_pair(-r[subc], subc));
                 }
 //                double average_r = 0.0;
@@ -363,7 +363,7 @@ namespace hnswlib {
 //                }
 //                average_r /= nsubc;
 
-                while (ordered_subc.size() > 32){
+                while (ordered_subc.size() >= 32){
                     idx_t subc = ordered_subc.top().second;
                     ordered_subc.pop();
 //                for (int subc = 0; subc < nsubc; subc++){
@@ -383,10 +383,11 @@ namespace hnswlib {
                     //float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
                     float snd_term = alpha * (q_s[subc] - centroid_norms[subcentroid_num]);
 
+                    size_t offset = offsets[subc];
                     for (int j = 0; j < groupsize; j++){
-                        float q_r = fstdistfunc(const_cast<uint8_t *>(code) + (offset[subc] + j)*code_size);
-                        float dist = fst_term + snd_term - 2*q_r + norm[offset[subc] + j];
-                        topResults.emplace(std::make_pair(-dist, id[offset[subc] + j]));
+                        float q_r = fstdistfunc(const_cast<uint8_t *>(code) + (offset + j)*code_size);
+                        float dist = fst_term + snd_term - 2*q_r + norm[offset + j];
+                        topResults.emplace(std::make_pair(-dist, id[offset + j]));
                     }
                     /** Shift to the next group **/
 //                    code += groupsize*code_size;
