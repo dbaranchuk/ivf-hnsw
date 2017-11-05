@@ -409,7 +409,7 @@ void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx)
 void bvec2fvec(float *target, const uint8_t *x, int d, int n)
 {
     for (int i = 0; i < n*d; i++)
-        target[i] = (1.0)*x;
+        target[i] = (1.0)*x[i];
 }
 
 void hybrid_test(const char *path_centroids,
