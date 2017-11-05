@@ -324,7 +324,7 @@ namespace hnswlib {
 
             std::vector< float > q_s(nsubc);
             std::vector< float > r(nsubc);
-            std::vector< size_t > offsets(nsubc);
+//            std::vector< size_t > offsets(nsubc);
 
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
@@ -342,29 +342,29 @@ namespace hnswlib {
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
                 /** Filtering **/
-                std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
-                for (int subc = 0; subc < nsubc; subc++) {
-                    idx_t subcentroid_num = nn_centroids[subc];
-                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+//                std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
+//                for (int subc = 0; subc < nsubc; subc++) {
+//                    idx_t subcentroid_num = nn_centroids[subc];
+//                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+//
+//                    q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
+//                    r[subc] = (1-alpha) * q_c[i] + alpha * (alpha-1) * s_c[centroid_num][subc] + alpha * q_s[subc];
+//
+//                    offsets[subc] = (subc == 0) ? 0 : offsets[subc-1] + group_sizes[centroid_num][subc-1];
+//                    ordered_subc.emplace(std::make_pair(-r[subc], subc));
+//                }
 
-                    q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
-                    r[subc] = (1-alpha) * q_c[i] + alpha * (alpha-1) * s_c[centroid_num][subc] + alpha * q_s[subc];
-
-                    offsets[subc] = (subc == 0) ? 0 : offsets[subc-1] + group_sizes[centroid_num][subc-1];
-                    ordered_subc.emplace(std::make_pair(-r[subc], subc));
-                }
-
-                while (ordered_subc.size() > 48){
-                    idx_t subc = ordered_subc.top().second;
-                    ordered_subc.pop();
-                //for (int subc = 0; subc < nsubc; subc++){
+                //while (ordered_subc.size() > 48){
+                //    idx_t subc = ordered_subc.top().second;
+                //    ordered_subc.pop();
+                for (int subc = 0; subc < nsubc; subc++){
                     int groupsize = group_sizes[centroid_num][subc];
                     if (groupsize == 0)
                         continue;
 
                     idx_t subcentroid_num = nn_centroids[subc];
-                    //const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
-                    //float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
+                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+                    float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
                     float snd_term = alpha * (q_s[subc] - centroid_norms[subcentroid_num]);
 
                     size_t offset = offsets[subc];
@@ -374,9 +374,9 @@ namespace hnswlib {
                         topResults.emplace(std::make_pair(-dist, id[offset + j]));
                     }
                     /** Shift to the next group **/
-//                    code += groupsize*code_size;
-//                    norm += groupsize;
-//                    id += groupsize;
+                    code += groupsize*code_size;
+                    norm += groupsize;
+                    id += groupsize;
                 }
                 if (topResults.size() >= max_codes)
                     break;
