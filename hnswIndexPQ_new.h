@@ -353,31 +353,14 @@ namespace hnswlib {
                     offsets[subc] = (subc == 0) ? 0 : offsets[subc-1] + group_sizes[centroid_num][subc-1];
                     ordered_subc.emplace(std::make_pair(-r[subc], subc));
                 }
-//                double average_r = 0.0;
-//                for (int subc = 0; subc < nsubc; subc++) {
-//                    idx_t subcentroid_num = nn_centroids[subc];
-//                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
-//
-//                    q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
-//                    r[subc] = (1-alpha) * q_c[i] + alpha * (alpha-1) * s_c[centroid_num][subc] + alpha * q_s[subc];
-//                    average_r += r[subc];
-//                }
-//                average_r /= nsubc;
 
-                while (ordered_subc.size() > 32){
+                while (ordered_subc.size() > 48){
                     idx_t subc = ordered_subc.top().second;
                     ordered_subc.pop();
                 //for (int subc = 0; subc < nsubc; subc++){
                     int groupsize = group_sizes[centroid_num][subc];
                     if (groupsize == 0)
                         continue;
-
-//                    if (r[subc] > average_r) {
-//                        code += groupsize*code_size;
-//                        norm += groupsize;
-//                        id += groupsize;
-//                        continue;
-//                    }
 
                     idx_t subcentroid_num = nn_centroids[subc];
                     //const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
