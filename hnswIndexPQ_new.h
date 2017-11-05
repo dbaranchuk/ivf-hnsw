@@ -367,11 +367,11 @@ namespace hnswlib {
                     float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
                     float snd_term = alpha * (q_s[subc] - centroid_norms[subcentroid_num]);
 
-                    size_t offset = offsets[subc];
+                    //size_t offset = offsets[subc];
                     for (int j = 0; j < groupsize; j++){
-                        float q_r = fstdistfunc(const_cast<uint8_t *>(code) + (offset + j)*code_size);
-                        float dist = fst_term + snd_term - 2*q_r + norm[offset + j];
-                        topResults.emplace(std::make_pair(-dist, id[offset + j]));
+                        float q_r = fstdistfunc(const_cast<uint8_t *>(code) + j*code_size); //offset
+                        float dist = fst_term + snd_term - 2*q_r + norm[j]; // offset
+                        topResults.emplace(std::make_pair(-dist, id[j])); //offset
                     }
                     /** Shift to the next group **/
                     code += groupsize*code_size;
