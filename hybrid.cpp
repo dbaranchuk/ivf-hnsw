@@ -395,6 +395,7 @@ void compute_average_distance(const char *path_data, const char *path_centroids,
     std::cout << "Average: " << average_dist / 1000000000 << std::endl;
 }
 
+
 void bvec2fvec(float *target, const uint8_t *x, int d, int n)
 {
     for (int i = 0; i < n*d; i++)
@@ -438,7 +439,57 @@ void compute_average_distance_sift(const char *path_data, const char *path_centr
     idx_input.close();
     base_input.close();
 
-    std::cout << "Average: " << average_dist / 1000000000 << std::endl;
+    std::cout << "Average: " << average_dist / vecsize << std::endl;
+}
+
+void save_groups_sift(const char *path_groups, const char *path_data, const char *path_precomputed_idxs,
+                      const int ncentroids, const int vecdim, const int vecsize)
+{
+    std::vector<std::vector<uint8_t >> data(ncentroids);
+    //std::vector<std::vector<idx_t>> idxs(ncentroids);
+
+    const int batch_size = 1000000;
+    std::ifstream base_input(path_data, ios::binary);
+    std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+    std::vector<uint8_t > batch(batch_size * vecdim);
+    std::vector<idx_t> idx_batch(batch_size);
+
+    for (int b = 0; b < (vecsize / batch_size); b++) {
+        readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+        readXvec<uint8_t >(base_input, batch.data(), vecdim, batch_size);
+
+        for (size_t i = 0; i < batch_size; i++) {
+            //if (idx_batch[i] < 900000)
+            //    continue;
+
+            idx_t cur_idx = idx_batch[i];
+            for (int d = 0; d < vecdim; d++)
+                data[cur_idx].push_back(batch[i * vecdim + d]);
+            //idxs[cur_idx].push_back(b*batch_size + i);
+        }
+
+        if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / (vecsize / batch_size), '%');
+    }
+    idx_input.close();
+    base_input.close();
+
+    FILE *fout = fopen(path_groups, "wb");
+    //const char *path_idxs = "/home/dbaranchuk/data/groups/sift1B_idxs993127.ivecs";
+    FILE *fout = fopen(path_idxs, "wb");
+
+    size_t counter = 0;
+    for (int i = 0; i < ncentroids; i++) {
+        int groupsize = data[i].size() / vecdim;
+        counter += groupsize;
+
+        fwrite(&groupsize, sizeof(int), 1, fout);
+        //fwrite(idxs[i].data(), sizeof(idx_t), idxs[i].size(), fout);
+        fwrite(data[i].data(), sizeof(uint8_t), data[i].size(), fout);
+    }
+    if (counter != vecsize){
+        std::cout << "Wrong poitns num\n";
+        exit(1);
+    }
 }
 
 void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx)
@@ -471,11 +522,16 @@ void hybrid_test(const char *path_centroids,
                  const int max_codes,
                  const int nsubcentroids)
 {
-    compute_average_distance_sift("/home/dbaranchuk/data/bigann/bigann_base.bvecs",
-                                  "/home/dbaranchuk/data/sift1B_centroids1M.fvecs",
-                                  "/home/dbaranchuk/sift1B_precomputed_idxs_9993127.ivecs",
-                                  993127, 128, vecsize);
+//    compute_average_distance_sift("/home/dbaranchuk/data/bigann/bigann_base.bvecs",
+//                                  "/home/dbaranchuk/data/sift1B_centroids1M.fvecs",
+//                                  "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
+//                                  993127, 128, vecsize);
+    save_groups_sift("/home/dbaranchuk/data/groups/sift1B_groups.bvecs",
+                     "/home/dbaranchuk/data/bigann/bigann_base.bvecs",
+                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
+                     993127, 128, vecsize);
 
+    exit(0);
 
     cout << "Loading GT:\n";
     const int gt_dim = 1;
