@@ -526,12 +526,12 @@ void hybrid_test(const char *path_centroids,
 //                                  "/home/dbaranchuk/data/sift1B_centroids1M.fvecs",
 //                                  "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
 //                                  993127, 128, vecsize);
-    save_groups_sift("/home/dbaranchuk/data/groups/sift1B_groups.bvecs",
-                     "/home/dbaranchuk/data/bigann/bigann_base.bvecs",
-                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
-                     993127, 128, vecsize);
-
-    exit(0);
+//    save_groups_sift("/home/dbaranchuk/data/groups/sift1B_groups.bvecs",
+//                     "/home/dbaranchuk/data/bigann/bigann_base.bvecs",
+//                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
+//                     993127, 128, vecsize);
+//
+//    exit(0);
 
     cout << "Loading GT:\n";
     const int gt_dim = 1;
