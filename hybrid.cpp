@@ -473,7 +473,8 @@ void hybrid_test(const char *path_centroids,
 {
     compute_average_distance_sift("/home/dbaranchuk/data/bigann/bigann_base.bvecs",
                                   "/home/dbaranchuk/data/sift1B_centroids1M.fvecs",
-                                  "/home/dbaranchuk/sift1B_precomputed_idxs_9993127.ivecs", 128, vecsize);
+                                  "/home/dbaranchuk/sift1B_precomputed_idxs_9993127.ivecs",
+                                  9993127, 128, vecsize);
 
     cout << "Loading GT:\n";
     const int gt_dim = 1;
