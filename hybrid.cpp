@@ -395,6 +395,18 @@ void compute_average_distance(const char *path_data, const char *path_centroids,
     std::cout << "Average: " << average_dist / 1000000000 << std::endl;
 }
 
+void bvec2fvec(float *target, const uint8_t *x, int d, int n)
+{
+    for (int i = 0; i < n*d; i++)
+        target[i] = (1.0)*x[i];
+}
+
+void fvec2bvec(uint8_t *target, const float *x, int d, int n)
+{
+    for (int i = 0; i < n*d; i++)
+        target[i] = (1.0)*x[i];
+}
+
 void compute_average_distance_sift(const char *path_data, const char *path_centroids, const char *path_precomputed_idxs,
                               const int ncentroids, const int vecdim, const int vecsize)
 {
@@ -439,17 +451,6 @@ void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx)
         memcpy (x_out + i * d, x + perm[i] * d, sizeof(x_out[0]) * d);
 }
 
-void bvec2fvec(float *target, const uint8_t *x, int d, int n)
-{
-    for (int i = 0; i < n*d; i++)
-        target[i] = (1.0)*x[i];
-}
-
-void fvec2bvec(uint8_t *target, const float *x, int d, int n)
-{
-    for (int i = 0; i < n*d; i++)
-        target[i] = (1.0)*x[i];
-}
 
 void hybrid_test(const char *path_centroids,
                  const char *path_index, const char *path_precomputed_idxs,
