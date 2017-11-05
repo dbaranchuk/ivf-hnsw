@@ -254,12 +254,12 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
     const int batch_size = 1000000;
     std::ifstream base_input(path_data, ios::binary);
     std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-    std::vector<float> batch(batch_size * vecdim);
+    //std::vector<float> batch(batch_size * vecdim);
     std::vector<idx_t> idx_batch(batch_size);
 
     for (int b = 0; b < (vecsize / batch_size); b++) {
         readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-        readXvec<float>(base_input, batch.data(), vecdim, batch_size);
+        //readXvec<float>(base_input, batch.data(), vecdim, batch_size);
 
         for (size_t i = 0; i < batch_size; i++) {
             //if (idx_batch[i] < 900000)
@@ -277,21 +277,27 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
     base_input.close();
 
     //FILE *fout = fopen(path_groups, "wb");
-    const char *path_idxs = "/home/dbaranchuk/data/groups/idxs999973.ivecs";
+    const char *path_idxs = "/home/dbaranchuk/data/groups/sift1B_idxs9993127.ivecs";
     FILE *fout = fopen(path_idxs, "wb");
+
+    size_t counter = 0;
     for (int i = 0; i < ncentroids; i++) {
         //int groupsize = data[i].size() / vecdim;
-        int groupsize = idxs[i].size();
+        counter += idxs[i].size();
 
-        if (groupsize != index->ids[i].size()){
-            std::cout << "Wrong groupsize: " << groupsize << " vs "
-                      << index->ids[i].size() <<std::endl;
-            exit(1);
-        }
+//        if (groupsize != index->ids[i].size()){
+//            std::cout << "Wrong groupsize: " << groupsize << " vs "
+//                      << index->ids[i].size() <<std::endl;
+//            exit(1);
+//        }
 
         fwrite(&groupsize, sizeof(int), 1, fout);
         fwrite(idxs[i].data(), sizeof(idx_t), idxs[i].size(), fout);
         //fwrite(data[i].data(), sizeof(float), data[i].size(), fout);
+    }
+    if (counter != 9993127){
+        std::cout << "Wrong poitns num\n";
+        exit(1);
     }
 }
 
@@ -398,6 +404,12 @@ void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx)
 
     for (idx_t i = 0; i < sub_nx; i++)
         memcpy (x_out + i * d, x + perm[i] * d, sizeof(x_out[0]) * d);
+}
+
+void bvec2fvec(float *target, const uint8_t *x, int d, int n)
+{
+    for (int i = 0; i < n*d; i++)
+        target[i] = (1.0)*x;
 }
 
 void hybrid_test(const char *path_centroids,
