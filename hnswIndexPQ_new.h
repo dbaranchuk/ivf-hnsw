@@ -363,7 +363,7 @@ namespace hnswlib {
 //                }
 //                average_r /= nsubc;
 
-                while (ordered_subc.size() >= 32){
+                while (ordered_subc.size() > 0){
                     idx_t subc = ordered_subc.top().second;
                     ordered_subc.pop();
 //                for (int subc = 0; subc < nsubc; subc++){
