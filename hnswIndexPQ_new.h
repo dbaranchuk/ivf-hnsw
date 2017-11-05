@@ -322,6 +322,10 @@ namespace hnswlib {
                 coarse.pop();
             }
 
+            std::vector< float > q_s(nsubc);
+            std::vector< float > r(nsubc);
+            std::vector< size_t > offsets(nsubc);
+
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
                 if (group_sizes[centroid_num].size() == 0)
@@ -337,9 +341,6 @@ namespace hnswlib {
                 const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
-                std::vector< float > q_s(nsubc);
-                std::vector< float > r(nsubc);
-                std::vector< size_t > offsets(nsubc);
                 /** Filtering **/
                 std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
                 for (int subc = 0; subc < nsubc; subc++) {
