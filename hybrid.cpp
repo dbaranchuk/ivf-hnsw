@@ -248,18 +248,18 @@ void save_groups(Index *index, const char *path_groups, const char *path_data,
                  const char *path_precomputed_idxs, const int vecdim, const int vecsize)
 {
     const int ncentroids = 999973;
-    //std::vector<std::vector<float>> data(ncentroids);
+    std::vector<std::vector<float>> data(ncentroids);
     std::vector<std::vector<idx_t>> idxs(ncentroids);
 
     const int batch_size = 1000000;
     std::ifstream base_input(path_data, ios::binary);
     std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-    //std::vector<float> batch(batch_size * vecdim);
+    std::vector<float> batch(batch_size * vecdim);
     std::vector<idx_t> idx_batch(batch_size);
 
     for (int b = 0; b < (vecsize / batch_size); b++) {
         readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-        //readXvec<float>(base_input, batch.data(), vecdim, batch_size);
+        readXvec<float>(base_input, batch.data(), vecdim, batch_size);
 
         for (size_t i = 0; i < batch_size; i++) {
             //if (idx_batch[i] < 900000)
