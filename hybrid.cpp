@@ -475,7 +475,7 @@ void save_groups_sift(const char *path_groups, const char *path_data, const char
 
     FILE *fout = fopen(path_groups, "wb");
     //const char *path_idxs = "/home/dbaranchuk/data/groups/sift1B_idxs993127.ivecs";
-    FILE *fout = fopen(path_idxs, "wb");
+    //FILE *fout = fopen(path_idxs, "wb");
 
     size_t counter = 0;
     for (int i = 0; i < ncentroids; i++) {
