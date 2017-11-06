@@ -260,8 +260,7 @@ namespace hnswlib {
                     break;
             }
 
-            if (topResults.size() < max_codes)
-                average_max_codes += topResults.size();
+            average_max_codes += topResults.size();
 
             for (int i = 0; i < k; i++) {
                 results[i] = topResults.top().second;

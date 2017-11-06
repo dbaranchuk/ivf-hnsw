@@ -545,15 +545,13 @@ void check_groupsizes(Index *index, int ncentroids)
             other_counter++;
     }
 
-    //std::cout << "Number of clusters with size < 100: " << sparse_counter << std::endl;
-    //std::cout << "Number of clusters with size > 100 && < 500 : " << small_counter << std::endl;
+    std::cout << "Number of clusters with size < 100: " << sparse_counter << std::endl;
+    std::cout << "Number of clusters with size > 100 && < 500 : " << small_counter << std::endl;
 
-    //std::cout << "Number of clusters with size > 1500 && < 3000: " << big_counter << std::endl;
-    //std::cout << "Number of clusters with size > 3000: " << giant_counter << std::endl;
+    std::cout << "Number of clusters with size > 1500 && < 3000: " << big_counter << std::endl;
+    std::cout << "Number of clusters with size > 3000: " << giant_counter << std::endl;
 
-    //std::cout << "Number of clusters with size > 500 && < 1500: " << other_counter << std::endl;
-
-    std::cout << "Average maxcodes: " << index->average_max_codes / 10000 << std::endl;
+    std::cout << "Number of clusters with size > 500 && < 1500: " << other_counter << std::endl;
 }
 
 void hybrid_test(const char *path_centroids,
@@ -720,8 +718,9 @@ void hybrid_test(const char *path_centroids,
     float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
     std::cout << "Recall@" << k << ": " << 1.0f*correct / qsize << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
+    std::cout << "Average max_codes: " << index->average_max_codes / 10000 << std::endl;
 
-    check_groupsizes(index, ncentroids);
+    //check_groupsizes(index, ncentroids);
     //std::cout << "Check precomputed idxs"<< std::endl;
     //check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize, gt_mistakes, gt_correct);
 
