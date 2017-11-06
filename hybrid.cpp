@@ -545,15 +545,15 @@ void check_groupsizes(Index *index, int ncentroids)
             other_counter++;
     }
 
-    std::cout << "Number of clusters with size < 100: " << sparse_counter << std::endl;
-    std::cout << "Number of clusters with size > 100 && < 500 : " << small_counter << std::endl;
+    //std::cout << "Number of clusters with size < 100: " << sparse_counter << std::endl;
+    //std::cout << "Number of clusters with size > 100 && < 500 : " << small_counter << std::endl;
 
-    std::cout << "Number of clusters with size > 1500 && < 3000: " << big_counter << std::endl;
-    std::cout << "Number of clusters with size > 3000: " << giant_counter << std::endl;
+    //std::cout << "Number of clusters with size > 1500 && < 3000: " << big_counter << std::endl;
+    //std::cout << "Number of clusters with size > 3000: " << giant_counter << std::endl;
 
-    std::cout << "Number of clusters with size > 500 && < 1500: " << other_counter << std::endl;
+    //std::cout << "Number of clusters with size > 500 && < 1500: " << other_counter << std::endl;
 
-    std::cout << "Average maxcodes: " << index->average_max_codes << std::endl;
+    std::cout << "Average maxcodes: " << index->average_max_codes / 10000 << std::endl;
 }
 
 void hybrid_test(const char *path_centroids,
