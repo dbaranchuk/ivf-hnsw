@@ -522,6 +522,38 @@ void readBvec(std::ifstream &input, float *data, const int d, const int n = 1)
     }
 }
 
+void check_groupsizes(Index *index, int ncentroids)
+{
+    std::vector < size_t > groupsizes(ncentroids);
+
+    int sparse_counter = 0;
+    int big_counter = 0;
+    int small_counter = 0;
+    int other_counter = 0;
+    int giant_counter = 0;
+    for (int i = 0; i < ncentroids; i++){
+        int groupsize = index->norm_codes[i].size();
+        if (groupsize < 100)
+            sparse_counter++;
+        else if (groupsize > 100 && groupsize < 500)
+            small_counter++;
+        else if (groupsize > 1500 && groupsize < 3000)
+            big_counter++;
+        else if (groupsize > 3000)
+            giant_counter++;
+        else
+            other_counter++;
+    }
+
+    std::cout << "Number of clusters with size < 100: " << sparse_counter << std::endl;
+    std::cout << "Number of clusters with size > 100 && < 500 : " << small_counter << std::endl;
+
+    std::cout << "Number of clusters with size > 1500 && < 3000: " << big_counter << std::endl;
+    std::cout << "Number of clusters with size > 3000: " << giant_counter << std::endl;
+
+    std::cout << "Number of clusters with size > 500 && < 1500: " << other_counter << std::endl;
+}
+
 void hybrid_test(const char *path_centroids,
                  const char *path_index, const char *path_precomputed_idxs,
                  const char *path_pq, const char *path_norm_pq,
@@ -652,7 +684,7 @@ void hybrid_test(const char *path_centroids,
     get_gt<float>(massQA, qsize, answers, gt_dim);
 
     /** Compute Graphic **/
-    index->compute_graphic(massQ, massQA, gt_dim, qsize);
+    //index->compute_graphic(massQ, massQA, gt_dim, qsize);
 
     /** Set search parameters **/
     int correct = 0;
@@ -687,6 +719,7 @@ void hybrid_test(const char *path_centroids,
     std::cout << "Recall@" << k << ": " << 1.0f*correct / qsize << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
 
+    check_groupsizes(index, ncentroids);
     //std::cout << "Check precomputed idxs"<< std::endl;
     //check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize, gt_mistakes, gt_correct);
 

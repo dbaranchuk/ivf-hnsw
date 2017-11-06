@@ -258,6 +258,9 @@ namespace hnswlib {
                     break;
             }
 
+            if (topResults.size() < max_codes)
+                std::cout << "< max_codes" << std::endl;
+            
             for (int i = 0; i < k; i++) {
                 results[i] = topResults.top().second;
                 topResults.pop();
