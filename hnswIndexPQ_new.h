@@ -153,7 +153,7 @@ namespace hnswlib {
             /** Find NN centroids to source centroid **/
             std::cout << "Find NN centroids to source centroids\n";
 
-            #pragma omp parallel for num_threads(20)
+            #pragma omp parallel for num_threads(16)
             for (int i = 0; i < nc; i++) {
                 const float *centroid = (float *) quantizer->getDataByInternalId(i);
                 std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
@@ -186,7 +186,7 @@ namespace hnswlib {
             /** Adding groups to index **/
             std::cout << "Adding groups to index\n";
             int j1 = 0;
-            #pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(20)
+            #pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(16)
             for (int c = 0; c < nc; c++) {
                 /** Read Original vectors from Group file**/
                 idx_t centroid_num;
@@ -305,6 +305,8 @@ namespace hnswlib {
             input_idxs.close();
         }
 
+        double average_max_codes = 0;
+
 		void search(float *x, idx_t k, idx_t *results)
 		{
             idx_t keys[nprobe];
@@ -381,6 +383,7 @@ namespace hnswlib {
                 if (topResults.size() >= max_codes)
                     break;
             }
+            average_max_codes += topResults.size();
 
             for (int i = 0; i < k; i++) {
                 results[i] = topResults.top().second;
@@ -711,7 +714,7 @@ namespace hnswlib {
                         }
 
                         int prev_correct = correct;
-                        while (ordered_subc.size() >= 32){
+                        while (ordered_subc.size() > 32){
                             idx_t subc = ordered_subc.top().second;
                             ordered_subc.pop();
                             int groupsize = group_sizes[centroid_num][subc];
