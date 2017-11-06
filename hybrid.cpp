@@ -504,7 +504,7 @@ void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx)
 
 
 template <typename format>
-void readBvec(std::ifstream &input, format *data, const int d, const int n = 1)
+void readBvec(std::ifstream &input, float *data, const int d, const int n = 1)
 {
     int in = 0;
     format mass[d];
@@ -517,7 +517,7 @@ void readBvec(std::ifstream &input, format *data, const int d, const int n = 1)
         }
         input.read((char *)(mass), in * sizeof(format));
         for (size_t j = 0; j < d; j++) {
-            data[i * d + j] = mass[j];
+            data[i * d + j] = (1.0) * mass[j];
         }
     }
 }
@@ -625,7 +625,7 @@ void hybrid_test(const char *path_centroids,
         for (int b = 0; b < (vecsize / batch_size); b++) {
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
             //readXvec<float>(base_input, batch.data(), vecdim, batch_size);
-            readBvec<uint8_t> (fin, batch.data(), vecdim, batch_size);
+            readBvec<uint8_t> (base_input, batch.data(), vecdim, batch_size);
             for (size_t i = 0; i < batch_size; i++)
                 ids[batch_size*b + i] = batch_size*b + i;
 
