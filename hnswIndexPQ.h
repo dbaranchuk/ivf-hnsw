@@ -221,6 +221,8 @@ namespace hnswlib {
             }
         };
 
+        double average_max_codes = 0;
+
 		void search (float *x, idx_t k, idx_t *results)
 		{
             idx_t keys[nprobe];
@@ -259,8 +261,8 @@ namespace hnswlib {
             }
 
             if (topResults.size() < max_codes)
-                std::cout << "< max_codes" << std::endl;
-            
+                average_max_codes += topResults.size();
+
             for (int i = 0; i < k; i++) {
                 results[i] = topResults.top().second;
                 topResults.pop();
