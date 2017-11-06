@@ -552,7 +552,7 @@ void hybrid_test(const char *path_centroids,
 //    exit(0);
 
     cout << "Loading GT:\n";
-    const int gt_dim = 1;
+    const int gt_dim = 1000;
     idx_t *massQA = new idx_t[qsize * gt_dim];
     loadXvecs<idx_t>(path_gt, massQA, qsize, gt_dim);
 
