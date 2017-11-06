@@ -503,6 +503,25 @@ void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx)
 }
 
 
+template <typename format>
+void readBvec(std::ifstream &input, format *data, const int d, const int n = 1)
+{
+    int in = 0;
+    format mass[d];
+
+    for (int i = 0; i < n; i++) {
+        input.read((char *) &in, sizeof(int));
+        if (in != d) {
+            std::cout << "file error\n";
+            exit(1);
+        }
+        input.read((char *)(mass), in * sizeof(format));
+        for (size_t j = 0; j < d; j++) {
+            data[i * d + j] = mass[j];
+        }
+    }
+}
+
 void hybrid_test(const char *path_centroids,
                  const char *path_index, const char *path_precomputed_idxs,
                  const char *path_pq, const char *path_norm_pq,
@@ -526,12 +545,11 @@ void hybrid_test(const char *path_centroids,
 //                                  "/home/dbaranchuk/data/sift1B_centroids1M.fvecs",
 //                                  "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
 //                                  993127, 128, vecsize);
-    save_groups_sift("/home/dbaranchuk/data/groups/sift1B_groups.bvecs",
-                     "/home/dbaranchuk/data/bigann/bigann_base.bvecs",
-                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
-                     993127, 128, vecsize);
-
-    exit(0);
+//    save_groups_sift("/home/dbaranchuk/data/groups/sift1B_groups.bvecs",
+//                     "/home/dbaranchuk/data/bigann/bigann_base.bvecs",
+//                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
+//                     993127, 128, vecsize);
+//    exit(0);
 
     cout << "Loading GT:\n";
     const int gt_dim = 1;
@@ -540,22 +558,26 @@ void hybrid_test(const char *path_centroids,
 
     cout << "Loading queries:\n";
     float massQ[qsize * vecdim];
-    loadXvecs<float>(path_q, massQ, qsize, vecdim);
+    std::ifstream query_input(path_q, ios::binary);
+    readBvec<uint8_t >(query_input, massQ, vecdim, qsize);
+    query_input.close();
+    //loadXvecs<float>(path_q, massQ, qsize, vecdim);
 
     SpaceInterface<float> *l2space = new L2Space(vecdim);
 
     /** Create Index **/
-    ModifiedIndex *index = new ModifiedIndex(vecdim, ncentroids, M_PQ, 8, nsubcentroids);
-    //Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
+    //ModifiedIndex *index = new ModifiedIndex(vecdim, ncentroids, M_PQ, 8, nsubcentroids);
+    Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
     index->buildQuantizer(l2space, path_centroids, path_info, path_edges, 500);
-    //index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
+    index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
 
     /** Train PQ **/
     std::ifstream learn_input(path_learn, ios::binary);
     int nt = 10000000;
     int sub_nt = 65536;
     std::vector<float> trainvecs(nt * vecdim);
-    readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
+    //readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
+    readBvec<uint8_t >(learn_input, trainvecs.data(), vecdim, nt);
     learn_input.close();
 
     /** Set Random Subset of 65536 trainvecs **/
@@ -592,25 +614,26 @@ void hybrid_test(const char *path_centroids,
         index->read(path_index);
     } else {
         /** Add elements **/
-        index->add(path_groups, path_idxs);
-//        size_t batch_size = 1000000;
-//        std::ifstream base_input(path_data, ios::binary);
-//        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-//        std::vector<float> batch(batch_size * vecdim);
-//        std::vector<idx_t> idx_batch(batch_size);
-//        std::vector<idx_t> ids(vecsize);
-//
-//        for (int b = 0; b < (vecsize / batch_size); b++) {
-//            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-//            readXvec<float>(base_input, batch.data(), vecdim, batch_size);
-//            for (size_t i = 0; i < batch_size; i++)
-//                ids[batch_size*b + i] = batch_size*b + i;
-//
-//            printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
-//            index->add(batch_size, batch.data(), ids.data() + batch_size*b, idx_batch.data());
-//        }
-//        idx_input.close();
-//        base_input.close();
+        //index->add(path_groups, path_idxs);
+        size_t batch_size = 1000000;
+        std::ifstream base_input(path_data, ios::binary);
+        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+        std::vector<float> batch(batch_size * vecdim);
+        std::vector<idx_t> idx_batch(batch_size);
+        std::vector<idx_t> ids(vecsize);
+
+        for (int b = 0; b < (vecsize / batch_size); b++) {
+            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+            //readXvec<float>(base_input, batch.data(), vecdim, batch_size);
+            readBvec<uint8_t> (fin, batch.data(), vecdim, batch_size);
+            for (size_t i = 0; i < batch_size; i++)
+                ids[batch_size*b + i] = batch_size*b + i;
+
+            printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
+            index->add(batch_size, batch.data(), ids.data() + batch_size*b, idx_batch.data());
+        }
+        idx_input.close();
+        base_input.close();
 
         /** Save index, pq and norm_pq **/
         std::cout << "Saving index to " << path_index << std::endl;
@@ -621,7 +644,7 @@ void hybrid_test(const char *path_centroids,
     /** Computing Centroid Norms **/
     std::cout << "Computing centroid norms"<< std::endl;
     index->compute_centroid_norms();
-    index->compute_s_c();
+    //index->compute_s_c();
 
     /** Parse groundtruth **/
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
@@ -629,7 +652,7 @@ void hybrid_test(const char *path_centroids,
     get_gt<float>(massQA, qsize, answers, gt_dim);
 
     /** Compute Graphic **/
-    //index->compute_graphic(massQ, massQA, gt_dim, qsize);
+    index->compute_graphic(massQ, massQA, gt_dim, qsize);
 
     /** Set search parameters **/
     int correct = 0;
