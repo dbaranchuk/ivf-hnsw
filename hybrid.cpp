@@ -312,9 +312,13 @@ void check_groups(const char *path_data, const char *path_precomputed_idxs,
     std::ifstream input_groups(path_groups, ios::binary);
     std::ifstream input_groups_idxs(path_groups_idxs, ios::binary);
 
-    int groupsize;
+    int groupsize, check_groupsize;
     input_groups.read((char *) &groupsize, sizeof(int));
-    input_groups_idxs.read((char *) &groupsize, sizeof(int));
+    input_groups_idxs.read((char *) &check_groupsize, sizeof(int));
+    if (groupsize != check_groupsize){
+        std::cout << "Wrong groupsizes\n";
+        exit(1);
+    }
 
     std::vector<uint8_t> group_b(groupsize*d);
     std::vector<float> group(groupsize*d);
