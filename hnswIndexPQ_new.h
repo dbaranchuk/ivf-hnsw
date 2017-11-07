@@ -136,7 +136,7 @@ namespace hnswlib {
                 idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i*d), 1).top().second;
         }
 
-        template<ptype>
+        template<typename ptype>
         void add(const char *path_groups, const char *path_idxs)
         {
             size_t maxM = 32;
@@ -202,7 +202,7 @@ namespace hnswlib {
                     input_idxs.read((char *) &groupsize, sizeof(int));
 
                     data.resize(groupsize * d);
-                    data_b.resize(groupsize * d);
+                    pdata.resize(groupsize * d);
                     idxs.resize(groupsize);
 
                     //input_groups.read((char *) data.data(), groupsize * d * sizeof(float));
