@@ -168,9 +168,9 @@ static float test_approx(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, vty
 	size_t correct = 0;
     size_t total = 0;
 
-    float massfQ[qsize * vecdim];
-    for (int i = 0; i < qsize * vecdim; i++)
-        massfQ[i] = (1.0)*massQ[i];
+    //float massfQ[qsize * vecdim];
+    //for (int i = 0; i < qsize * vecdim; i++)
+    //    massfQ[i] = (1.0)*massQ[i];
 
 	//uncomment to test in parallel mode:
 	//#pragma omp parallel for
