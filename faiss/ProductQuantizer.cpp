@@ -442,7 +442,7 @@ void ProductQuantizer::compute_distance_tables (
            float * dis_tables) const
 {
 
-    if (dsub <= 16) {
+    if (dsub < 16) {
 
 //#pragma omp parallel for num_threads(16)
         for (size_t i = 0; i < nx; i++) {
@@ -466,7 +466,7 @@ void ProductQuantizer::compute_inner_prod_tables (
            float * dis_tables) const
 {
 
-    if (dsub <= 16) {
+    if (dsub < 16) {
 
 //#pragma omp parallel for num_threads(16)
         for (size_t i = 0; i < nx; i++) {
