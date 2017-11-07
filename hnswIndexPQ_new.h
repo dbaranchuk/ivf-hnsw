@@ -192,6 +192,7 @@ namespace hnswlib {
                 idx_t centroid_num;
                 int groupsize;
                 std::vector<float> data;
+                std::vector<uint8_t> data_b;
                 std::vector<idx_t> idxs;
 
                 #pragma omp critical
@@ -202,7 +203,11 @@ namespace hnswlib {
                     data.resize(groupsize * d);
                     idxs.resize(groupsize);
 
-                    input_groups.read((char *) data.data(), groupsize * d * sizeof(float));
+                    //input_groups.read((char *) data.data(), groupsize * d * sizeof(float));
+                    input_groups.read((char *) data_b.data(), groupsize * d * sizeof(uint8_t));
+                    for (int i = 0; i < groupsize*d; i++)
+                        data[i] = (1.0)*data_b[i];
+
                     input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
 
                     centroid_num = j1++;
