@@ -396,18 +396,6 @@ void compute_average_distance(const char *path_data, const char *path_centroids,
 }
 
 
-void bvec2fvec(float *target, const uint8_t *x, int d, int n)
-{
-    for (int i = 0; i < n*d; i++)
-        target[i] = (1.0)*x[i];
-}
-
-void fvec2bvec(uint8_t *target, const float *x, int d, int n)
-{
-    for (int i = 0; i < n*d; i++)
-        target[i] = (1.0)*x[i];
-}
-
 void compute_average_distance_sift(const char *path_data, const char *path_centroids, const char *path_precomputed_idxs,
                               const int ncentroids, const int vecdim, const int vecsize)
 {
@@ -503,24 +491,24 @@ void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx)
 }
 
 
-template <typename format>
-void readBvec(std::ifstream &input, float *data, const int d, const int n = 1)
-{
-    int in = 0;
-    format mass[d];
-
-    for (int i = 0; i < n; i++) {
-        input.read((char *) &in, sizeof(int));
-        if (in != d) {
-            std::cout << "file error\n";
-            exit(1);
-        }
-        input.read((char *)(mass), in * sizeof(format));
-        for (size_t j = 0; j < d; j++) {
-            data[i * d + j] = (1.0) * mass[j];
-        }
-    }
-}
+//template <typename format>
+//void readBvec(std::ifstream &input, float *data, const int d, const int n = 1)
+//{
+//    int in = 0;
+//    format mass[d];
+//
+//    for (int i = 0; i < n; i++) {
+//        input.read((char *) &in, sizeof(int));
+//        if (in != d) {
+//            std::cout << "file error\n";
+//            exit(1);
+//        }
+//        input.read((char *)(mass), in * sizeof(format));
+//        for (size_t j = 0; j < d; j++) {
+//            data[i * d + j] = (1.0) * mass[j];
+//        }
+//    }
+//}
 
 void check_groupsizes(Index *index, int ncentroids)
 {
@@ -603,7 +591,7 @@ void hybrid_test(const char *path_centroids,
     std::ifstream query_input(path_q, ios::binary);
     switch(dataset){
         case Dataset::SIFT1B:
-            readXvec<uint8_t >(query_input, massQ, vecdim, qsize);
+            readXvecFvec<uint8_t >(query_input, massQ, vecdim, qsize);
             break;
         case Dataset::DEEP1B:
             readXvec<float >(query_input, massQ, vecdim, qsize);
@@ -626,7 +614,7 @@ void hybrid_test(const char *path_centroids,
     std::vector<float> trainvecs(nt * vecdim);
     switch(dataset){
         case Dataset::SIFT1B:
-            readXvec<uint8_t >(learn_input, trainvecs.data(), vecdim, nt);
+            readXvecFvec<uint8_t >(learn_input, trainvecs.data(), vecdim, nt);
             break;
         case Dataset::DEEP1B:
             readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);

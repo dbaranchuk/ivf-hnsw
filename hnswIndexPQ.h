@@ -19,7 +19,21 @@ typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
 
 template <typename format>
-void readXvec(std::ifstream &input, float *data, const int d, const int n = 1)
+void readXvec(std::ifstream &input, format *data, const int d, const int n = 1)
+{
+    int in = 0;
+    for (int i = 0; i < n; i++) {
+        input.read((char *) &in, sizeof(int));
+        if (in != d) {
+            std::cout << "file error\n";
+            exit(1);
+        }
+        input.read((char *)(data + i*d), in * sizeof(format));
+    }
+}
+
+template <typename format>
+void readXvecFvec(std::ifstream &input, float *data, const int d, const int n = 1)
 {
     int in = 0;
     format mass[d];
