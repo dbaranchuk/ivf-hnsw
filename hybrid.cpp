@@ -582,8 +582,8 @@ void hybrid_test(const char *path_centroids,
 //                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
 //                     993127, 128, vecsize);
 //    exit(0);
-    check_groups(path_data, path_precomputed_idxs, path_groups, path_idxs);
-    exit(0);
+//    check_groups(path_data, path_precomputed_idxs, path_groups, path_idxs);
+//    exit(0);
     Dataset dataset = Dataset::SIFT1B;
 
     cout << "Loading GT:\n";
