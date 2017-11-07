@@ -214,7 +214,7 @@ namespace hnswlib {
                     input_groups.read((char *) pdata.data(), groupsize * d * sizeof(ptype));
                     for (int i = 0; i < groupsize*d; i++)
                         data[i] = (1.0) * pdata[i];
-                    
+
                     input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
 
                     centroid_num = j1++;
@@ -726,7 +726,7 @@ namespace hnswlib {
                         }
 
                         int prev_correct = correct;
-                        while (ordered_subc.size() > 32){
+                        while (ordered_subc.size() > 48){
                             idx_t subc = ordered_subc.top().second;
                             ordered_subc.pop();
                             int groupsize = group_sizes[centroid_num][subc];
