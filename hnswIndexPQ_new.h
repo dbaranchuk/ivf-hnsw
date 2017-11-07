@@ -198,8 +198,13 @@ namespace hnswlib {
 
                 #pragma omp critical
                 {
+                    int check_groupsize;
                     input_groups.read((char *) &groupsize, sizeof(int));
-                    input_idxs.read((char *) &groupsize, sizeof(int));
+                    input_idxs.read((char *) &check_groupsize, sizeof(int));
+                    if (check_groupsize != groupsize) {
+                        std::cout << "Wrong groupsize\n";
+                        exit(1);
+                    }
 
                     data.resize(groupsize * d);
                     pdata.resize(groupsize * d);
