@@ -316,7 +316,7 @@ void check_groups(const char *path_data, const char *path_precomputed_idxs,
     input_groups.read((char *) &groupsize, sizeof(int));
     input_groups_idxs.read((char *) &check_groupsize, sizeof(int));
     if (groupsize != check_groupsize){
-        std::cout << "Wrong groupsizes\n";
+        std::cout << "Wrong groupsizes: " << groupsize << " " << check_groupsize << std::endl;
         exit(1);
     }
 
