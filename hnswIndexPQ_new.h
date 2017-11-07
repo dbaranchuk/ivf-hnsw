@@ -136,6 +136,7 @@ namespace hnswlib {
                 idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i*d), 1).top().second;
         }
 
+        template<ptype>
         void add(const char *path_groups, const char *path_idxs)
         {
             size_t maxM = 32;
@@ -192,7 +193,7 @@ namespace hnswlib {
                 idx_t centroid_num;
                 int groupsize;
                 std::vector<float> data;
-                std::vector<uint8_t> data_b;
+                std::vector<ptype> pdata;
                 std::vector<idx_t> idxs;
 
                 #pragma omp critical
@@ -205,9 +206,9 @@ namespace hnswlib {
                     idxs.resize(groupsize);
 
                     //input_groups.read((char *) data.data(), groupsize * d * sizeof(float));
-                    input_groups.read((char *) data_b.data(), groupsize * d * sizeof(uint8_t));
+                    input_groups.read((char *) pdata.data(), groupsize * d * sizeof(ptype));
                     for (int i = 0; i < groupsize*d; i++)
-                        data[i] = (1.0)*data_b[i];
+                        data[i] = (1.0)*pdata[i];
 
                     input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
 

@@ -648,7 +648,7 @@ void hybrid_test(const char *path_centroids,
         index->read(path_index);
     } else {
         /** Add elements **/
-        index->add(path_groups, path_idxs);
+        index->add<unsigned char>(path_groups, path_idxs);
 //        size_t batch_size = 1000000;
 //        std::ifstream base_input(path_data, ios::binary);
 //        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
