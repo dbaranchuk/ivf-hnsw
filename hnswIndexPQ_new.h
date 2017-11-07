@@ -153,7 +153,7 @@ namespace hnswlib {
             /** Find NN centroids to source centroid **/
             std::cout << "Find NN centroids to source centroids\n";
 
-            #pragma omp parallel for num_threads(16)
+            #pragma omp parallel for num_threads(20)
             for (int i = 0; i < nc; i++) {
                 const float *centroid = (float *) quantizer->getDataByInternalId(i);
                 std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
@@ -186,7 +186,7 @@ namespace hnswlib {
             /** Adding groups to index **/
             std::cout << "Adding groups to index\n";
             int j1 = 0;
-            #pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(16)
+            #pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(20)
             for (int c = 0; c < nc; c++) {
                 /** Read Original vectors from Group file**/
                 idx_t centroid_num;
