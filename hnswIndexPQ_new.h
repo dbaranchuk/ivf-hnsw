@@ -368,7 +368,7 @@ namespace hnswlib {
                     ordered_subc.emplace(std::make_pair(-r[subc], subc));
                 }
 
-                while (ordered_subc.size() > 32){
+                while (ordered_subc.size() > 48){
                     idx_t subc = ordered_subc.top().second;
                     ordered_subc.pop();
                 //for (int subc = 0; subc < nsubc; subc++){
