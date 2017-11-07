@@ -224,17 +224,17 @@ static void test_vs_recall(vtype *massQ, size_t qsize, HierarchicalNSW<dist_t, v
                            size_t vecdim, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
                            size_t k, bool pq = false)
 {
-	vector<size_t> efs; //= {30, 100, 460};
-    if (k < 30) {
-        for (int i = k; i < 30; i++) efs.push_back(i);
-        for (int i = 30; i < 100; i += 10) efs.push_back(i);
-        for (int i = 100; i <= 500; i += 40) efs.push_back(i);
-    }
-	else if (k < 100) {
-        for (int i = k; i < 100; i += 10) efs.push_back(i);
-        for (int i = 100; i <= 500; i += 40) efs.push_back(i);
-    } else
-        for (int i = k; i <= 500; i += 40) efs.push_back(i);
+	vector<size_t> efs = {k}; //= {30, 100, 460};
+//    if (k < 30) {
+//        for (int i = k; i < 30; i++) efs.push_back(i);
+//        for (int i = 30; i < 100; i += 10) efs.push_back(i);
+//        for (int i = 100; i <= 500; i += 40) efs.push_back(i);
+//    }
+//	else if (k < 100) {
+//        for (int i = k; i < 100; i += 10) efs.push_back(i);
+//        for (int i = 100; i <= 500; i += 40) efs.push_back(i);
+//    } else
+//        for (int i = k; i <= 500; i += 40) efs.push_back(i);
 
 	for (size_t ef : efs) {
 		appr_alg.ef_ = ef;
