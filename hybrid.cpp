@@ -307,7 +307,7 @@ void check_groups(const char *path_data, const char *path_precomputed_idxs,
 {
 
     const int vecsize = 1000000000;
-    const int d = 96;
+    const int d = 128;
     /** Read Group **/
     std::ifstream input_groups(path_groups, ios::binary);
     std::ifstream input_groups_idxs(path_groups_idxs, ios::binary);
@@ -583,6 +583,9 @@ void hybrid_test(const char *path_centroids,
 //                     993127, 128, vecsize);
 //    exit(0);
 
+    check_groups(path_data, path_precomputed_idxs, path_groups, path_idxs);
+    exit(0);
+    
     cout << "Loading GT:\n";
     const int gt_dim = 1000;
     idx_t *massQA = new idx_t[qsize * gt_dim];
