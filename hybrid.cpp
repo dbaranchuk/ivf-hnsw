@@ -316,10 +316,15 @@ void check_groups(const char *path_data, const char *path_precomputed_idxs,
     input_groups.read((char *) &groupsize, sizeof(int));
     input_groups_idxs.read((char *) &groupsize, sizeof(int));
 
+    std::vector<uint8_t> group_b(groupsize*d);
     std::vector<float> group(groupsize*d);
     std::vector<idx_t> group_idxs(groupsize);
 
-    input_groups.read((char *) group.data(), groupsize * d * sizeof(float));
+    //input_groups.read((char *) group.data(), groupsize * d * sizeof(float));
+    input_groups.read((char *) group_b.data(), groupsize * d * sizeof(uint8_t));
+    for (int i = 0; i < groupsize*d; i++)
+        group[i] = (1.0)*group_b[i];
+
     input_groups_idxs.read((char *) group_idxs.data(), groupsize * sizeof(idx_t));
 
     input_groups.close();
@@ -339,7 +344,8 @@ void check_groups(const char *path_data, const char *path_precomputed_idxs,
 
     for (int b = 0; b < (vecsize / batch_size); b++) {
         readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-        readXvec<float>(base_input, batch.data(), d, batch_size);
+        //readXvec<float>(base_input, batch.data(), d, batch_size);
+        readXvecFvec<uint8_t>(base_input, batch.data(), d, batch_size);
 
         for (size_t i = 0; i < batch_size; i++) {
             if (idx_set.count(b*batch_size + i) == 0)
@@ -572,8 +578,8 @@ void hybrid_test(const char *path_centroids,
 //                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
 //                     993127, 128, vecsize);
 //    exit(0);
-//    check_groups(path_data, path_precomputed_idxs, path_groups, path_idxs);
-//    exit(0);
+    check_groups(path_data, path_precomputed_idxs, path_groups, path_idxs);
+    exit(0);
     Dataset dataset = Dataset::SIFT1B;
 
     cout << "Loading GT:\n";
