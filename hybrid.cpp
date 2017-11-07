@@ -699,7 +699,7 @@ void hybrid_test(const char *path_centroids,
     get_gt<float>(massQA, qsize, answers, gt_dim);
 
     /** Compute Graphic **/
-    index->compute_graphic(massQ, massQA, gt_dim, qsize);
+    //index->compute_graphic(massQ, massQA, gt_dim, qsize);
 
     /** Set search parameters **/
     int correct = 0;
