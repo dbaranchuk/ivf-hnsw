@@ -217,15 +217,15 @@ namespace hnswlib {
                 linklistsizeint size = *ll_cur;
                 tableint *data = (tableint *)(ll_cur + 1);
 
-                _mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
-                _mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
-                _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
+                //_mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
+                //_mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
+                //_mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
 
                 for (linklistsizeint j = 0; j < size; ++j) {
                     int tnum = *(data + j);
 
-                    _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
-                    _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
+                    //_mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
+                    //_mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
 
                     if (!(massVisited[tnum] == currentV)) {
                         massVisited[tnum] = currentV;
@@ -236,7 +236,7 @@ namespace hnswlib {
                         if (topResults.top().first > dist || topResults.size() < ef) {
                             candidateSet.emplace(-dist, tnum);
 
-                            _mm_prefetch(get_linklist0(candidateSet.top().second), _MM_HINT_T0);
+                            //_mm_prefetch(get_linklist0(candidateSet.top().second), _MM_HINT_T0);
                             topResults.emplace(dist, tnum);
 
                             if (topResults.size() > ef)
