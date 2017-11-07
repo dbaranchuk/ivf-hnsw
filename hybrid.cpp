@@ -445,9 +445,6 @@ void save_groups_sift(const char *path_groups, const char *path_data, const char
     //    readXvec<uint8_t >(base_input, batch.data(), vecdim, batch_size);
 
         for (size_t i = 0; i < batch_size; i++) {
-            //if (idx_batch[i] < 900000)
-            //    continue;
-
             idx_t cur_idx = idx_batch[i];
       //      for (int d = 0; d < vecdim; d++)
       //          data[cur_idx].push_back(batch[i * vecdim + d]);

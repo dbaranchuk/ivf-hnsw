@@ -207,8 +207,10 @@ namespace hnswlib {
 
                     //input_groups.read((char *) data.data(), groupsize * d * sizeof(float));
                     input_groups.read((char *) pdata.data(), groupsize * d * sizeof(ptype));
-                    for (int i = 0; i < groupsize*d; i++)
-                        data[i] = (1.0)*pdata[i];
+                    for (int i = 0; i < groupsize*d; i++) {
+                        data[i] = (1.0) * pdata[i];
+                        std::cout << data[i] << " " << pdata[i] << std::endl;
+                    }
 
                     input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
 
