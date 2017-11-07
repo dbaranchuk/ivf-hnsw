@@ -1,3 +1,99 @@
+SIFT_O_IMI_txt = '''
+0.0029	
+0.0054	
+0.0099	
+0.0175	
+0.0326	
+0.0531	
+0.0874	
+0.134	
+0.202	
+0.2908	
+0.3979	
+0.5213	
+0.6388	
+0.7532	
+0.8464	
+0.9154	
+0.9612	
+0.9831	
+0.9948	
+0.999	
+0.9999	
+'''
+
+SIFT_Hybrid_txt = '''
+0.0004	
+0.0004	
+0.0005	
+0.0014	
+0.003	
+0.0063	
+0.0118	
+0.0239	
+0.0499	
+0.0968	
+0.1823	
+0.301	
+0.4321	
+0.5706	
+0.7045	
+0.8142	
+0.8903	
+0.9447	
+0.9743	
+0.9906	
+0.9969	
+'''
+
+SIFT_Subgroups_50_txt = '''
+0.0021
+0.0043
+0.0092
+0.0174
+0.0341
+0.0555
+0.0877
+0.1312
+0.176
+0.2273
+0.3239
+0.4386
+0.5655
+0.6894
+0.7976
+0.8733
+0.9267
+0.9565
+0.9727
+0.9795
+0.9814
+'''
+
+SIFT_Subgroups_75_txt = '''
+0.0021
+0.0043
+0.0092
+0.0174
+0.0341
+0.0555
+0.0877
+0.1314
+0.1876
+0.2744
+0.3821
+0.5017
+0.6198
+0.7232
+0.7994
+0.8514
+0.8819
+0.899
+0.9061
+0.9079
+0.9088
+'''
+
 O_IMI_txt = '''
 0.0023	
 0.0047	
@@ -100,10 +196,10 @@ import re
 
 k = range(21)
 
-O_IMI = re.findall(r"[0-9.]+", O_IMI_txt)
-Subgroups_50 = re.findall(r"[0-9.]+", Subgroups_50_txt)
-Subgroups_75 = re.findall(r"[0-9.]+", Subgroups_75_txt)
-Hybrid = re.findall(r"[0-9.]+", Hybrid_txt)
+O_IMI = re.findall(r"[0-9.]+", SIFT_O_IMI_txt)
+Subgroups_50 = re.findall(r"[0-9.]+", SIFT_Subgroups_50_txt)
+Subgroups_75 = re.findall(r"[0-9.]+", SIFT_Subgroups_75_txt)
+Hybrid = re.findall(r"[0-9.]+", SIFT_Hybrid_txt)
 
 lineIMI, = plt.plot(k, O_IMI, 'r', label = 'O-IMI')
 lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'Hybrid')
@@ -117,7 +213,7 @@ plt.axis([0, 20, 0, 1])
 plt.xlabel('log2(R)', fontsize=12)
 plt.ylabel('Recall@R', fontsize=12)
 
-plt.title('DEEP1B')
+plt.title('SIFT1B')
 plt.legend(fontsize=11, loc=2)
 #plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 #           ncol=3, mode="expand", borderaxespad=0., prop={'size': 11})
