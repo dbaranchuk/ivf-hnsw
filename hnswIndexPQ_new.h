@@ -201,6 +201,7 @@ namespace hnswlib {
                     input_idxs.read((char *) &groupsize, sizeof(int));
 
                     data.resize(groupsize * d);
+                    data_b.resize(groupsize * d);
                     idxs.resize(groupsize);
 
                     //input_groups.read((char *) data.data(), groupsize * d * sizeof(float));
