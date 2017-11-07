@@ -36,10 +36,10 @@ namespace hnswlib {
 
     struct ModifiedIndex
 	{
-		size_t d = 96;             /** Vector Dimension **/
-		size_t nc = 999973;            /** Number of Centroids **/
+		size_t d;             /** Vector Dimension **/
+		size_t nc;            /** Number of Centroids **/
         size_t nsubc;         /** Number of Subcentroids **/
-        size_t code_size = 16;     /** PQ Code Size **/
+        size_t code_size;     /** PQ Code Size **/
 
         /** Query members **/
         size_t nprobe = 16;
@@ -131,7 +131,7 @@ namespace hnswlib {
 
         void assign(size_t n, const float *data, idx_t *idxs)
         {
-            #pragma omp parallel for num_threads(18)
+            #pragma omp parallel for num_threads(16)
             for (int i = 0; i < n; i++)
                 idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i*d), 1).top().second;
         }

@@ -554,6 +554,13 @@ void check_groupsizes(Index *index, int ncentroids)
     std::cout << "Number of clusters with size > 500 && < 1500: " << other_counter << std::endl;
 }
 
+
+enum class Dataset
+{
+    DEEP1B,
+    SIFT1B
+};
+
 void hybrid_test(const char *path_centroids,
                  const char *path_index, const char *path_precomputed_idxs,
                  const char *path_pq, const char *path_norm_pq,
@@ -584,6 +591,7 @@ void hybrid_test(const char *path_centroids,
 //    exit(0);
 //    check_groups(path_data, path_precomputed_idxs, path_groups, path_idxs);
 //    exit(0);
+    Dataset dataset = Dataset::SIFT1B;
 
     cout << "Loading GT:\n";
     const int gt_dim = 1000;
@@ -593,9 +601,15 @@ void hybrid_test(const char *path_centroids,
     cout << "Loading queries:\n";
     float massQ[qsize * vecdim];
     std::ifstream query_input(path_q, ios::binary);
-    readBvec<uint8_t >(query_input, massQ, vecdim, qsize);
+    switch(dataset){
+        case Dataset::SIFT1B:
+            readXvec<uint8_t >(query_input, massQ, vecdim, qsize);
+            break;
+        case Dataset::DEEP1B:
+            readXvec<float >(query_input, massQ, vecdim, qsize);
+            break;
+    }
     query_input.close();
-    //loadXvecs<float>(path_q, massQ, qsize, vecdim);
 
     SpaceInterface<float> *l2space = new L2Space(vecdim);
 
@@ -610,8 +624,14 @@ void hybrid_test(const char *path_centroids,
     int nt = 10000000;
     int sub_nt = 262144;//65536;
     std::vector<float> trainvecs(nt * vecdim);
-    //readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
-    readBvec<uint8_t >(learn_input, trainvecs.data(), vecdim, nt);
+    switch(dataset){
+        case Dataset::SIFT1B:
+            readXvec<uint8_t >(learn_input, trainvecs.data(), vecdim, nt);
+            break;
+        case Dataset::DEEP1B:
+            readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
+            break;
+    }
     learn_input.close();
 
     /** Set Random Subset of 65536 trainvecs **/
@@ -648,7 +668,7 @@ void hybrid_test(const char *path_centroids,
         index->read(path_index);
     } else {
         /** Add elements **/
-        index->add<unsigned char>(path_groups, path_idxs);
+        index->add<uint8_t>(path_groups, path_idxs);
 //        size_t batch_size = 1000000;
 //        std::ifstream base_input(path_data, ios::binary);
 //        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
