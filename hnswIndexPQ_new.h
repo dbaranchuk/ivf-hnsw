@@ -131,7 +131,7 @@ namespace hnswlib {
 
         void assign(size_t n, const float *data, idx_t *idxs)
         {
-            #pragma omp parallel for num_threads(16)
+            //#pragma omp parallel for num_threads(16)
             for (int i = 0; i < n; i++)
                 idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i*d), 1).top().second;
         }
@@ -660,7 +660,7 @@ namespace hnswlib {
 
         void compute_centroid_norms()
         {
-            #pragma omp parallel for num_threads(16)
+            //#pragma omp parallel for num_threads(16)
             for (int i = 0; i < nc; i++){
                 const float *centroid = (float *)quantizer->getDataByInternalId(i);
                 centroid_norms[i] = faiss::fvec_norm_L2sqr (centroid, d);
