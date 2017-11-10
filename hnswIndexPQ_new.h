@@ -385,8 +385,8 @@ namespace hnswlib {
 
                     //idx_t offset = offsets[subc];
                     uint8_t *code = groupcodes + offsets[subc] * code_size;
-                    float *norm = groupnorms + offsets[subc];
-                    idx_t *id = groupids + offsets[subc];
+                    const float *norm = groupnorms + offsets[subc];
+                    const idx_t *id = groupids + offsets[subc];
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code + j*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
