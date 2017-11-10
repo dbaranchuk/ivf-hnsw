@@ -1,4 +1,4 @@
-SIFT_O_IMI_txt = '''
+SIFT_O_IMI_16384_txt = '''
 0.0029	
 0.0054	
 0.0099	
@@ -20,6 +20,30 @@ SIFT_O_IMI_txt = '''
 0.9948	
 0.999	
 0.9999	
+'''
+
+SIFT_O_IMI_4096_txt = '''
+0.0004
+0.001
+0.0016
+0.0033
+0.0072
+0.0137
+0.0259
+0.0466
+0.0819
+0.1338
+0.2063
+0.3041
+0.4193
+0.5398
+0.6661
+0.7804
+0.8697
+0.9345
+0.9743
+0.9888
+0.9968
 '''
 
 SIFT_Hybrid_txt = '''
@@ -70,31 +94,8 @@ SIFT_Subgroups_50_txt = '''
 0.9814
 '''
 
-SIFT_Subgroups_75_txt = '''
-0.0021
-0.0043
-0.0092
-0.0174
-0.0341
-0.0555
-0.0877
-0.1314
-0.1876
-0.2744
-0.3821
-0.5017
-0.6198
-0.7232
-0.7994
-0.8514
-0.8819
-0.899
-0.9061
-0.9079
-0.9088
-'''
 
-O_IMI_txt = '''
+DEEP_O_IMI_16384_txt = '''
 0.0023	
 0.0047	
 0.0099	
@@ -118,7 +119,7 @@ O_IMI_txt = '''
 0.9982
 '''
 
-Hybrid_txt = '''
+DEEP_Hybrid_txt = '''
 0.0003	
 0.0012	
 0.0018	
@@ -142,7 +143,7 @@ Hybrid_txt = '''
 0.9967	
 '''
 
-Subgroups_50_txt = '''
+DEEP_Subgroups_50_txt = '''
 0.0058
 0.0106
 0.0202
@@ -166,56 +167,90 @@ Subgroups_50_txt = '''
 0.9796
 '''
 
-Subgroups_75_txt = '''
-0.0058
-0.0106
-0.0202
-0.0374
-0.0682
-0.1103
-0.1545
-0.2066
-0.2671
-0.3506
-0.4483
-0.5581
-0.6584
-0.7465
-0.8113
-0.8554
-0.8836
-0.8992
-0.9054
-0.9084
-0.909
+DEEP_O_IMI_4096_txt='''
+0.0007
+0.0014
+0.0021
+0.0047
+0.0069
+0.0124
+0.0221
+0.0353
+0.0557
+0.0876
+0.1292
+0.1842
+0.2577
+0.3575
+0.4705
+0.5893
+0.7179
+0.8377
+0.922
+0.9681
+0.989
 '''
 
+from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 import numpy
 import re
 
 k = range(21)
 
-O_IMI = re.findall(r"[0-9.]+", SIFT_O_IMI_txt)
-Subgroups_50 = re.findall(r"[0-9.]+", SIFT_Subgroups_50_txt)
-Subgroups_75 = re.findall(r"[0-9.]+", SIFT_Subgroups_75_txt)
-Hybrid = re.findall(r"[0-9.]+", SIFT_Hybrid_txt)
+dataset = "DEEP"
 
-lineIMI, = plt.plot(k, O_IMI, 'r', label = 'O-IMI')
-lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'Hybrid')
-lineSubgroups_50, = plt.plot(k, Subgroups_50, '--b', label = 'Subgroups Filter 50%')
-lineSubgroups_75, = plt.plot(k, Subgroups_75, 'b', label = 'Subgroups Filter 75%')
+if dataset == "SIFT":
+    O_IMI = re.findall(r"[0-9.]+", SIFT_O_IMI_16384_txt)
+    Subgroups_50 = re.findall(r"[0-9.]+", SIFT_Subgroups_50_txt)
+    O_IMI_4096 = re.findall(r"[0-9.]+", SIFT_O_IMI_4096_txt)
+    Hybrid = re.findall(r"[0-9.]+", SIFT_Hybrid_txt)
 
-plt.xticks(range(21))
-plt.yticks(numpy.arange(0., 1.1, 0.1))
+    lineIMI, = plt.plot(k, O_IMI, '--r', label = 'O-IMI 16384$^2$')
+    lineIMI_4096, = plt.plot(k, O_IMI_4096, 'r', label = 'O-IMI 4096$^2$')
+    lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'NSW-ADC')
+    lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'NSW-ADC-G-F')
 
-plt.axis([0, 20, 0, 1])
-plt.xlabel('log2(R)', fontsize=12)
-plt.ylabel('Recall@R', fontsize=12)
+    plt.xticks(range(21))
+    plt.yticks(numpy.arange(0., 1.1, 0.1))
 
-plt.title('SIFT1B')
-plt.legend(fontsize=11, loc=2)
-#plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
-#           ncol=3, mode="expand", borderaxespad=0., prop={'size': 11})
-plt.savefig('graphic.png')
-#plt.s:ow()
+    plt.axis([0, 20, 0, 1])
+    plt.xlabel('log$_2$R', fontsize=13)
+    plt.ylabel('Recall@R', fontsize=13)
+    plt.legend(fontsize=11, loc=2)
+
+    #plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+    #           ncol=3, mode="expand", borderaxespad=0., prop={'size': 11})
+    #plt.savefig('graphic.png')
+    #plt.s:ow()
+
+    pp = PdfPages('recallR_SIFT.pdf')
+    pp.savefig()
+    pp.close()
+else:
+    O_IMI = re.findall(r"[0-9.]+", DEEP_O_IMI_16384_txt)
+    Subgroups_50 = re.findall(r"[0-9.]+", DEEP_Subgroups_50_txt)
+    O_IMI_4096 = re.findall(r"[0-9.]+", DEEP_O_IMI_4096_txt)
+    Hybrid = re.findall(r"[0-9.]+", DEEP_Hybrid_txt)
+
+    lineIMI, = plt.plot(k, O_IMI, '--r', label = 'O-IMI 16384$^2$')
+    lineIMI_4096, = plt.plot(k, O_IMI_4096, 'r', label = 'O-IMI 4096$^2$')
+    lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'NSW-ADC')
+    lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'NSW-ADC-G-F')
+
+    plt.xticks(range(21))
+    plt.yticks(numpy.arange(0., 1.1, 0.1))
+
+    plt.axis([0, 20, 0, 1])
+    plt.xlabel('log$_2$R', fontsize=13)
+    plt.ylabel('Recall@R', fontsize=13)
+    plt.legend(fontsize=11, loc=2)
+
+    #plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+    #           ncol=3, mode="expand", borderaxespad=0., prop={'size': 11})
+    #plt.savefig('graphic.png')
+    #plt.s:ow()
+
+    pp = PdfPages('recallR_DEEP.pdf')
+    pp.savefig()
+    pp.close()

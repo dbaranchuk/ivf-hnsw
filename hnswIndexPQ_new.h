@@ -338,41 +338,43 @@ namespace hnswlib {
 
             std::vector< float > q_s(nsubc);
             std::vector< float > r(nsubc);
-            //std::vector< size_t > offsets(nsubc);
+            std::vector< idx_t > offsets(nsubc);
 
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
-                if (group_sizes[centroid_num].size() == 0)
+                const idx_t list_size = norm_codes[centroid_num].size();
+                if (list_size == 0)
                     continue;
-                norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), norm_codes[centroid_num].size());
 
-                const uint8_t *code = codes[centroid_num].data();
-                const float *norm = norms.data();
-                const idx_t *id = ids[centroid_num].data();
+                const idx_t *groupsizes = group_sizes[centroid_num].data();
+                uint8_t *groupcodes = codes[centroid_num].data();
+                const idx_t *groupids = ids[centroid_num].data();
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
                 float alpha = alphas[centroid_num];
-
                 const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
+                norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), list_size);
+                const float *groupnorms = norms.data();
                 /** Filtering **/
-//                std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
-//                for (int subc = 0; subc < nsubc; subc++) {
-//                    idx_t subcentroid_num = nn_centroids[subc];
-//                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
-//
-//                    q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
-//                    r[subc] = (1-alpha) * q_c[i] + alpha * (alpha-1) * s_c[centroid_num][subc] + alpha * q_s[subc];
-//
-//                    offsets[subc] = (subc == 0) ? 0 : offsets[subc-1] + group_sizes[centroid_num][subc-1];
-//                    ordered_subc.emplace(std::make_pair(-r[subc], subc));
-//                }
+                std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
+                for (int subc = 0; subc < nsubc; subc++) {
+                    idx_t subcentroid_num = nn_centroids[subc];
+                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
 
-                //while (ordered_subc.size() > 48){
-                //    idx_t subc = ordered_subc.top().second;
-                //    ordered_subc.pop();
-                for (int subc = 0; subc < nsubc; subc++){
-                    int groupsize = group_sizes[centroid_num][subc];
+                    q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
+                    r[subc] = (1-alpha) * q_c[i] + alpha * ((alpha-1) * s_c[centroid_num][subc] + q_s[subc]);
+
+                    offsets[subc] = (subc == 0) ? 0 : offsets[subc-1] + groupsizes[subc-1];
+                    ordered_subc.emplace(std::make_pair(-r[subc], subc));
+                }
+
+                while (ordered_subc.size() > 32){
+                    idx_t subc = ordered_subc.top().second;
+                    ordered_subc.pop();
+
+                //for (int subc = 0; subc < nsubc; subc++){
+                    idx_t groupsize = groupsizes[subc];
                     if (groupsize == 0)
                         continue;
 
@@ -381,16 +383,19 @@ namespace hnswlib {
                     float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
                     float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
 
-                    //size_t offset = offsets[subc];
+                    //idx_t offset = offsets[subc];
+                    uint8_t *code = groupcodes + offsets[subc] * code_size;
+                    float *norm = groupnorms + offsets[subc];
+                    idx_t *id = groupids + offsets[subc];
                     for (int j = 0; j < groupsize; j++){
-                        float q_r = fstdistfunc(const_cast<uint8_t *>(code) + (j)*code_size); //offset
-                        float dist = fst_term + snd_term - 2*q_r + norm[j]; // offset
-                        topResults.emplace(std::make_pair(-dist, id[j])); //offset
+                        float q_r = fstdistfunc(code + j*code_size);
+                        float dist = fst_term + snd_term - 2*q_r + norm[j];
+                        topResults.emplace(std::make_pair(-dist, id[j]));
                     }
                     /** Shift to the next group **/
-                    code += groupsize*code_size;
-                    norm += groupsize;
-                    id += groupsize;
+//                    groupcodes += groupsize*code_size;
+//                    groupnorms += groupsize;
+//                    groupids += groupsize;
                 }
                 if (topResults.size() >= max_codes)
                     break;

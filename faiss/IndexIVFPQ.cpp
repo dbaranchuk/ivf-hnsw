@@ -35,9 +35,6 @@
 namespace faiss {
 
 
-
-
-
 /*****************************************
  * IndexIVFPQ implementation
  ******************************************/
@@ -51,7 +48,7 @@ IndexIVFPQ::IndexIVFPQ (Index * quantizer, size_t d, size_t nlist,
     code_size = pq.code_size;
     is_trained = false;
     by_residual = true;
-    use_precomputed_table = 0;
+    use_precomputed_table = 2;
     scan_table_threshold = 0;
     max_codes = 0; // means unlimited
 
