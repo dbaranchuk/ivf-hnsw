@@ -378,7 +378,7 @@ namespace hnswlib {
                     if (groupsize == 0)
                         continue;
 
-                    //idx_t subcentroid_num = nn_centroids[subc];
+                    idx_t subcentroid_num = nn_centroids[subc];
                     //const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
                     //float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
                     float snd_term = alpha * (q_s[subc] - centroid_norms[subcentroid_num]);
