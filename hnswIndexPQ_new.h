@@ -359,16 +359,16 @@ namespace hnswlib {
                 /** Filtering **/
                 std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
                 for (int subc = 0; subc < nsubc; subc++) {
+                    offsets[subc] = (subc == 0) ? 0 : offsets[subc-1] + groupsizes[subc-1];
                     if (groupsizes[subc] == 0)
                         continue;
-
+                    
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
 
                     q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
                     r[subc] = (1-alpha) * q_c[i] + alpha * ((alpha-1) * s_c[centroid_num][subc] + q_s[subc]);
 
-                    offsets[subc] = (subc == 0) ? 0 : offsets[subc-1] + groupsizes[subc-1];
                     ordered_subc.emplace(std::make_pair(-r[subc], subc));
                 }
 
