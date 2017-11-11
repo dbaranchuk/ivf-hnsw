@@ -198,7 +198,7 @@ import re
 
 k = range(21)
 
-dataset = "DEEP"
+dataset = "SIFT"
 
 if dataset == "SIFT":
     O_IMI = re.findall(r"[0-9.]+", SIFT_O_IMI_16384_txt)
@@ -206,10 +206,10 @@ if dataset == "SIFT":
     O_IMI_4096 = re.findall(r"[0-9.]+", SIFT_O_IMI_4096_txt)
     Hybrid = re.findall(r"[0-9.]+", SIFT_Hybrid_txt)
 
-    lineIMI, = plt.plot(k, O_IMI, '--r', label = 'O-IMI 16384$^2$')
-    lineIMI_4096, = plt.plot(k, O_IMI_4096, 'r', label = 'O-IMI 4096$^2$')
-    lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'NSW-ADC')
-    lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'NSW-ADC-G-F')
+    lineIMI, = plt.plot(k, O_IMI, '--r', label = 'Inverted Multi-Index 16384$^2$')
+    lineIMI_4096, = plt.plot(k, O_IMI_4096, 'r', label = 'Inverted Multi-Index 4096$^2$')
+    lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'Inverted Index 2$^{20}$')
+    lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'Inverted Index + Grouping + Pruning 2$^{20}$')
 
     plt.xticks(range(21))
     plt.yticks(numpy.arange(0., 1.1, 0.1))
@@ -233,10 +233,10 @@ else:
     O_IMI_4096 = re.findall(r"[0-9.]+", DEEP_O_IMI_4096_txt)
     Hybrid = re.findall(r"[0-9.]+", DEEP_Hybrid_txt)
 
-    lineIMI, = plt.plot(k, O_IMI, '--r', label = 'Inverted Multi Index 16384$^2$')
-    lineIMI_4096, = plt.plot(k, O_IMI_4096, 'r', label = 'Inverted Multi Index 4096$^2$')
-    lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'Inverted Index 2$^20$')
-    lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'Inverted Index 2$^20$')
+    lineIMI, = plt.plot(k, O_IMI, '--r', label = 'Inverted Multi-Index 16384$^2$')
+    lineIMI_4096, = plt.plot(k, O_IMI_4096, 'r', label = 'Inverted Multi-Index 4096$^2$')
+    lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'Inverted Index 2$^{20}$')
+    lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'Inverted Index + Grouping + Pruning 2$^{20}$')
 
     plt.xticks(range(21))
     plt.yticks(numpy.arange(0., 1.1, 0.1))
@@ -245,7 +245,7 @@ else:
     plt.xlabel('log$_2$R', fontsize=13)
     plt.ylabel('Recall@R', fontsize=13)
     plt.legend(fontsize=11, loc=2)
-    plt.figure(figsize = (100,100))
+    #plt.figure(figsize = (20,20))
     #plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
     #           ncol=3, mode="expand", borderaxespad=0., prop={'size': 11})
     #plt.savefig('graphic.png')
