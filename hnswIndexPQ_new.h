@@ -361,8 +361,8 @@ namespace hnswlib {
                 std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
                 for (int subc = 0; subc < nsubc; subc++) {
                     offsets[subc] = (subc == 0) ? 0 : offsets[subc-1] + groupsizes[subc-1];
-                    //if (groupsizes[subc] == 0)
-                    //    continue;
+                    if (groupsizes[subc] == 0)
+                        continue;
 
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
@@ -372,16 +372,17 @@ namespace hnswlib {
 
                     ordered_subc.emplace(std::make_pair(-r[subc], subc));
                 }
-                
-                while (ordered_subc.size() > 32){
+
+                int counter = 0;
+                while (ordered_subc.size() > 0 && counter++ < 32){
                     idx_t subc = ordered_subc.top().second;
                     ordered_subc.pop();
 
                 //for (int subc = 0; subc < nsubc; subc++){
                     idx_t groupsize = groupsizes[subc];
                     ncode += groupsize;
-                    if (groupsize == 0)
-                        continue;
+//                    if (groupsize == 0)
+//                        continue;
 
                     idx_t subcentroid_num = nn_centroids[subc];
                     //const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
