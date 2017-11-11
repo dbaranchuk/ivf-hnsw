@@ -276,10 +276,10 @@ namespace hnswlib {
                     if (topResults.size() == k){
                         if (dist >= topResults.top().first)
                             continue;
-                        topResults.emplace(std::make_pair(dist, id[j]));
+                        topResults.emplace(std::make_pair(dist, label));
                         topResults.pop();
                     } else
-                        topResults.emplace(std::make_pair(dist, id[j]));
+                        topResults.emplace(std::make_pair(dist, label));
                 }
             }
             if (ncode >= max_codes)
