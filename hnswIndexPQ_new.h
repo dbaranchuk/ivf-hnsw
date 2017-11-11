@@ -340,6 +340,7 @@ namespace hnswlib {
             std::vector< float > r(nsubc);
             std::vector< idx_t > offsets(nsubc);
 
+            int ncode = 0;
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
                 const idx_t list_size = norm_codes[centroid_num].size();
@@ -362,7 +363,7 @@ namespace hnswlib {
                     offsets[subc] = (subc == 0) ? 0 : offsets[subc-1] + groupsizes[subc-1];
                     if (groupsizes[subc] == 0)
                         continue;
-                    
+
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
 
@@ -370,6 +371,7 @@ namespace hnswlib {
                     r[subc] = (1-alpha) * q_c[i] + alpha * ((alpha-1) * s_c[centroid_num][subc] + q_s[subc]);
 
                     ordered_subc.emplace(std::make_pair(-r[subc], subc));
+                    ncode += groupsizes[subc];
                 }
 
                 int counter = 0;
@@ -394,19 +396,27 @@ namespace hnswlib {
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code + j*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
-                        topResults.emplace(std::make_pair(-dist, id[j]));
+                        //topResults.emplace(std::make_pair(-dist, id[j]));
+                        if (topResults.size() == k){
+                            if (dist >= topResults.top.first)
+                                continue;
+                            topResults.emplace(std::make_pair(dist, id[j]));
+                            topResults.pop();
+                        }
                     }
                     /** Shift to the next group **/
 //                    groupcodes += groupsize*code_size;
 //                    groupnorms += groupsize;
 //                    groupids += groupsize;
                 }
-                if (topResults.size() >= max_codes)
+                if (ncode >= max_codes)
                     break;
+                //if (topResults.size() >= max_codes)
+                //    break;
             }
-            average_max_codes += topResults.size();
+            average_max_codes += ncode;//topResults.size();
 
-            for (int i = 0; i < k; i++) {
+            for (int i = k-1; i > 0; i--) {
                 results[i] = topResults.top().second;
                 topResults.pop();
             }
