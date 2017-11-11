@@ -452,9 +452,9 @@ namespace hnswlib {
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
                 norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), norm_codes[centroid_num].size());
-                const float *norms = norms.data();
-                uint8_t *codes = codes[centroid_num].data();
-                const idx_t *ids = ids[centroid_num].data();
+                const float *norm = norms.data();
+                uint8_t *code = codes[centroid_num].data();
+                const idx_t *id = ids[centroid_num].data();
 
                 for (int subc = 0; subc < nsubc; subc++){
                     idx_t groupsize = groupsizes[subc];
