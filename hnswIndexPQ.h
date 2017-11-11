@@ -247,8 +247,8 @@ namespace hnswlib {
             float q_c[nprobe];
 
             pq->compute_inner_prod_table(x, dis_table.data());
-            std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
-            //std::priority_queue<std::pair<float, idx_t>> topResults;
+            //std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
+            std::priority_queue<std::pair<float, idx_t>> topResults;
 
             auto coarse = quantizer->searchKnn(x, nprobe);
 
@@ -259,6 +259,7 @@ namespace hnswlib {
                 coarse.pop();
             }
 
+            int ncode = 0;
             for (int i = 0; i < nprobe; i++){
                 idx_t key = keys[i];
                 std::vector<uint8_t> code = codes[key];
@@ -272,13 +273,19 @@ namespace hnswlib {
                     float q_r = fstdistfunc(code.data() + j*code_size);
                     float dist = term1 - 2*q_r + norms[j];
                     idx_t label = ids[key][j];
-                    topResults.emplace(std::make_pair(-dist, label));
+                    if (topResults.size() == k){
+                        if (dist >= topResults.top().first)
+                            continue;
+                        topResults.emplace(std::make_pair(dist, id[j]));
+                        topResults.pop();
+                    } else
+                        topResults.emplace(std::make_pair(dist, id[j]));
                 }
-                if (topResults.size() > max_codes)
-                    break;
             }
+            if (ncode >= max_codes)
+                break;
 
-            average_max_codes += topResults.size();
+            average_max_codes += ncode;
 
             for (int i = 0; i < k; i++) {
                 results[i] = topResults.top().second;
