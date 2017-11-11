@@ -361,8 +361,8 @@ namespace hnswlib {
                 std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
                 for (int subc = 0; subc < nsubc; subc++) {
                     offsets[subc] = (subc == 0) ? 0 : offsets[subc-1] + groupsizes[subc-1];
-                    if (groupsizes[subc] == 0)
-                        continue;
+                    //if (groupsizes[subc] == 0)
+                    //    continue;
 
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
@@ -372,17 +372,16 @@ namespace hnswlib {
 
                     ordered_subc.emplace(std::make_pair(-r[subc], subc));
                 }
-
-                int counter = 0;
-                while (ordered_subc.size() > 0 && counter++ < 32){
+                
+                while (ordered_subc.size() > 32){
                     idx_t subc = ordered_subc.top().second;
                     ordered_subc.pop();
 
                 //for (int subc = 0; subc < nsubc; subc++){
                     idx_t groupsize = groupsizes[subc];
                     ncode += groupsize;
-//                    if (groupsize == 0)
-//                        continue;
+                    if (groupsize == 0)
+                        continue;
 
                     idx_t subcentroid_num = nn_centroids[subc];
                     //const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
@@ -396,15 +395,13 @@ namespace hnswlib {
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code + j*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
-                        //topResults.emplace(std::make_pair(-dist, id[j]));
                         if (topResults.size() == k){
                             if (dist >= topResults.top().first)
                                 continue;
                             topResults.emplace(std::make_pair(dist, id[j]));
                             topResults.pop();
-                        } else {
+                        } else
                             topResults.emplace(std::make_pair(dist, id[j]));
-                        }
                     }
                     /** Shift to the next group **/
 //                    groupcodes += groupsize*code_size;
@@ -413,8 +410,6 @@ namespace hnswlib {
                 }
                 if (ncode >= max_codes)
                     break;
-                //if (topResults.size() >= max_codes)
-                //    break;
             }
             average_max_codes += ncode;//topResults.size();
 
