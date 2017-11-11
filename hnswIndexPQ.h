@@ -486,6 +486,7 @@ namespace hnswlib {
             }
         }
 
+        void compute_s_c() {}
 
     private:
         std::vector < float > dis_table;
