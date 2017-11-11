@@ -275,7 +275,7 @@ void IndexPQ::search_core_polysemous (idx_t n, const float *x, idx_t k,
     if (false) {
         pq.compute_codes (x, q_codes, n);
     } else {
-#pragma omp parallel for
+//#pragma omp parallel for
         for (idx_t qi = 0; qi < n; qi++) {
             pq.compute_code_from_distance_table
                 (dis_tables + qi * pq.M * pq.ksub,
@@ -285,7 +285,7 @@ void IndexPQ::search_core_polysemous (idx_t n, const float *x, idx_t k,
 
     size_t n_pass = 0;
 
-#pragma omp parallel for reduction (+: n_pass)
+//#pragma omp parallel for reduction (+: n_pass)
     for (idx_t qi = 0; qi < n; qi++) {
         const uint8_t * q_code = q_codes + qi * pq.code_size;
 
@@ -407,12 +407,12 @@ void IndexPQ::hamming_distance_histogram (idx_t n, const float *x,
     memset (hist, 0, sizeof(*hist) * (nbits + 1));
     size_t bs = 256;
 
-#pragma omp parallel
+//#pragma omp parallel
     {
         std::vector<long> histi (nbits + 1);
         hamdis_t *distances = new hamdis_t [nb * bs];
         ScopeDeleter<hamdis_t> del (distances);
-#pragma omp for
+//#pragma omp for
         for (size_t q0 = 0; q0 < n; q0 += bs) {
             // printf ("dis stats: %ld/%ld\n", q0, n);
             size_t q1 = q0 + bs;
@@ -425,7 +425,7 @@ void IndexPQ::hamming_distance_histogram (idx_t n, const float *x,
             for (size_t i = 0; i < nb * (q1 - q0); i++)
                 histi [distances [i]]++;
         }
-#pragma omp critical
+//#pragma omp critical
         {
             for (int i = 0; i <= nbits; i++)
                 hist[i] += histi[i];
@@ -814,7 +814,7 @@ void MultiIndexQuantizer::search (idx_t n, const float *x, idx_t k,
     if (k == 1) {
         // simple version that just finds the min in each table
 
-#pragma omp parallel for
+//#pragma omp parallel for
         for (int i = 0; i < n; i++) {
             const float * dis_table = dis_tables + i * pq.ksub * pq.M;
             float dis = 0;
@@ -842,11 +842,11 @@ void MultiIndexQuantizer::search (idx_t n, const float *x, idx_t k,
 
     } else {
 
-#pragma omp parallel if(n > 1)
+//#pragma omp parallel if(n > 1)
         {
             MinSumK <float, SemiSortedArray<float>, false>
                 msk(k, pq.M, pq.ksub);
-#pragma omp for
+//#pragma omp for
             for (int i = 0; i < n; i++) {
                 msk.run (dis_tables + i * pq.ksub * pq.M,
                          distances + i * k, labels + i * k);
