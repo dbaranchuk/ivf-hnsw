@@ -273,11 +273,11 @@ namespace hnswlib {
                     float q_r = fstdistfunc(code.data() + j*code_size);
                     float dist = term1 - 2*q_r + norms[j];
                     idx_t label = ids[key][j];
-                    if (topResults.size() == k){
+                    if (topResults.size() == k) {
                         if (dist >= topResults.top().first)
                             continue;
-                        topResults.emplace(std::make_pair(dist, label));
                         topResults.pop();
+                        topResults.emplace(std::make_pair(dist, label));
                     } else
                         topResults.emplace(std::make_pair(dist, label));
                 }

@@ -402,8 +402,8 @@ namespace hnswlib {
                         if (topResults.size() == k){
                             if (dist >= topResults.top().first)
                                 continue;
-                            topResults.emplace(std::make_pair(dist, id[j]));
                             topResults.pop();
+                            topResults.emplace(std::make_pair(dist, id[j]));
                         } else
                             topResults.emplace(std::make_pair(dist, id[j]));
                     }
@@ -473,8 +473,8 @@ namespace hnswlib {
                         if (topResults.size() == k){
                             if (dist >= topResults.top().first)
                                 continue;
-                            topResults.emplace(std::make_pair(dist, id[j]));
                             topResults.pop();
+                            topResults.emplace(std::make_pair(dist, id[j]));
                         } else
                             topResults.emplace(std::make_pair(dist, id[j]));
                     }
