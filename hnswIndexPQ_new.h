@@ -371,7 +371,6 @@ namespace hnswlib {
                     r[subc] = (1-alpha) * q_c[i] + alpha * ((alpha-1) * s_c[centroid_num][subc] + q_s[subc]);
 
                     ordered_subc.emplace(std::make_pair(-r[subc], subc));
-                    ncode += groupsizes[subc];
                 }
 
                 int counter = 0;
@@ -381,6 +380,7 @@ namespace hnswlib {
 
                 //for (int subc = 0; subc < nsubc; subc++){
                     idx_t groupsize = groupsizes[subc];
+                    ncode += groupsize;
 //                    if (groupsize == 0)
 //                        continue;
 
