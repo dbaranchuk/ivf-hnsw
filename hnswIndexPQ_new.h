@@ -418,7 +418,7 @@ namespace hnswlib {
             }
             average_max_codes += ncode;//topResults.size();
 
-            for (int i = k-1; i > 0; i--) {
+            for (int i = 0; i < k; i++) {
                 results[i] = topResults.top().second;
                 topResults.pop();
             }
