@@ -479,9 +479,9 @@ namespace hnswlib {
                             topResults.emplace(std::make_pair(dist, id[j]));
                     }
                     /** Shift to the next group **/
-                    codes += groupsize*code_size;
-                    norms += groupsize;
-                    ids += groupsize;
+                    code += groupsize*code_size;
+                    norm += groupsize;
+                    id += groupsize;
                 }
                 if (ncode >= max_codes)
                     break;
