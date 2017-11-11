@@ -281,9 +281,10 @@ namespace hnswlib {
                     } else
                         topResults.emplace(std::make_pair(dist, label));
                 }
+                ncode += ncodes;
+                if (ncode >= max_codes)
+                    break;
             }
-            if (ncode >= max_codes)
-                break;
 
             average_max_codes += ncode;
 
