@@ -396,13 +396,15 @@ namespace hnswlib {
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code + j*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
-                        if (topResults.size() > 0 && dist >= topResults.top().first)
-                            continue;
-                        topResults.emplace(std::make_pair(dist, id[j]));
-                        if (topResults.size() == k+1){
+                        //topResults.emplace(std::make_pair(-dist, id[j]));
+                        if (topResults.size() == k){
+                            if (dist >= topResults.top().first)
+                                continue;
+                            topResults.emplace(std::make_pair(dist, id[j]));
                             topResults.pop();
-
-
+                        } else {
+                            topResults.emplace(std::make_pair(dist, id[j]));
+                        }
                     }
                     /** Shift to the next group **/
 //                    groupcodes += groupsize*code_size;
