@@ -673,7 +673,7 @@ void hybrid_test(const char *path_centroids,
         for (int b = 0; b < (vecsize / batch_size); b++) {
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
             //readXvec<float>(base_input, batch.data(), vecdim, batch_size);
-            readBvec<uint8_t> (base_input, batch.data(), vecdim, batch_size);
+            readXvecFvec<uint8_t>(base_input, batch.data(), vecdim, batch_size);
             for (size_t i = 0; i < batch_size; i++)
                 ids[batch_size*b + i] = batch_size*b + i;
 
