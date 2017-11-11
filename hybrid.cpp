@@ -587,7 +587,14 @@ void hybrid_test(const char *path_centroids,
     Dataset dataset = Dataset::DEEP1B;
 
     cout << "Loading GT:\n";
-    const int gt_dim = 1000;
+    int gt_dim;
+    switch(dataset){
+        case Dataset::SIFT1B:
+            gt_dim = 1000;
+            break;
+        case Dataset::DEEP1B:
+            gt_dim = 1;
+    }
     idx_t *massQA = new idx_t[qsize * gt_dim];
     loadXvecs<idx_t>(path_gt, massQA, qsize, gt_dim);
 
