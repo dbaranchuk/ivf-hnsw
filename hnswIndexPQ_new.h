@@ -319,7 +319,16 @@ namespace hnswlib {
 
         double average_max_codes = 0;
 
-		void search(float *x, idx_t k, idx_t *results)
+        void search(float *x, idx_t k, idx_t *results)
+        {
+            bool isFilter = true;
+            if (isFilter)
+                searchGF(x, k, results);
+            else
+                searchG(x, k, results);
+        }
+
+		void searchGF(float *x, idx_t k, idx_t *results)
 		{
             idx_t keys[nprobe];
             float q_c[nprobe];
@@ -343,8 +352,7 @@ namespace hnswlib {
             int ncode = 0;
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
-                const idx_t list_size = norm_codes[centroid_num].size();
-                if (list_size == 0)
+                if (norm_codes[centroid_num].size() == 0)
                     continue;
 
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
@@ -355,7 +363,7 @@ namespace hnswlib {
                 const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
-                norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), list_size);
+                norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), norm_codes[centroid_num].size());
                 const float *groupnorms = norms.data();
                 /** Filtering **/
                 std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
@@ -378,21 +386,87 @@ namespace hnswlib {
                     idx_t subc = ordered_subc.top().second;
                     ordered_subc.pop();
 
-                //for (int subc = 0; subc < nsubc; subc++){
                     idx_t groupsize = groupsizes[subc];
                     ncode += groupsize;
-//                    if (groupsize == 0)
-//                        continue;
 
                     idx_t subcentroid_num = nn_centroids[subc];
-                    //const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
-                    //float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
                     float snd_term = alpha * (q_s[subc] - centroid_norms[subcentroid_num]);
 
-                    //idx_t offset = offsets[subc];
-                    uint8_t *code = groupcodes + offsets[subc] * code_size;
-                    const float *norm = groupnorms + offsets[subc];
-                    const idx_t *id = groupids + offsets[subc];
+                    idx_t offset = offsets[subc];
+                    uint8_t *code = groupcodes + offset * code_size;
+                    const float *norm = groupnorms + offset;
+                    const idx_t *id = groupids + offset;
+                    for (int j = 0; j < groupsize; j++){
+                        float q_r = fstdistfunc(code + j*code_size);
+                        float dist = fst_term + snd_term - 2*q_r + norm[j];
+                        if (topResults.size() == k){
+                            if (dist >= topResults.top().first)
+                                continue;
+                            topResults.emplace(std::make_pair(dist, id[j]));
+                            topResults.pop();
+                        } else
+                            topResults.emplace(std::make_pair(dist, id[j]));
+                    }
+                }
+                if (ncode >= max_codes)
+                    break;
+            }
+            average_max_codes += ncode;
+            for (int i = 0; i < k; i++) {
+                results[i] = topResults.top().second;
+                topResults.pop();
+            }
+		}
+
+        void searchG(float *x, idx_t k, idx_t *results)
+        {
+            idx_t keys[nprobe];
+            float q_c[nprobe];
+
+            pq->compute_inner_prod_table(x, dis_table.data());
+            //std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
+            std::priority_queue<std::pair<float, idx_t>> topResults;
+
+            auto coarse = quantizer->searchKnn(x, nprobe);
+            for (int i = nprobe - 1; i >= 0; i--) {
+                auto elem = coarse.top();
+                q_c[i] = elem.first;
+                keys[i] = elem.second;
+                coarse.pop();
+            }
+
+            std::vector< float > q_s(nsubc);
+            std::vector< float > r(nsubc);
+            std::vector< idx_t > offsets(nsubc);
+
+            int ncode = 0;
+            for (int i = 0; i < nprobe; i++){
+                idx_t centroid_num = keys[i];
+                if (norm_codes[centroid_num].size() == 0)
+                    continue;
+
+                const idx_t *groupsizes = group_sizes[centroid_num].data();
+                const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
+                float alpha = alphas[centroid_num];
+                const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
+                float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
+
+                norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), norm_codes[centroid_num].size());
+                const float *norms = norms.data();
+                uint8_t *codes = codes[centroid_num].data();
+                const idx_t *ids = ids[centroid_num].data();
+
+                for (int subc = 0; subc < nsubc; subc++){
+                    idx_t groupsize = groupsizes[subc];
+                    ncode += groupsize;
+                    if (groupsize == 0)
+                        continue;
+
+                    idx_t subcentroid_num = nn_centroids[subc];
+                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+                    float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
+                    float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
+
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code + j*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
@@ -405,20 +479,20 @@ namespace hnswlib {
                             topResults.emplace(std::make_pair(dist, id[j]));
                     }
                     /** Shift to the next group **/
-//                    groupcodes += groupsize*code_size;
-//                    groupnorms += groupsize;
-//                    groupids += groupsize;
+                    codes += groupsize*code_size;
+                    norms += groupsize;
+                    ids += groupsize;
                 }
                 if (ncode >= max_codes)
                     break;
             }
-            average_max_codes += ncode;//topResults.size();
+            average_max_codes += ncode;
 
             for (int i = 0; i < k; i++) {
                 results[i] = topResults.top().second;
                 topResults.pop();
             }
-		}
+        }
 
         void write(const char *path_index)
         {
