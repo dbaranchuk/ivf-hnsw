@@ -391,10 +391,10 @@ namespace hnswlib {
                     r_threshold += subr[subc];
                     normalize++;
                 }
+                probe++;
                 if (ncode >= 2*max_codes)
                     break;
 
-                probe++;
             }
             r_threshold /= normalize;
 
