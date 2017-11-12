@@ -450,7 +450,7 @@ namespace hnswlib {
                 const float *norm = norms.data();
                 uint8_t *code = codes[centroid_num].data();
                 const idx_t *id = ids[centroid_num].data();
-                
+
                 for (int subc = 0; subc < nsubc; subc++){
                 //int counter = 0;
                 //while (ordered_subc.size() > 0 && counter++ < threshold)
@@ -468,10 +468,10 @@ namespace hnswlib {
                     idx_t subcentroid_num = nn_centroids[subc];
                     float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
 
-                    idx_t offset = offsets[subc];
-                    uint8_t *code = groupcodes + offset * code_size;
-                    const float *norm = groupnorms + offset;
-                    const idx_t *id = groupids + offset;
+                    //idx_t offset = offsets[subc];
+                    //uint8_t *code = groupcodes + offset * code_size;
+                    //const float *norm = groupnorms + offset;
+                    //const idx_t *id = groupids + offset;
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code + j*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
