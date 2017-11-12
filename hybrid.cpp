@@ -718,11 +718,11 @@ void hybrid_test(const char *path_centroids,
     index->quantizer->ef_ = efSearch;
 
     /** Search **/
-    std::vector<float> distances(k);
-    std::vector<long> labels(k);
+    std::vector<float> distances(k*qsize);
+    std::vector<long> labels(k*qsize);
     StopW stopw = StopW();
     for (int i = 0; i < qsize; i++) {
-        index->search(massQ+i*vecdim, k, distances.data(), labels.data());
+        index->search(massQ+i*vecdim, k, distances.data() + k*i, labels.data() + k*i);
 
         std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
         unordered_set<labeltype> g;
@@ -733,7 +733,7 @@ void hybrid_test(const char *path_centroids,
         }
 
         for (int j = 0; j < k; j++)
-            if (g.count(labels[j]) != 0){
+            if (g.count(labels[k*i + j]) != 0){
                 correct++;
                 break;
             }
