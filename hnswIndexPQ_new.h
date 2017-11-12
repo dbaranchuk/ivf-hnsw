@@ -357,13 +357,7 @@ namespace hnswlib {
             subcentroid_nums.reserve(nsubc * nprobe);
 
             /** FAISS Heap **/
-            faiss::float_maxheap_array_t res = {
-                    size_t(1), size_t(k),
-                    labels, distances
-            };
-            float * heap_sim = res.get_val (0);
-            long * heap_ids = res.get_ids (0);
-            faiss::maxheap_heapify (k, heap_sim, heap_ids);
+            faiss::maxheap_heapify (k, distances, labels);
 
             int ncode = 0;
             //double r_max = 0.0;
@@ -434,8 +428,8 @@ namespace hnswlib {
                         float q_r = fstdistfunc(code + j*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
                         if (dist < heap_sim[0]) {
-                            faiss::maxheap_pop(k, heap_sim, heap_ids);
-                            faiss::maxheap_push(k, heap_sim, heap_ids, dist, id[j]);
+                            faiss::maxheap_pop(k, distances, labels);
+                            faiss::maxheap_push(k, distances, labels, dist, id[j]);
                         }
 //                        if (topResults.size() == k){
 //                            if (dist >= topResults.top().first)
