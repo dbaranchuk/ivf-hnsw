@@ -360,15 +360,16 @@ namespace hnswlib {
             /** Filtering **/
             double r_threshold = 0.0;
             int ncode = 0;
-            int probe = 0;
+            int max_probe = 0;
             int normalize = 0;
 
-            while (probe < nprobe) {
-                idx_t centroid_num = keys[probe];
+            for (int i = 0; i < nprobe; i++){
+                max_probe++;
+                idx_t centroid_num = keys[i];
                 if (norm_codes[centroid_num].size() == 0)
                     continue;
 
-                float *subr = r.data() + probe*nsubc;
+                float *subr = r.data() + i*nsubc;
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
                 float alpha = alphas[centroid_num];
@@ -387,18 +388,17 @@ namespace hnswlib {
                     } else counter_reuse++;
 
                     ncode += groupsizes[subc];
-                    subr[subc] = (1 - alpha) * (q_c[probe] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num];
+                    subr[subc] = (1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num];
                     r_threshold += subr[subc];
                     normalize++;
                 }
-                probe++;
                 if (ncode >= 2*max_codes)
                     break;
 
             }
             r_threshold /= normalize;
 
-            for (int i = 0; i < probe; i++){
+            for (int i = 0; i < max_probe; i++){
                 idx_t centroid_num = keys[i];
                 if (norm_codes[centroid_num].size() == 0)
                     continue;
