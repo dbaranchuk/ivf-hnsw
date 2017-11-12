@@ -358,7 +358,7 @@ namespace hnswlib {
             std::vector< idx_t > offsets(nsubc);
 
             int ncode = 0;
-            double r_max = 0.0;
+            //double r_max = 0.0;
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
                 //ncode += norm_codes[centroid_num].size();
@@ -400,7 +400,7 @@ namespace hnswlib {
 //                        if (r[subc] > r_max){
 //                            r_max = r[subc];
 //                        }
-//                        ordered_subc.emplace(std::make_pair(-r[subc], subc));
+                    ordered_subc.emplace(std::make_pair(-r[subc], subc));
 //                    } else {
 //                        if (r[subc] < r_max)
 //                            ordered_subc.emplace(std::make_pair(-r[subc], subc));
