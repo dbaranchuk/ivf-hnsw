@@ -360,8 +360,8 @@ namespace hnswlib {
 
             /** Filtering **/
             double r_threshold = 0.0;
-            int code_counter = 0;
-            int max_probe = 0;
+            //int code_counter = 0;
+            //int max_probe = 0;
             for (int i = 0; i < nprobe; i++) {
                 idx_t centroid_num = keys[i];
                 if (norm_codes[centroid_num].size() == 0)
@@ -384,16 +384,16 @@ namespace hnswlib {
                         subcentroid_nums.push_back(subcentroid_num);
                     } else counter_reuse++;
 
-                    code_counter += groupsizes[subc];
+                    //code_counter += groupsizes[subc];
                     r[nsubc*i + subc] = (1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num];
                     r_threshold += r[nsubc*i + subc];
                 }
-                if (code_counter >= max_codes) {
-                    max_probe = i+1;
-                    break;
-                }
+                //if (code_counter >= max_codes) {
+                //    max_probe = i+1;
+                //    break;
+                //}
             }
-            r_threshold /= max_probe*nsubc;
+            r_threshold /= nprobe*nsubc;
 
             int ncode = 0;
             double r_max = 0.0;
@@ -453,6 +453,8 @@ namespace hnswlib {
                 //{
                 //    idx_t subc = ordered_subc.top().second;
                 //    ordered_subc.pop();
+                    if (r[i*nsubc + subc] > r_threshold)
+                        continue;
 
                     idx_t groupsize = groupsizes[subc];
                     ncode += groupsize;
