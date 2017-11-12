@@ -396,7 +396,7 @@ namespace hnswlib {
                     } else counter_reuse++;
 
                     float dist = (1-alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha*q_s[subcentroid_num];
-                    if (dist < r[0]) {
+                    if (dist < r[i*threshold]) {
                         faiss::maxheap_pop(threshold, r.data() + i*threshold, rsubc.data() + i*threshold);
                         faiss::maxheap_push(threshold, r.data()+ i*threshold, rsubc.data() + i*threshold, dist, subc);
                     }
