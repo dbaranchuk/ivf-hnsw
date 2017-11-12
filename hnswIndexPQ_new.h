@@ -325,11 +325,11 @@ namespace hnswlib {
 
         void search(float *x, idx_t k, float *distances, long *labels)
         {
-            bool isFilter = true;
+            bool isFilter = false;
             if (isFilter)
                 searchGF(x, k, distances, labels);
             else
-                searchG(x, k, labels);
+                searchG(x, k, distances, labels);
         }
 
         int counter_reuse = 0;
@@ -348,8 +348,6 @@ namespace hnswlib {
                 keys[i] = elem.second;
                 coarse.pop();
             }
-
-            int threshold = 32;
 
             std::vector< float > r(nsubc*nprobe);
             std::vector< idx_t > subcentroid_nums;
@@ -557,7 +555,7 @@ namespace hnswlib {
                 q_s[subcentroid_num] = 0;
         }
 
-        void searchG(float *x, idx_t k, long *results)
+        void searchG(float *x, idx_t k, float *distances, long *labels)
         {
             idx_t keys[nprobe];
             float q_c[nprobe];
@@ -574,8 +572,11 @@ namespace hnswlib {
                 coarse.pop();
             }
 
-            std::vector< float > q_s(nsubc);
-            std::vector< idx_t > offsets(nsubc);
+            std::vector< idx_t > subcentroid_nums;
+            subcentroid_nums.reserve(nsubc * nprobe);
+
+            /** FAISS Heap **/
+            faiss::maxheap_heapify (k, distances, labels);
 
             int ncode = 0;
             for (int i = 0; i < nprobe; i++){
@@ -602,19 +603,28 @@ namespace hnswlib {
 
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
-                    float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
-                    float snd_term = alpha * (q_s - centroid_norms[subcentroid_num]);
+                    if (q_s[subcentroid_num] < 0.00001){
+                        q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
+                        subcentroid_nums.push_back(subcentroid_num);
+                    } else counter_reuse++;
+
+                    //float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
+                    float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
 
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code + j*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
-                        if (topResults.size() == k){
-                            if (dist >= topResults.top().first)
-                                continue;
-                            topResults.pop();
-                            topResults.emplace(std::make_pair(dist, id[j]));
-                        } else
-                            topResults.emplace(std::make_pair(dist, id[j]));
+                        if (dist < distances[0]) {
+                            faiss::maxheap_pop(k, distances, labels);
+                            faiss::maxheap_push(k, distances, labels, dist, id[j]);
+                        }
+//                        if (topResults.size() == k){
+//                            if (dist >= topResults.top().first)
+//                                continue;
+//                            topResults.pop();
+//                            topResults.emplace(std::make_pair(dist, id[j]));
+//                        } else
+//                            topResults.emplace(std::make_pair(dist, id[j]));
                     }
                     /** Shift to the next group **/
                     code += groupsize*code_size;
@@ -626,10 +636,14 @@ namespace hnswlib {
             }
             average_max_codes += ncode;
 
-            for (int i = 0; i < k; i++) {
-                results[i] = topResults.top().second;
-                topResults.pop();
-            }
+//            for (int i = 0; i < k; i++) {
+//                results[i] = topResults.top().second;
+//                topResults.pop();
+//            }
+
+            /** Zero subcentroids **/
+            for (idx_t subcentroid_num : subcentroid_nums)
+                q_s[subcentroid_num] = 0;
         }
 
         void write(const char *path_index)
