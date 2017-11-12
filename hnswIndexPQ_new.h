@@ -349,13 +349,15 @@ namespace hnswlib {
             }
 
             int threshold = 32;
+            std::vector< float > r(threshold);
+            std::vector< long> rsubc(threshold);
 
             std::vector< idx_t > offsets(nsubc);
             std::vector< idx_t > subcentroid_nums;
             subcentroid_nums.reserve(nsubc * nprobe);
 
             /** FAISS Heap **/
-            faiss::maxheap_heapify (k, distances, labels);
+            faiss::maxheap_heapify (thr, distances, labels);
 
             int ncode = 0;
             //double r_max = 0.0;
@@ -366,8 +368,6 @@ namespace hnswlib {
                     continue;
 
                 /** Threshold **/
-                std::vector< float > r(threshold);
-                std::vector< long> rsubc(threshold);
                 faiss::maxheap_heapify (threshold, r.data(), rsubc.data());
 
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
