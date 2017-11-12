@@ -382,7 +382,7 @@ namespace hnswlib {
                 }
 
                 int counter = 0;
-                while (ordered_subc.size() > 0 && counter++ < 32){
+                while (ordered_subc.size() > 0){// && counter++ < 32){
                     idx_t subc = ordered_subc.top().second;
                     ordered_subc.pop();
 
@@ -825,11 +825,11 @@ namespace hnswlib {
                                 continue;
 
                             for (int j = 0; j < groupsize; j++) {
+                                counter++;
                                 if (id[offset[subc] + j] == gt) {
                                     correct++;
                                     break;
                                 }
-                                counter++;
                                 if (counter == maxcodes)
                                     break;
                             }
