@@ -360,16 +360,16 @@ namespace hnswlib {
 
             /** Filtering **/
             double r_threshold = 0.0;
-            //int code_counter = 0;
-            //int max_probe = 0;
-            int normalize = nprobe*nsubc;
+            int ncode = 0;
+            int max_probe = 0;
+            int normalize = 0;
 
             for (int i = 0; i < nprobe; i++) {
+                max_probe++;
+                int max_subc = 0;
                 idx_t centroid_num = keys[i];
-                if (norm_codes[centroid_num].size() == 0) {
-                    normalize -= nsubc;
+                if (norm_codes[centroid_num].size() == 0)
                     continue;
-                }
 
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
@@ -377,10 +377,9 @@ namespace hnswlib {
                 const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
 
                 for (int subc = 0; subc < nsubc; subc++) {
-                    if (groupsizes[subc] == 0) {
-                        normalize--;
+                    if (groupsizes[subc] == 0)
                         continue;
-                    }
+
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
 
@@ -389,21 +388,22 @@ namespace hnswlib {
                         subcentroid_nums.push_back(subcentroid_num);
                     } else counter_reuse++;
 
-                    //code_counter += groupsizes[subc];
+                    ncode += groupsizes[subc];
                     r[nsubc*i + subc] = (1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num];
                     r_threshold += r[nsubc*i + subc];
+                    max_subc++;
                 }
-                //if (code_counter >= max_codes) {
-                //    max_probe = i+1;
-                //    break;
-                //}
+                normalize += max_subc;
+                if (ncode >= max_codes)
+                    break;
+
             }
             r_threshold /= normalize;
 
 
             int ncode = 0;
             double r_max = 0.0;
-            for (int i = 0; i < nprobe; i++){
+            for (int i = 0; i < max_probe; i++){
                 idx_t centroid_num = keys[i];
                 //ncode += norm_codes[centroid_num].size();
                 if (norm_codes[centroid_num].size() == 0)
