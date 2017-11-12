@@ -394,20 +394,21 @@ namespace hnswlib {
                     } else counter_reuse++;
 
                     float dist = (1-alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha*q_s[subcentroid_num];
-                    if (dist < r_max)
+
+                    //if (dist < r_max)
+                    //    ordered_subc.emplace(std::make_pair(-dist, subc));
+                    //if (dist > new_r_max)
+                    //    new_r_max = dist;
+
+
+                    if (i < 5){
+                        if (dist > r_max)
+                            r_max = r[subc];
                         ordered_subc.emplace(std::make_pair(-dist, subc));
-                    if (dist > new_r_max)
-                        new_r_max = dist;
+                    } else
+                        if (dist < r_max)
+                            ordered_subc.emplace(std::make_pair(-dist, subc));
 
-
-//                    if (i < 5){
-//                        if (r[subc] > r_max){
-//                            r_max = r[subc];
-//                        }
-//                    } else {
-//                        if (r[subc] < r_max)
-//                            ordered_subc.emplace(std::make_pair(-r[subc], subc));
-//                    }
                 }
                 r_max = new_r_max;
                 int counter = 0;
