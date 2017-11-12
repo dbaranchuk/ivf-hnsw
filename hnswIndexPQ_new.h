@@ -352,6 +352,7 @@ namespace hnswlib {
             int ncode = 0;
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
+                ncode += norm_codes[centroid_num].size();
                 if (norm_codes[centroid_num].size() == 0)
                     continue;
 
@@ -382,12 +383,12 @@ namespace hnswlib {
                 }
 
                 int counter = 0;
-                while (ordered_subc.size() > 0){// && counter++ < 32){
+                while (ordered_subc.size() > 0 && counter++ < 32){
                     idx_t subc = ordered_subc.top().second;
                     ordered_subc.pop();
 
                     idx_t groupsize = groupsizes[subc];
-                    ncode += groupsize;
+                    //ncode += groupsize;
 
                     idx_t subcentroid_num = nn_centroids[subc];
                     float snd_term = alpha * (q_s[subc] - centroid_norms[subcentroid_num]);
