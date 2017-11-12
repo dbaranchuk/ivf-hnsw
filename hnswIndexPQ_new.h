@@ -350,6 +350,7 @@ namespace hnswlib {
 
             int threshold = 32;
 
+            std::vector< idx_t > r(nsubc*nprobe);
             std::vector< idx_t > offsets(nsubc);
             std::vector< idx_t > subcentroid_nums;
             subcentroid_nums.reserve(nsubc * nprobe);
@@ -357,9 +358,46 @@ namespace hnswlib {
             /** FAISS Heap **/
             faiss::maxheap_heapify (k, distances, labels);
 
+            /** Filtering **/
+            double r_threshold = 0.0;
+            int code_counter = 0;
+            int max_probe = 0;
+            for (int i = 0; i < nprobe; i++) {
+                idx_t centroid_num = keys[i];
+                if (norm_codes[centroid_num].size() == 0)
+                    continue;
+
+                const idx_t *groupsizes = group_sizes[centroid_num].data();
+                const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
+                float alpha = alphas[centroid_num];
+                const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
+
+                for (int subc = 0; subc < nsubc; subc++) {
+                    if (groupsizes[subc] == 0)
+                        continue;
+
+                    idx_t subcentroid_num = nn_centroids[subc];
+                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+
+                    if (q_s[subcentroid_num] < 0.00001) {
+                        q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
+                        subcentroid_nums.push_back(subcentroid_num);
+                    } else counter_reuse++;
+
+                    code_counter += groupsizes[subc];
+                    r[nsubc*i + subc] = (1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num];
+                    r_threshold += r[nsubc*i + subc];
+                }
+                if (code_counter >= max_codes) {
+                    max_probe = i+1;
+                    break;
+                }
+            }
+            r_threshold /= max_probe*nsubc;
+
             int ncode = 0;
             double r_max = 0.0;
-            for (int i = 0; i < nprobe; i++){
+            for (int i = 0; i < max_probe; i++){
                 idx_t centroid_num = keys[i];
                 //ncode += norm_codes[centroid_num].size();
                 if (norm_codes[centroid_num].size() == 0)
@@ -372,51 +410,54 @@ namespace hnswlib {
                 uint8_t *groupcodes = codes[centroid_num].data();
                 const idx_t *groupids = ids[centroid_num].data();
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
-                float alpha = alphas[centroid_num];
-                const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
+                //float alpha = alphas[centroid_num];
+                //const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
                 norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), norm_codes[centroid_num].size());
                 const float *groupnorms = norms.data();
-                /** Filtering **/
-                std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
-                for (int subc = 0; subc < nsubc; subc++) {
-                    offsets[subc] = (subc == 0) ? 0 : offsets[subc-1] + groupsizes[subc-1];
-                    if (groupsizes[subc] == 0)
-                        continue;
 
-                    idx_t subcentroid_num = nn_centroids[subc];
-                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
-
-                    if (q_s[subcentroid_num] < 0.00001){
-                        q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
-                        subcentroid_nums.push_back(subcentroid_num);
-                    } else counter_reuse++;
-
-                    float dist = (1-alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha*q_s[subcentroid_num];
-
-                    //if (dist < r_max)
-                    //    ordered_subc.emplace(std::make_pair(-dist, subc));
-                    //if (dist > new_r_max)
-                    //    new_r_max = dist;
-
-                    if (i < 5){
-                        if (dist > r_max)
-                            r_max = dist;
-                        ordered_subc.emplace(std::make_pair(-dist, subc));
-                    } else
-                        if (dist < r_max)
-                            ordered_subc.emplace(std::make_pair(-dist, subc));
-
-                }
-                int counter = 0;
-                while (ordered_subc.size() > 0 && counter++ < threshold)
-                {
-                    idx_t subc = ordered_subc.top().second;
-                    ordered_subc.pop();
+//                std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
+//                for (int subc = 0; subc < nsubc; subc++) {
+//                    offsets[subc] = (subc == 0) ? 0 : offsets[subc-1] + groupsizes[subc-1];
+//                    if (groupsizes[subc] == 0)
+//                        continue;
+//
+//                    idx_t subcentroid_num = nn_centroids[subc];
+//                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+//
+//                    if (q_s[subcentroid_num] < 0.00001){
+//                        q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
+//                        subcentroid_nums.push_back(subcentroid_num);
+//                    } else counter_reuse++;
+//
+//                    float dist = (1-alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha*q_s[subcentroid_num];
+//
+//                    //if (dist < r_max)
+//                    //    ordered_subc.emplace(std::make_pair(-dist, subc));
+//                    //if (dist > new_r_max)
+//                    //    new_r_max = dist;
+//
+//                    if (i < 5){
+//                        if (dist > r_max)
+//                            r_max = dist;
+//                        ordered_subc.emplace(std::make_pair(-dist, subc));
+//                    } else
+//                        if (dist < r_max)
+//                            ordered_subc.emplace(std::make_pair(-dist, subc));
+//
+//                }
+                for (int subc = 0; subc < nsubc; subc++){
+                //int counter = 0;
+                //while (ordered_subc.size() > 0 && counter++ < threshold)
+                //{
+                //    idx_t subc = ordered_subc.top().second;
+                //    ordered_subc.pop();
 
                     idx_t groupsize = groupsizes[subc];
                     ncode += groupsize;
+                    if (groupsize == 0)
+                        continue;
 
                     idx_t subcentroid_num = nn_centroids[subc];
                     float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
