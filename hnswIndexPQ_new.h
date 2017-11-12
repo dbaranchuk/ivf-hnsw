@@ -366,7 +366,7 @@ namespace hnswlib {
 
             for (int i = 0; i < nprobe; i++) {
                 max_probe++;
-                int max_subc = 0;
+
                 idx_t centroid_num = keys[i];
                 if (norm_codes[centroid_num].size() == 0)
                     continue;
@@ -376,6 +376,7 @@ namespace hnswlib {
                 float alpha = alphas[centroid_num];
                 const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
 
+                int max_subc = 0;
                 for (int subc = 0; subc < nsubc; subc++) {
                     if (groupsizes[subc] == 0)
                         continue;
@@ -394,7 +395,7 @@ namespace hnswlib {
                     max_subc++;
                 }
                 normalize += max_subc;
-                if (ncode >= max_codes)
+                if (ncode >= 2*max_codes)
                     break;
 
             }
