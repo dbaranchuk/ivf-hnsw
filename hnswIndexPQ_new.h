@@ -403,7 +403,7 @@ namespace hnswlib {
 
                     if (i < 5){
                         if (dist > r_max)
-                            r_max = r[subc];
+                            r_max = dist;
                         ordered_subc.emplace(std::make_pair(-dist, subc));
                     } else
                         if (dist < r_max)
