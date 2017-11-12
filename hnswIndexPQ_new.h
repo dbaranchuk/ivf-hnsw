@@ -391,7 +391,14 @@ namespace hnswlib {
                     } else counter_reuse++;
 
                     r[subc] = (1-alpha) * q_c[i] + alpha * ((alpha-1) * s_c[centroid_num][subc] + q_s[subcentroid_num]);
-                    ordered_subc.emplace(std::make_pair(-r[subc], subc));
+
+                    if (ordered_subc.size() == threshold){
+                        if (r[subc] > ordered_subc.top().first)
+                            continue;
+                        ordered_subc.pop();
+                        ordered_subc.emplace(std::make_pair(r[subc], subc));
+                    } else
+                        ordered_subc.emplace(std::make_pair(r[subc], subc));
 
 //                    if (i < 5){
 //                        if (r[subc] > r_max){
@@ -402,9 +409,8 @@ namespace hnswlib {
 //                            ordered_subc.emplace(std::make_pair(-r[subc], subc));
 //                    }
                 }
-
-                int counter = 0;
-                while (ordered_subc.size() > 0 && counter++ < threshold){
+                
+                while (ordered_subc.size() > 0){
                     idx_t subc = ordered_subc.top().second;
                     ordered_subc.pop();
 
