@@ -357,7 +357,7 @@ namespace hnswlib {
             subcentroid_nums.reserve(nsubc * nprobe);
 
             /** FAISS Heap **/
-            faiss::maxheap_heapify (thr, distances, labels);
+            faiss::maxheap_heapify (k, distances, labels);
 
             int ncode = 0;
             //double r_max = 0.0;
