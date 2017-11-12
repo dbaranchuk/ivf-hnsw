@@ -358,9 +358,10 @@ namespace hnswlib {
 
             /** FAISS Heap **/
             std::vector<float> distances(k);
+            std::vector<long> labels(k);
             faiss::float_maxheap_array_t res = {
                     size_t(1), size_t(k),
-                    results, distances.data()
+                    labels.data(), distances.data()
             };
             float * heap_sim = res.get_val (0);
             long * heap_ids = res.get_ids (0);
@@ -457,6 +458,9 @@ namespace hnswlib {
             }
             average_max_codes += ncode;
             faiss::maxheap_reorder (k, heap_sim, heap_ids);
+            for (int i = 0; i < k; i++) 
+                results[i] = labels[i]
+
 //            for (int i = 0; i < k; i++) {
 //                results[i] = topResults.top().second;
 //                topResults.pop();
