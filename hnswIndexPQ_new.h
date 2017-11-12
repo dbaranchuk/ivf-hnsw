@@ -457,14 +457,19 @@ namespace hnswlib {
                 //{
                 //    idx_t subc = ordered_subc.top().second;
                 //    ordered_subc.pop();
-                    if (r[i*nsubc + subc] > r_threshold)
-                        continue;
 
                     idx_t groupsize = groupsizes[subc];
-                    ncode += groupsize;
                     if (groupsize == 0)
                         continue;
 
+                    if (r[i*nsubc + subc] > r_threshold) {
+                        code += groupsize*code_size;
+                        norm += groupsize;
+                        id += groupsize;
+                        continue;
+                    }
+
+                    ncode += groupsize;
                     idx_t subcentroid_num = nn_centroids[subc];
                     float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
 
