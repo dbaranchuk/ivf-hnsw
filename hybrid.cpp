@@ -719,7 +719,7 @@ void hybrid_test(const char *path_centroids,
 
     /** Search **/
     StopW stopw = StopW();
-    for (int i = 0; i < qsize; i++) {
+    for (int i = 0; i < 10/*qsize*/; i++) {
         index->search(massQ+i*vecdim, k, results);
 
         std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);

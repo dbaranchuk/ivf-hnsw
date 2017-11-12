@@ -198,8 +198,7 @@ import re
 
 k = range(21)
 
-dataset = "SIFT"
-
+dataset = "DEEP"
 if dataset == "SIFT":
     O_IMI = re.findall(r"[0-9.]+", SIFT_O_IMI_16384_txt)
     Subgroups_50 = re.findall(r"[0-9.]+", SIFT_Subgroups_50_txt)
@@ -209,20 +208,15 @@ if dataset == "SIFT":
     lineIMI, = plt.plot(k, O_IMI, '--r', label = 'Inverted Multi-Index 16384$^2$')
     lineIMI_4096, = plt.plot(k, O_IMI_4096, 'r', label = 'Inverted Multi-Index 4096$^2$')
     lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'Inverted Index 2$^{20}$')
-    lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'Inverted Index + Grouping + Pruning 2$^{20}$')
+    lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'Inverted Index\nGrouping + Pruning 2$^{20}$')
 
-    plt.xticks(range(21))
+    plt.xticks(range(0, 21, 2))
     plt.yticks(numpy.arange(0., 1.1, 0.1))
 
     plt.axis([0, 20, 0, 1])
     plt.xlabel('log$_2$R', fontsize=13)
     plt.ylabel('Recall@R', fontsize=13)
-    plt.legend(fontsize=11, loc=2)
-
-    #plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
-    #           ncol=3, mode="expand", borderaxespad=0., prop={'size': 11})
-    #plt.savefig('graphic.png')
-    #plt.s:ow()
+    plt.legend(fontsize=13, loc=2)
 
     pp = PdfPages('recallR_SIFT.pdf')
     pp.savefig()
@@ -236,20 +230,15 @@ else:
     lineIMI, = plt.plot(k, O_IMI, '--r', label = 'Inverted Multi-Index 16384$^2$')
     lineIMI_4096, = plt.plot(k, O_IMI_4096, 'r', label = 'Inverted Multi-Index 4096$^2$')
     lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'Inverted Index 2$^{20}$')
-    lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'Inverted Index + Grouping + Pruning 2$^{20}$')
+    lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'Inverted Index\nGrouping + Pruning 2$^{20}$')
 
-    plt.xticks(range(21))
+    plt.xticks(range(0, 21, 2))
     plt.yticks(numpy.arange(0., 1.1, 0.1))
 
     plt.axis([0, 20, 0, 1])
     plt.xlabel('log$_2$R', fontsize=13)
     plt.ylabel('Recall@R', fontsize=13)
-    plt.legend(fontsize=11, loc=2)
-    #plt.figure(figsize = (20,20))
-    #plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
-    #           ncol=3, mode="expand", borderaxespad=0., prop={'size': 11})
-    #plt.savefig('graphic.png')
-    #plt.s:ow()
+    plt.legend(fontsize=13, loc=2)
 
     pp = PdfPages('recallR_DEEP.pdf')
     pp.savefig()
