@@ -400,6 +400,7 @@ namespace hnswlib {
                 //}
             }
             r_threshold /= normalize;
+            std::cout << r_threshold <<  " " << normalize << std::endl;
 
             int ncode = 0;
             double r_max = 0.0;
