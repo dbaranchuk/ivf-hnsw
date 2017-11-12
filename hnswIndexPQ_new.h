@@ -397,7 +397,7 @@ namespace hnswlib {
 
             int ncode = 0;
             double r_max = 0.0;
-            for (int i = 0; i < max_probe; i++){
+            for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
                 //ncode += norm_codes[centroid_num].size();
                 if (norm_codes[centroid_num].size() == 0)
@@ -410,7 +410,7 @@ namespace hnswlib {
                 uint8_t *groupcodes = codes[centroid_num].data();
                 const idx_t *groupids = ids[centroid_num].data();
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
-                //float alpha = alphas[centroid_num];
+                float alpha = alphas[centroid_num];
                 //const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
