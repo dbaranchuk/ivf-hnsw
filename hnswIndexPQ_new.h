@@ -349,9 +349,6 @@ namespace hnswlib {
             }
 
             int threshold = 32;
-            std::vector< float > r(threshold);
-            std::vector< long> rsubc(threshold);
-            faiss::maxheap_heapify (threshold, r.data(), rsubc.data());
 
             std::vector< idx_t > offsets(nsubc);
             std::vector< idx_t > subcentroid_nums;
@@ -369,7 +366,9 @@ namespace hnswlib {
                     continue;
 
                 /** Threshold **/
-                // = (i < 5) ? 48 : 32;
+                std::vector< float > r(threshold);
+                std::vector< long> rsubc(threshold);
+                faiss::maxheap_heapify (threshold, r.data(), rsubc.data());
 
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
                 uint8_t *groupcodes = codes[centroid_num].data();
