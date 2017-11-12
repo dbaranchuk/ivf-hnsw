@@ -323,18 +323,18 @@ namespace hnswlib {
 
         double average_max_codes = 0;
 
-        void search(float *x, idx_t k, idx_t *results)
+        void search(float *x, idx_t k, float *distances, long *labels)
         {
             bool isFilter = true;
             if (isFilter)
-                searchGF(x, k, results);
+                searchGF(x, k, distances, labels);
             else
-                searchG(x, k, results);
+                searchG(x, k, labels);
         }
 
         int counter_reuse = 0;
 
-		void searchGF(float *x, idx_t k, idx_t *results)
+		void searchGF(float *x, idx_t k, float *distances, long *labels)
 		{
             idx_t keys[nprobe];
             float q_c[nprobe];
@@ -357,11 +357,11 @@ namespace hnswlib {
             subcentroid_nums.reserve(nsubc * nprobe);
 
             /** FAISS Heap **/
-            std::vector<float> distances(k);
-            std::vector<long> labels(k);
+            //std::vector<float> distances(k);
+            //std::vector<long> labels(k);
             faiss::float_maxheap_array_t res = {
                     size_t(1), size_t(k),
-                    labels.data(), distances.data()
+                    labels, distances
             };
             float * heap_sim = res.get_val (0);
             long * heap_ids = res.get_ids (0);
@@ -405,13 +405,7 @@ namespace hnswlib {
 
                     r[subc] = (1-alpha) * q_c[i] + alpha * ((alpha-1) * s_c[centroid_num][subc] + q_s[subcentroid_num]);
 
-                    if (ordered_subc.size() == threshold){
-                        if (r[subc] > ordered_subc.top().first)
-                            continue;
-                        ordered_subc.pop();
-                        ordered_subc.emplace(std::make_pair(r[subc], subc));
-                    } else
-                        ordered_subc.emplace(std::make_pair(r[subc], subc));
+                    ordered_subc.emplace(std::make_pair(-r[subc], subc));
 
 //                    if (i < 5){
 //                        if (r[subc] > r_max){
@@ -423,7 +417,8 @@ namespace hnswlib {
 //                    }
                 }
 
-                while (ordered_subc.size() > 0){
+                int counter = 0;
+                while (ordered_subc.size() > 0 && counter++ < threshold){
                     idx_t subc = ordered_subc.top().second;
                     ordered_subc.pop();
 
@@ -458,8 +453,8 @@ namespace hnswlib {
             }
             average_max_codes += ncode;
             faiss::maxheap_reorder (k, heap_sim, heap_ids);
-            for (int i = 0; i < k; i++)
-                results[i] = labels[i];
+            //for (int i = 0; i < k; i++)
+            //    results[i] = labels[i];
 
 //            for (int i = 0; i < k; i++) {
 //                results[i] = topResults.top().second;
@@ -471,7 +466,7 @@ namespace hnswlib {
                 q_s[subcentroid_num] = 0;
 		}
 
-        void searchG(float *x, idx_t k, idx_t *results)
+        void searchG(float *x, idx_t k, long *results)
         {
             idx_t keys[nprobe];
             float q_c[nprobe];
