@@ -363,7 +363,7 @@ namespace hnswlib {
             int probe = 0;
             int normalize = 0;
 
-            for (probe = 0; probe < nprobe; max_probe++) {
+            for (probe = 0; probe < nprobe; probe++) {
                 float *subr = r.data() + probe*nsubc;
 
                 idx_t centroid_num = keys[probe];
