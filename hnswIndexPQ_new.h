@@ -321,7 +321,7 @@ namespace hnswlib {
 
         void search(float *x, idx_t k, idx_t *results)
         {
-            bool isFilter = false;
+            bool isFilter = true;
             if (isFilter)
                 searchGF(x, k, results);
             else
@@ -357,7 +357,7 @@ namespace hnswlib {
                     continue;
 
                 /** Threshold **/
-                int threshold = (i < 8) ? 32 : 32;
+                int threshold = (i < 8) ? 64 : 32;
 
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
                 uint8_t *groupcodes = codes[centroid_num].data();
