@@ -440,7 +440,7 @@ namespace hnswlib {
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code + j*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
-                        if (dis < heap_sim[0]) {
+                        if (dist < heap_sim[0]) {
                             faiss::maxheap_pop(k, heap_sim, heap_ids);
                             faiss::maxheap_push(k, heap_sim, heap_ids, dist, id[j]);
                         }
@@ -458,8 +458,8 @@ namespace hnswlib {
             }
             average_max_codes += ncode;
             faiss::maxheap_reorder (k, heap_sim, heap_ids);
-            for (int i = 0; i < k; i++) 
-                results[i] = labels[i]
+            for (int i = 0; i < k; i++)
+                results[i] = labels[i];
 
 //            for (int i = 0; i < k; i++) {
 //                results[i] = topResults.top().second;
