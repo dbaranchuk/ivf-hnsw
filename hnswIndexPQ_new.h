@@ -413,12 +413,13 @@ namespace hnswlib {
 //                    }
                 }
 
-                std::cout << "hui2\n";
                 //int counter = 0;
                 //while (ordered_subc.size() > 0 && counter++ < threshold){
                 for (int it = 0; it < threshold; it++){
                     idx_t subc = rsubc[it];
 
+                    if (groupsizes[subc] == 0)
+                        continue;
                     //idx_t subc = ordered_subc.top().second;
                     //ordered_subc.pop();
 
