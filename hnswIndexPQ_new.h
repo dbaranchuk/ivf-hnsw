@@ -352,12 +352,12 @@ namespace hnswlib {
             int ncode = 0;
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
-                ncode += norm_codes[centroid_num].size();
+                //ncode += norm_codes[centroid_num].size();
                 if (norm_codes[centroid_num].size() == 0)
                     continue;
 
                 /** Threshold **/
-                int threshold = (ncode < 40000) ? 64 : 32;
+                int threshold = (i < 8) ? 64 : 32;
 
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
                 uint8_t *groupcodes = codes[centroid_num].data();
@@ -391,7 +391,7 @@ namespace hnswlib {
                     ordered_subc.pop();
 
                     idx_t groupsize = groupsizes[subc];
-                    //ncode += groupsize;
+                    ncode += groupsize;
 
                     idx_t subcentroid_num = nn_centroids[subc];
                     float snd_term = alpha * (q_s[subc] - centroid_norms[subcentroid_num]);
