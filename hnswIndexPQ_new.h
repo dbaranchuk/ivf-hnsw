@@ -444,6 +444,8 @@ namespace hnswlib {
                     id += groupsize;
                     ncode += groupsize;
                 }
+                if (ncode >= max_codes)
+                    break;
             }
             average_max_codes += ncode;
 
