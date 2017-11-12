@@ -356,6 +356,9 @@ namespace hnswlib {
                 if (norm_codes[centroid_num].size() == 0)
                     continue;
 
+                /** Threshold **/
+                int threshold = (i < 32) ? 48 : 32;
+
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
                 uint8_t *groupcodes = codes[centroid_num].data();
                 const idx_t *groupids = ids[centroid_num].data();
@@ -383,7 +386,7 @@ namespace hnswlib {
                 }
 
                 int counter = 0;
-                while (ordered_subc.size() > 0 && counter++ < 32){
+                while (ordered_subc.size() > 0 && counter++ < threshold){
                     idx_t subc = ordered_subc.top().second;
                     ordered_subc.pop();
 
