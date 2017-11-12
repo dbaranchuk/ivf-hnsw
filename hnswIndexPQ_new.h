@@ -12,6 +12,8 @@
 #include <faiss/ProductQuantizer.h>
 #include <faiss/utils.h>
 #include <faiss/index_io.h>
+#include <faiss/Heap.h>
+
 
 typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
@@ -354,6 +356,16 @@ namespace hnswlib {
             std::vector< idx_t > subcentroid_nums;
             subcentroid_nums.reserve(nsubc * nprobe);
 
+            /** FAISS Heap **/
+            std::vector<float> distances(k);
+            float_maxheap_array_t res = {
+                    size_t(1), size_t(k),
+                    results, distances.data()
+            };
+            float * heap_sim = res.get_val (0);
+            long * heap_ids = res.get_ids (0);
+            maxheap_heapify (k, heap_sim, heap_ids);
+
             int ncode = 0;
             //double r_max = 0.0;
             for (int i = 0; i < nprobe; i++){
@@ -409,7 +421,7 @@ namespace hnswlib {
 //                            ordered_subc.emplace(std::make_pair(-r[subc], subc));
 //                    }
                 }
-                
+
                 while (ordered_subc.size() > 0){
                     idx_t subc = ordered_subc.top().second;
                     ordered_subc.pop();
@@ -427,23 +439,28 @@ namespace hnswlib {
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code + j*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
-                        if (topResults.size() == k){
-                            if (dist >= topResults.top().first)
-                                continue;
-                            topResults.pop();
-                            topResults.emplace(std::make_pair(dist, id[j]));
-                        } else
-                            topResults.emplace(std::make_pair(dist, id[j]));
+                        if (dis < heap_sim[0]) {
+                            maxheap_pop(k, heap_sim, heap_ids);
+                            maxheap_push(k, heap_sim, heap_ids, dist, id[j]);
+                        }
+                        //if (topResults.size() == k){
+                        //    if (dist >= topResults.top().first)
+                        //        continue;
+                        //    topResults.pop();
+                        //    topResults.emplace(std::make_pair(dist, id[j]));
+                        //} else
+                        //    topResults.emplace(std::make_pair(dist, id[j]));
                     }
                 }
                 if (ncode >= max_codes)
                     break;
             }
             average_max_codes += ncode;
-            for (int i = 0; i < k; i++) {
-                results[i] = topResults.top().second;
-                topResults.pop();
-            }
+            maxheap_reorder (k, heap_sim, heap_ids);
+//            for (int i = 0; i < k; i++) {
+//                results[i] = topResults.top().second;
+//                topResults.pop();
+//            }
 
             /** Zero subcentroids **/
             for (idx_t subcentroid_num : subcentroid_nums)
