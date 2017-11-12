@@ -363,13 +363,12 @@ namespace hnswlib {
             int probe = 0;
             int normalize = 0;
 
-            for (probe = 0; probe < nprobe; probe++) {
-                float *subr = r.data() + probe*nsubc;
-
+            while (probe < nprobe) {
                 idx_t centroid_num = keys[probe];
                 if (norm_codes[centroid_num].size() == 0)
                     continue;
 
+                float *subr = r.data() + probe*nsubc;
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
                 float alpha = alphas[centroid_num];
@@ -395,6 +394,7 @@ namespace hnswlib {
                 if (ncode >= 2*max_codes)
                     break;
 
+                probe++;
             }
             r_threshold /= normalize;
 
