@@ -397,8 +397,8 @@ namespace hnswlib {
 
                     float dist = (1-alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha*q_s[subcentroid_num];
                     if (dist < r[0]) {
-                        faiss::maxheap_pop(k, r.data(), rsubc.data());
-                        faiss::maxheap_push(k, r.data(), rsubc.data(), dist, subc);
+                        faiss::maxheap_pop(threshold, r.data(), rsubc.data());
+                        faiss::maxheap_push(threshold, r.data(), rsubc.data(), dist, subc);
                     }
 
                     //ordered_subc.emplace(std::make_pair(-r[subc], subc));
