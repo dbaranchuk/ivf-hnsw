@@ -388,7 +388,7 @@ namespace hnswlib {
                     } else counter_reuse++;
 
                     ncode += groupsizes[subc];
-                    subr[subc] = (1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num];
+                    subr[subc] = (1 - alpha) * (q_c[probe] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num];
                     r_threshold += subr[subc];
                     normalize++;
                 }
@@ -473,6 +473,7 @@ namespace hnswlib {
             /** FAISS Heap **/
             faiss::maxheap_heapify (k, distances, labels);
 
+            int ncode = 0;
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
                 if (norm_codes[centroid_num].size() == 0)
