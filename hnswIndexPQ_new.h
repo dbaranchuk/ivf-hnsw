@@ -958,7 +958,6 @@ namespace hnswlib {
                         }
                         if (ncode >= 2*maxcodes)
                             break;
-
                     }
                     r_threshold /= normalize;
 
