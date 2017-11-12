@@ -360,13 +360,13 @@ namespace hnswlib {
             /** Filtering **/
             double r_threshold = 0.0;
             int ncode = 0;
-            int max_probe = 0;
+            int probe = 0;
             int normalize = 0;
 
-            for (max_probe = 0; max_probe < nprobe; max_probe++) {
-                float *subr = r.data() + max_probe*nsubc;
+            for (probe = 0; probe < nprobe; max_probe++) {
+                float *subr = r.data() + probe*nsubc;
 
-                idx_t centroid_num = keys[i];
+                idx_t centroid_num = keys[probe];
                 if (norm_codes[centroid_num].size() == 0)
                     continue;
 
@@ -398,7 +398,7 @@ namespace hnswlib {
             }
             r_threshold /= normalize;
 
-            for (int i = 0; i < max_probe; i++){
+            for (int i = 0; i < probe; i++){
                 idx_t centroid_num = keys[i];
                 if (norm_codes[centroid_num].size() == 0)
                     continue;
