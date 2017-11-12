@@ -414,6 +414,7 @@ namespace hnswlib {
 //                    }
                 }
 
+                std::cout << "hui2\n";
                 //int counter = 0;
                 //while (ordered_subc.size() > 0 && counter++ < threshold){
                 for (int it = 0; it < threshold; it++){
