@@ -333,6 +333,7 @@ namespace hnswlib {
         }
 
         int counter_reuse = 0;
+        int filter_points = 0;
 
 		void searchGF(float *x, idx_t k, float *distances, long *labels)
 		{
@@ -423,6 +424,7 @@ namespace hnswlib {
                         code += groupsize*code_size;
                         norm += groupsize;
                         id += groupsize;
+                        filter_points += groupsize;
                         continue;
                     }
 

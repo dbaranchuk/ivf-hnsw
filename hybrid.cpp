@@ -745,6 +745,7 @@ void hybrid_test(const char *path_centroids,
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
     std::cout << "Average max_codes: " << index->average_max_codes / 10000 << std::endl;
     std::cout << "Average reused q_s: " << (1.0*index->counter_reuse) / 10000 << std::endl;
+    std::cout << "Average number of pruned points: " << (1.0*index->filter_points) / 10000 << std::endl;
     //check_groupsizes(index, ncentroids);
     //std::cout << "Check precomputed idxs"<< std::endl;
     //check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize, gt_mistakes, gt_correct);
