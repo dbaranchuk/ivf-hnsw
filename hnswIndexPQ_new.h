@@ -970,6 +970,7 @@ namespace hnswlib {
 
                         const idx_t *id = ids[centroid_num].data();
 
+                        int prev_correct = correct;
                         for (int subc = 0; subc < nsubc; subc++){
                             int groupsize = group_sizes[centroid_num][subc];
                             if (groupsize == 0)
