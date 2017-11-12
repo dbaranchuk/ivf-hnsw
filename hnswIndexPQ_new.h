@@ -396,13 +396,13 @@ namespace hnswlib {
                     float dist = (1-alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha*q_s[subcentroid_num];
 
                     if (ordered_subc.size() == threshold) {
-                        if (ordered_subc.top().first < r[subc]) {
+                        if (ordered_subc.top().first < dist) {
                             ordered_subc.pop();
-                            ordered_subc.emplace(std::make_pair(r[subc], subc));
+                            ordered_subc.emplace(std::make_pair(dist, subc));
                         }
                     }
                     else
-                        ordered_subc.emplace(std::make_pair(r[subc], subc));
+                        ordered_subc.emplace(std::make_pair(dist, subc));
 
 //                    if (i < 5){
 //                        if (r[subc] > r_max){
@@ -467,7 +467,6 @@ namespace hnswlib {
             }
 
             std::vector< float > q_s(nsubc);
-            std::vector< float > r(nsubc);
             std::vector< idx_t > offsets(nsubc);
 
             int ncode = 0;
