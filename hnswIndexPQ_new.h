@@ -362,10 +362,14 @@ namespace hnswlib {
             double r_threshold = 0.0;
             //int code_counter = 0;
             //int max_probe = 0;
+            int normalize = nprobe*nsubc;
+
             for (int i = 0; i < nprobe; i++) {
                 idx_t centroid_num = keys[i];
-                if (norm_codes[centroid_num].size() == 0)
+                if (norm_codes[centroid_num].size() == 0) {
+                    normalize -= nsubc;
                     continue;
+                }
 
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
@@ -373,8 +377,10 @@ namespace hnswlib {
                 const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
 
                 for (int subc = 0; subc < nsubc; subc++) {
-                    if (groupsizes[subc] == 0)
+                    if (groupsizes[subc] == 0) {
+                        normalize--;
                         continue;
+                    }
 
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
@@ -393,7 +399,7 @@ namespace hnswlib {
                 //    break;
                 //}
             }
-            r_threshold /= nprobe*nsubc;
+            r_threshold /= normalize;
 
             int ncode = 0;
             double r_max = 0.0;
