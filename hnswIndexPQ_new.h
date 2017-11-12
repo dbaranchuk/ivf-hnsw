@@ -356,7 +356,7 @@ namespace hnswlib {
             std::vector< float > r(nsubc);
             std::vector< idx_t > offsets(nsubc);
             std::vector< idx_t > subcentroid_nums;
-            subcentroids.reserve(nsubc * nprobe);
+            subcentroid_nums.reserve(nsubc * nprobe);
 
             int ncode = 0;
             //double r_max = 0.0;
