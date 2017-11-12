@@ -358,7 +358,7 @@ namespace hnswlib {
             faiss::maxheap_heapify (k, distances, labels);
 
             int ncode = 0;
-            double r_max = 0.0, new_r_max = 0.0;
+            double r_max = 0.0;
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
                 //ncode += norm_codes[centroid_num].size();
@@ -366,7 +366,7 @@ namespace hnswlib {
                     continue;
 
                 /** Threshold **/
-                // = (i < 5) ? 48 : 32;
+                //threshold = (i < 5) ? 48 : 32;
 
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
                 uint8_t *groupcodes = codes[centroid_num].data();
@@ -400,7 +400,6 @@ namespace hnswlib {
                     //if (dist > new_r_max)
                     //    new_r_max = dist;
 
-
                     if (i < 5){
                         if (dist > r_max)
                             r_max = dist;
@@ -410,7 +409,6 @@ namespace hnswlib {
                             ordered_subc.emplace(std::make_pair(-dist, subc));
 
                 }
-                r_max = new_r_max;
                 int counter = 0;
                 while (ordered_subc.size() > 0 && counter++ < threshold)
                 {
