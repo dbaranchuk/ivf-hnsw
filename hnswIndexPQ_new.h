@@ -338,8 +338,8 @@ namespace hnswlib {
             float q_c[nprobe];
 
             pq->compute_inner_prod_table(x, dis_table.data());
-            //std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
-            std::priority_queue<std::pair<float, idx_t>> topResults;
+            std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
+            //std::priority_queue<std::pair<float, idx_t>> topResults;
 
             auto coarse = quantizer->searchKnn(x, nprobe);
             for (int i = nprobe - 1; i >= 0; i--) {
@@ -349,10 +349,6 @@ namespace hnswlib {
                 coarse.pop();
             }
 
-
-            //std::fill(q_s.begin(), q_s.end(), -1);
-            //memset(q_s.data(), 0, q_s.size() * sizeof(float));
-            //std::vector< float > q_s(nsubc);
             std::vector< float > r(nsubc);
             std::vector< idx_t > offsets(nsubc);
             std::vector< idx_t > subcentroid_nums;
@@ -392,17 +388,15 @@ namespace hnswlib {
                     if (q_s[subcentroid_num] < 0.00001){
                         q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
                         subcentroid_nums.push_back(subcentroid_num);
-                    } else {
-                        counter_reuse++;
-                    }
-                    //q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
+                    } else counter_reuse++;
+
                     r[subc] = (1-alpha) * q_c[i] + alpha * ((alpha-1) * s_c[centroid_num][subc] + q_s[subcentroid_num]);
+                    ordered_subc.emplace(std::make_pair(-r[subc], subc));
 
 //                    if (i < 5){
 //                        if (r[subc] > r_max){
 //                            r_max = r[subc];
 //                        }
-                    ordered_subc.emplace(std::make_pair(-r[subc], subc));
 //                    } else {
 //                        if (r[subc] < r_max)
 //                            ordered_subc.emplace(std::make_pair(-r[subc], subc));
@@ -444,6 +438,8 @@ namespace hnswlib {
                 results[i] = topResults.top().second;
                 topResults.pop();
             }
+
+            /** Zero subcentroids **/
             for (idx_t subcentroid_num : subcentroid_nums)
                 q_s[subcentroid_num] = 0;
 		}
