@@ -903,6 +903,105 @@ namespace hnswlib {
             }
         }
 
+        void compute_graphic2(float *x, const idx_t *groundtruth, size_t gt_dim, size_t qsize)
+        {
+            for (int k = 0; k < 21; k++) {
+                const size_t maxcodes = 1 << k;
+                const size_t probes = (k <= 10) ? 256 : 8192;
+                quantizer->ef_ = (k <= 10) ? 1024 : 8192;
+
+                double correct = 0;
+                idx_t keys[probes];
+                float q_c[probes];
+
+                for (int q_idx = 0; q_idx < qsize; q_idx++) {
+                    auto coarse = quantizer->searchKnn(x + q_idx*d, probes);
+                    idx_t gt = groundtruth[gt_dim * q_idx];
+
+                    for (int i = probes - 1; i >= 0; i--) {
+                        auto elem = coarse.top();
+                        q_c[i] = elem.first;
+                        keys[i] = elem.second;
+                        coarse.pop();
+                    }
+
+                    /** Filtering **/
+                    std::vector< float > r(nsubc*probes);
+                    double r_threshold = 0.0;
+                    int ncode = 0;
+                    int max_probe = 0;
+                    int normalize = 0;
+
+                    for (int i = 0; i < probes; i++){
+                        max_probe++;
+                        idx_t centroid_num = keys[i];
+                        if (norm_codes[centroid_num].size() == 0)
+                            continue;
+
+                        float *subr = r.data() + i*nsubc;
+                        const idx_t *groupsizes = group_sizes[centroid_num].data();
+                        const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
+                        float alpha = alphas[centroid_num];
+                        const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
+
+                        for (int subc = 0; subc < nsubc; subc++) {
+                            if (groupsizes[subc] == 0)
+                                continue;
+
+                            idx_t subcentroid_num = nn_centroids[subc];
+                            const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+                            float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
+                            ncode += groupsizes[subc];
+                            subr[subc] = (1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s;
+                            r_threshold += subr[subc];
+                            normalize++;
+                        }
+                        if (ncode >= 2*maxcodes)
+                            break;
+
+                    }
+                    r_threshold /= normalize;
+
+                    size_t counter = 0;
+                    for (int i = 0; i < max_probe; i++) {
+                        idx_t centroid_num = keys[i];
+                        if (group_sizes[centroid_num].size() == 0)
+                            continue;
+
+                        const idx_t *id = ids[centroid_num].data();
+
+                        for (int subc = 0; subc < nsubc; subc++){
+                            int groupsize = group_sizes[centroid_num][subc];
+                            if (groupsize == 0)
+                                continue;
+
+                            if (r[i*nsubc + subc] > r_threshold) {
+                                id += groupsize;
+                                continue;
+                            }
+
+                            for (int j = 0; j < groupsize; j++) {
+                                counter++;
+                                if (id[j] == gt) {
+                                    correct++;
+                                    break;
+                                }
+                                id += groupsize;
+                                if (counter == maxcodes)
+                                    break;
+                            }
+                            if (counter == maxcodes || correct == prev_correct + 1)
+                                break;
+                        }
+                        if (counter == maxcodes || correct == prev_correct + 1)
+                            break;
+                    }
+                }
+                std::cout << k << " " << correct / qsize << std::endl;
+            }
+        }
+
+
         void compute_graphic(float *x, const idx_t *groundtruth, size_t gt_dim, size_t qsize)
         {
             for (int k = 0; k < 21; k++) {
