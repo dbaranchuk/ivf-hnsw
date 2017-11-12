@@ -350,6 +350,7 @@ namespace hnswlib {
             std::vector< idx_t > offsets(nsubc);
 
             int ncode = 0;
+            double r_max = 0.0;
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
                 //ncode += norm_codes[centroid_num].size();
@@ -384,7 +385,13 @@ namespace hnswlib {
                     q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
                     r[subc] = (1-alpha) * q_c[i] + alpha * ((alpha-1) * s_c[centroid_num][subc] + q_s[subc]);
 
-                    ordered_subc.emplace(std::make_pair(-r[subc], subc));
+                    if (i < 5){
+                        if (r[subc] > r_max){
+                            r_max = r[subc];
+                        }
+                    }
+                    if (r[subc] < r_max)
+                        ordered_subc.emplace(std::make_pair(-r[subc], subc));
                 }
 
                 int counter = 0;
