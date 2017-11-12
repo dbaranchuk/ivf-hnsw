@@ -401,8 +401,8 @@ namespace hnswlib {
             r_threshold /= normalize;
 
 
-            int ncode = 0;
-            double r_max = 0.0;
+            //int ncode = 0;
+            //double r_max = 0.0;
             for (int i = 0; i < max_probe; i++){
                 idx_t centroid_num = keys[i];
                 //ncode += norm_codes[centroid_num].size();
