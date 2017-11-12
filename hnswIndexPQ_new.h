@@ -349,8 +349,8 @@ namespace hnswlib {
             }
 
 
-            std::fill(q_s.begin(), q_s.end(), -1);
-
+            //std::fill(q_s.begin(), q_s.end(), -1);
+            memset(q_s.data(), 0, q_s.size() * sizeof(float));
             //std::vector< float > q_s(nsubc);
             std::vector< float > r(nsubc);
             std::vector< idx_t > offsets(nsubc);
@@ -386,7 +386,7 @@ namespace hnswlib {
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
 
-                    if (q_s[subcentroid_num] < 0){
+                    if (q_s[subcentroid_num] < 0.00001){
                         q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
                     } else {
                         counter_reuse++;
