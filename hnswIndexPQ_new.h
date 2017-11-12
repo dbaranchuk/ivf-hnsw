@@ -351,7 +351,7 @@ namespace hnswlib {
             int threshold = 32;
 
             std::vector< idx_t > r(nsubc*nprobe);
-            std::vector< idx_t > offsets(nsubc);
+            //std::vector< idx_t > offsets(nsubc);
             std::vector< idx_t > subcentroid_nums;
             subcentroid_nums.reserve(nsubc * nprobe);
 
@@ -381,7 +381,6 @@ namespace hnswlib {
                         normalize--;
                         continue;
                     }
-
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
 
@@ -391,6 +390,7 @@ namespace hnswlib {
                     } else counter_reuse++;
 
                     //code_counter += groupsizes[subc];
+                    std::cout << (1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num] << std::endl;
                     r[nsubc*i + subc] = (1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num];
                     r_threshold += r[nsubc*i + subc];
                 }
