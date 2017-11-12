@@ -399,6 +399,7 @@ namespace hnswlib {
             }
             r_threshold /= normalize;
 
+            ncode = 0;
             for (int i = 0; i < max_probe; i++){
                 idx_t centroid_num = keys[i];
                 if (norm_codes[centroid_num].size() == 0)
@@ -443,6 +444,7 @@ namespace hnswlib {
                     code += groupsize*code_size;
                     norm += groupsize;
                     id += groupsize;
+                    ncode += groupsize;
                 }
             }
             average_max_codes += ncode;
