@@ -427,7 +427,7 @@ namespace hnswlib {
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code + j*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
-                        if (dist < heap_sim[0]) {
+                        if (dist < distances[0]) {
                             faiss::maxheap_pop(k, distances, labels);
                             faiss::maxheap_push(k, distances, labels, dist, id[j]);
                         }
