@@ -396,7 +396,7 @@ namespace hnswlib {
                     float dist = (1-alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha*q_s[subcentroid_num];
 
                     if (ordered_subc.size() == threshold) {
-                        if (ordered_subc.top().first < dist) {
+                        if (ordered_subc.top().first > dist) {
                             ordered_subc.pop();
                             ordered_subc.emplace(std::make_pair(dist, subc));
                         }
