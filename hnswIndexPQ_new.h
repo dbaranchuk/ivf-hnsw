@@ -987,10 +987,10 @@ namespace hnswlib {
                                     correct++;
                                     break;
                                 }
-                                id += groupsize;
                                 if (counter == maxcodes)
                                     break;
                             }
+                            id += groupsize;
                             if (counter == maxcodes || correct == prev_correct + 1)
                                 break;
                         }
