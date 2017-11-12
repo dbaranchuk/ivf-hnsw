@@ -357,7 +357,7 @@ namespace hnswlib {
                     continue;
 
                 /** Threshold **/
-                int threshold = (ncode < 4096) ? 48 : 32;
+                int threshold = (ncode < 2048) ? 48 : 32;
 
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
                 uint8_t *groupcodes = codes[centroid_num].data();
