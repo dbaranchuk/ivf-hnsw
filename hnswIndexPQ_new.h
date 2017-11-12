@@ -377,7 +377,8 @@ namespace hnswlib {
 
                     q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
                     //if (i == 0)
-                    std::cout << q_s[subc] << std::endl;
+                    //std::cout << q_s[subc] << std::endl;
+                    std::cout << centroid_norms[subcentroid_num] << std::endl;
                     r[subc] = (1-alpha) * q_c[i] + alpha * ((alpha-1) * s_c[centroid_num][subc] + q_s[subc]);
 
                     ordered_subc.emplace(std::make_pair(-r[subc], subc));
