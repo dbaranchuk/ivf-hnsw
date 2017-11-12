@@ -385,7 +385,7 @@ namespace hnswlib {
                     q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
                     r[subc] = (1-alpha) * q_c[i] + alpha * ((alpha-1) * s_c[centroid_num][subc] + q_s[subc]);
 
-                    if (i < 5){
+                    if (i < 8){
                         if (r[subc] > r_max){
                             r_max = r[subc];
                         }
