@@ -407,15 +407,15 @@ namespace hnswlib {
                 //threshold = (i < 5) ? 48 : 32;
 
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
-                uint8_t *groupcodes = codes[centroid_num].data();
-                const idx_t *groupids = ids[centroid_num].data();
+                //uint8_t *groupcodes = codes[centroid_num].data();
+                //const idx_t *groupids = ids[centroid_num].data();
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
                 float alpha = alphas[centroid_num];
                 //const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
                 norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), norm_codes[centroid_num].size());
-                const float *groupnorms = norms.data();
+                //const float *groupnorms = norms.data();
 
 //                std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> ordered_subc;
 //                for (int subc = 0; subc < nsubc; subc++) {
@@ -447,6 +447,10 @@ namespace hnswlib {
 //                            ordered_subc.emplace(std::make_pair(-dist, subc));
 //
 //                }
+                const float *norm = norms.data();
+                uint8_t *code = codes[centroid_num].data();
+                const idx_t *id = ids[centroid_num].data();
+                
                 for (int subc = 0; subc < nsubc; subc++){
                 //int counter = 0;
                 //while (ordered_subc.size() > 0 && counter++ < threshold)
@@ -476,6 +480,10 @@ namespace hnswlib {
                             faiss::maxheap_push(k, distances, labels, dist, id[j]);
                         }
                     }
+                    /** Shift to the next group **/
+                    code += groupsize*code_size;
+                    norm += groupsize;
+                    id += groupsize;
                 }
                 if (ncode >= max_codes)
                     break;
