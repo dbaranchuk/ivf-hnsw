@@ -349,8 +349,6 @@ namespace hnswlib {
             }
 
 
-
-            std::cout << "!" << std::endl;
             std::fill(q_s.begin(), q_s.end(), -1);
 
             //std::vector< float > q_s(nsubc);
