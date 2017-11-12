@@ -357,15 +357,13 @@ namespace hnswlib {
             subcentroid_nums.reserve(nsubc * nprobe);
 
             /** FAISS Heap **/
-            //std::vector<float> distances(k);
-            //std::vector<long> labels(k);
-            faiss::float_maxheap_array_t res = {
-                    size_t(1), size_t(k),
-                    labels, distances
-            };
-            float * heap_sim = res.get_val (0);
-            long * heap_ids = res.get_ids (0);
-            faiss::maxheap_heapify (k, heap_sim, heap_ids);
+//            faiss::float_maxheap_array_t res = {
+//                    size_t(1), size_t(k),
+//                    labels, distances
+//            };
+//            float * heap_sim = res.get_val (0);
+//            long * heap_ids = res.get_ids (0);
+//            faiss::maxheap_heapify (k, heap_sim, heap_ids);
 
             int ncode = 0;
             //double r_max = 0.0;
@@ -435,31 +433,29 @@ namespace hnswlib {
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code + j*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
-                        if (dist < heap_sim[0]) {
-                            faiss::maxheap_pop(k, heap_sim, heap_ids);
-                            faiss::maxheap_push(k, heap_sim, heap_ids, dist, id[j]);
-                        }
-                        //if (topResults.size() == k){
-                        //    if (dist >= topResults.top().first)
-                        //        continue;
-                        //    topResults.pop();
-                        //    topResults.emplace(std::make_pair(dist, id[j]));
-                        //} else
-                        //    topResults.emplace(std::make_pair(dist, id[j]));
+//                        if (dist < heap_sim[0]) {
+//                            faiss::maxheap_pop(k, heap_sim, heap_ids);
+//                            faiss::maxheap_push(k, heap_sim, heap_ids, dist, id[j]);
+//                        }
+                        if (topResults.size() == k){
+                            if (dist >= topResults.top().first)
+                                continue;
+                            topResults.pop();
+                            topResults.emplace(std::make_pair(dist, id[j]));
+                        } else
+                            topResults.emplace(std::make_pair(dist, id[j]));
                     }
                 }
                 if (ncode >= max_codes)
                     break;
             }
             average_max_codes += ncode;
-            faiss::maxheap_reorder (k, heap_sim, heap_ids);
-            //for (int i = 0; i < k; i++)
-            //    results[i] = labels[i];
+            //faiss::maxheap_reorder (k, heap_sim, heap_ids);
 
-//            for (int i = 0; i < k; i++) {
-//                results[i] = topResults.top().second;
-//                topResults.pop();
-//            }
+            for (int i = 0; i < k; i++) {
+                labels[i] = topResults.top().second;
+                topResults.pop();
+            }
 
             /** Zero subcentroids **/
             for (idx_t subcentroid_num : subcentroid_nums)
