@@ -350,7 +350,7 @@ namespace hnswlib {
 
 
             //std::fill(q_s.begin(), q_s.end(), -1);
-            //memset(q_s.data(), 0, q_s.size() * sizeof(float));
+            memset(q_s.data(), 0, q_s.size() * sizeof(float));
             //std::vector< float > q_s(nsubc);
             std::vector< float > r(nsubc);
             std::vector< idx_t > offsets(nsubc);
