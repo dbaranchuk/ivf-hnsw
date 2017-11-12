@@ -355,6 +355,8 @@ namespace hnswlib {
             //std::vector< float > q_s(nsubc);
             std::vector< float > r(nsubc);
             std::vector< idx_t > offsets(nsubc);
+            std::vector< idx_t > subcentroid_nums;
+            subcentroids.reserve(nsubc * nprobe);
 
             int ncode = 0;
             //double r_max = 0.0;
@@ -389,6 +391,7 @@ namespace hnswlib {
 
                     if (q_s[subcentroid_num] < 0.00001){
                         q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
+                        subcentroid_nums.push_back(subcentroid_num);
                     } else {
                         counter_reuse++;
                     }
@@ -416,7 +419,6 @@ namespace hnswlib {
 
                     idx_t subcentroid_num = nn_centroids[subc];
                     float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
-                    q_s[subcentroid_num] = 0;
 
                     idx_t offset = offsets[subc];
                     uint8_t *code = groupcodes + offset * code_size;
@@ -442,6 +444,8 @@ namespace hnswlib {
                 results[i] = topResults.top().second;
                 topResults.pop();
             }
+            for (idx_t subcentroid_num : subcentroid_nums)
+                q_s[subcentroid_num] = 0;
 		}
 
         void searchG(float *x, idx_t k, idx_t *results)
