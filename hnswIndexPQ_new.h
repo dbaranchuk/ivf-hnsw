@@ -399,8 +399,9 @@ namespace hnswlib {
                 //    break;
                 //}
             }
-            r_threshold /= normalize;
             std::cout << r_threshold <<  " " << normalize << std::endl;
+            r_threshold /= normalize;
+
 
             int ncode = 0;
             double r_max = 0.0;
