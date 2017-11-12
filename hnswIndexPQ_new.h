@@ -329,6 +329,8 @@ namespace hnswlib {
                 searchG(x, k, results);
         }
 
+        int counter_reuse = 0;
+
 		void searchGF(float *x, idx_t k, idx_t *results)
 		{
             idx_t keys[nprobe];
@@ -358,7 +360,7 @@ namespace hnswlib {
             double r_max = 0.0;
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
-                ncode += norm_codes[centroid_num].size();
+                //ncode += norm_codes[centroid_num].size();
                 if (norm_codes[centroid_num].size() == 0)
                     continue;
 
@@ -388,7 +390,7 @@ namespace hnswlib {
                     if (q_s[subcentroid_num] < 0){
                         q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
                     } else {
-                        std::cout << "Reuse q_s\n";
+                        counter_reuse++;
                     }
                     //q_s[subc] = faiss::fvec_L2sqr(x, nn_centroid, d);
                     r[subc] = (1-alpha) * q_c[i] + alpha * ((alpha-1) * s_c[centroid_num][subc] + q_s[subcentroid_num]);
@@ -410,7 +412,7 @@ namespace hnswlib {
                     ordered_subc.pop();
 
                     idx_t groupsize = groupsizes[subc];
-                    //ncode += groupsize;
+                    ncode += groupsize;
 
                     idx_t subcentroid_num = nn_centroids[subc];
                     float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
