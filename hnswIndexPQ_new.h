@@ -340,9 +340,6 @@ namespace hnswlib {
             float q_c[nprobe];
 
             pq->compute_inner_prod_table(x, dis_table.data());
-            std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
-            //std::priority_queue<std::pair<float, idx_t>> topResults;
-
             auto coarse = quantizer->searchKnn(x, nprobe);
             for (int i = nprobe - 1; i >= 0; i--) {
                 auto elem = coarse.top();
@@ -351,7 +348,11 @@ namespace hnswlib {
                 coarse.pop();
             }
 
-            std::vector< float > r(nsubc);
+            int threshold = 32;
+            std::vector< float > r(threshold);
+            std::vector< long> rsubc(threshold);
+            faiss::maxheap_heapify (threshold, r.data(), rsubc.data());
+
             std::vector< idx_t > offsets(nsubc);
             std::vector< idx_t > subcentroid_nums;
             subcentroid_nums.reserve(nsubc * nprobe);
@@ -368,7 +369,7 @@ namespace hnswlib {
                     continue;
 
                 /** Threshold **/
-                int threshold = 32;// = (i < 5) ? 48 : 32;
+                // = (i < 5) ? 48 : 32;
 
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
                 uint8_t *groupcodes = codes[centroid_num].data();
@@ -395,9 +396,13 @@ namespace hnswlib {
                         subcentroid_nums.push_back(subcentroid_num);
                     } else counter_reuse++;
 
-                    r[subc] = (1-alpha) * q_c[i] + alpha * ((alpha-1) * s_c[centroid_num][subc] + q_s[subcentroid_num]);
+                    float dist = (1-alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha*q_s[subcentroid_num];
+                    if (dist < r[0]) {
+                        faiss::maxheap_pop(k, r.data(), rsubc.data());
+                        faiss::maxheap_push(k, r.data(), rsubc.data(), dist, subc);
+                    }
 
-                    ordered_subc.emplace(std::make_pair(-r[subc], subc));
+                    //ordered_subc.emplace(std::make_pair(-r[subc], subc));
 
 //                    if (i < 5){
 //                        if (r[subc] > r_max){
@@ -409,10 +414,12 @@ namespace hnswlib {
 //                    }
                 }
 
-                int counter = 0;
-                while (ordered_subc.size() > 0 && counter++ < threshold){
-                    idx_t subc = ordered_subc.top().second;
-                    ordered_subc.pop();
+                //int counter = 0;
+                //while (ordered_subc.size() > 0 && counter++ < threshold){
+                for (int it = 0; it < threshold; it++){
+                    idx_t subc = rsubc[it];
+                    //idx_t subc = ordered_subc.top().second;
+                    //ordered_subc.pop();
 
                     idx_t groupsize = groupsizes[subc];
                     ncode += groupsize;
@@ -431,13 +438,6 @@ namespace hnswlib {
                             faiss::maxheap_pop(k, distances, labels);
                             faiss::maxheap_push(k, distances, labels, dist, id[j]);
                         }
-//                        if (topResults.size() == k){
-//                            if (dist >= topResults.top().first)
-//                                continue;
-//                            topResults.pop();
-//                            topResults.emplace(std::make_pair(dist, id[j]));
-//                        } else
-//                            topResults.emplace(std::make_pair(dist, id[j]));
                     }
                 }
                 if (ncode >= max_codes)
@@ -445,11 +445,6 @@ namespace hnswlib {
             }
             average_max_codes += ncode;
 //            faiss::maxheap_reorder (k, heap_sim, heap_ids);
-
-//            for (int i = 0; i < k; i++) {
-//                labels[i] = topResults.top().second;
-//                topResults.pop();
-//            }
 
             /** Zero subcentroids **/
             for (idx_t subcentroid_num : subcentroid_nums)
