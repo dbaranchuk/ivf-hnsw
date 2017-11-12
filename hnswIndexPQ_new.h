@@ -349,8 +349,8 @@ namespace hnswlib {
             }
 
             int threshold = 32;
-            std::vector< float > r(threshold*nprobe);
-            std::vector< long> rsubc(threshold*nprobe);
+            std::vector< float > r(threshold);
+            std::vector< long> rsubc(threshold);
 
             std::vector< idx_t > offsets(nsubc);
             std::vector< idx_t > subcentroid_nums;
@@ -368,7 +368,7 @@ namespace hnswlib {
                     continue;
 
                 /** Threshold **/
-                faiss::maxheap_heapify (threshold, r.data() + i*threshold, rsubc.data()+i*threshold);
+                faiss::maxheap_heapify (threshold, r.data(), rsubc.data());
 
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
                 uint8_t *groupcodes = codes[centroid_num].data();
@@ -396,9 +396,9 @@ namespace hnswlib {
                     } else counter_reuse++;
 
                     float dist = (1-alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha*q_s[subcentroid_num];
-                    if (dist < r[i*threshold]) {
-                        faiss::maxheap_pop(threshold, r.data() + i*threshold, rsubc.data() + i*threshold);
-                        faiss::maxheap_push(threshold, r.data()+ i*threshold, rsubc.data() + i*threshold, dist, subc);
+                    if (dist < r[0]) {
+                        faiss::maxheap_pop(threshold, r.data(), rsubc.data());
+                        faiss::maxheap_push(threshold, r.data(), rsubc.data(), dist, subc);
                     }
 
                     //ordered_subc.emplace(std::make_pair(-r[subc], subc));
