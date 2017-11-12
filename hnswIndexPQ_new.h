@@ -475,7 +475,7 @@ namespace hnswlib {
                         continue;
                     }
 
-                    ncode += groupsize;
+                    //ncode += groupsize;
                     idx_t subcentroid_num = nn_centroids[subc];
                     float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
 
@@ -496,8 +496,8 @@ namespace hnswlib {
                     norm += groupsize;
                     id += groupsize;
                 }
-                if (ncode >= max_codes)
-                    break;
+                //if (ncode >= max_codes)
+                //    break;
             }
             average_max_codes += ncode;
 //            faiss::maxheap_reorder (k, heap_sim, heap_ids);
