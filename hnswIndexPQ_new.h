@@ -431,7 +431,7 @@ namespace hnswlib {
                     float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
 
                     float *norm = norms.data();
-                    norm_pq->decode(norm_code, norms.data(), groupsize);
+                    norm_pq->decode(norm_code, norm, groupsize);
 
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code + j*code_size);
