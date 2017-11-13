@@ -421,7 +421,7 @@ namespace hnswlib {
 
                     if (r[i*nsubc + subc] > r_threshold) {
                         code += groupsize*code_size;
-                        norm += groupsize;
+                        norm_code += groupsize;
                         id += groupsize;
                         filter_points += groupsize;
                         continue;
@@ -443,7 +443,7 @@ namespace hnswlib {
                     }
                     /** Shift to the next group **/
                     code += groupsize*code_size;
-                    norm += groupsize;
+                    norm_code += groupsize;
                     id += groupsize;
                     ncode += groupsize;
                 }
