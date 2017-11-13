@@ -407,9 +407,6 @@ namespace hnswlib {
                 float alpha = alphas[centroid_num];
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
-                //norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), norm_codes[centroid_num].size());
-
-                //const float *norm = norms.data();
                 const uint8_t *norm_code = norm_codes[centroid_num].data();
                 uint8_t *code = codes[centroid_num].data();
                 const idx_t *id = ids[centroid_num].data();
