@@ -373,7 +373,7 @@ namespace hnswlib {
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
                 float alpha = alphas[centroid_num];
 
-                for (int subc = 0; subc < nsubc; subc++) {
+                for (int subc = 0; subc < nsubc-1; subc++) {
                     if (groupsizes[subc] == 0)
                         continue;
 
@@ -415,7 +415,7 @@ namespace hnswlib {
                 uint8_t *code = codes[centroid_num].data();
                 const idx_t *id = ids[centroid_num].data();
 
-                for (int subc = 0; subc < nsubc; subc++){
+                for (int subc = 0; subc < nsubc-1; subc++){
                     idx_t groupsize = groupsizes[subc];
                     if (groupsize == 0)
                         continue;
