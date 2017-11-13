@@ -325,7 +325,7 @@ namespace hnswlib {
 
         void search(float *x, idx_t k, float *distances, long *labels)
         {
-            bool isFilter = false;
+            bool isFilter = true;
             if (isFilter)
                 searchGF(x, k, distances, labels);
             else
@@ -564,7 +564,7 @@ namespace hnswlib {
 
             pq->compute_inner_prod_table(x, dis_table.data());
             //std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
-            std::priority_queue<std::pair<float, idx_t>> topResults;
+            //std::priority_queue<std::pair<float, idx_t>> topResults;
 
             auto coarse = quantizer->searchKnn(x, nprobe);
             for (int i = nprobe - 1; i >= 0; i--) {
