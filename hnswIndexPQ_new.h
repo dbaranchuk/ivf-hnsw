@@ -386,12 +386,11 @@ namespace hnswlib {
                     } else counter_reuse++;
 
                     ncode += groupsizes[subc];
-
-                    float w = 1 / (1 - 1.5*i/nprobe);
-                    subr[subc] = w*((1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num]);
+                    subr[subc] = ((1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num]);
                     r_threshold += subr[subc];
-                    normalize++;
+                    //normalize++;
                 }
+                normalize += nsubc;
                 if (ncode >= 2*max_codes)
                     break;
 
