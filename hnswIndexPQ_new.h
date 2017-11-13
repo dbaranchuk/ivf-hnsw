@@ -387,14 +387,14 @@ namespace hnswlib {
 
                     ncode += groupsizes[subc];
                     subr[subc] = (1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num];
-                    r_threshold += subr[subc];
+                    r_threshold += (1 - 1/(64*(nprobe-i))) * subr[subc];
                     normalize++;
                 }
                 if (ncode >= 2*max_codes)
                     break;
 
             }
-            r_threshold /= normalize + 20;
+            r_threshold /= normalize;
 
             ncode = 0;
             for (int i = 0; i < max_probe; i++){
