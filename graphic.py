@@ -94,6 +94,29 @@ SIFT_Subgroups_50_txt = '''
 0.9814
 '''
 
+SIFT_NEW_PRUNING_txt = '''
+0.0001
+0.0004
+0.0015
+0.0025
+0.0048
+0.0085
+0.0148
+0.0283
+0.0531
+0.1064
+0.1899
+0.3047
+0.4337
+0.5696
+0.7049
+0.8145
+0.8913
+0.9460
+0.9754
+0.9910
+0.9973
+'''
 
 DEEP_O_IMI_16384_txt = '''
 0.0023	
@@ -191,6 +214,30 @@ DEEP_O_IMI_4096_txt='''
 0.989
 '''
 
+DEEP_NEW_PRUNING_txt = '''
+0.0003
+0.0005
+0.0009
+0.002
+0.0051
+0.0105
+0.0186
+0.0367
+0.0741
+0.1485
+0.2686
+0.3889
+0.513
+0.6394
+0.7501
+0.8445
+0.9106
+0.9523
+0.9787
+0.9916
+0.9968
+'''
+
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 import numpy
@@ -198,17 +245,19 @@ import re
 
 k = range(21)
 
-dataset = "DEEP"
+dataset = "SIFT"
 if dataset == "SIFT":
     O_IMI = re.findall(r"[0-9.]+", SIFT_O_IMI_16384_txt)
     Subgroups_50 = re.findall(r"[0-9.]+", SIFT_Subgroups_50_txt)
     O_IMI_4096 = re.findall(r"[0-9.]+", SIFT_O_IMI_4096_txt)
     Hybrid = re.findall(r"[0-9.]+", SIFT_Hybrid_txt)
+    Pruning = re.findall(r"[0-9.]+", SIFT_NEW_PRUNING_txt)
 
     lineIMI, = plt.plot(k, O_IMI, '--r', label = 'Inverted Multi-Index 16384$^2$')
     lineIMI_4096, = plt.plot(k, O_IMI_4096, 'r', label = 'Inverted Multi-Index 4096$^2$')
     lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'Inverted Index 2$^{20}$')
-    lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'Inverted Index\nGrouping + Pruning 2$^{20}$')
+    #lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'Inverted Index\nGrouping + Pruning 2$^{20}$')
+    linePruning, = plt.plot(k, Pruning, 'b', label = 'Inverted Index\nGrouping + Pruning 2$^{20}$')
 
     plt.xticks(range(0, 21, 2))
     plt.yticks(numpy.arange(0., 1.1, 0.1))
@@ -226,11 +275,13 @@ else:
     Subgroups_50 = re.findall(r"[0-9.]+", DEEP_Subgroups_50_txt)
     O_IMI_4096 = re.findall(r"[0-9.]+", DEEP_O_IMI_4096_txt)
     Hybrid = re.findall(r"[0-9.]+", DEEP_Hybrid_txt)
+    Pruning = re.findall(r"[0-9.]+", DEEP_NEW_PRUNING_txt)
 
     lineIMI, = plt.plot(k, O_IMI, '--r', label = 'Inverted Multi-Index 16384$^2$')
     lineIMI_4096, = plt.plot(k, O_IMI_4096, 'r', label = 'Inverted Multi-Index 4096$^2$')
     lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'Inverted Index 2$^{20}$')
-    lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'Inverted Index\nGrouping + Pruning 2$^{20}$')
+    #lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'Inverted Index\nGrouping + Pruning 2$^{20}$')
+    linePruning, = plt.plot(k, Pruning, 'b', label = 'Inverted Index\nGrouping + Pruning 2$^{20}$')
 
     plt.xticks(range(0, 21, 2))
     plt.yticks(numpy.arange(0., 1.1, 0.1))

@@ -990,10 +990,10 @@ namespace hnswlib {
                             if (groupsize == 0)
                                 continue;
 
-                            //if (r[i*nsubc + subc] > r_threshold) {
-                            //    id += groupsize;
-                            //    continue;
-                            //}
+                            if (r[i*nsubc + subc] > r_threshold) {
+                                id += groupsize;
+                                continue;
+                            }
 
                             for (int j = 0; j < groupsize; j++) {
                                 ncode++;
