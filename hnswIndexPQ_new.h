@@ -923,8 +923,8 @@ namespace hnswlib {
         {
             for (int k = 0; k < 21; k++) {
                 const size_t maxcodes = 1 << k;
-                const size_t probes = (k <= 10) ? 256 : 8192;
-                quantizer->ef_ = (k <= 10) ? 1024 : 8192;
+                const size_t probes = (k <= 12) ? 256 : 8192;
+                quantizer->ef_ = (k <= 12) ? 1024 : 8192;
 
                 double correct = 0;
                 idx_t keys[probes];
@@ -977,7 +977,7 @@ namespace hnswlib {
                     }
                     r_threshold /= normalize;
 
-                    size_t counter = 0;
+                    ncode = 0;
                     for (int i = 0; i < max_probe; i++) {
                         idx_t centroid_num = keys[i];
                         if (group_sizes[centroid_num].size() == 0)
@@ -991,25 +991,25 @@ namespace hnswlib {
                             if (groupsize == 0)
                                 continue;
 
-                            if (r[i*nsubc + subc] > r_threshold) {
-                                id += groupsize;
-                                continue;
-                            }
+                            //if (r[i*nsubc + subc] > r_threshold) {
+                            //    id += groupsize;
+                            //    continue;
+                            //}
 
                             for (int j = 0; j < groupsize; j++) {
-                                counter++;
+                                ncode++;
                                 if (id[j] == gt) {
                                     correct++;
                                     break;
                                 }
-                                if (counter == maxcodes)
+                                if (ncode == maxcodes)
                                     break;
                             }
                             id += groupsize;
-                            if (counter == maxcodes || correct == prev_correct + 1)
+                            if (ncode == maxcodes || correct == prev_correct + 1)
                                 break;
                         }
-                        if (counter == maxcodes || correct == prev_correct + 1)
+                        if (ncode == maxcodes || correct == prev_correct + 1)
                             break;
                     }
                 }
