@@ -424,7 +424,6 @@ namespace hnswlib {
                         norm_code += groupsize;
                         id += groupsize;
                         filter_points += groupsize;
-                        ncode += groupsize;
                         continue;
                     }
 
@@ -433,7 +432,7 @@ namespace hnswlib {
 
                     float *norm = norms.data();
                     norm_pq->decode(norm_code, norms.data(), groupsize);
-                    
+
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code + j*code_size);
                         float dist = fst_term + snd_term - 2*q_r + norm[j];
