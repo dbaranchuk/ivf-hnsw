@@ -374,8 +374,8 @@ namespace hnswlib {
                 float alpha = alphas[centroid_num];
 
                 for (int subc = 0; subc < nsubc; subc++) {
-                    //if (groupsizes[subc] == 0)
-                    //    continue;
+                    if (groupsizes[subc] == 0)
+                        continue;
 
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
@@ -394,7 +394,7 @@ namespace hnswlib {
                     break;
 
             }
-            r_threshold /= normalize; //20
+            r_threshold /= normalize + 20;
 
             ncode = 0;
             for (int i = 0; i < max_probe; i++){
