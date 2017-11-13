@@ -954,7 +954,6 @@ namespace hnswlib {
                         if (norm_codes[centroid_num].size() == 0)
                             continue;
 
-                        float *subr = r.data() + i*nsubc;
                         const idx_t *groupsizes = group_sizes[centroid_num].data();
                         const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
                         float alpha = alphas[centroid_num];
@@ -966,10 +965,10 @@ namespace hnswlib {
 
                             idx_t subcentroid_num = nn_centroids[subc];
                             const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
-                            float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
+                            float q_s = faiss::fvec_L2sqr(x + q_idx*d, nn_centroid, d);
                             ncode += groupsizes[subc];
-                            subr[subc] = (1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s;
-                            r_threshold += subr[subc];
+                            r[i*nsubc + subc] = (1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s;
+                            r_threshold += r[i*nsubc + subc];
                             normalize++;
                         }
                         if (ncode >= 2*maxcodes)
