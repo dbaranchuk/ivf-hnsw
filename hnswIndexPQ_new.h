@@ -372,7 +372,6 @@ namespace hnswlib {
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
                 float alpha = alphas[centroid_num];
-                const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
 
                 for (int subc = 0; subc < nsubc; subc++) {
                     if (groupsizes[subc] == 0)
@@ -419,7 +418,7 @@ namespace hnswlib {
                     if (groupsize == 0)
                         continue;
 
-                    if (r[i*nsubc + subc] > r_threshold) {
+                    if (i > 5 && r[i*nsubc + subc] > r_threshold) {
                         code += groupsize*code_size;
                         norm += groupsize;
                         id += groupsize;
@@ -563,8 +562,6 @@ namespace hnswlib {
             float q_c[nprobe];
 
             pq->compute_inner_prod_table(x, dis_table.data());
-            //std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
-            //std::priority_queue<std::pair<float, idx_t>> topResults;
 
             auto coarse = quantizer->searchKnn(x, nprobe);
             for (int i = nprobe - 1; i >= 0; i--) {
@@ -589,7 +586,6 @@ namespace hnswlib {
                 const idx_t *groupsizes = group_sizes[centroid_num].data();
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
                 float alpha = alphas[centroid_num];
-                const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
                 norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), norm_codes[centroid_num].size());
@@ -610,7 +606,6 @@ namespace hnswlib {
                         subcentroid_nums.push_back(subcentroid_num);
                     } else counter_reuse++;
 
-                    //float q_s = faiss::fvec_L2sqr(x, nn_centroid, d);
                     float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
 
                     for (int j = 0; j < groupsize; j++){
@@ -620,13 +615,6 @@ namespace hnswlib {
                             faiss::maxheap_pop(k, distances, labels);
                             faiss::maxheap_push(k, distances, labels, dist, id[j]);
                         }
-//                        if (topResults.size() == k){
-//                            if (dist >= topResults.top().first)
-//                                continue;
-//                            topResults.pop();
-//                            topResults.emplace(std::make_pair(dist, id[j]));
-//                        } else
-//                            topResults.emplace(std::make_pair(dist, id[j]));
                     }
                     /** Shift to the next group **/
                     code += groupsize*code_size;
@@ -637,11 +625,6 @@ namespace hnswlib {
                     break;
             }
             average_max_codes += ncode;
-
-//            for (int i = 0; i < k; i++) {
-//                results[i] = topResults.top().second;
-//                topResults.pop();
-//            }
 
             /** Zero subcentroids **/
             for (idx_t subcentroid_num : subcentroid_nums)
