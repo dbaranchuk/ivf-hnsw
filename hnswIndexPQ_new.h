@@ -390,8 +390,6 @@ namespace hnswlib {
                     r_threshold += subr[subc];
                     normalize++;
                 }
-                r_threshold += q_c[i];
-                normalize++;
                 if (ncode >= 2*max_codes)
                     break;
 
@@ -415,7 +413,7 @@ namespace hnswlib {
                 uint8_t *code = codes[centroid_num].data();
                 const idx_t *id = ids[centroid_num].data();
 
-                for (int subc = 0; subc < nsubc-1; subc++){
+                for (int subc = 0; subc < nsubc; subc++){
                     idx_t groupsize = groupsizes[subc];
                     if (groupsize == 0)
                         continue;
@@ -425,6 +423,7 @@ namespace hnswlib {
                         norm += groupsize;
                         id += groupsize;
                         filter_points += groupsize;
+                        ncode += groupsize;
                         continue;
                     }
 
