@@ -394,7 +394,7 @@ namespace hnswlib {
                     break;
 
             }
-            r_threshold /= normalize+500;
+            r_threshold /= normalize+10;
 
             ncode = 0;
             for (int i = 0; i < max_probe; i++){
