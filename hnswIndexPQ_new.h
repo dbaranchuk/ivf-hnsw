@@ -394,7 +394,7 @@ namespace hnswlib {
                     break;
 
             }
-            r_threshold /= normalize;
+            r_threshold /= normalize+500;
 
             ncode = 0;
             for (int i = 0; i < max_probe; i++){
@@ -418,7 +418,7 @@ namespace hnswlib {
                     if (groupsize == 0)
                         continue;
 
-                    if (i > 5 && r[i*nsubc + subc] > r_threshold) {
+                    if (r[i*nsubc + subc] > r_threshold) {
                         code += groupsize*code_size;
                         norm += groupsize;
                         id += groupsize;
@@ -573,8 +573,6 @@ namespace hnswlib {
 
             std::vector< idx_t > subcentroid_nums;
             subcentroid_nums.reserve(nsubc * nprobe);
-
-            /** FAISS Heap **/
             faiss::maxheap_heapify (k, distances, labels);
 
             int ncode = 0;
@@ -601,7 +599,7 @@ namespace hnswlib {
 
                     idx_t subcentroid_num = nn_centroids[subc];
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
-                    if (q_s[subcentroid_num] < 0.00001){
+                    if (q_s[subcentroid_num] < 0.0001){
                         q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
                         subcentroid_nums.push_back(subcentroid_num);
                     } else counter_reuse++;
