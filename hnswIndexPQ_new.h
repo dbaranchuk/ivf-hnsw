@@ -407,10 +407,10 @@ namespace hnswlib {
                 float alpha = alphas[centroid_num];
                 float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
 
-                norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), norm_codes[centroid_num].size());
+                //norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), norm_codes[centroid_num].size());
 
-                const float *norm = norms.data();
-                //const uint8_t *norm_code = norm_codes[centroid_num].data();
+                //const float *norm = norms.data();
+                const uint8_t *norm_code = norm_codes[centroid_num].data();
                 uint8_t *code = codes[centroid_num].data();
                 const idx_t *id = ids[centroid_num].data();
 
@@ -430,8 +430,8 @@ namespace hnswlib {
                     idx_t subcentroid_num = nn_centroids[subc];
                     float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
 
-                    //float *norm = norms.data();
-                    //norm_pq->decode(norm_code, norm, groupsize);
+                    float *norm = norms.data();
+                    norm_pq->decode(norm_code, norm, groupsize);
 
                     for (int j = 0; j < groupsize; j++){
                         float q_r = fstdistfunc(code + j*code_size);
