@@ -718,12 +718,13 @@ void hybrid_test(const char *path_centroids,
     std::vector<float> distances(k*qsize);
     std::vector<long> labels(k*qsize);
 
+    memset(distances.data(), 0, k*qsize*sizeof(float));
+    memset(labels.data(), 0, k*qsize*sizeof(long));
+
     double average_time = 0.0;
     for (int iter = 0; iter < 10; iter++) {
         int correct = 0;
         idx_t results[k];
-        memset(distances.data(), 0, k*qsize*sizeof(float));
-        memset(labels.data(), 0, k*qsize*sizeof(long));
 
         StopW stopw = StopW();
         for (int i = 0; i < qsize; i++) {
