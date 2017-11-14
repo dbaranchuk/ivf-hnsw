@@ -724,6 +724,11 @@ void hybrid_test(const char *path_centroids,
 
         StopW stopw = StopW();
         for (int i = 0; i < qsize; i++) {
+            for (int j = 0; j < k; j++){
+                distances[j] = 0;
+                labels[j] = 0;
+            }
+            
             index->search(massQ + i * vecdim, k, distances, labels);
 
             std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
@@ -739,11 +744,6 @@ void hybrid_test(const char *path_centroids,
                     correct++;
                     break;
                 }
-
-            for (int j = 0; j < k; j++){
-                distances[j] = 0;
-                labels[j] = 0;
-            }
         }
         /**Represent results**/
         float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
