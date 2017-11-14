@@ -728,7 +728,7 @@ void hybrid_test(const char *path_centroids,
                 distances[j] = 0;
                 labels[j] = 0;
             }
-            
+
             index->search(massQ + i * vecdim, k, distances, labels);
 
             std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
