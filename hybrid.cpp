@@ -722,6 +722,8 @@ void hybrid_test(const char *path_centroids,
     for (int iter = 0; iter < 10; iter++) {
         int correct = 0;
         idx_t results[k];
+        memset(distances.data(), 0, k*qsize*sizeof(float));
+        memset(labels.data(), 0, k*qsize*sizeof(long));
 
         StopW stopw = StopW();
         for (int i = 0; i < qsize; i++) {
