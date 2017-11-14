@@ -332,7 +332,8 @@ namespace hnswlib {
                 searchG(x, k, distances, labels);
         }
 
-        int counter_reuse = 0;
+        int counter_reused = 0;
+        int counter_computed = 0;
         int filter_points = 0;
 
 		void searchGF(float *x, idx_t k, float *distances, long *labels)
@@ -353,7 +354,6 @@ namespace hnswlib {
             std::vector< idx_t > subcentroid_nums;
             subcentroid_nums.reserve(nsubc * nprobe);
 
-            /** FAISS Heap **/
             faiss::maxheap_heapify (k, distances, labels);
 
             /** Filtering **/
@@ -365,6 +365,11 @@ namespace hnswlib {
             for (int i = 0; i < nprobe; i++){
                 max_probe++;
                 idx_t centroid_num = keys[i];
+
+                /** Add q_c to q_s **/
+                q_s[centroid_num] = q_c[i];
+                subcentroid_nums.push_back(centroid_num);
+
                 if (norm_codes[centroid_num].size() == 0)
                     continue;
 
@@ -383,7 +388,8 @@ namespace hnswlib {
                     if (q_s[subcentroid_num] < 0.00001) {
                         q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
                         subcentroid_nums.push_back(subcentroid_num);
-                    } else counter_reuse++;
+                        counter_computed++;
+                    } else counter_reused++;
 
                     ncode += groupsizes[subc];
                     subr[subc] = ((1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num]);
@@ -579,6 +585,11 @@ namespace hnswlib {
             int ncode = 0;
             for (int i = 0; i < nprobe; i++){
                 idx_t centroid_num = keys[i];
+
+                /** Add q_c to q_s **/
+                q_s[centroid_num] = q_c[i];
+                subcentroid_nums.push_back(centroid_num);
+
                 if (norm_codes[centroid_num].size() == 0)
                     continue;
 
@@ -603,7 +614,8 @@ namespace hnswlib {
                     if (q_s[subcentroid_num] < 0.0001){
                         q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
                         subcentroid_nums.push_back(subcentroid_num);
-                    } else counter_reuse++;
+                        counter_computed++;
+                    } else counter_reused++;
 
                     float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
 
