@@ -620,24 +620,25 @@ void hybrid_test(const char *path_centroids,
     index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
 
     /** Train PQ **/
-    std::ifstream learn_input(path_learn, ios::binary);
-    int nt = 10000000;
-    int sub_nt = 262144;//65536;
-    std::vector<float> trainvecs(nt * vecdim);
-    switch(dataset){
-        case Dataset::SIFT1B:
-            readXvecFvec<uint8_t >(learn_input, trainvecs.data(), vecdim, nt);
-            break;
-        case Dataset::DEEP1B:
-            readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
-            break;
-    }
-    learn_input.close();
-
-    /** Set Random Subset of 65536 trainvecs **/
-    std::vector<float> trainvecs_rnd_subset(sub_nt * vecdim);
-    random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), vecdim, nt, sub_nt);
-
+//    {
+//        std::ifstream learn_input(path_learn, ios::binary);
+//        int nt = 10000000;
+//        int sub_nt = 262144;//65536;
+//        std::vector<float> trainvecs(nt * vecdim);
+//        switch (dataset) {
+//            case Dataset::SIFT1B:
+//                readXvecFvec<uint8_t>(learn_input, trainvecs.data(), vecdim, nt);
+//                break;
+//            case Dataset::DEEP1B:
+//                readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
+//                break;
+//        }
+//        learn_input.close();
+//
+//        /** Set Random Subset of 65536 trainvecs **/
+//        std::vector<float> trainvecs_rnd_subset(sub_nt * vecdim);
+//        random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), vecdim, nt, sub_nt);
+//    }
     /** Train residual PQ **/
     if (exists_test(path_pq)) {
         std::cout << "Loading PQ codebook from " << path_pq << std::endl;
@@ -716,7 +717,7 @@ void hybrid_test(const char *path_centroids,
 
     /** Search **/
     double average_time = 0.0;
-    //for (int iter = 0; iter < 10; iter++) {
+    for (int iter = 0; iter < 10; iter++) {
         int correct = 0;
         float distances[k];
         long labels[k];
@@ -753,7 +754,7 @@ void hybrid_test(const char *path_centroids,
         //std::cout << "Average number of pruned points: " << (1.0 * index->filter_points) / 10000 << std::endl;
 
         average_time += time_us_per_query;
-    //}
+    }
     std::cout << "\nAverage time: " <<  average_time / 10 << std::endl;
 
     //check_groupsizes(index, ncentroids);
