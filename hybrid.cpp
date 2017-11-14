@@ -716,46 +716,41 @@ void hybrid_test(const char *path_centroids,
     index->quantizer->ef_ = efSearch;
 
     /** Search **/
-    double average_time = 0.0;
-    for (int iter = 0; iter < 5; iter++) {
-        int correct = 0;
-        float distances[k];
-        long labels[k];
+    int correct = 0;
+    float distances[k];
+    long labels[k];
 
-        StopW stopw = StopW();
-        for (int i = 0; i < qsize; i++) {
-            for (int j = 0; j < k; j++){
-                distances[j] = 0;
-                labels[j] = 0;
-            }
-
-            index->search(massQ + i * vecdim, k, distances, labels);
-
-            std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
-            unordered_set<labeltype> g;
-
-            while (gt.size()) {
-                g.insert(gt.top().second);
-                gt.pop();
-            }
-
-            for (int j = 0; j < k; j++)
-                if (g.count(labels[j]) != 0) {
-                    correct++;
-                    break;
-                }
+    StopW stopw = StopW();
+    for (int i = 0; i < qsize; i++) {
+        for (int j = 0; j < k; j++){
+            distances[j] = 0;
+            labels[j] = 0;
         }
-        /**Represent results**/
-        float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
-        std::cout << "Recall@" << k << ": " << 1.0f * correct / qsize << std::endl;
-        std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
-        //std::cout << "Average max_codes: " << index->average_max_codes / 10000 << std::endl;
-        //std::cout << "Average reused q_s: " << (1.0 * index->counter_reused) / (index->counter_computed + index->counter_reused) << std::endl;
-        //std::cout << "Average number of pruned points: " << (1.0 * index->filter_points) / 10000 << std::endl;
 
-        average_time += time_us_per_query;
+        index->search(massQ + i * vecdim, k, distances, labels);
+
+        std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
+        unordered_set<labeltype> g;
+
+        while (gt.size()) {
+            g.insert(gt.top().second);
+            gt.pop();
+        }
+
+        for (int j = 0; j < k; j++)
+            if (g.count(labels[j]) != 0) {
+                correct++;
+                break;
+            }
     }
-    std::cout << "\nAverage time: " <<  average_time / 5 << std::endl;
+    /**Represent results**/
+    float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
+    std::cout << "Recall@" << k << ": " << 1.0f * correct / qsize << std::endl;
+    std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
+    //std::cout << "Average max_codes: " << index->average_max_codes / 10000 << std::endl;
+    //std::cout << "Average reused q_s: " << (1.0 * index->counter_reused) / (index->counter_computed + index->counter_reused) << std::endl;
+    //std::cout << "Average number of pruned points: " << (1.0 * index->filter_points) / 10000 << std::endl;
+
 
     //check_groupsizes(index, ncentroids);
     //std::cout << "Check precomputed idxs"<< std::endl;
