@@ -1011,7 +1011,6 @@ namespace hnswlib {
             }
         }
 
-
         void compute_graphic(float *x, const idx_t *groundtruth, size_t gt_dim, size_t qsize)
         {
             for (int k = 0; k < 21; k++) {
