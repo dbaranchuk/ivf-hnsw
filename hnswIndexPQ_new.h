@@ -325,7 +325,7 @@ namespace hnswlib {
 
         void search(float *x, idx_t k, float *distances, long *labels)
         {
-            bool isFilter = false;
+            bool isFilter = true;
             if (isFilter)
                 searchGF(x, k, distances, labels);
             else
