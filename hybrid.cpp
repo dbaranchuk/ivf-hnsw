@@ -638,7 +638,7 @@ void hybrid_test(const char *path_centroids,
     /** Set Random Subset of 65536 trainvecs **/
     std::vector<float> trainvecs_rnd_subset(sub_nt * vecdim);
     random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), vecdim, nt, sub_nt);
-    
+
     /** Train residual PQ **/
     if (exists_test(path_pq)) {
         std::cout << "Loading PQ codebook from " << path_pq << std::endl;
@@ -717,7 +717,7 @@ void hybrid_test(const char *path_centroids,
 
     /** Search **/
     double average_time = 0.0;
-    for (int iter = 0; iter < 10; iter++) {
+    for (int iter = 0; iter < 5; iter++) {
         int correct = 0;
         float distances[k];
         long labels[k];
@@ -755,7 +755,7 @@ void hybrid_test(const char *path_centroids,
 
         average_time += time_us_per_query;
     }
-    std::cout << "\nAverage time: " <<  average_time / 10 << std::endl;
+    std::cout << "\nAverage time: " <<  average_time / 5 << std::endl;
 
     //check_groupsizes(index, ncentroids);
     //std::cout << "Check precomputed idxs"<< std::endl;
