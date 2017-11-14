@@ -716,7 +716,7 @@ void hybrid_test(const char *path_centroids,
 
     /** Search **/
     double average_time = 0.0;
-    for (int iter = 0; iter < 10; iter++) {
+    //for (int iter = 0; iter < 10; iter++) {
         int correct = 0;
         float distances[k];
         long labels[k];
@@ -753,7 +753,7 @@ void hybrid_test(const char *path_centroids,
         //std::cout << "Average number of pruned points: " << (1.0 * index->filter_points) / 10000 << std::endl;
 
         average_time += time_us_per_query;
-    }
+    //}
     std::cout << "\nAverage time: " <<  average_time / 10 << std::endl;
 
     //check_groupsizes(index, ncentroids);
