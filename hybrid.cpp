@@ -620,25 +620,25 @@ void hybrid_test(const char *path_centroids,
     index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
 
     /** Train PQ **/
-    {
-        std::ifstream learn_input(path_learn, ios::binary);
-        int nt = 65536;
-        int sub_nt = 65536;//262144;//65536;
-        std::vector<float> trainvecs(nt * vecdim);
-        switch (dataset) {
-            case Dataset::SIFT1B:
-                readXvecFvec<uint8_t>(learn_input, trainvecs.data(), vecdim, nt);
-                break;
-            case Dataset::DEEP1B:
-                readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
-                break;
-        }
-        learn_input.close();
 
-        /** Set Random Subset of 65536 trainvecs **/
-        std::vector<float> trainvecs_rnd_subset(sub_nt * vecdim);
-        random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), vecdim, nt, sub_nt);
+    std::ifstream learn_input(path_learn, ios::binary);
+    int nt = 65536;
+    int sub_nt = 65536;//262144;//65536;
+    std::vector<float> trainvecs(nt * vecdim);
+    switch (dataset) {
+        case Dataset::SIFT1B:
+            readXvecFvec<uint8_t>(learn_input, trainvecs.data(), vecdim, nt);
+            break;
+        case Dataset::DEEP1B:
+            readXvec<float>(learn_input, trainvecs.data(), vecdim, nt);
+            break;
     }
+    learn_input.close();
+
+    /** Set Random Subset of 65536 trainvecs **/
+    std::vector<float> trainvecs_rnd_subset(sub_nt * vecdim);
+    random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), vecdim, nt, sub_nt);
+    
     /** Train residual PQ **/
     if (exists_test(path_pq)) {
         std::cout << "Loading PQ codebook from " << path_pq << std::endl;
