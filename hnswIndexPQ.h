@@ -248,9 +248,9 @@ namespace hnswlib {
             float q_c[nprobe];
 
             pq->compute_inner_prod_table(x, dis_table.data());
-            //std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
+            std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
             //std::priority_queue<std::pair<float, idx_t>> topResults;
-            faiss::maxheap_heapify (k, distances, labels);
+            //faiss::maxheap_heapify (k, distances, labels);
 
             auto coarse = quantizer->searchKnn(x, nprobe);
 
@@ -275,17 +275,17 @@ namespace hnswlib {
                     float q_r = fstdistfunc(code.data() + j*code_size);
                     float dist = term1 - 2*q_r + norms[j];
                     idx_t label = ids[key][j];
-                    if (dist < distances[0]) {
-                        faiss::maxheap_pop(k, distances, labels);
-                        faiss::maxheap_push(k, distances, labels, dist, label);
-                    }
-//                    if (topResults.size() == k) {
-//                        if (dist >= topResults.top().first)
-//                            continue;
-//                        topResults.pop();
-//                        topResults.emplace(std::make_pair(dist, label));
-//                    } else
-//                        topResults.emplace(std::make_pair(dist, label));
+//                    if (dist < distances[0]) {
+//                        faiss::maxheap_pop(k, distances, labels);
+//                        faiss::maxheap_push(k, distances, labels, dist, label);
+//                    }
+                    if (topResults.size() == k) {
+                        if (dist >= topResults.top().first)
+                            continue;
+                        topResults.pop();
+                        topResults.emplace(std::make_pair(dist, label));
+                    } else
+                        topResults.emplace(std::make_pair(dist, label));
                 }
                 ncode += ncodes;
                 if (ncode >= max_codes)
@@ -294,10 +294,10 @@ namespace hnswlib {
 
             average_max_codes += ncode;
 
-//            for (int i = 0; i < k; i++) {
-//                results[i] = topResults.top().second;
-//                topResults.pop();
-//            }
+            for (int i = 0; i < k; i++) {
+                labels[i] = topResults.top().second;
+                topResults.pop();
+            }
 //            if (topResults.size() < k) {
 //                for (int j = topResults.size(); j < k; j++)
 //                    topResults.emplace(std::make_pair(std::numeric_limits<float>::max(), 0));
