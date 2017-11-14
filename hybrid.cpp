@@ -710,19 +710,19 @@ void hybrid_test(const char *path_centroids,
     //index->compute_graphic2(massQ, massQA, gt_dim, qsize);
 
     /** Set search parameters **/
-    int correct = 0;
-    idx_t results[k];
-
     index->max_codes = max_codes;
     index->nprobe = nprobes;
     index->quantizer->ef_ = efSearch;
 
     /** Search **/
-    std::vector<float> distances(k*qsize);
-    std::vector<long> labels(k*qsize);
+    float distances[k*qsize];
+    long labels[k*qsize];
 
     double average_time = 0.0;
     for (int iter = 0; iter < 10; iter++) {
+        int correct = 0;
+        idx_t results[k];
+
         StopW stopw = StopW();
         for (int i = 0; i < qsize; i++) {
             index->search(massQ + i * vecdim, k, distances.data() + k * i, labels.data() + k * i);
