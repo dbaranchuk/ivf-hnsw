@@ -512,7 +512,8 @@ namespace hnswlib {
                     if (q_s[subcentroid_num] < 0.00001){
                         q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
                         subcentroid_nums.push_back(subcentroid_num);
-                    } else counter_reuse++;
+                        counter_computed++;
+                    } else counter_reused++;
 
                     float dist = (1-alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha*q_s[subcentroid_num];
 
