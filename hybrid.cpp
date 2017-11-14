@@ -715,20 +715,16 @@ void hybrid_test(const char *path_centroids,
     index->quantizer->ef_ = efSearch;
 
     /** Search **/
-    std::vector<float> distances(k*qsize);
-    std::vector<long> labels(k*qsize);
-
-    memset(distances.data(), 0, k*qsize*sizeof(float));
-    memset(labels.data(), 0, k*qsize*sizeof(long));
 
     double average_time = 0.0;
     for (int iter = 0; iter < 10; iter++) {
         int correct = 0;
-        idx_t results[k];
+        float distances[k];
+        long labels[k];
 
         StopW stopw = StopW();
         for (int i = 0; i < qsize; i++) {
-            index->search(massQ + i * vecdim, k, distances.data() + k * i, labels.data() + k * i);
+            index->search(massQ + i * vecdim, k, distances, labels);
 
             std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
             unordered_set<labeltype> g;
@@ -739,10 +735,15 @@ void hybrid_test(const char *path_centroids,
             }
 
             for (int j = 0; j < k; j++)
-                if (g.count(labels[k * i + j]) != 0) {
+                if (g.count(labels[j]) != 0) {
                     correct++;
                     break;
                 }
+
+            for (int j = 0; j < k; j++){
+                distances[j] = 0;
+                labels[j] = 0;
+            }
         }
         /**Represent results**/
         float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
