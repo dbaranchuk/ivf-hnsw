@@ -242,10 +242,13 @@ from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 import numpy
 import re
+import seaborn as sns
+sns.set(style='ticks', palette='Set2')
+sns.despine()
 
 k = range(21)
 
-dataset = "SIFT"
+dataset = "DEEP"
 if dataset == "SIFT":
     O_IMI = re.findall(r"[0-9.]+", SIFT_O_IMI_16384_txt)
     Subgroups_50 = re.findall(r"[0-9.]+", SIFT_Subgroups_50_txt)
@@ -253,22 +256,22 @@ if dataset == "SIFT":
     Hybrid = re.findall(r"[0-9.]+", SIFT_Hybrid_txt)
     Pruning = re.findall(r"[0-9.]+", SIFT_NEW_PRUNING_txt)
 
-    lineIMI, = plt.plot(k, O_IMI, '--r', label = 'Inverted Multi-Index 16384$^2$')
-    lineIMI_4096, = plt.plot(k, O_IMI_4096, 'r', label = 'Inverted Multi-Index 4096$^2$')
-    lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'Inverted Index 2$^{20}$')
-    #lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'Inverted Index\nGrouping + Pruning 2$^{20}$')
-    linePruning, = plt.plot(k, Pruning, 'b', label = 'Inverted Index\nGrouping + Pruning 2$^{20}$')
+    plt.figure(figsize=[8,4])
+    lineIMI, = plt.plot(k, O_IMI, '--r', label = 'Inverted Multi-Index K=$2^{14}$')
+    lineIMI_4096, = plt.plot(k, O_IMI_4096, 'r', label = 'Inverted Multi-Index K=$2^{12}$')
+    lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'Inverted Index')
+    linePruning, = plt.plot(k, Pruning, 'b', label = 'Inverted Index\nGrouping + Pruning')
 
-    plt.xticks(range(0, 21, 2))
+    plt.xticks(range(0, 21, 1))
     plt.yticks(numpy.arange(0., 1.1, 0.1))
 
     plt.axis([0, 20, 0, 1])
-    plt.xlabel('log$_2$R', fontsize=13)
-    plt.ylabel('Recall@R', fontsize=13)
-    plt.legend(fontsize=13, loc=2)
+    plt.xlabel('Log$_2$R', fontsize=16)
+    plt.ylabel('Recall@R', fontsize=16)
+    plt.legend(frameon = True, fontsize=13, loc=2)
 
     pp = PdfPages('recallR_SIFT.pdf')
-    pp.savefig()
+    pp.savefig(bbox_inches='tight')
     pp.close()
 else:
     O_IMI = re.findall(r"[0-9.]+", DEEP_O_IMI_16384_txt)
@@ -276,21 +279,20 @@ else:
     O_IMI_4096 = re.findall(r"[0-9.]+", DEEP_O_IMI_4096_txt)
     Hybrid = re.findall(r"[0-9.]+", DEEP_Hybrid_txt)
     Pruning = re.findall(r"[0-9.]+", DEEP_NEW_PRUNING_txt)
+    plt.figure(figsize=[8,4])
+    lineIMI, = plt.plot(k, O_IMI, '--r', label = 'Inverted Multi-Index K=$2^{14}$')
+    lineIMI_4096, = plt.plot(k, O_IMI_4096, 'r', label = 'Inverted Multi-Index K=$2^{12}$')
+    lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'Inverted Index')
+    linePruning, = plt.plot(k, Pruning, 'b', label = 'Inverted Index\nGrouping + Pruning')
 
-    lineIMI, = plt.plot(k, O_IMI, '--r', label = 'Inverted Multi-Index 16384$^2$')
-    lineIMI_4096, = plt.plot(k, O_IMI_4096, 'r', label = 'Inverted Multi-Index 4096$^2$')
-    lineHybrid, = plt.plot(k, Hybrid, 'g', label = 'Inverted Index 2$^{20}$')
-    #lineSubgroups_50, = plt.plot(k, Subgroups_50, 'b', label = 'Inverted Index\nGrouping + Pruning 2$^{20}$')
-    linePruning, = plt.plot(k, Pruning, 'b', label = 'Inverted Index\nGrouping + Pruning 2$^{20}$')
-
-    plt.xticks(range(0, 21, 2))
+    plt.xticks(range(0, 21, 1))
     plt.yticks(numpy.arange(0., 1.1, 0.1))
 
     plt.axis([0, 20, 0, 1])
-    plt.xlabel('log$_2$R', fontsize=13)
-    plt.ylabel('Recall@R', fontsize=13)
-    plt.legend(fontsize=13, loc=2)
+    plt.xlabel('Log$_2$R', fontsize=16)
+    plt.ylabel('Recall@R', fontsize=16)
+    plt.legend(frameon = True, fontsize=13, loc=2)
 
     pp = PdfPages('recallR_DEEP.pdf')
-    pp.savefig()
+    pp.savefig(bbox_inches='tight')
     pp.close()
