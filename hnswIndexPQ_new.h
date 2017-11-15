@@ -1154,7 +1154,7 @@ namespace hnswlib {
                 double r_threshold_25 = 0.0;
                 while (r_ordered.size() > 0.75*normalize){
                     r_threshold_25 = -r_ordered.top().first;
-                    r_ordered.top();
+                    r_ordered.pop();
                 }
 
                 ncode = 0;
