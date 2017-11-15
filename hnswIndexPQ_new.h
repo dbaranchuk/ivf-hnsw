@@ -1100,6 +1100,8 @@ namespace hnswlib {
             idx_t keys[probes];
             float q_c[probes];
 
+            int total_subgroups = 0;
+
             for (int q_idx = 0; q_idx < qsize; q_idx++) {
                 auto coarse = quantizer->searchKnn(x + q_idx*d, probes);
                 idx_t gt = groundtruth[gt_dim * q_idx];
@@ -1176,6 +1178,7 @@ namespace hnswlib {
                             continue;
                         }
 
+                        total_subgroups++;
                         for (int j = 0; j < groupsize; j++) {
                             ncode++;
                             if (id[j] == gt) {
@@ -1193,7 +1196,7 @@ namespace hnswlib {
                         break;
                 }
             }
-            std::cout << maxcodes << " " << correct / qsize << std::endl;
+            std::cout << (1.0*total_subgroups)/10000 << " " << correct / qsize << std::endl;
         }
 	private:
         std::vector<float> q_s;
