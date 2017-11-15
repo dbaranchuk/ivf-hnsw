@@ -1147,7 +1147,7 @@ namespace hnswlib {
 
                         r_ordered.emplace(std::make_pair(-r[i * nsubc + subc], std::make_pair(i, subc)));
                     }
-                    if (ncode >= maxcodes) //2 *
+                    if (ncode >= maxcodes)
                         break;
                 }
 
@@ -1155,43 +1155,29 @@ namespace hnswlib {
 
                 double r_threshold_25 = 0.0;
                 while (r_ordered.size() > 0.75*normalize){
-                    r_threshold_25 = -r_ordered.top().first;
+                    int i, subc;
+                    std::tie(i, subc) = r_ordered.top().second;
                     r_ordered.pop();
-                }
 
-                ncode = 0;
-                for (int i = 0; i < max_probe; i++) {
                     idx_t centroid_num = keys[i];
                     if (group_sizes[centroid_num].size() == 0)
                         continue;
 
+                    int groupsize = group_sizes[centroid_num][subc];
+                    if (groupsize == 0)
+                        continue;
+
                     const idx_t *id = ids[centroid_num].data();
+                    for (int j = 0; j < subc; j++)
+                        id += group_sizes[centroid_num][j];
 
-                    int prev_correct = correct;
-                    for (int subc = 0; subc < nsubc; subc++){
-                        int groupsize = group_sizes[centroid_num][subc];
-                        if (groupsize == 0)
-                            continue;
-
-                        if (r[i*nsubc + subc] > r_threshold_25) {
-                            id += groupsize;
-                            continue;
+                    total_subgroups++;
+                    for (int j = 0; j < groupsize; j++) {
+                        if (id[j] == gt) {
+                            correct++;
+                            break;
                         }
-
-                        total_subgroups++;
-                        for (int j = 0; j < groupsize; j++) {
-                            ncode++;
-                            if (id[j] == gt) {
-                                correct++;
-                                break;
-                            }
-                            if (ncode == maxcodes)
-                                break;
-                        }
-                        id += groupsize;
                     }
-                    if (ncode == maxcodes || correct == prev_correct + 1)
-                        break;
                 }
             }
             std::cout << (1.0*total_subgroups)/10000 << " " << correct / qsize << std::endl;
