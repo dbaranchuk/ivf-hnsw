@@ -1154,7 +1154,7 @@ namespace hnswlib {
                 r_threshold /= normalize;
 
                 double r_threshold_25 = 0.0;
-                while (r_ordered.size() > 0.5*normalize){
+                while (r_ordered.size() > 0*normalize){
                     r_threshold_25 = -r_ordered.top().first;
                     r_ordered.pop();
                 }
@@ -1189,8 +1189,6 @@ namespace hnswlib {
                                 break;
                         }
                         id += groupsize;
-                        if (ncode == maxcodes || correct == prev_correct + 1)
-                            break;
                     }
                     if (ncode == maxcodes || correct == prev_correct + 1)
                         break;
