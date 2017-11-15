@@ -1093,8 +1093,8 @@ namespace hnswlib {
         void compute_losses(float *x, const idx_t *groundtruth, size_t gt_dim, size_t qsize)
         {
                 const size_t maxcodes = 30000;
-                const size_t probes = 8192;
-                quantizer->ef_ = 8192;
+                const size_t probes = 1024;
+                quantizer->ef_ = 1024;
 
                 double correct = 0;
                 idx_t keys[probes];
