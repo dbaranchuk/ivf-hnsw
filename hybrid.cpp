@@ -621,8 +621,8 @@ void hybrid_test(const char *path_centroids,
 
     /** Train PQ **/
     std::ifstream learn_input(path_learn, ios::binary);
-    int nt = 65536;
-    int sub_nt = 65536;//262144;//65536;
+    int nt = 10000000;
+    int sub_nt = 262144;//65536;
     std::vector<float> trainvecs(nt * vecdim);
     switch (dataset) {
         case Dataset::SIFT1B:
