@@ -1118,6 +1118,8 @@ namespace hnswlib {
                 int max_probe = 0;
                 int normalize = 0;
 
+                std::priority_queue<std::pair<float, std::pair<int, int>>> r_ordered;
+
                 for (int i = 0; i < probes; i++) {
                     max_probe++;
                     idx_t centroid_num = keys[i];
@@ -1140,11 +1142,20 @@ namespace hnswlib {
                         r[i * nsubc + subc] = (1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s;
                         r_threshold += r[i * nsubc + subc];
                         normalize++;
+
+                        r_ordered.emplace(std::make_pair(-r[i * nsubc + subc], std::make_pair(i, subc)));
                     }
                     if (ncode >= maxcodes) //2 *
                         break;
                 }
+
                 r_threshold /= normalize;
+
+                double r_threshold_25 = 0.0;
+                while (r_ordered.size() > 0.75*normalize){
+                    r_threshold_25 += r_ordered.top().first;
+                    r_ordered.top();
+                }
 
                 ncode = 0;
                 for (int i = 0; i < max_probe; i++) {
@@ -1160,7 +1171,7 @@ namespace hnswlib {
                         if (groupsize == 0)
                             continue;
 
-                        if (r[i*nsubc + subc] > r_threshold) {
+                        if (r[i*nsubc + subc] > r_threshold_25) {
                             id += groupsize;
                             continue;
                         }
