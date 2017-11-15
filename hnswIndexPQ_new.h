@@ -1141,7 +1141,7 @@ namespace hnswlib {
                         r_threshold += r[i * nsubc + subc];
                         normalize++;
                     }
-                    if (ncode >= 2 * maxcodes)
+                    if (ncode >= maxcodes) //2 *
                         break;
                 }
                 r_threshold /= normalize;
