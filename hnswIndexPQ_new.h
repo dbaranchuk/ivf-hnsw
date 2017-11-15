@@ -1154,7 +1154,7 @@ namespace hnswlib {
                 r_threshold /= normalize;
 
                 double r_threshold_25 = 0.0;
-                while (r_ordered.size() > 0.75*normalize){
+                while (r_ordered.size() > 0.5*normalize){
                     int i, subc;
                     std::tie(i, subc) = r_ordered.top().second;
                     r_ordered.pop();
