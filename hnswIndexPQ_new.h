@@ -810,7 +810,6 @@ namespace hnswlib {
         void train_norm_pq (const size_t n, const float *x)
         {
             std::vector<float> train_norms;
-
             std::vector<idx_t> assigned(n);
             assign(n, x, assigned.data());
 
@@ -1205,7 +1204,7 @@ namespace hnswlib {
     public:
         void compute_residuals(size_t n, float *residuals, const float *points, const float *subcentroids, const idx_t *keys)
 		{
-//            #pragma omp parallel for num_threads(16)
+            #pragma omp parallel for num_threads(16)
             for (idx_t i = 0; i < n; i++) {
                 const float *subcentroid = subcentroids + keys[i]*d;
                 const float *point = points + i*d;
@@ -1217,7 +1216,7 @@ namespace hnswlib {
 
         void reconstruct(size_t n, float *x, const float *decoded_residuals, const float *subcentroids, const idx_t *keys)
         {
-//            #pragma omp parallel for num_threads(16)
+            #pragma omp parallel for num_threads(16)
             for (idx_t i = 0; i < n; i++) {
                 const float *subcentroid = subcentroids + keys[i]*d;
                 const float *decoded_residual = decoded_residuals + i*d;
@@ -1236,7 +1235,7 @@ namespace hnswlib {
         void compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
                                       const float *points, const int groupsize)
         {
-//            #pragma omp parallel for num_threads(16)
+            #pragma omp parallel for num_threads(16)
             for (int i = 0; i < groupsize; i++) {
                 std::priority_queue<std::pair<float, idx_t>> max_heap;
                 for (int subc = 0; subc < nsubc; subc++) {

@@ -655,7 +655,8 @@ void hybrid_test(const char *path_centroids,
         std::cout << "Loading norm PQ codebook from " << path_norm_pq << std::endl;
         read_pq(path_norm_pq, index->norm_pq);
     }
-    else {
+    else{
+        std::cout << "Training Norm PQ codebook " << std::endl;
         index->train_norm_pq(sub_nt, trainvecs_rnd_subset.data());
         std::cout << "Saving norm PQ codebook to " << path_norm_pq << std::endl;
         write_pq(path_norm_pq, index->norm_pq);
