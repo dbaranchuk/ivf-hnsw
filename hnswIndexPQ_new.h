@@ -1311,7 +1311,7 @@ namespace hnswlib {
                 }
             }
             positive_alpha /= groupsize;
-            negative_alpha /= groupsize
+            negative_alpha /= groupsize;
             //positive_alpha = positive_numerator / positive_denominator;
             //negative_alpha = negative_numerator / negative_denominator;
             return (counter_positive > counter_negative) ? positive_alpha : negative_alpha;
