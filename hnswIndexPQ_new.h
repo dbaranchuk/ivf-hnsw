@@ -1299,7 +1299,7 @@ namespace hnswlib {
                 }
                 float optim_numerator = max_heap.top().second.first;
                 float optim_denominator = max_heap.top().second.second;
-                if (optim_alpha < 0) {
+                if (optim_numerator < 0) {
                     counter_negative++;
                     negative_numerator += optim_numerator;
                     negative_denominator += optim_denominator;
