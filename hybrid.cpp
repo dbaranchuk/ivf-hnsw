@@ -708,7 +708,7 @@ void hybrid_test(const char *path_centroids,
 
     /** Compute Graphic **/
     //index->compute_graphic2(massQ, massQA, gt_dim, qsize);
-    index->compute_losses(massQ, massQA, gt_dim, qsize);
+    //index->compute_losses(massQ, massQA, gt_dim, qsize);
     
     /** Set search parameters **/
     index->max_codes = max_codes;

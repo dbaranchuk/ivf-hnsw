@@ -1264,6 +1264,13 @@ namespace hnswlib {
         {
             int counter_positive = 0;
             int counter_negative = 0;
+
+            float positive_numerator = 0.;
+            float positive_denominator = 0.;
+
+            float negative_numerator = 0.;
+            float negative_denominator = 0.;
+
             float positive_alpha = 0.0;
             float negative_alpha = 0.0;
 
@@ -1274,31 +1281,38 @@ namespace hnswlib {
                 const float *point_vector = point_vectors.data() + i * d;
                 const float *point = points + i * d;
 
-                std::priority_queue<std::pair<float, float>> max_heap;
+                std::priority_queue<std::pair<float, std::pair<float, float>>> max_heap;
+
                 for (int subc = 0; subc < nsubc; subc++){
                     const float *centroid_vector = centroid_vectors + subc * d;
                     const float centroid_vector_norm_L2sqr = centroid_vector_norms_L2sqr[subc];
 
-                    float alpha = faiss::fvec_inner_product (centroid_vector, point_vector, d);
-                    alpha /= centroid_vector_norm_L2sqr;
+                    float numerator = faiss::fvec_inner_product (centroid_vector, point_vector, d);
+                    float denominator = centroid_vector_norm_L2sqr;
+                    float alpha = numerator / denominator;
 
                     std::vector<float> subcentroid(d);
                     faiss::fvec_madd (d, centroid, alpha, centroid_vector, subcentroid.data());
 
                     float dist = faiss::fvec_L2sqr(point, subcentroid.data(), d);
-                    max_heap.emplace(std::make_pair(-dist, alpha));
+                    max_heap.emplace(std::make_pair(-dist, std::make_pair(numerator, denominator)));
                 }
-                float optim_alpha = max_heap.top().second;
+                float optim_numerator = max_heap.top().second.first;
+                float optim_denominator = max_heap.top().second.second;
                 if (optim_alpha < 0) {
                     counter_negative++;
-                    negative_alpha += optim_alpha;
+                    negative_numerator += optim_numerator;
+                    negative_denominator += optim_denominator;
+//                    negative_alpha += optim_alpha;
                 } else {
                     counter_positive++;
-                    positive_alpha += optim_alpha;
+                    positive_numerator += optim_numerator;
+                    positive_denominator += optim_denominator;
+//                    positive_alpha += optim_alpha;
                 }
             }
-            positive_alpha /= counter_positive;
-            negative_alpha /= counter_negative;
+            positive_alpha = positive_numerator / positive_denominator;
+            negative_alpha = negative_numerator / negative_denominator;
             return (counter_positive > counter_negative) ? positive_alpha : negative_alpha;
         }
 
