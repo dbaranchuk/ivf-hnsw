@@ -266,6 +266,10 @@ namespace hnswlib {
                 std::vector<uint8_t> xcodes(groupsize * code_size);
                 pq->compute_codes(residuals.data(), xcodes.data(), groupsize);
 
+                for (int k = 0; k < 5*code_size; k++){
+                    std::cout << (int) xcodes[k] << " ";
+                }
+                std::cout << std::endl;
                 /** Decode Codes **/
                 std::vector<float> decoded_residuals(groupsize*d);
                 pq->decode(xcodes.data(), decoded_residuals.data(), groupsize);
@@ -738,7 +742,8 @@ namespace hnswlib {
             fclose(fin);
         }
 
-        void train_residual_pq(const size_t n, const float *x) {
+        void train_residual_pq(const size_t n, const float *x)
+        {
             std::vector<float> train_residuals;
             std::vector<idx_t> assigned(n);
             assign(n, x, assigned.data());
