@@ -830,7 +830,7 @@ namespace hnswlib {
 
                 std::vector<idx_t> nn_centroids(nsubc);
                 std::vector<float> centroid_vector_norms(nsubc);
-                std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
+                auto nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
 
                 while (nn_centroids_raw.size() > 1) {
                     centroid_vector_norms[nn_centroids_raw.size() - 2] = nn_centroids_raw.top().first;
@@ -871,11 +871,6 @@ namespace hnswlib {
                 std::vector<uint8_t> xcodes(groupsize *code_size);
                 pq->compute_codes(residuals.data(), xcodes.data(), groupsize);
 
-                for (int k = 0; k < 5*code_size; k++){
-                    std::cout << (int) xcodes[k] << " ";
-                }
-                std::cout << std::endl;
-                
                 /** Decode Codes **/
                 std::vector<float> decoded_residuals(groupsize *d);
                 pq->decode(xcodes.data(), decoded_residuals.data(), groupsize);
