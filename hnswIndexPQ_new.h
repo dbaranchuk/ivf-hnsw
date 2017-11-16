@@ -740,6 +740,9 @@ namespace hnswlib {
 
         void train_residual_pq(const size_t n, const float *x)
         {
+            std::vector<float> train_subcentroids;
+            std::vector<idx_t> train_subcentroid_idxs;
+
             std::vector<float> train_residuals;
             std::vector<idx_t> assigned(n);
             assign(n, x, assigned.data());
@@ -794,14 +797,19 @@ namespace hnswlib {
                 std::vector<idx_t> subcentroid_idxs(groupsize);
                 compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data.data(), groupsize);
 
+
                 /** Compute Residuals **/
                 std::vector<float> residuals(groupsize * d);
                 compute_residuals(groupsize, residuals.data(), data.data(), subcentroids.data(),
                                   subcentroid_idxs.data());
 
-                for (int i = 0; i < groupsize; i++)
-                    for (int j = 0; j < d; j++)
+                for (int i = 0; i < groupsize; i++) {
+                    train_subcentroid_idxs.push_back(subcentroid_idxs[i]);
+                    for (int j = 0; j < d; j++) {
+                        train_subcentroids.push_back(subcentroids[i*d + j]);
                         train_residuals.push_back(residuals[i * d + j]);
+                    }
+                }
             }
 
             printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
@@ -811,7 +819,11 @@ namespace hnswlib {
 
             /** Norm PQ **/
             std::cout << "Training Norm PQ codebook " << std::endl;
+            std::vector<float> train_norms;
             const float *residuals = train_residuals.data();
+            const float *subcentroids = train_subcentroids.data();
+            const idx_t *subcentroid_idxs = train_subcentroid_idxs.data();
+
             for (auto p : group_map) {
                 const vector<float> data = p.second;
                 const int groupsize = data.size() / d;
@@ -837,6 +849,8 @@ namespace hnswlib {
                     train_norms.push_back(group_norms[i]);
 
                 residuals += groupsize*d;
+                subcentroids += groupsize*d;
+                subcentroid_idxs += groupsize;
             }
             printf("Training %zdx%zd product quantizer on %ld vectors in 1D\n", norm_pq->M, norm_pq->ksub, train_norms.size());
             norm_pq->verbose = true;
