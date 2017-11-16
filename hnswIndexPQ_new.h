@@ -823,6 +823,7 @@ namespace hnswlib {
             }
 
             for (auto p : group_map) {
+                std::cout << p.first << std::endl;
                 const idx_t centroid_num = p.first;
                 const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
                 const vector<float> data = p.second;
@@ -1299,7 +1300,6 @@ namespace hnswlib {
                 }
                 float optim_numerator = max_heap.top().second.first;
                 float optim_denominator = max_heap.top().second.second;
-                std:: cout << optim_numerator << " " << optim_denominator << " " << optim_numerator / optim_denominator << std::endl;
                 if (optim_numerator < 0) {
                     counter_negative++;
                     negative_numerator += optim_numerator;
