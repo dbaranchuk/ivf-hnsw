@@ -1267,18 +1267,18 @@ namespace hnswlib {
                     counter_negative++;
                     negative_numerator += optim_numerator;
                     negative_denominator += optim_denominator;
-                    negative_alpha += optim_numerator / optim_denominator;
+                    //negative_alpha += optim_numerator / optim_denominator;
                 } else {
                     counter_positive++;
                     positive_numerator += optim_numerator;
                     positive_denominator += optim_denominator;
-                    positive_alpha += optim_numerator / optim_denominator;
+                    //positive_alpha += optim_numerator / optim_denominator;
                 }
             }
-            positive_alpha /= groupsize;
-            negative_alpha /= groupsize;
-            //positive_alpha = positive_numerator / positive_denominator;
-            //negative_alpha = negative_numerator / negative_denominator;
+            //positive_alpha /= groupsize;
+            //negative_alpha /= groupsize;
+            positive_alpha = positive_numerator / positive_denominator;
+            negative_alpha = negative_numerator / negative_denominator;
             return (counter_positive > counter_negative) ? positive_alpha : negative_alpha;
         }
 
