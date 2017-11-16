@@ -1299,6 +1299,7 @@ namespace hnswlib {
                 }
                 float optim_numerator = max_heap.top().second.first;
                 float optim_denominator = max_heap.top().second.second;
+                std:: cout << optim_numerator << " " << optim_denominator << " " << optim_numerator / optim_denominator << std::endl;
                 if (optim_numerator < 0) {
                     counter_negative++;
                     negative_numerator += optim_numerator;
