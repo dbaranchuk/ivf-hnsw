@@ -738,7 +738,7 @@ namespace hnswlib {
             fclose(fin);
         }
 
-        void train_residual_pq(const size_t n, const float *x)
+        void train_pq(const size_t n, const float *x)
         {
             std::vector<float> train_subcentroids;
             std::vector<idx_t> train_subcentroid_idxs;
@@ -839,7 +839,7 @@ namespace hnswlib {
                 /** Reconstruct Data **/
                 std::vector<float> reconstructed_x(groupsize * d);
                 reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(),
-                            subcentroids.data(), subcentroid_idxs.data());
+                            subcentroids, subcentroid_idxs);
 
                 /** Compute norms **/
                 std::vector<float> group_norms(groupsize);
