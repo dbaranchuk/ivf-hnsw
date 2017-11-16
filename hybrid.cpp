@@ -663,7 +663,14 @@ void hybrid_test(const char *path_centroids,
         index->read(path_index);
     } else {
         /** Add elements **/
-        index->add<uint8_t>(path_groups, path_idxs);
+        switch (dataset) {
+            case Dataset::SIFT1B:
+                index->add<uint8_t>(path_groups, path_idxs);
+                break;
+            case Dataset::DEEP1B:
+                index->add<float>(path_groups, path_idxs);
+                break;
+        }
 
 //        size_t batch_size = 1000000;
 //        std::ifstream base_input(path_data, ios::binary);

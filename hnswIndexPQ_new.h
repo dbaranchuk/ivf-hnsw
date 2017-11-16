@@ -116,7 +116,7 @@ namespace hnswlib {
             quantizer->addPoint((void *) (mass), j1);
 
             size_t report_every = 100000;
-            #pragma omp parallel for num_threads(16)
+            #pragma omp parallel for
             for (int i = 1; i < nc; i++) {
                 float mass[d];
                 #pragma omp critical
@@ -135,7 +135,7 @@ namespace hnswlib {
 
         void assign(size_t n, const float *data, idx_t *idxs)
         {
-            #pragma omp parallel for num_threads(24)
+            #pragma omp parallel for
             for (int i = 0; i < n; i++)
                 idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i*d), 1).top().second;
         }
@@ -158,7 +158,7 @@ namespace hnswlib {
             /** Find NN centroids to source centroid **/
             std::cout << "Find NN centroids to source centroids\n";
 
-            #pragma omp parallel for num_threads(24)
+            #pragma omp parallel for
             for (int i = 0; i < nc; i++) {
                 const float *centroid = (float *) quantizer->getDataByInternalId(i);
                 std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
@@ -191,7 +191,7 @@ namespace hnswlib {
             /** Adding groups to index **/
             std::cout << "Adding groups to index\n";
             int j1 = 0;
-            #pragma omp parallel for reduction(+:baseline_average, modified_average) num_threads(24)
+            #pragma omp parallel for reduction(+:baseline_average, modified_average)
             for (int c = 0; c < nc; c++) {
                 /** Read Original vectors from Group file**/
                 idx_t centroid_num;
@@ -206,7 +206,8 @@ namespace hnswlib {
                     input_groups.read((char *) &groupsize, sizeof(int));
                     input_idxs.read((char *) &check_groupsize, sizeof(int));
                     if (check_groupsize != groupsize) {
-                        std::cout << "Wrong groupsize\n";
+                        std::cout << "Wrong groupsizes: " << groupsize << " vs "
+                                  << check_groupsize << std::endl;
                         exit(1);
                     }
 
@@ -797,7 +798,6 @@ namespace hnswlib {
                 std::vector<idx_t> subcentroid_idxs(groupsize);
                 compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data.data(), groupsize);
 
-
                 /** Compute Residuals **/
                 std::vector<float> residuals(groupsize * d);
                 compute_residuals(groupsize, residuals.data(), data.data(), subcentroids.data(),
@@ -1169,7 +1169,7 @@ namespace hnswlib {
     public:
         void compute_residuals(size_t n, float *residuals, const float *points, const float *subcentroids, const idx_t *keys)
 		{
-            #pragma omp parallel for num_threads(16)
+            //#pragma omp parallel for num_threads(16)
             for (idx_t i = 0; i < n; i++) {
                 const float *subcentroid = subcentroids + keys[i]*d;
                 const float *point = points + i*d;
@@ -1181,7 +1181,7 @@ namespace hnswlib {
 
         void reconstruct(size_t n, float *x, const float *decoded_residuals, const float *subcentroids, const idx_t *keys)
         {
-            #pragma omp parallel for num_threads(16)
+//            #pragma omp parallel for num_threads(16)
             for (idx_t i = 0; i < n; i++) {
                 const float *subcentroid = subcentroids + keys[i]*d;
                 const float *decoded_residual = decoded_residuals + i*d;
