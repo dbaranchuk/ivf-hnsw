@@ -639,29 +639,23 @@ void hybrid_test(const char *path_centroids,
     random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), vecdim, nt, sub_nt);
 
     /** Train residual PQ **/
-    if (exists_test(path_pq)) {
-        std::cout << "Loading PQ codebook from " << path_pq << std::endl;
+    if (exists_test(path_pq) && exists_test(path_norm_pq)) {
+        std::cout << "Loading Residual PQ codebook from " << path_pq << std::endl;
         read_pq(path_pq, index->pq);
-    }
-    else {
-        std::cout << "Training PQ codebook " << std::endl;
-        index->train_residual_pq(sub_nt, trainvecs_rnd_subset.data());
-        std::cout << "Saving PQ codebook to " << path_pq << std::endl;
-        write_pq(path_pq, index->pq);
-    }
 
-    /** Train norm PQ **/
-    if (exists_test(path_norm_pq)) {
-        std::cout << "Loading norm PQ codebook from " << path_norm_pq << std::endl;
+        std::cout << "Loading Norm PQ codebook from " << path_norm_pq << std::endl;
         read_pq(path_norm_pq, index->norm_pq);
     }
-    else{
-        std::cout << "Training Norm PQ codebook " << std::endl;
-        index->train_norm_pq(sub_nt, trainvecs_rnd_subset.data());
-        std::cout << "Saving norm PQ codebook to " << path_norm_pq << std::endl;
+    else {
+        std::cout << "Training PQ codebooks" << std::endl;
+        index->train_pq(sub_nt, trainvecs_rnd_subset.data());
+
+        std::cout << "Saving Residual PQ codebook to " << path_pq << std::endl;
+        write_pq(path_pq, index->pq);
+
+        std::cout << "Saving Norm PQ codebook to " << path_norm_pq << std::endl;
         write_pq(path_norm_pq, index->norm_pq);
     }
-
 
     if (exists_test(path_index)){
         /** Load Index **/
