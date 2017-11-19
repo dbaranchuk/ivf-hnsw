@@ -139,11 +139,11 @@ namespace hnswlib {
 		HierarchicalNSW<float, float> *quantizer;
 
     public:
-		Index(size_t dim, size_t ncentroids,
+		IndexIVF_HNSW_PQ(size_t dim, size_t ncentroids,
 			  size_t bytes_per_code, size_t nbits_per_idx);
 
 
-		~Index();
+		~IndexIVF_HNSW_PQ();
 
 		void buildQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                             const char *path_info, const char *path_edges, int efSearch);
