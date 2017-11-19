@@ -11,12 +11,12 @@ set(SOURCE_EXE main.cpp)
 set(SOURCE_LIB1 hybrid.cpp)
 set(SOURCE_LIB2 IndexIVF_HNSW_PQ.cpp)
 
-#file(GLOB faiss_cpu_headers *.h)
-#file(GLOB faiss_cpu_cpp *.cpp)
+file(GLOB cpu_headers *.h)
+file(GLOB cpu_cpp *.cpp)
 #set(faiss_lib faiss)
-#add_library(${faiss_lib} STATIC ${faiss_cpu_headers} ${faiss_cpu_cpp})
+add_library(hybrid_test STATIC ${cpu_headers} ${cpu_cpp})
 
-add_library(hybrid_test STATIC ${SOURCE_LIB1} ${SOURCE_LIB2})
+#add_library(hybrid_test STATIC ${SOURCE_LIB1} ${SOURCE_LIB2})
 
 add_subdirectory(faiss)
 
