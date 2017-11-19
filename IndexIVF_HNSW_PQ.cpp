@@ -400,6 +400,9 @@ void IndexIVF_HNSW_PQ::compute_residuals(size_t n, const float *x, float *residu
     }
 }
 
+
+
+
 /** IVF + HNSW + Grouping + Pruning **/
 ModifiedIndex::ModifiedIndex(size_t dim, size_t ncentroids, size_t bytes_per_code,
                              size_t nbits_per_idx, size_t nsubcentroids = 64) :
