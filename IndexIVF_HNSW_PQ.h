@@ -181,7 +181,7 @@ namespace hnswlib {
 
         void compute_graphic(float *x, const idx_t *groundtruth, size_t gt_dim, size_t qsize);
 
-        void compute_s_c() {}
+        void compute_s_c();
 
     private:
         std::vector < float > dis_table;
