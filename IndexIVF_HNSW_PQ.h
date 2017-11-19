@@ -239,7 +239,7 @@ namespace hnswlib {
         void add(const char *path_groups, const char *path_idxs);
         double average_max_codes = 0;
 
-        void search(float *x, idx_t k, float *distances, long *labels)''
+        void search(float *x, idx_t k, float *distances, long *labels);
 
         int counter_reused = 0;
         int counter_computed = 0;
