@@ -314,50 +314,7 @@ void IndexIVF_HNSW_PQ::compute_centroid_norms() {
     }
 }
 
-void IndexIVF_HNSW_PQ::compute_graphic(float *x, const idx_t *groundtruth, size_t gt_dim, size_t qsize) {
-    for (int k = 0; k < 21; k++) {
-        const size_t maxcodes = 1 << k;
-        const size_t probes = (k <= 14) ? 512 : 2560;
-        quantizer->ef_ = (k <= 14) ? 1280 : 2560;
-
-        double correct = 0;
-        idx_t keys[probes];
-
-        for (int q_idx = 0; q_idx < qsize; q_idx++) {
-            auto coarse = quantizer->searchKnn(x + q_idx * d, probes);
-            idx_t gt = groundtruth[gt_dim * q_idx];
-
-            for (int i = probes - 1; i >= 0; i--) {
-                keys[i] = coarse.top().second;
-                coarse.pop();
-            }
-
-            size_t counter = 0;
-            for (int i = 0; i < probes; i++) {
-                idx_t key = keys[i];
-                int groupsize = norm_codes[key].size();
-
-                int prev_correct = correct;
-                for (int j = 0; j < groupsize; j++) {
-                    idx_t label = ids[key][j];
-                    if (label == gt) {
-                        correct++;
-                        break;
-                    }
-                    counter++;
-                    if (counter == maxcodes)
-                        break;
-                }
-                if (counter == maxcodes || correct == prev_correct + 1)
-                    break;
-            }
-        }
-        std::cout << k << " " << correct / qsize << std::endl;
-    }
-}
-
 void IndexIVF_HNSW_PQ::compute_s_c() {}
-
 
 float IndexIVF_HNSW_PQ::fstdistfunc(uint8_t *code) {
     float result = 0.;
