@@ -16,7 +16,7 @@ set(SOURCE_LIB2 IndexIVF_HNSW_PQ.cpp)
 #set(faiss_lib faiss)
 #add_library(${faiss_lib} STATIC ${faiss_cpu_headers} ${faiss_cpu_cpp})
 
-add_library(hybrid_test STATIC ${SOURCE_LIB1} ${SOURCE_LIB2})
+add_library(hybrid_test STATIC ${SOURCE_LIB1}) #${SOURCE_LIB2})
 
 add_subdirectory(faiss)
 
