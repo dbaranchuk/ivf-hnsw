@@ -19,14 +19,8 @@ using namespace hnswlib;
 
 /** Common IndexIVF + HNSW **/
 
-IndexIVF_HNSW_PQ::Index(size_t
-dim,
-size_t ncentroids, size_t
-bytes_per_code,
-size_t nbits_per_idx
-):
-
-d (dim), nc(ncentroids) {
+IndexIVF_HNSW_PQ::IndexIVF_HNSW_PQ(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx): d (dim), nc(ncentroids)
+{
     codes.resize(ncentroids);
     norm_codes.resize(ncentroids);
     ids.resize(ncentroids);
@@ -42,7 +36,7 @@ d (dim), nc(ncentroids) {
 }
 
 
-IndexIVF_HNSW_PQ::~Index() {
+IndexIVF_HNSW_PQ::~IndexIVF_HNSW_PQ() {
     delete pq;
     delete norm_pq;
     delete quantizer;
