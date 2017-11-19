@@ -270,6 +270,4 @@ namespace hnswlib {
             }
         };
     };
-
-}
 }
