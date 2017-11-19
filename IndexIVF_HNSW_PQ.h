@@ -67,9 +67,57 @@ void readXvecFvec(std::ifstream &input, float *data, const int d, const int n = 
     }
 }
 
+void read_pq(const char *path, faiss::ProductQuantizer *_pq)
+{
+    if (!_pq) {
+        std::cout << "PQ object does not exists" << std::endl;
+        return;
+    }
+    FILE *fin = fopen(path, "rb");
+
+    fread(&_pq->d, sizeof(size_t), 1, fin);
+    fread(&_pq->M, sizeof(size_t), 1, fin);
+    fread(&_pq->nbits, sizeof(size_t), 1, fin);
+    _pq->set_derived_values ();
+
+    size_t size;
+    fread (&size, sizeof(size_t), 1, fin);
+    _pq->centroids.resize(size);
+
+    float *centroids = _pq->centroids.data();
+    fread(centroids, sizeof(float), size, fin);
+
+    std::cout << _pq->d << " " << _pq->M << " " << _pq->nbits << " " << _pq->byte_per_idx << " " << _pq->dsub << " "
+              << _pq->code_size << " " << _pq->ksub << " " << size << " " << centroids[0] << std::endl;
+    fclose(fin);
+}
+
+void write_pq(const char *path, faiss::ProductQuantizer *_pq)
+{
+    if (!_pq){
+        std::cout << "PQ object does not exist" << std::endl;
+        return;
+    }
+    FILE *fout = fopen(path, "wb");
+
+    fwrite(&_pq->d, sizeof(size_t), 1, fout);
+    fwrite(&_pq->M, sizeof(size_t), 1, fout);
+    fwrite(&_pq->nbits, sizeof(size_t), 1, fout);
+
+    size_t size = _pq->centroids.size();
+    fwrite (&size, sizeof(size_t), 1, fout);
+
+    float *centroids = _pq->centroids.data();
+    fwrite(centroids, sizeof(float), size, fout);
+
+    std::cout << _pq->d << " " << _pq->M << " " << _pq->nbits << " " << _pq->byte_per_idx << " " << _pq->dsub << " "
+              << _pq->code_size << " " << _pq->ksub << " " << size << " " << centroids[0] << std::endl;
+    fclose(fout);
+}
+
+
+
 namespace hnswlib {
-    void read_pq(const char *path, faiss::ProductQuantizer *_pq);
-    void write_pq(const char *path, faiss::ProductQuantizer *_pq);
 
     struct IndexIVF_HNSW_PQ
 	{
@@ -122,18 +170,12 @@ namespace hnswlib {
 
         void train_residual_pq(idx_t n, const float *x);
 
-
         void precompute_idx(size_t n, const char *path_data, const char *fo_name);
 
-
         void write(const char *path_index);
-
         void read(const char *path_index);
 
         void compute_centroid_norms();
-
-        void compute_graphic(float *x, const idx_t *groundtruth, size_t gt_dim, size_t qsize);
-
         void compute_s_c();
 
     private:
@@ -197,14 +239,13 @@ namespace hnswlib {
         int filter_points = 0;
 
         void searchGF(float *x, idx_t k, float *distances, long *labels);
-
         void searchG(float *x, idx_t k, float *distances, long *labels);
+
         void write(const char *path_index);
         void read(const char *path_index);
         void train_pq(const size_t n, const float *x);
 
         void compute_centroid_norms();
-
         void compute_s_c();
     private:
         std::vector<float> q_s;
@@ -219,7 +260,6 @@ namespace hnswlib {
 
         void reconstruct(size_t n, float *x, const float *decoded_residuals, const float *subcentroids, const idx_t *keys);
 
-        /** NEW **/
         void sub_vectors(float *target, const float *x, const float *y);
         void compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
                                       const float *points, const int groupsize);
