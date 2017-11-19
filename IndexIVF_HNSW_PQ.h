@@ -224,9 +224,7 @@ namespace hnswlib {
     public:
 
         ModifiedIndex(size_t dim, size_t ncentroids, size_t bytes_per_code,
-                      size_t nbits_per_idx, size_t nsubcentroids = 64):
-                d(dim), nc(ncentroids), nsubc(nsubcentroids);
-
+                      size_t nbits_per_idx, size_t nsubcentroids = 64);
 
         ~ModifiedIndex();
 
