@@ -45,13 +45,3 @@ if(BUILD_WITH_GPU)
     include(cmake/Cuda.cmake)
     add_subdirectory(gpu)
 endif(BUILD_WITH_GPU)
-
-# build tutorial examples
-if(BUILD_TUTORIAL)
-    add_subdirectory(tutorial)
-endif(BUILD_TUTORIAL)
-
-# build tests
-if(BUILD_TEST)
-    add_subdirectory(tests)
-endif(BUILD_TEST)
