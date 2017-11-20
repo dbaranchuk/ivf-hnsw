@@ -9,14 +9,14 @@ project(IVF_HNSW)
 set(SOURCE_EXE main.cpp)            
 
 set(SOURCE_LIB1 hybrid.cpp)
-set(SOURCE_LIB2 IndexIVF_HNSW_PQ.cpp)
+#set(SOURCE_LIB2 IndexIVF_HNSW_PQ.cpp)
 
 #file(GLOB cpu_headers *.h)
 #file(GLOB cpu_cpp *.cpp)
 #set(faiss_lib faiss)
 #add_library(ivf_hnsw STATIC ${cpu_headers} ${cpu_cpp})
 
-add_library(ivf_hnsw STATIC ${SOURCE_LIB1} ${SOURCE_LIB2})
+add_library(ivf_hnsw STATIC ${SOURCE_LIB1})
 
 add_subdirectory(faiss)
 
