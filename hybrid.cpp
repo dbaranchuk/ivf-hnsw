@@ -1,16 +1,5 @@
-#include <iostream>
-#include <fstream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <queue>
-#include <chrono>
 #include "IndexIVF_HNSW_PQ.h"
-#include "hnswlib.h"
 
-#include <cmath>
-#include <map>
-#include <set>
-#include <unordered_set>
 using namespace std;
 using namespace hnswlib;
 
