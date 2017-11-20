@@ -388,7 +388,7 @@ void ProductQuantizer::compute_codes (const float * x,
 {
     if (dsub < 16) { // simple direct computation
 
-#pragma omp parallel for num_threads(20)
+#pragma omp parallel for
         for (size_t i = 0; i < n; i++)
             compute_code (x + i * d, codes + i * code_size);
 
@@ -397,7 +397,7 @@ void ProductQuantizer::compute_codes (const float * x,
         ScopeDeleter<float> del (dis_tables);
         compute_distance_tables (n, x, dis_tables);
 
-#pragma omp parallel for num_threads(20)
+#pragma omp parallel for
         for (size_t i = 0; i < n; i++) {
             uint8_t * code = codes + i * code_size;
             const float * tab = dis_tables + i * ksub * M;
@@ -444,12 +444,13 @@ void ProductQuantizer::compute_distance_tables (
 
     if (dsub < 16) {
 
-#pragma omp parallel for num_threads(16)
+#pragma omp parallel for
         for (size_t i = 0; i < nx; i++) {
             compute_distance_table (x + i * d, dis_tables + i * ksub * M);
         }
 
     } else { // use BLAS
+
         for (int m = 0; m < M; m++) {
             pairwise_L2sqr (dsub,
                             nx, x + dsub * m,
@@ -468,7 +469,7 @@ void ProductQuantizer::compute_inner_prod_tables (
 
     if (dsub < 16) {
 
-#pragma omp parallel for num_threads(16)
+#pragma omp parallel for
         for (size_t i = 0; i < nx; i++) {
             compute_inner_prod_table (x + i * d, dis_tables + i * ksub * M);
         }
@@ -504,7 +505,7 @@ static void pq_knn_search_with_tables (
     size_t ksub = pq->ksub, M = pq->M;
 
 
-#pragma omp parallel for num_threads(16)
+#pragma omp parallel for
     for (size_t i = 0; i < nx; i++) {
         /* query preparation for asymmetric search: compute look-up tables */
         const float* dis_table = dis_tables + i * ksub * M;
@@ -574,6 +575,7 @@ void ProductQuantizer::search_ip (const float * __restrict x,
     compute_inner_prod_tables (nx, x, dis_tables);
 
     if (byte_per_idx == 1) {
+
         pq_knn_search_with_tables<uint8_t, CMin<float, long> > (
              this, dis_tables, codes, ncodes, res, init_finalize_heap);
 
@@ -625,7 +627,7 @@ void ProductQuantizer::search_sdc (const uint8_t * qcodes,
     size_t k = res->k;
 
 
-#pragma omp parallel for num_threads(16)
+#pragma omp parallel for
     for (size_t i = 0; i < nq; i++) {
 
         /* Compute distances and keep smallest values */

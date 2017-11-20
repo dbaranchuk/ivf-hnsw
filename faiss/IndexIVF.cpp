@@ -123,7 +123,7 @@ long IndexIVF::remove_ids (const IDSelector & sel)
     FAISS_THROW_IF_NOT_MSG (!maintain_direct_map,
                     "direct map remove not implemented");
     long nremove = 0;
-//#pragma omp parallel for reduction(+: nremove)
+#pragma omp parallel for reduction(+: nremove)
     for (long i = 0; i < nlist; i++) {
         std::vector<idx_t> & idsi = ids[i];
         uint8_t * codesi = codes[i].data();
@@ -394,7 +394,7 @@ void search_knn_inner_product (const IndexIVFFlat & ivf,
     size_t nlistv = 0, ndis = 0;
     size_t d = ivf.d;
 
-//#pragma omp parallel for reduction(+: nlistv, ndis)
+#pragma omp parallel for reduction(+: nlistv, ndis)
     for (size_t i = 0; i < nx; i++) {
         const float * xi = x + i * d;
         const long * keysi = keys + i * ivf.nprobe;
@@ -446,7 +446,7 @@ void search_knn_L2sqr (const IndexIVFFlat &ivf,
     const size_t k = res->k;
     size_t nlistv = 0, ndis = 0;
     size_t d = ivf.d;
-//#pragma omp parallel for reduction(+: nlistv, ndis)
+#pragma omp parallel for reduction(+: nlistv, ndis)
     for (size_t i = 0; i < nx; i++) {
         const float * xi = x + i * d;
         const long * keysi = keys + i * ivf.nprobe;
@@ -516,7 +516,7 @@ void IndexIVFFlat::range_search (idx_t nx, const float *x, float radius,
     ScopeDeleter<idx_t> del (keys);
     quantizer->assign (nx, x, keys, nprobe);
 
-//#pragma omp parallel
+#pragma omp parallel
     {
         RangeSearchPartialResult pres(result);
 

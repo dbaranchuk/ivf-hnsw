@@ -64,7 +64,8 @@ static double imbalance_factor (int n, int k, long *assign) {
 
 
 void Clustering::train (idx_t nx, const float *x_in, Index & index) {
-    FAISS_THROW_IF_NOT_MSG (nx >= k, "need at least as many training points as clusters");
+    FAISS_THROW_IF_NOT_MSG (nx >= k,
+                    "need at least as many training points as clusters");
 
     double t0 = getmillisecs();
 
@@ -134,7 +135,7 @@ void Clustering::train (idx_t nx, const float *x_in, Index & index) {
             std::vector<int> perm (nx);
 
             rand_perm (perm.data(), nx, seed + 1 + redo * 15486557L);
-#pragma omp parallel for num_threads(16)
+#pragma omp parallel for
             for (int i = 0; i < k ; i++)
                 memcpy (&cur_centroids[i * d], x + perm[i] * d,
                         d * sizeof (float));

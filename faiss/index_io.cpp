@@ -198,7 +198,7 @@ void write_VectorTransform (const VectorTransform *vt, FILE *f) {
     WRITE1 (vt->is_trained);
 }
 
-void write_ProductQuantizer (const ProductQuantizer *pq, FILE *f) {
+static void write_ProductQuantizer (const ProductQuantizer *pq, FILE *f) {
     WRITE1 (pq->d);
     WRITE1 (pq->M);
     WRITE1 (pq->nbits);
@@ -428,7 +428,7 @@ VectorTransform* read_VectorTransform (FILE *f) {
     return vt;
 }
 
-void read_ProductQuantizer (ProductQuantizer *pq, FILE *f) {
+static void read_ProductQuantizer (ProductQuantizer *pq, FILE *f) {
     READ1 (pq->d);
     READ1 (pq->M);
     READ1 (pq->nbits);

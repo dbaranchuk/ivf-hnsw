@@ -35,6 +35,9 @@
 namespace faiss {
 
 
+
+
+
 /*****************************************
  * IndexIVFPQ implementation
  ******************************************/
@@ -48,7 +51,7 @@ IndexIVFPQ::IndexIVFPQ (Index * quantizer, size_t d, size_t nlist,
     code_size = pq.code_size;
     is_trained = false;
     by_residual = true;
-    use_precomputed_table = 2;
+    use_precomputed_table = 0;
     scan_table_threshold = 0;
     max_codes = 0; // means unlimited
 
@@ -217,7 +220,8 @@ void IndexIVFPQ::add_core_o (idx_t n, const float * x, const long *xids,
             if (idx[i] < 0)
                 memset (residuals + i * d, 0, sizeof(*residuals) * d);
             else
-                quantizer->compute_residual (x + i * d, residuals + i * d, idx[i]);
+                quantizer->compute_residual (
+                    x + i * d, residuals + i * d, idx[i]);
         }
         to_encode = residuals;
         del_to_encode.set (to_encode);
@@ -935,7 +939,7 @@ void IndexIVFPQ::search_preassigned (idx_t nx, const float *qx, idx_t k,
         labels, distances
     };
 
-//#pragma omp parallel
+#pragma omp parallel
     {
         InvertedListScanner<long> qt (*this);
         size_t stats_nlist = 0;
@@ -944,7 +948,7 @@ void IndexIVFPQ::search_preassigned (idx_t nx, const float *qx, idx_t k,
         uint64_t scan_cycles = 0;
         uint64_t heap_cycles = 0;
 
-//#pragma omp  for
+#pragma omp  for
         for (size_t i = 0; i < nx; i++) {
             const float *qi = qx + i * d;
             const long * keysi = keys + i * nprobe;
@@ -1008,7 +1012,7 @@ void IndexIVFPQ::search_preassigned (idx_t nx, const float *qx, idx_t k,
             heap_cycles += TOC;
         }
 
-//#pragma omp critical
+#pragma omp critical
         {
             indexIVFPQ_stats.n_hamming_pass += qt.n_hamming_pass;
             indexIVFPQ_stats.nlist += stats_nlist;
@@ -1405,7 +1409,7 @@ void IndexIVFPQCompact::search_preassigned (idx_t nx, const float *qx, idx_t k,
         labels, distances
     };
 
-//#pragma omp parallel
+#pragma omp parallel
     {
         InvertedListScanner<uint32_t> qt (*this);
         size_t stats_nlist = 0;
@@ -1414,7 +1418,7 @@ void IndexIVFPQCompact::search_preassigned (idx_t nx, const float *qx, idx_t k,
         uint64_t scan_cycles = 0;
         uint64_t heap_cycles = 0;
 
-//#pragma omp  for
+#pragma omp  for
         for (size_t i = 0; i < nx; i++) {
             const float *qi = qx + i * d;
             const long * keysi = keys + i * nprobe;
@@ -1478,7 +1482,7 @@ void IndexIVFPQCompact::search_preassigned (idx_t nx, const float *qx, idx_t k,
             heap_cycles += TOC;
         }
 
-//#pragma omp critical
+#pragma omp critical
         {
             indexIVFPQ_stats.n_hamming_pass += qt.n_hamming_pass;
             indexIVFPQ_stats.nlist += stats_nlist;

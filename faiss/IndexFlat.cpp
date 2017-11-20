@@ -197,7 +197,7 @@ static void reorder_2_heaps (
       idx_t k, idx_t *labels, float *distances,
       idx_t k_base, const idx_t *base_labels, const float *base_distances)
 {
-#pragma omp parallel for num_threads(16)
+#pragma omp parallel for
     for (idx_t i = 0; i < n; i++) {
         idx_t *idxo = labels + i * k;
         float *diso = distances + i * k;
@@ -314,7 +314,7 @@ void IndexFlat1D::search (
     FAISS_THROW_IF_NOT_MSG (perm.size() == ntotal,
                     "Call update_permutation before search");
 
-#pragma omp parallel for num_threads(16)
+#pragma omp parallel for
     for (idx_t i = 0; i < n; i++) {
 
         float q = x[i]; // query
