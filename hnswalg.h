@@ -65,7 +65,6 @@ namespace hnswlib {
             cur_element_count = 0;
 
             visitedlistpool = new VisitedListPool(1, maxelements_);
-            visitedsetpool = new VisitedSetPool(1);
             //initializations for special treatment of the first node
             enterpoint_node = -1;
             maxlevel_ = -1;
@@ -78,7 +77,6 @@ namespace hnswlib {
         ~HierarchicalNSW()
         {
             free(data_level0_memory_);
-            delete visitedsetpool;
             delete visitedlistpool;
         }
         // Fields
@@ -91,7 +89,6 @@ namespace hnswlib {
         int maxlevel_;
 
         VisitedListPool *visitedlistpool;
-        VisitedSetPool *visitedsetpool;
 
         mutex cur_element_count_guard_;
         mutex MaxLevelGuard_;
@@ -568,7 +565,6 @@ namespace hnswlib {
             cur_element_count = maxelements_;
 
             visitedlistpool = new VisitedListPool(1, maxelements_);
-            visitedsetpool = new VisitedSetPool(1);
 
             elementLevels = vector<char>(maxelements_);
             for (size_t i = 0; i < maxelements_; ++i)
