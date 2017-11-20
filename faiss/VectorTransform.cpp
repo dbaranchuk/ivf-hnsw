@@ -270,144 +270,144 @@ void eig(size_t d_in, double *cov, double *eigenvalues, int verbose)
 
 void PCAMatrix::train (Index::idx_t n, const float *x)
 {
-    const float * x_in = x;
-
-    x = fvecs_maybe_subsample (d_in, (size_t*)&n,
-                               max_points_per_d * d_in, x, verbose);
-
-    ScopeDeleter<float> del_x (x != x_in ? x : nullptr);
-
-    // compute mean
-    mean.clear(); mean.resize(d_in, 0.0);
-    if (have_bias) { // we may want to skip the bias
-        const float *xi = x;
-        for (int i = 0; i < n; i++) {
-            for(int j = 0; j < d_in; j++)
-                mean[j] += *xi++;
-        }
-        for(int j = 0; j < d_in; j++)
-            mean[j] /= n;
-    }
-    if(verbose) {
-        printf("mean=[");
-        for(int j = 0; j < d_in; j++) printf("%g ", mean[j]);
-        printf("]\n");
-    }
-
-    if(n >= d_in) {
-        // compute covariance matrix, store it in PCA matrix
-        PCAMat.resize(d_in * d_in);
-        float * cov = PCAMat.data();
-        { // initialize with  mean * mean^T term
-            float *ci = cov;
-            for(int i = 0; i < d_in; i++) {
-                for(int j = 0; j < d_in; j++)
-                    *ci++ = - n * mean[i] * mean[j];
-            }
-        }
-        {
-            FINTEGER di = d_in, ni = n;
-            float one = 1.0;
-            ssyrk_ ("Up", "Non transposed",
-                    &di, &ni, &one, (float*)x, &di, &one, cov, &di);
-
-        }
-        if(verbose && d_in <= 10) {
-            float *ci = cov;
-            printf("cov=\n");
-            for(int i = 0; i < d_in; i++) {
-                for(int j = 0; j < d_in; j++)
-                    printf("%10g ", *ci++);
-                printf("\n");
-            }
-        }
-
-        std::vector<double> covd (d_in * d_in);
-        for (size_t i = 0; i < d_in * d_in; i++) covd [i] = cov [i];
-
-        std::vector<double> eigenvaluesd (d_in);
-
-        eig (d_in, covd.data (), eigenvaluesd.data (), verbose);
-
-        for (size_t i = 0; i < d_in * d_in; i++) PCAMat [i] = covd [i];
-        eigenvalues.resize (d_in);
-
-        for (size_t i = 0; i < d_in; i++)
-            eigenvalues [i] = eigenvaluesd [i];
-
-
-    } else {
-
-        std::vector<float> xc (n * d_in);
-
-        for (size_t i = 0; i < n; i++)
-            for(size_t j = 0; j < d_in; j++)
-                xc [i * d_in + j] = x [i * d_in + j] - mean[j];
-
-        // compute Gram matrix
-        std::vector<float> gram (n * n);
-        {
-            FINTEGER di = d_in, ni = n;
-            float one = 1.0, zero = 0.0;
-            ssyrk_ ("Up", "Transposed",
-                    &ni, &di, &one, xc.data(), &di, &zero, gram.data(), &ni);
-        }
-
-        if(verbose && d_in <= 10) {
-            float *ci = gram.data();
-            printf("gram=\n");
-            for(int i = 0; i < n; i++) {
-                for(int j = 0; j < n; j++)
-                    printf("%10g ", *ci++);
-                printf("\n");
-            }
-        }
-
-        std::vector<double> gramd (n * n);
-        for (size_t i = 0; i < n * n; i++)
-            gramd [i] = gram [i];
-
-        std::vector<double> eigenvaluesd (n);
-
-        // eig will fill in only the n first eigenvals
-
-        eig (n, gramd.data (), eigenvaluesd.data (), verbose);
-
-        PCAMat.resize(d_in * n);
-
-        for (size_t i = 0; i < n * n; i++)
-            gram [i] = gramd [i];
-
-        eigenvalues.resize (d_in);
-        // fill in only the n first ones
-        for (size_t i = 0; i < n; i++)
-            eigenvalues [i] = eigenvaluesd [i];
-
-        { // compute PCAMat = x' * v
-            FINTEGER di = d_in, ni = n;
-            float one = 1.0;
-
-            sgemm_ ("Non", "Non Trans",
-                    &di, &ni, &ni,
-                    &one, xc.data(), &di, gram.data(), &ni,
-                    &one, PCAMat.data(), &di);
-        }
-
-        if(verbose && d_in <= 10) {
-            float *ci = PCAMat.data();
-            printf("PCAMat=\n");
-            for(int i = 0; i < n; i++) {
-                for(int j = 0; j < d_in; j++)
-                    printf("%10g ", *ci++);
-                printf("\n");
-            }
-        }
-        fvec_renorm_L2 (d_in, n, PCAMat.data());
-
-    }
-
-    prepare_Ab();
-    is_trained = true;
+//    const float * x_in = x;
+//
+//    x = fvecs_maybe_subsample (d_in, (size_t*)&n,
+//                               max_points_per_d * d_in, x, verbose);
+//
+//    ScopeDeleter<float> del_x (x != x_in ? x : nullptr);
+//
+//    // compute mean
+//    mean.clear(); mean.resize(d_in, 0.0);
+//    if (have_bias) { // we may want to skip the bias
+//        const float *xi = x;
+//        for (int i = 0; i < n; i++) {
+//            for(int j = 0; j < d_in; j++)
+//                mean[j] += *xi++;
+//        }
+//        for(int j = 0; j < d_in; j++)
+//            mean[j] /= n;
+//    }
+//    if(verbose) {
+//        printf("mean=[");
+//        for(int j = 0; j < d_in; j++) printf("%g ", mean[j]);
+//        printf("]\n");
+//    }
+//
+//    if(n >= d_in) {
+//        // compute covariance matrix, store it in PCA matrix
+//        PCAMat.resize(d_in * d_in);
+//        float * cov = PCAMat.data();
+//        { // initialize with  mean * mean^T term
+//            float *ci = cov;
+//            for(int i = 0; i < d_in; i++) {
+//                for(int j = 0; j < d_in; j++)
+//                    *ci++ = - n * mean[i] * mean[j];
+//            }
+//        }
+//        {
+//            FINTEGER di = d_in, ni = n;
+//            float one = 1.0;
+//            ssyrk_ ("Up", "Non transposed",
+//                    &di, &ni, &one, (float*)x, &di, &one, cov, &di);
+//
+//        }
+//        if(verbose && d_in <= 10) {
+//            float *ci = cov;
+//            printf("cov=\n");
+//            for(int i = 0; i < d_in; i++) {
+//                for(int j = 0; j < d_in; j++)
+//                    printf("%10g ", *ci++);
+//                printf("\n");
+//            }
+//        }
+//
+//        std::vector<double> covd (d_in * d_in);
+//        for (size_t i = 0; i < d_in * d_in; i++) covd [i] = cov [i];
+//
+//        std::vector<double> eigenvaluesd (d_in);
+//
+//        eig (d_in, covd.data (), eigenvaluesd.data (), verbose);
+//
+//        for (size_t i = 0; i < d_in * d_in; i++) PCAMat [i] = covd [i];
+//        eigenvalues.resize (d_in);
+//
+//        for (size_t i = 0; i < d_in; i++)
+//            eigenvalues [i] = eigenvaluesd [i];
+//
+//
+//    } else {
+//
+//        std::vector<float> xc (n * d_in);
+//
+//        for (size_t i = 0; i < n; i++)
+//            for(size_t j = 0; j < d_in; j++)
+//                xc [i * d_in + j] = x [i * d_in + j] - mean[j];
+//
+//        // compute Gram matrix
+//        std::vector<float> gram (n * n);
+//        {
+//            FINTEGER di = d_in, ni = n;
+//            float one = 1.0, zero = 0.0;
+//            ssyrk_ ("Up", "Transposed",
+//                    &ni, &di, &one, xc.data(), &di, &zero, gram.data(), &ni);
+//        }
+//
+//        if(verbose && d_in <= 10) {
+//            float *ci = gram.data();
+//            printf("gram=\n");
+//            for(int i = 0; i < n; i++) {
+//                for(int j = 0; j < n; j++)
+//                    printf("%10g ", *ci++);
+//                printf("\n");
+//            }
+//        }
+//
+//        std::vector<double> gramd (n * n);
+//        for (size_t i = 0; i < n * n; i++)
+//            gramd [i] = gram [i];
+//
+//        std::vector<double> eigenvaluesd (n);
+//
+//        // eig will fill in only the n first eigenvals
+//
+//        eig (n, gramd.data (), eigenvaluesd.data (), verbose);
+//
+//        PCAMat.resize(d_in * n);
+//
+//        for (size_t i = 0; i < n * n; i++)
+//            gram [i] = gramd [i];
+//
+//        eigenvalues.resize (d_in);
+//        // fill in only the n first ones
+//        for (size_t i = 0; i < n; i++)
+//            eigenvalues [i] = eigenvaluesd [i];
+//
+//        { // compute PCAMat = x' * v
+//            FINTEGER di = d_in, ni = n;
+//            float one = 1.0;
+//
+//            sgemm_ ("Non", "Non Trans",
+//                    &di, &ni, &ni,
+//                    &one, xc.data(), &di, gram.data(), &ni,
+//                    &one, PCAMat.data(), &di);
+//        }
+//
+//        if(verbose && d_in <= 10) {
+//            float *ci = PCAMat.data();
+//            printf("PCAMat=\n");
+//            for(int i = 0; i < n; i++) {
+//                for(int j = 0; j < d_in; j++)
+//                    printf("%10g ", *ci++);
+//                printf("\n");
+//            }
+//        }
+//        fvec_renorm_L2 (d_in, n, PCAMat.data());
+//
+//    }
+//
+//    prepare_Ab();
+//    is_trained = true;
 }
 
 void PCAMatrix::copy_from (const PCAMatrix & other)
