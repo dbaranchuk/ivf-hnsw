@@ -6,7 +6,7 @@ project(faiss C CXX)
 option(BUILD_TUTORIAL "Build tutorials" ON)
 option(BUILD_TEST "Build tests" ON)
 option(BUILD_WITH_GPU "Build faiss with gpu (cuda) support" ON)
-option(WITH_MKL "Build with MKL if ON (OpenBLAS if OFF)" OFF)
+option(WITH_MKL "Build with MKL if ON (OpenBLAS if OFF)" ON)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
