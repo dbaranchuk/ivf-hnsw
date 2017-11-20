@@ -1,7 +1,5 @@
 #pragma once
 
-#include <sparsehash/dense_hash_map>
-
 #include "hnswlib.h"
 #include "visited_list_pool.h"
 #include <random>
@@ -10,15 +8,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unordered_set>
-#include <unordered_map>
 #include <array>
 #include <map>
 #include <cmath>
 #include <queue>
-
-using google::dense_hash_map;
-using google::dense_hash_set;
 
 
 template<typename T>
