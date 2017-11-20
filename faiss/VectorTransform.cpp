@@ -39,27 +39,27 @@ int sgemm_ (
         FINTEGER *ldb, float *beta,
         float *c, FINTEGER *ldc);
 
-int ssyrk_ (
-        const char *uplo, const char *trans, FINTEGER *n, FINTEGER *k,
-        float *alpha, float *a, FINTEGER *lda,
-        float *beta, float *c, FINTEGER *ldc);
+//int ssyrk_ (
+//        const char *uplo, const char *trans, FINTEGER *n, FINTEGER *k,
+//        float *alpha, float *a, FINTEGER *lda,
+//        float *beta, float *c, FINTEGER *ldc);
 
 /* Lapack functions from http://www.netlib.org/clapack/old/single/ */
 
-int ssyev_ (
-        const char *jobz, const char *uplo, FINTEGER *n, float *a,
-        FINTEGER *lda, float *w, float *work, FINTEGER *lwork,
-        FINTEGER *info);
+//int ssyev_ (
+//        const char *jobz, const char *uplo, FINTEGER *n, float *a,
+//        FINTEGER *lda, float *w, float *work, FINTEGER *lwork,
+//        FINTEGER *info);
 
-int dsyev_ (
-        const char *jobz, const char *uplo, FINTEGER *n, double *a,
-        FINTEGER *lda, double *w, double *work, FINTEGER *lwork,
-        FINTEGER *info);
+//int dsyev_ (
+//        const char *jobz, const char *uplo, FINTEGER *n, double *a,
+//        FINTEGER *lda, double *w, double *work, FINTEGER *lwork,
+//        FINTEGER *info);
 
-int sgesvd_(
-        const char *jobu, const char *jobvt, FINTEGER *m, FINTEGER *n,
-        float *a, FINTEGER *lda, float *s, float *u, FINTEGER *ldu, float *vt,
-        FINTEGER *ldvt, float *work, FINTEGER *lwork, FINTEGER *info);
+//int sgesvd_(
+//        const char *jobu, const char *jobvt, FINTEGER *m, FINTEGER *n,
+//        float *a, FINTEGER *lda, float *s, float *u, FINTEGER *ldu, float *vt,
+//        FINTEGER *ldvt, float *work, FINTEGER *lwork, FINTEGER *info);
 
 }
 
@@ -214,54 +214,54 @@ namespace {
 
 void eig(size_t d_in, double *cov, double *eigenvalues, int verbose)
 {
-    { // compute eigenvalues and vectors
-        FINTEGER info = 0, lwork = -1, di = d_in;
-        double workq;
-
-        dsyev_ ("Vectors as well", "Upper",
-                &di, cov, &di, eigenvalues, &workq, &lwork, &info);
-        lwork = FINTEGER(workq);
-        double *work = new double[lwork];
-
-        dsyev_ ("Vectors as well", "Upper",
-                &di, cov, &di, eigenvalues, work, &lwork, &info);
-
-        delete [] work;
-
-        if (info != 0) {
-            fprintf (stderr, "WARN ssyev info returns %d, "
-                     "a very bad PCA matrix is learnt\n",
-                     int(info));
-            // do not throw exception, as the matrix could still be useful
-        }
-
-
-        if(verbose && d_in <= 10) {
-            printf("info=%ld new eigvals=[", long(info));
-            for(int j = 0; j < d_in; j++) printf("%g ", eigenvalues[j]);
-            printf("]\n");
-
-            double *ci = cov;
-            printf("eigenvecs=\n");
-            for(int i = 0; i < d_in; i++) {
-                for(int j = 0; j < d_in; j++)
-                    printf("%10.4g ", *ci++);
-                printf("\n");
-            }
-        }
-
-    }
-
-    // revert order of eigenvectors & values
-
-    for(int i = 0; i < d_in / 2; i++) {
-
-        std::swap(eigenvalues[i], eigenvalues[d_in - 1 - i]);
-        double *v1 = cov + i * d_in;
-        double *v2 = cov + (d_in - 1 - i) * d_in;
-        for(int j = 0; j < d_in; j++)
-            std::swap(v1[j], v2[j]);
-    }
+//    { // compute eigenvalues and vectors
+//        FINTEGER info = 0, lwork = -1, di = d_in;
+//        double workq;
+//
+//        dsyev_ ("Vectors as well", "Upper",
+//                &di, cov, &di, eigenvalues, &workq, &lwork, &info);
+//        lwork = FINTEGER(workq);
+//        double *work = new double[lwork];
+//
+//        dsyev_ ("Vectors as well", "Upper",
+//                &di, cov, &di, eigenvalues, work, &lwork, &info);
+//
+//        delete [] work;
+//
+//        if (info != 0) {
+//            fprintf (stderr, "WARN ssyev info returns %d, "
+//                     "a very bad PCA matrix is learnt\n",
+//                     int(info));
+//            // do not throw exception, as the matrix could still be useful
+//        }
+//
+//
+//        if(verbose && d_in <= 10) {
+//            printf("info=%ld new eigvals=[", long(info));
+//            for(int j = 0; j < d_in; j++) printf("%g ", eigenvalues[j]);
+//            printf("]\n");
+//
+//            double *ci = cov;
+//            printf("eigenvecs=\n");
+//            for(int i = 0; i < d_in; i++) {
+//                for(int j = 0; j < d_in; j++)
+//                    printf("%10.4g ", *ci++);
+//                printf("\n");
+//            }
+//        }
+//
+//    }
+//
+//    // revert order of eigenvectors & values
+//
+//    for(int i = 0; i < d_in / 2; i++) {
+//
+//        std::swap(eigenvalues[i], eigenvalues[d_in - 1 - i]);
+//        double *v1 = cov + i * d_in;
+//        double *v2 = cov + (d_in - 1 - i) * d_in;
+//        for(int j = 0; j < d_in; j++)
+//            std::swap(v1[j], v2[j]);
+//    }
 
 }
 
@@ -548,159 +548,159 @@ OPQMatrix::OPQMatrix (int d, int M, int d2):
 void OPQMatrix::train (Index::idx_t n, const float *x)
 {
 
-    const float * x_in = x;
-
-    x = fvecs_maybe_subsample (d_in, (size_t*)&n,
-                               max_train_points, x, verbose);
-
-    ScopeDeleter<float> del_x (x != x_in ? x : nullptr);
-
-    // To support d_out > d_in, we pad input vectors with 0s to d_out
-    size_t d = d_out <= d_in ? d_in : d_out;
-    size_t d2 = d_out;
-
-#if 0
-    // what this test shows: the only way of getting bit-exact
-    // reproducible results with sgeqrf and sgesvd seems to be forcing
-    // single-threading.
-    { // test repro
-        std::vector<float> r (d * d);
-        float * rotation = r.data();
-        float_randn (rotation, d * d, 1234);
-        printf("CS0: %016lx\n",
-               ivec_checksum (128*128, (int*)rotation));
-        matrix_qr (d, d, rotation);
-        printf("CS1: %016lx\n",
-               ivec_checksum (128*128, (int*)rotation));
-        return;
-    }
-#endif
-
-    if (verbose) {
-        printf ("OPQMatrix::train: training an OPQ rotation matrix "
-                "for M=%d from %ld vectors in %dD -> %dD\n",
-                M, n, d_in, d_out);
-    }
-
-    std::vector<float> xtrain (n * d);
-    // center x
-    {
-        std::vector<float> sum (d);
-        const float *xi = x;
-        for (size_t i = 0; i < n; i++) {
-            for (int j = 0; j < d_in; j++)
-                sum [j] += *xi++;
-        }
-        for (int i = 0; i < d; i++) sum[i] /= n;
-        float *yi = xtrain.data();
-        xi = x;
-        for (size_t i = 0; i < n; i++) {
-            for (int j = 0; j < d_in; j++)
-                *yi++ = *xi++ - sum[j];
-            yi += d - d_in;
-        }
-    }
-    float *rotation;
-
-    if (A.size () == 0) {
-        A.resize (d * d);
-        rotation = A.data();
-        if (verbose)
-            printf("  OPQMatrix::train: making random %ld*%ld rotation\n",
-                   d, d);
-        float_randn (rotation, d * d, 1234);
-        matrix_qr (d, d, rotation);
-        // we use only the d * d2 upper part of the matrix
-        A.resize (d * d2);
-    } else {
-        FAISS_THROW_IF_NOT (A.size() == d * d2);
-        rotation = A.data();
-    }
-
-
-    std::vector<float>
-        xproj (d2 * n), pq_recons (d2 * n), xxr (d * n),
-        tmp(d * d * 4);
-
-    std::vector<uint8_t> codes (M * n);
-    ProductQuantizer pq_regular (d2, M, 8);
-    double t0 = getmillisecs();
-    for (int iter = 0; iter < niter; iter++) {
-
-        { // torch.mm(xtrain, rotation:t())
-            FINTEGER di = d, d2i = d2, ni = n;
-            float zero = 0, one = 1;
-            sgemm_ ("Transposed", "Not transposed",
-                    &d2i, &ni, &di,
-                    &one, rotation, &di,
-                    xtrain.data(), &di,
-                    &zero, xproj.data(), &d2i);
-        }
-
-        pq_regular.cp.max_points_per_centroid = 1000;
-        pq_regular.cp.niter = iter == 0 ? niter_pq_0 : niter_pq;
-        pq_regular.cp.verbose = verbose;
-        pq_regular.train (n, xproj.data());
-
-        pq_regular.compute_codes (xproj.data(), codes.data(), n);
-        pq_regular.decode (codes.data(), pq_recons.data(), n);
-
-        float pq_err = fvec_L2sqr (pq_recons.data(), xproj.data(), n * d2) / n;
-
-        if (verbose)
-            printf ("    Iteration %d (%d PQ iterations):"
-                    "%.3f s, obj=%g\n", iter, pq_regular.cp.niter,
-                    (getmillisecs () - t0) / 1000.0, pq_err);
-
-        {
-            float *u = tmp.data(), *vt = &tmp [d * d];
-            float *sing_val = &tmp [2 * d * d];
-            FINTEGER di = d, d2i = d2, ni = n;
-            float one = 1, zero = 0;
-
-            // torch.mm(xtrain:t(), pq_recons)
-            sgemm_ ("Not", "Transposed",
-                    &d2i, &di, &ni,
-                    &one, pq_recons.data(), &d2i,
-                    xtrain.data(), &di,
-                    &zero, xxr.data(), &d2i);
-
-
-            FINTEGER lwork = -1, info = -1;
-            float worksz;
-            // workspace query
-            sgesvd_ ("All", "All",
-                     &d2i, &di, xxr.data(), &d2i,
-                     sing_val,
-                     vt, &d2i, u, &di,
-                     &worksz, &lwork, &info);
-
-            lwork = int(worksz);
-            std::vector<float> work (lwork);
-            // u and vt swapped
-            sgesvd_ ("All", "All",
-                     &d2i, &di, xxr.data(), &d2i,
-                     sing_val,
-                     vt, &d2i, u, &di,
-                     work.data(), &lwork, &info);
-
-            sgemm_ ("Transposed", "Transposed",
-                    &di, &d2i, &d2i,
-                    &one, u, &di, vt, &d2i,
-                    &zero, rotation, &di);
-
-        }
-        pq_regular.train_type = ProductQuantizer::Train_hot_start;
-    }
-
-    // revert A matrix
-    if (d > d_in) {
-        for (long i = 0; i < d_out; i++)
-            memmove (&A[i * d_in], &A[i * d], sizeof(A[0]) * d_in);
-        A.resize (d_in * d_out);
-    }
-
-    is_trained = true;
+//    const float * x_in = x;
+//
+//    x = fvecs_maybe_subsample (d_in, (size_t*)&n,
+//                               max_train_points, x, verbose);
+//
+//    ScopeDeleter<float> del_x (x != x_in ? x : nullptr);
+//
+//    // To support d_out > d_in, we pad input vectors with 0s to d_out
+//    size_t d = d_out <= d_in ? d_in : d_out;
+//    size_t d2 = d_out;
+//
+//#if 0
+//    // what this test shows: the only way of getting bit-exact
+//    // reproducible results with sgeqrf and sgesvd seems to be forcing
+//    // single-threading.
+//    { // test repro
+//        std::vector<float> r (d * d);
+//        float * rotation = r.data();
+//        float_randn (rotation, d * d, 1234);
+//        printf("CS0: %016lx\n",
+//               ivec_checksum (128*128, (int*)rotation));
+//        matrix_qr (d, d, rotation);
+//        printf("CS1: %016lx\n",
+//               ivec_checksum (128*128, (int*)rotation));
+//        return;
+//    }
+//#endif
+//
+//    if (verbose) {
+//        printf ("OPQMatrix::train: training an OPQ rotation matrix "
+//                "for M=%d from %ld vectors in %dD -> %dD\n",
+//                M, n, d_in, d_out);
+//    }
+//
+//    std::vector<float> xtrain (n * d);
+//    // center x
+//    {
+//        std::vector<float> sum (d);
+//        const float *xi = x;
+//        for (size_t i = 0; i < n; i++) {
+//            for (int j = 0; j < d_in; j++)
+//                sum [j] += *xi++;
+//        }
+//        for (int i = 0; i < d; i++) sum[i] /= n;
+//        float *yi = xtrain.data();
+//        xi = x;
+//        for (size_t i = 0; i < n; i++) {
+//            for (int j = 0; j < d_in; j++)
+//                *yi++ = *xi++ - sum[j];
+//            yi += d - d_in;
+//        }
+//    }
+//    float *rotation;
+//
+//    if (A.size () == 0) {
+//        A.resize (d * d);
+//        rotation = A.data();
+//        if (verbose)
+//            printf("  OPQMatrix::train: making random %ld*%ld rotation\n",
+//                   d, d);
+//        float_randn (rotation, d * d, 1234);
+//        matrix_qr (d, d, rotation);
+//        // we use only the d * d2 upper part of the matrix
+//        A.resize (d * d2);
+//    } else {
+//        FAISS_THROW_IF_NOT (A.size() == d * d2);
+//        rotation = A.data();
+//    }
+//
+//
+//    std::vector<float>
+//        xproj (d2 * n), pq_recons (d2 * n), xxr (d * n),
+//        tmp(d * d * 4);
+//
+//    std::vector<uint8_t> codes (M * n);
+//    ProductQuantizer pq_regular (d2, M, 8);
+//    double t0 = getmillisecs();
+//    for (int iter = 0; iter < niter; iter++) {
+//
+//        { // torch.mm(xtrain, rotation:t())
+//            FINTEGER di = d, d2i = d2, ni = n;
+//            float zero = 0, one = 1;
+//            sgemm_ ("Transposed", "Not transposed",
+//                    &d2i, &ni, &di,
+//                    &one, rotation, &di,
+//                    xtrain.data(), &di,
+//                    &zero, xproj.data(), &d2i);
+//        }
+//
+//        pq_regular.cp.max_points_per_centroid = 1000;
+//        pq_regular.cp.niter = iter == 0 ? niter_pq_0 : niter_pq;
+//        pq_regular.cp.verbose = verbose;
+//        pq_regular.train (n, xproj.data());
+//
+//        pq_regular.compute_codes (xproj.data(), codes.data(), n);
+//        pq_regular.decode (codes.data(), pq_recons.data(), n);
+//
+//        float pq_err = fvec_L2sqr (pq_recons.data(), xproj.data(), n * d2) / n;
+//
+//        if (verbose)
+//            printf ("    Iteration %d (%d PQ iterations):"
+//                    "%.3f s, obj=%g\n", iter, pq_regular.cp.niter,
+//                    (getmillisecs () - t0) / 1000.0, pq_err);
+//
+//        {
+//            float *u = tmp.data(), *vt = &tmp [d * d];
+//            float *sing_val = &tmp [2 * d * d];
+//            FINTEGER di = d, d2i = d2, ni = n;
+//            float one = 1, zero = 0;
+//
+//            // torch.mm(xtrain:t(), pq_recons)
+//            sgemm_ ("Not", "Transposed",
+//                    &d2i, &di, &ni,
+//                    &one, pq_recons.data(), &d2i,
+//                    xtrain.data(), &di,
+//                    &zero, xxr.data(), &d2i);
+//
+//
+//            FINTEGER lwork = -1, info = -1;
+//            float worksz;
+//            // workspace query
+//            sgesvd_ ("All", "All",
+//                     &d2i, &di, xxr.data(), &d2i,
+//                     sing_val,
+//                     vt, &d2i, u, &di,
+//                     &worksz, &lwork, &info);
+//
+//            lwork = int(worksz);
+//            std::vector<float> work (lwork);
+//            // u and vt swapped
+//            sgesvd_ ("All", "All",
+//                     &d2i, &di, xxr.data(), &d2i,
+//                     sing_val,
+//                     vt, &d2i, u, &di,
+//                     work.data(), &lwork, &info);
+//
+//            sgemm_ ("Transposed", "Transposed",
+//                    &di, &d2i, &d2i,
+//                    &one, u, &di, vt, &d2i,
+//                    &zero, rotation, &di);
+//
+//        }
+//        pq_regular.train_type = ProductQuantizer::Train_hot_start;
+//    }
+//
+//    // revert A matrix
+//    if (d > d_in) {
+//        for (long i = 0; i < d_out; i++)
+//            memmove (&A[i * d_in], &A[i * d], sizeof(A[0]) * d_in);
+//        A.resize (d_in * d_out);
+//    }
+//
+//    is_trained = true;
 }
 
 

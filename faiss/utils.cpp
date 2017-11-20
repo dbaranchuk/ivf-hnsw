@@ -1288,22 +1288,22 @@ void inner_product_to_L2sqr (float * __restrict dis,
 
 void matrix_qr (int m, int n, float *a)
 {
-    FAISS_THROW_IF_NOT (m >= n);
-    FINTEGER mi = m, ni = n, ki = mi < ni ? mi : ni;
-    std::vector<float> tau (ki);
-    FINTEGER lwork = -1, info;
-    float work_size;
-
-    sgeqrf_ (&mi, &ni, a, &mi, tau.data(),
-             &work_size, &lwork, &info);
-    lwork = size_t(work_size);
-    std::vector<float> work (lwork);
-
-    sgeqrf_ (&mi, &ni, a, &mi,
-             tau.data(), work.data(), &lwork, &info);
-
-    sorgqr_ (&mi, &ni, &ki, a, &mi, tau.data(),
-             work.data(), &lwork, &info);
+//    FAISS_THROW_IF_NOT (m >= n);
+//    FINTEGER mi = m, ni = n, ki = mi < ni ? mi : ni;
+//    std::vector<float> tau (ki);
+//    FINTEGER lwork = -1, info;
+//    float work_size;
+//
+//    sgeqrf_ (&mi, &ni, a, &mi, tau.data(),
+//             &work_size, &lwork, &info);
+//    lwork = size_t(work_size);
+//    std::vector<float> work (lwork);
+//
+//    sgeqrf_ (&mi, &ni, a, &mi,
+//             tau.data(), work.data(), &lwork, &info);
+//
+//    sorgqr_ (&mi, &ni, &ki, a, &mi, tau.data(),
+//             work.data(), &lwork, &info);
 
 }
 
