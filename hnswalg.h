@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unordered_set>
 #include <array>
 #include <map>
 #include <cmath>
@@ -122,7 +123,9 @@ namespace hnswlib {
 
         std::priority_queue<std::pair<dist_t, tableint  >> searchBaseLayer(tableint ep, void *datapoint, int level, int ef)
         {
-            VisitedSet *vs = visitedsetpool->getFreeVisitedSet();
+            VisitedList *vl = visitedlistpool->getFreeVisitedList();
+            vl_type *massVisited = vl->mass;
+            vl_type currentV = vl->curV;
 
             std::priority_queue<std::pair<dist_t, tableint  >> topResults;
             std::priority_queue<std::pair<dist_t, tableint >> candidateSet;
@@ -130,7 +133,7 @@ namespace hnswlib {
 
             topResults.emplace(dist, ep);
             candidateSet.emplace(-dist, ep);
-            vs->insert(ep);
+            massVisited[ep] = currentV;
 
             dist_t lowerBound = dist;
 
@@ -154,8 +157,8 @@ namespace hnswlib {
                 for (linklistsizeint j = 0; j < size; ++j) {
                     tableint tnum = *(data + j);
                     _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
-                    if (vs->count(tnum) == 0){
-                        vs->insert(tnum);
+                    if (!(massVisited[tnum] == currentV)) {
+                        massVisited[tnum] = currentV;
                         dist_t dist = space->fstdistfunc(datapoint, getDataByInternalId(tnum));
                         if (topResults.top().first > dist || topResults.size() < ef) {
                             candidateSet.emplace(-dist, tnum);
@@ -169,7 +172,7 @@ namespace hnswlib {
                     }
                 }
             }
-            visitedsetpool->releaseVisitedSet(vs);
+            visitedlistpool->releaseVisitedList(vl);
             return topResults;
         }
 
