@@ -140,7 +140,7 @@ template <typename dist_t>
 static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
                    size_t gt_dim, size_t k = 1)
 {
-    (vector<std::priority_queue< std::pair<dist_t, labeltype >>>(qsize)).swap(answers);
+    //(vector<std::priority_queue< std::pair<dist_t, labeltype >>>(qsize)).swap(answers);
     std::cout << qsize << "\n";
     for (int i = 0; i < qsize; i++) {
         for (int j = 0; j < k; j++) {
