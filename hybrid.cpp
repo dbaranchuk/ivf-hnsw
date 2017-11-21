@@ -1,4 +1,4 @@
-#include "IndexIVF_HNSW_PQ.h"
+#include <IndexIVF_HNSW_PQ.h>
 
 using namespace std;
 using namespace hnswlib;
