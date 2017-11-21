@@ -252,7 +252,7 @@ void hybrid_test(const char *path_centroids,
 
     /** Train PQ **/
     std::ifstream learn_input(path_learn, ios::binary);
-    int nt = 10000000;
+    int nt = 262144;
     int sub_nt = 262144;//65536;
     std::vector<float> trainvecs(nt * vecdim);
     switch (dataset) {
@@ -265,27 +265,28 @@ void hybrid_test(const char *path_centroids,
     }
     learn_input.close();
 
-    /** Set Random Subset of 65536 trainvecs **/
+    /** Set Random Subset of sub_nt trainvecs **/
     std::vector<float> trainvecs_rnd_subset(sub_nt * vecdim);
     random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), vecdim, nt, sub_nt);
 
     /** Train residual PQ **/
     if (exists_test(path_pq) && exists_test(path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << path_pq << std::endl;
-        read_pq(path_pq, index->pq);
+        faiss::read_ProductQuantizer(index->pq, path_pq);
 
         std::cout << "Loading Norm PQ codebook from " << path_norm_pq << std::endl;
-        read_pq(path_norm_pq, index->norm_pq);
+        faiss::read_ProductQuantizer(index->norm_pq, path_norm_pq);
     }
     else {
         std::cout << "Training PQ codebooks" << std::endl;
         index->train_pq(sub_nt, trainvecs_rnd_subset.data());
 
         std::cout << "Saving Residual PQ codebook to " << path_pq << std::endl;
-        write_pq(path_pq, index->pq);
-
+        //write_pq(path_pq, index->pq);
+        faiss::write_ProductQuantizer(index->pq, path_pq);
         std::cout << "Saving Norm PQ codebook to " << path_norm_pq << std::endl;
-        write_pq(path_norm_pq, index->norm_pq);
+        faiss::write_ProductQuantizer(index->norm_pq, path_norm_pq);
+//        write_pq(path_norm_pq, index->norm_pq);
     }
 
     if (exists_test(path_index)){
@@ -338,10 +339,6 @@ void hybrid_test(const char *path_centroids,
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
     std::cout << "Parsing gt:\n";
     get_gt<float>(massQA, qsize, answers, gt_dim);
-
-    /** Compute Graphic **/
-    //index->compute_graphic2(massQ, massQA, gt_dim, qsize);
-    //index->compute_losses(massQ, massQA, gt_dim, qsize);
 
     /** Set search parameters **/
     index->max_codes = max_codes;
