@@ -1,14 +1,16 @@
 #include <iostream>
 #include <fstream>
-#include <cstdio>
-#include <vector>
+#include <stdio.h>
+#include <stdlib.h>
 #include <queue>
-#include <limits>
+#include <chrono>
+#include <faiss/ProductQuantizer.h>
+#include <faiss/index_io.h>
+#include "hnswlib/hnswlib.h"
 
 #include <map>
+#include <set>
 #include <unordered_set>
-
-#include "hnswlib/hnswlib.h"
 
 using namespace std;
 using namespace hnswlib;
