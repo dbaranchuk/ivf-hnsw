@@ -136,18 +136,6 @@ size_t getCurrentRSS()
 #endif
 }
 
-template <typename dist_t>
-static void get_gt(unsigned int *massQA, size_t qsize, vector<std::priority_queue< std::pair<dist_t, labeltype >>> &answers,
-                   size_t gt_dim, size_t k = 1)
-{
-    //(vector<std::priority_queue< std::pair<dist_t, labeltype >>>(qsize)).swap(answers);
-    std::cout << qsize << "\n";
-    for (int i = 0; i < qsize; i++) {
-        for (int j = 0; j < k; j++) {
-            answers[i].emplace(0.0f, massQA[gt_dim*i + j]);
-        }
-    }
-}
 
 template <typename format>
 static void loadXvecs(const char *path, format *mass, const int n, const int d)
@@ -164,8 +152,6 @@ static void loadXvecs(const char *path, format *mass, const int n, const int d)
     }
     input.close();
 }
-
-
 
 
 void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx)
@@ -204,10 +190,6 @@ void hybrid_test(const char *path_centroids,
                  const int max_codes,
                  const int nsubcentroids)
 {
-//    compute_average_distance_sift("/home/dbaranchuk/data/bigann/bigann_base.bvecs",
-//                                  "/home/dbaranchuk/data/sift1B_centroids1M.fvecs",
-//                                  "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
-//                                  993127, 128, vecsize);
 //    save_groups_sift("/home/dbaranchuk/data/groups/sift1B_groups.bvecs",
 //                     "/home/dbaranchuk/data/bigann/bigann_base.bvecs",
 //                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
@@ -339,8 +321,11 @@ void hybrid_test(const char *path_centroids,
 
     /** Parse groundtruth **/
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
-    std::cout << "Parsing gt:\n";
-    get_gt<float>(massQA, qsize, answers, gt_dim);
+    std::cout << "Parsing gt\n";
+    (vector<std::priority_queue< std::pair<float, labeltype >>>(qsize)).swap(answers);
+    for (int i = 0; i < qsize; i++)
+        for (int j = 0; j < k; j++)
+            answers[i].emplace(0.0f, massQA[gt_dim*i + j]);
 
     /** Set search parameters **/
     index->max_codes = max_codes;
