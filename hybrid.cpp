@@ -7,7 +7,7 @@
 #include <faiss/ProductQuantizer.h>
 #include <faiss/index_io.h>
 
-#include "IndexIVF_HNSW_PQ.h"
+#include "IndexIVF_HNSW.h"
 #include "hnswlib/hnswlib.h"
 
 #include <map>
@@ -272,23 +272,23 @@ void hybrid_test(const char *path_centroids,
     /** Train PQ **/
     if (exists_test(path_pq) && exists_test(path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << path_pq << std::endl;
-        index->pq = faiss::read_ProductQuantizer(path_pq);
-        //read_pq(path_pq, index->pq);
+        //index->pq = faiss::read_ProductQuantizer(path_pq);
+        read_pq(path_pq, index->pq);
 
         std::cout << "Loading Norm PQ codebook from " << path_norm_pq << std::endl;
-        index->norm_pq = faiss::read_ProductQuantizer(path_norm_pq);
-        //read_pq(path_norm_pq, index->norm_pq);
+        //index->norm_pq = faiss::read_ProductQuantizer(path_norm_pq);
+        read_pq(path_norm_pq, index->norm_pq);
     }
     else {
         std::cout << "Training PQ codebooks" << std::endl;
         index->train_pq(sub_nt, trainvecs_rnd_subset.data());
 
         std::cout << "Saving Residual PQ codebook to " << path_pq << std::endl;
-        //write_pq(path_pq, index->pq);
-        faiss::write_ProductQuantizer(index->pq, path_pq);
+        write_pq(path_pq, index->pq);
+        //faiss::write_ProductQuantizer(index->pq, path_pq);
         std::cout << "Saving Norm PQ codebook to " << path_norm_pq << std::endl;
-        faiss::write_ProductQuantizer(index->norm_pq, path_norm_pq);
-        //write_pq(path_norm_pq, index->norm_pq);
+        //faiss::write_ProductQuantizer(index->norm_pq, path_norm_pq);
+        write_pq(path_norm_pq, index->norm_pq);
     }
 
     if (exists_test(path_index)){
@@ -496,7 +496,7 @@ void hybrid_test(const char *path_centroids,
 //
 //    std::cout << "Average: " << average_dist / vecsize << std::endl;
 //}
-//static void check_precomputing(IndexIVF_HNSW_PQ *index, const char *path_data, const char *path_precomputed_idxs,
+//static void check_precomputing(IndexIVF_HNSW *index, const char *path_data, const char *path_precomputed_idxs,
 //                               size_t vecdim, size_t ncentroids, size_t vecsize,
 //                               std::set<idx_t> gt_mistakes, std::set<idx_t> gt_correct)
 //{
@@ -566,7 +566,7 @@ void hybrid_test(const char *path_centroids,
 
 
 
-//void save_groups(IndexIVF_HNSW_PQ *index, const char *path_groups, const char *path_data,
+//void save_groups(IndexIVF_HNSW *index, const char *path_groups, const char *path_data,
 //                 const char *path_precomputed_idxs, const int vecdim, const int vecsize)
 //{
 //    const int ncentroids = 999973;
@@ -779,7 +779,7 @@ void hybrid_test(const char *path_centroids,
 
 
 
-//void check_groupsizes(IndexIVF_HNSW_PQ *index, int ncentroids)
+//void check_groupsizes(IndexIVF_HNSW *index, int ncentroids)
 //{
 //    std::vector < size_t > groupsizes(ncentroids);
 //

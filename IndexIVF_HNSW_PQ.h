@@ -26,7 +26,7 @@ typedef unsigned char uint8_t;
 
 namespace ivfhnsw {
 
-    struct IndexIVF_HNSW_PQ {
+    struct IndexIVF_HNSW {
         size_t d;
         size_t nc;
         size_t code_size;
@@ -46,11 +46,11 @@ namespace ivfhnsw {
         HierarchicalNSW<float, float> *quantizer;
 
     public:
-        IndexIVF_HNSW_PQ(size_t dim, size_t ncentroids,
+        IndexIVF_HNSW(size_t dim, size_t ncentroids,
                          size_t bytes_per_code, size_t nbits_per_idx);
 
 
-        ~IndexIVF_HNSW_PQ();
+        ~IndexIVF_HNSW();
 
         void buildQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                             const char *path_info, const char *path_edges, int efSearch);
@@ -210,7 +210,7 @@ namespace ivfhnsw {
 /** TODO CPP **/
 
 /** Common IndexIVF + HNSW **/
-    IndexIVF_HNSW_PQ::IndexIVF_HNSW_PQ(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx) : d(
+    IndexIVF_HNSW::IndexIVF_HNSW(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx) : d(
             dim), nc(ncentroids) {
         codes.resize(ncentroids);
         norm_codes.resize(ncentroids);
@@ -227,13 +227,13 @@ namespace ivfhnsw {
     }
 
 
-    IndexIVF_HNSW_PQ::~IndexIVF_HNSW_PQ() {
+    IndexIVF_HNSW::~IndexIVF_HNSW() {
         delete pq;
         delete norm_pq;
         delete quantizer;
     }
 
-    void IndexIVF_HNSW_PQ::buildQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
+    void IndexIVF_HNSW::buildQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                                           const char *path_info, const char *path_edges, int efSearch) {
         if (exists_test(path_info) && exists_test(path_edges)) {
             quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
@@ -269,14 +269,14 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW_PQ::assign(size_t n, const float *data, idx_t *idxs) {
+    void IndexIVF_HNSW::assign(size_t n, const float *data, idx_t *idxs) {
         //#pragma omp parallel for num_threads(16)
         for (int i = 0; i < n; i++)
             idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i * d), 1).top().second;
     }
 
 
-    void IndexIVF_HNSW_PQ::add(idx_t n, float *x, const idx_t *xids, const idx_t *idx) {
+    void IndexIVF_HNSW::add(idx_t n, float *x, const idx_t *xids, const idx_t *idx) {
         float *residuals = new float[n * d];
         compute_residuals(n, x, residuals, idx);
 
@@ -315,7 +315,7 @@ namespace ivfhnsw {
         delete xnorm_codes;
     }
 
-    void IndexIVF_HNSW_PQ::search(float *x, idx_t k, float *distances, long *labels) {
+    void IndexIVF_HNSW::search(float *x, idx_t k, float *distances, long *labels) {
         idx_t keys[nprobe];
         float q_c[nprobe];
 
@@ -359,7 +359,7 @@ namespace ivfhnsw {
         average_max_codes += ncode;
     }
 
-    void IndexIVF_HNSW_PQ::train_norm_pq(idx_t n, const float *x) {
+    void IndexIVF_HNSW::train_norm_pq(idx_t n, const float *x) {
         idx_t *assigned = new idx_t[n]; // assignement to coarse centroids
         assign(n, x, assigned);
 
@@ -389,7 +389,7 @@ namespace ivfhnsw {
         delete trainset;
     }
 
-    void IndexIVF_HNSW_PQ::train_residual_pq(idx_t n, const float *x) {
+    void IndexIVF_HNSW::train_residual_pq(idx_t n, const float *x) {
         idx_t *assigned = new idx_t[n];
         assign(n, x, assigned);
 
@@ -406,7 +406,7 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW_PQ::precompute_idx(size_t n, const char *path_data, const char *fo_name) {
+    void IndexIVF_HNSW::precompute_idx(size_t n, const char *path_data, const char *fo_name) {
         if (exists_test(fo_name))
             return;
 
@@ -435,7 +435,7 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW_PQ::write(const char *path_index) {
+    void IndexIVF_HNSW::write(const char *path_index) {
         FILE *fout = fopen(path_index, "wb");
 
         fwrite(&d, sizeof(size_t), 1, fout);
@@ -464,7 +464,7 @@ namespace ivfhnsw {
         fclose(fout);
     }
 
-    void IndexIVF_HNSW_PQ::read(const char *path_index) {
+    void IndexIVF_HNSW::read(const char *path_index) {
         FILE *fin = fopen(path_index, "rb");
 
         fread(&d, sizeof(size_t), 1, fin);
@@ -498,16 +498,16 @@ namespace ivfhnsw {
         fclose(fin);
     }
 
-    void IndexIVF_HNSW_PQ::compute_centroid_norms() {
+    void IndexIVF_HNSW::compute_centroid_norms() {
         for (int i = 0; i < nc; i++) {
             float *c = (float *) quantizer->getDataByInternalId(i);
             centroid_norms[i] = faiss::fvec_norm_L2sqr(c, d);
         }
     }
 
-    void IndexIVF_HNSW_PQ::compute_s_c() {}
+    void IndexIVF_HNSW::compute_s_c() {}
 
-    float IndexIVF_HNSW_PQ::fstdistfunc(uint8_t *code) {
+    float IndexIVF_HNSW::fstdistfunc(uint8_t *code) {
         float result = 0.;
         int dim = code_size >> 2;
         int m = 0;
@@ -524,7 +524,7 @@ namespace ivfhnsw {
         return result;
     }
 
-    void IndexIVF_HNSW_PQ::reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys) {
+    void IndexIVF_HNSW::reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys) {
         for (idx_t i = 0; i < n; i++) {
             float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
             for (int j = 0; j < d; j++)
@@ -533,7 +533,7 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW_PQ::compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys) {
+    void IndexIVF_HNSW::compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys) {
         for (idx_t i = 0; i < n; i++) {
             float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
             for (int j = 0; j < d; j++) {
