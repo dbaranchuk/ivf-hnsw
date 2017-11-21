@@ -20,6 +20,7 @@
 #include <faiss/Heap.h>
 
 using namespace std;
+using namespace hnswlib;
 
 typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
