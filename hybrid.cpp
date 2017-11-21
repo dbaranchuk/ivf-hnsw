@@ -16,6 +16,7 @@
 
 using namespace std;
 using namespace hnswlib;
+using namespace ivfhnsw;
 
 
 /*
