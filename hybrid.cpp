@@ -269,13 +269,15 @@ void hybrid_test(const char *path_centroids,
     std::vector<float> trainvecs_rnd_subset(sub_nt * vecdim);
     random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), vecdim, nt, sub_nt);
 
-    /** Train residual PQ **/
+    /** Train PQ **/
     if (exists_test(path_pq) && exists_test(path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << path_pq << std::endl;
-        faiss::read_ProductQuantizer(index->pq, path_pq);
+        index->pq = faiss::read_ProductQuantizer(path_pq);
+        //read_pq(path_pq, index->pq);
 
         std::cout << "Loading Norm PQ codebook from " << path_norm_pq << std::endl;
-        faiss::read_ProductQuantizer(index->norm_pq, path_norm_pq);
+        index->norm_pq = faiss::read_ProductQuantizer(path_norm_pq);
+        //read_pq(path_norm_pq, index->norm_pq);
     }
     else {
         std::cout << "Training PQ codebooks" << std::endl;
@@ -286,7 +288,7 @@ void hybrid_test(const char *path_centroids,
         faiss::write_ProductQuantizer(index->pq, path_pq);
         std::cout << "Saving Norm PQ codebook to " << path_norm_pq << std::endl;
         faiss::write_ProductQuantizer(index->norm_pq, path_norm_pq);
-//        write_pq(path_norm_pq, index->norm_pq);
+        //write_pq(path_norm_pq, index->norm_pq);
     }
 
     if (exists_test(path_index)){
