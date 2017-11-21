@@ -1,9 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
-project (ivf_hnsw_lib)
+project(IVF_HNSW)
 
 include_directories("${PROJECT_BINARY_DIR}")
-
-project(IVF_HNSW)
 
 set(SOURCE_EXE main.cpp)            
 
