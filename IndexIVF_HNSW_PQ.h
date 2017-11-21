@@ -13,8 +13,7 @@
 #include <map>
 #include <set>
 
-#include "L2space.h"
-#include "hnswalg.h"
+#include "hnswlib/hnswlib.h"
 #include <faiss/ProductQuantizer.h>
 #include <faiss/utils.h>
 #include <faiss/index_io.h>
