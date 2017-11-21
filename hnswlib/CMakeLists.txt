@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.6)
-project (hnsw)
+project (hnsw C CXX)
 
 set(SOURCE_LIB1 hnswalg.h)
 set(SOURCE_LIB2 hnswlib.h)
