@@ -19,7 +19,6 @@
 #include <faiss/index_io.h>
 #include <faiss/Heap.h>
 
-using namespace std;
 using namespace hnswlib;
 
 typedef unsigned int idx_t;
