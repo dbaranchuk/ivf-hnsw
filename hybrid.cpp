@@ -234,8 +234,8 @@ void hybrid_test(const char *path_centroids,
 
     /** Train PQ **/
     std::ifstream learn_input(path_learn, ios::binary);
-    int nt = 262144;
-    int sub_nt = 262144;//65536;
+    int nt = 1000000;//262144;
+    int sub_nt = 1000000;//262144;//65536;
     std::vector<float> trainvecs(nt * vecdim);
     switch (dataset) {
         case Dataset::SIFT1B:
@@ -254,23 +254,24 @@ void hybrid_test(const char *path_centroids,
     /** Train PQ **/
     if (exists_test(path_pq) && exists_test(path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << path_pq << std::endl;
-        //index->pq = faiss::read_ProductQuantizer(path_pq);
-        read_pq(path_pq, index->pq);
+        index->pq = faiss::read_ProductQuantizer(path_pq);
+        //read_pq(path_pq, index->pq);
 
         std::cout << "Loading Norm PQ codebook from " << path_norm_pq << std::endl;
-        //index->norm_pq = faiss::read_ProductQuantizer(path_norm_pq);
-        read_pq(path_norm_pq, index->norm_pq);
+        index->norm_pq = faiss::read_ProductQuantizer(path_norm_pq);
+        //read_pq(path_norm_pq, index->norm_pq);
     }
     else {
         std::cout << "Training PQ codebooks" << std::endl;
         index->train_pq(sub_nt, trainvecs_rnd_subset.data());
 
         std::cout << "Saving Residual PQ codebook to " << path_pq << std::endl;
-        write_pq(path_pq, index->pq);
-        //faiss::write_ProductQuantizer(index->pq, path_pq);
+        //write_pq(path_pq, index->pq);
+        faiss::write_ProductQuantizer(index->pq, path_pq);
+
         std::cout << "Saving Norm PQ codebook to " << path_norm_pq << std::endl;
-        //faiss::write_ProductQuantizer(index->norm_pq, path_norm_pq);
-        write_pq(path_norm_pq, index->norm_pq);
+        faiss::write_ProductQuantizer(index->norm_pq, path_norm_pq);
+        //write_pq(path_norm_pq, index->norm_pq);
     }
 
     if (exists_test(path_index)){
