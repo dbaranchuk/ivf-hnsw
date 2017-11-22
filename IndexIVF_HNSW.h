@@ -72,9 +72,7 @@ namespace ivfhnsw {
 
         void search(float *x, idx_t k, float *distances, long *labels);
 
-        void train_norm_pq(idx_t n, const float *x);
-
-        void train_residual_pq(idx_t n, const float *x);
+        void train_pq(idx_t n, const float *x);
 
         void precompute_idx(size_t n, const char *path_data, const char *fo_name);
 
@@ -195,8 +193,6 @@ namespace ivfhnsw {
             }
         };
     };
-
-
 
 
 
@@ -359,13 +355,21 @@ namespace ivfhnsw {
         average_max_codes += ncode;
     }
 
-    void IndexIVF_HNSW::train_norm_pq(idx_t n, const float *x) {
-        idx_t *assigned = new idx_t[n]; // assignement to coarse centroids
+    void IndexIVF_HNSW::train_pq(idx_t n, const float *x)
+    {
+        /** Train Residual PQ **/
+        idx_t *assigned = new idx_t[n];
         assign(n, x, assigned);
 
         float *residuals = new float[n * d];
         compute_residuals(n, x, residuals, assigned);
 
+        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
+               pq->M, pq->ksub, n, d);
+        pq->verbose = true;
+        pq->train(n, residuals);
+
+        /** Train Norm PQ **/
         uint8_t *xcodes = new uint8_t[n * code_size];
         pq->compute_codes(residuals, xcodes, n);
 
@@ -378,6 +382,8 @@ namespace ivfhnsw {
         float *trainset = new float[n];
         faiss::fvec_norms_L2sqr(trainset, reconstructed_x, d, n);
 
+        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
+               norm_pq->M, norm_pq->ksub, n, d);
         norm_pq->verbose = true;
         norm_pq->train(n, trainset);
 
@@ -387,22 +393,6 @@ namespace ivfhnsw {
         delete decoded_residuals;
         delete reconstructed_x;
         delete trainset;
-    }
-
-    void IndexIVF_HNSW::train_residual_pq(idx_t n, const float *x) {
-        idx_t *assigned = new idx_t[n];
-        assign(n, x, assigned);
-
-        float *residuals = new float[n * d];
-        compute_residuals(n, x, residuals, assigned);
-
-        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
-               pq->M, pq->ksub, n, d);
-        pq->verbose = true;
-        pq->train(n, residuals);
-
-        delete assigned;
-        delete residuals;
     }
 
 
