@@ -142,16 +142,12 @@ namespace ivfhnsw {
         void add(const char *path_groups, const char *path_idxs);
 
         double average_max_codes = 0;
-
-        void search(float *x, idx_t k, float *distances, long *labels);
-
         int counter_reused = 0;
         int counter_computed = 0;
         int filter_points = 0;
 
-        void searchGF(float *x, idx_t k, float *distances, long *labels);
-
-        void searchG(float *x, idx_t k, float *distances, long *labels);
+        void search(float *x, idx_t k, float *distances, long *labels);
+        void searchPruning(float *x, idx_t k, float *distances, long *labels);
 
         void write(const char *path_index);
 
