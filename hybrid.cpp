@@ -255,11 +255,15 @@ void hybrid_test(const char *path_centroids,
     if (exists_test(path_pq) && exists_test(path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << path_pq << std::endl;
         index->pq = faiss::read_ProductQuantizer(path_pq);
+        std::cout << index->pq->d << " " << " " << " " << index->pq->byte_per_idx << " " << index->pq->dsub << " "
+                  << " " << index->pq->ksub << " " << " " << index->pq->centroids[0] << std::endl;
         //read_pq(path_pq, index->pq);
         //faiss::write_ProductQuantizer(index->pq, path_pq);
 
         std::cout << "Loading Norm PQ codebook from " << path_norm_pq << std::endl;
         index->norm_pq = faiss::read_ProductQuantizer(path_norm_pq);
+        std::cout << index->norm_pq->d << " " << " " << " " << index->norm_pq->byte_per_idx << " " << index->norm_pq->dsub << " "
+                  << " " << index->norm_pq->ksub << " " << " " << index->norm_pq->centroids[0] << std::endl;
         //read_pq(path_norm_pq, index->norm_pq);
         //faiss::write_ProductQuantizer(index->norm_pq, path_norm_pq);
     }
