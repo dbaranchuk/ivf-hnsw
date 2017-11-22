@@ -806,8 +806,9 @@ namespace ivfhnsw {
             keys[i] = elem.second;
 
             /** Add q_c to precomputed q_s **/
-            q_s[centroid_num] = q_c[i];
-            subcentroid_nums.push_back(centroid_num);
+            idx_t key = keys[i];
+            q_s[key] = q_c[i];
+            subcentroid_nums.push_back(key);
 
             coarse.pop();
         }
@@ -890,8 +891,9 @@ namespace ivfhnsw {
             keys[i] = elem.second;
 
             /** Add q_c to precomputed q_s **/
-            q_s[centroid_num] = q_c[i];
-            subcentroid_nums.push_back(centroid_num);
+            idx_t key = keys[i];
+            q_s[key] = q_c[i];
+            subcentroid_nums.push_back(key);
 
             coarse.pop();
         }
