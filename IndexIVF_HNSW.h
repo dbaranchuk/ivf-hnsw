@@ -60,15 +60,11 @@ namespace ivfhnsw {
 
 
         void assign(size_t n, const float *data, idx_t *idxs);
-        
-        void add_batch(idx_t n, float *x, const idx_t *xids, const idx_t *idx);
 
-        struct CompareByFirst {
-            constexpr bool operator()(std::pair<float, idx_t> const &a,
-                                      std::pair<float, idx_t> const &b) const noexcept {
-                return a.first < b.first;
-            }
-        };
+        template<typename ptype>
+        void add(const char *path_data, const char *path_precomputed_idxs);
+
+        void add_batch(idx_t n, float *x, const idx_t *xids, const idx_t *idx);
 
         double average_max_codes = 0;
 
@@ -147,7 +143,6 @@ namespace ivfhnsw {
         int filter_points = 0;
 
         void search(float *x, idx_t k, float *distances, long *labels);
-        //void searchPruning(float *x, idx_t k, float *distances, long *labels);
 
         void write(const char *path_index);
 
