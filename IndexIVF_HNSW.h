@@ -26,7 +26,7 @@ typedef unsigned char uint8_t;
 
 namespace ivfhnsw {
 
-    class IndexIVF_HNSW 
+    struct IndexIVF_HNSW 
     {
         size_t d;             /** Vector Dimension **/
         size_t nc;            /** Number of Centroids **/
@@ -87,7 +87,7 @@ namespace ivfhnsw {
         void compute_s_c();
 
     private:
-        std::vector<float> dis_table;
+        std::vector<float> query_table;
         std::vector<float> norms;
 
         float fstdistfunc(uint8_t *code);
@@ -99,16 +99,17 @@ namespace ivfhnsw {
     };
 
 
-    class ModifiedIndex
+    struct IndexIVF_HNSW_Grouping
     {
         size_t d;             /** Vector Dimension **/
         size_t nc;            /** Number of Centroids **/
         size_t nsubc;         /** Number of Subcentroids **/
         size_t code_size;     /** PQ Code Size **/
 
-        /** Query members **/
+        /** Search Parameters **/
         size_t nprobe = 16;
         size_t max_codes = 10000;
+        bool isPruning = false;
 
         /** NEW **/
         std::vector<std::vector<idx_t> > ids;
@@ -126,10 +127,10 @@ namespace ivfhnsw {
         std::vector<std::vector<float> > s_c;
     public:
 
-        ModifiedIndex(size_t dim, size_t ncentroids, size_t bytes_per_code,
+        IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
                       size_t nbits_per_idx, size_t nsubcentroids);
 
-        ~ModifiedIndex();
+        ~IndexIVF_HNSW_Grouping();
 
         void buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                             const char *path_info, const char *path_edges, int efSearch);
@@ -165,7 +166,7 @@ namespace ivfhnsw {
     private:
         std::vector<float> q_s;
 
-        std::vector<float> dis_table;
+        std::vector<float> query_table;
         std::vector<float> norms;
         std::vector<float> centroid_norms;
 
@@ -219,7 +220,7 @@ namespace ivfhnsw {
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
 
         centroid_norms.resize(ncentroids);
-        dis_table.resize(pq->ksub * pq->M);
+        query_table.resize(pq->ksub * pq->M);
         norms.resize(65536);
 
         code_size = pq->code_size;
@@ -318,7 +319,7 @@ namespace ivfhnsw {
         idx_t keys[nprobe];
         float q_c[nprobe];
 
-        pq->compute_inner_prod_table(x, dis_table.data());
+        pq->compute_inner_prod_table(x, query_table.data());
         faiss::maxheap_heapify(k, distances, labels);
 
         auto coarse = quantizer->searchKnn(x, nprobe);
@@ -503,13 +504,13 @@ namespace ivfhnsw {
         int dim = code_size >> 2;
         int m = 0;
         for (int i = 0; i < dim; i++) {
-            result += dis_table[pq->ksub * m + code[m]];
+            result += query_table[pq->ksub * m + code[m]];
             m++;
-            result += dis_table[pq->ksub * m + code[m]];
+            result += query_table[pq->ksub * m + code[m]];
             m++;
-            result += dis_table[pq->ksub * m + code[m]];
+            result += query_table[pq->ksub * m + code[m]];
             m++;
-            result += dis_table[pq->ksub * m + code[m]];
+            result += query_table[pq->ksub * m + code[m]];
             m++;
         }
         return result;
@@ -535,7 +536,7 @@ namespace ivfhnsw {
 
 
 /** IVF + HNSW + Grouping + Pruning **/
-    ModifiedIndex::ModifiedIndex(size_t dim, size_t ncentroids, size_t bytes_per_code,
+    IndexIVF_HNSW_Grouping::IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
                                  size_t nbits_per_idx, size_t nsubcentroids = 64) :
             d(dim), nc(ncentroids), nsubc(nsubcentroids) {
         codes.resize(nc);
@@ -548,7 +549,7 @@ namespace ivfhnsw {
         pq = new faiss::ProductQuantizer(d, bytes_per_code, nbits_per_idx);
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
 
-        dis_table.resize(pq->ksub * pq->M);
+        query_table.resize(pq->ksub * pq->M);
         norms.resize(65536);
         code_size = pq->code_size;
 
@@ -560,13 +561,13 @@ namespace ivfhnsw {
     }
 
 
-    ModifiedIndex::~ModifiedIndex() {
+    IndexIVF_HNSW_Grouping::~IndexIVF_HNSW_Grouping() {
         delete pq;
         delete norm_pq;
         delete quantizer;
     }
 
-    void ModifiedIndex::buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
+    void IndexIVF_HNSW_Grouping::buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                                        const char *path_info, const char *path_edges, int efSearch) {
         if (exists_test(path_info) && exists_test(path_edges)) {
             quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
@@ -602,14 +603,14 @@ namespace ivfhnsw {
     }
 
 
-    void ModifiedIndex::assign(size_t n, const float *data, idx_t *idxs) {
+    void IndexIVF_HNSW_Grouping::assign(size_t n, const float *data, idx_t *idxs) {
 #pragma omp parallel for
         for (int i = 0; i < n; i++)
             idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i * d), 1).top().second;
     }
 
     template<typename ptype>
-    void ModifiedIndex::add(const char *path_groups, const char *path_idxs) {
+    void IndexIVF_HNSW_Grouping::add(const char *path_groups, const char *path_idxs) {
         size_t maxM = 32;
         StopW stopw = StopW();
 
@@ -790,33 +791,124 @@ namespace ivfhnsw {
         input_idxs.close();
     }
 
-    void ModifiedIndex::search(float *x, idx_t k, float *distances, long *labels) {
-        bool isFilter = true;
-        if (isFilter)
-            searchGF(x, k, distances, labels);
-        else
-            searchG(x, k, distances, labels);
-    }
+    void IndexIVF_HNSW_Grouping::search(float *x, idx_t k, float *distances, long *labels) {
+        if (isPruning) {
+            searchPruning(x, k, distances, labels);
+            return;
+        }
+        std::vector<idx_t> subcentroid_nums;
+        subcentroid_nums.reserve(nsubc * nprobe);
 
-    void ModifiedIndex::searchGF(float *x, idx_t k, float *distances, long *labels) {
         idx_t keys[nprobe];
         float q_c[nprobe];
 
-        pq->compute_inner_prod_table(x, dis_table.data());
+        /** Find NN Centroids **/
         auto coarse = quantizer->searchKnn(x, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
             auto elem = coarse.top();
             q_c[i] = elem.first;
             keys[i] = elem.second;
+
+            /** Add q_c to precomputed q_s **/
+            q_s[centroid_num] = q_c[i];
+            subcentroid_nums.push_back(centroid_num);
+
             coarse.pop();
         }
 
-        std::vector<float> r(nsubc * nprobe);
-        std::vector<idx_t> subcentroid_nums;
-        subcentroid_nums.reserve(nsubc * nprobe);
+        /** Compute Query Table **/
+        pq->compute_inner_prod_table(x, query_table.data());
 
+        /** Prepare max heap with \k answers **/
         faiss::maxheap_heapify(k, distances, labels);
 
+        int ncode = 0;
+        for (int i = 0; i < nprobe; i++) {
+            idx_t centroid_num = keys[i];
+
+            /** Miss empty region **/
+            if (norm_codes[centroid_num].size() == 0)
+                continue;
+
+            const idx_t *groupsizes = group_sizes[centroid_num].data();
+            const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
+            float alpha = alphas[centroid_num];
+            float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
+
+            norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), norm_codes[centroid_num].size());
+            const float *norm = norms.data();
+            uint8_t *code = codes[centroid_num].data();
+            const idx_t *id = ids[centroid_num].data();
+
+            for (int subc = 0; subc < nsubc; subc++) {
+                idx_t groupsize = groupsizes[subc];
+                if (groupsize == 0)
+                    continue;
+
+                idx_t subcentroid_num = nn_centroids[subc];
+                const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+                if (q_s[subcentroid_num] < 0.0001) {
+                    q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
+                    subcentroid_nums.push_back(subcentroid_num);
+                    counter_computed++;
+                } else counter_reused++;
+
+                float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
+
+                for (int j = 0; j < groupsize; j++) {
+                    float q_r = fstdistfunc(code + j * code_size);
+                    float dist = fst_term + snd_term - 2 * q_r + norm[j];
+                    if (dist < distances[0]) {
+                        faiss::maxheap_pop(k, distances, labels);
+                        faiss::maxheap_push(k, distances, labels, dist, id[j]);
+                    }
+                }
+                /** Shift to the next group **/
+                code += groupsize * code_size;
+                norm += groupsize;
+                id += groupsize;
+                ncode += groupsize;
+            }
+            if (ncode >= max_codes)
+                break;
+        }
+        average_max_codes += ncode;
+
+        /** Zero subcentroids **/
+        for (idx_t subcentroid_num : subcentroid_nums)
+            q_s[subcentroid_num] = 0;
+    }
+    }
+
+    void IndexIVF_HNSW_Grouping::searchPruning(float *x, idx_t k, float *distances, long *labels)
+    {
+        std::vector<idx_t> subcentroid_nums;
+        subcentroid_nums.reserve(nsubc * nprobe);
+        idx_t keys[nprobe];
+        float q_c[nprobe];
+
+        /** Find NN Centroids **/
+        auto coarse = quantizer->searchKnn(x, nprobe);
+        for (int i = nprobe - 1; i >= 0; i--) {
+            auto elem = coarse.top();
+            q_c[i] = elem.first;
+            keys[i] = elem.second;
+
+            /** Add q_c to precomputed q_s **/
+            q_s[centroid_num] = q_c[i];
+            subcentroid_nums.push_back(centroid_num);
+
+            coarse.pop();
+        }
+
+        /** Compute Query Table **/
+        pq->compute_inner_prod_table(x, query_table.data());
+
+        /** Prepare max heap with \k answers **/
+        faiss::maxheap_heapify(k, distances, labels);
+
+        std::vector<float> r(nsubc * nprobe);
+        
         /** Filtering **/
         double r_threshold = 0.0;
         int ncode = 0;
@@ -826,10 +918,6 @@ namespace ivfhnsw {
         for (int i = 0; i < nprobe; i++) {
             max_probe++;
             idx_t centroid_num = keys[i];
-
-            /** Add q_c to q_s **/
-            q_s[centroid_num] = q_c[i];
-            subcentroid_nums.push_back(centroid_num);
 
             if (norm_codes[centroid_num].size() == 0)
                 continue;
@@ -921,85 +1009,7 @@ namespace ivfhnsw {
             q_s[subcentroid_num] = 0;
     }
 
-    void ModifiedIndex::searchG(float *x, idx_t k, float *distances, long *labels) {
-        idx_t keys[nprobe];
-        float q_c[nprobe];
-
-        pq->compute_inner_prod_table(x, dis_table.data());
-
-        auto coarse = quantizer->searchKnn(x, nprobe);
-        for (int i = nprobe - 1; i >= 0; i--) {
-            auto elem = coarse.top();
-            q_c[i] = elem.first;
-            keys[i] = elem.second;
-            coarse.pop();
-        }
-
-        std::vector<idx_t> subcentroid_nums;
-        subcentroid_nums.reserve(nsubc * nprobe);
-        faiss::maxheap_heapify(k, distances, labels);
-
-        int ncode = 0;
-        for (int i = 0; i < nprobe; i++) {
-            idx_t centroid_num = keys[i];
-
-            /** Add q_c to q_s **/
-            q_s[centroid_num] = q_c[i];
-            subcentroid_nums.push_back(centroid_num);
-
-            if (norm_codes[centroid_num].size() == 0)
-                continue;
-
-            const idx_t *groupsizes = group_sizes[centroid_num].data();
-            const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
-            float alpha = alphas[centroid_num];
-            float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
-
-            norm_pq->decode(norm_codes[centroid_num].data(), norms.data(), norm_codes[centroid_num].size());
-            const float *norm = norms.data();
-            uint8_t *code = codes[centroid_num].data();
-            const idx_t *id = ids[centroid_num].data();
-
-            for (int subc = 0; subc < nsubc; subc++) {
-                idx_t groupsize = groupsizes[subc];
-                ncode += groupsize;
-                if (groupsize == 0)
-                    continue;
-
-                idx_t subcentroid_num = nn_centroids[subc];
-                const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
-                if (q_s[subcentroid_num] < 0.0001) {
-                    q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
-                    subcentroid_nums.push_back(subcentroid_num);
-                    counter_computed++;
-                } else counter_reused++;
-
-                float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
-
-                for (int j = 0; j < groupsize; j++) {
-                    float q_r = fstdistfunc(code + j * code_size);
-                    float dist = fst_term + snd_term - 2 * q_r + norm[j];
-                    if (dist < distances[0]) {
-                        faiss::maxheap_pop(k, distances, labels);
-                        faiss::maxheap_push(k, distances, labels, dist, id[j]);
-                    }
-                }
-                /** Shift to the next group **/
-                code += groupsize * code_size;
-                norm += groupsize;
-                id += groupsize;
-            }
-            if (ncode >= max_codes)
-                break;
-        }
-        average_max_codes += ncode;
-
-        /** Zero subcentroids **/
-        for (idx_t subcentroid_num : subcentroid_nums)
-            q_s[subcentroid_num] = 0;
-    }
-
-    void ModifiedIndex::write(const char *path_index) {
+    void IndexIVF_HNSW_Grouping::write(const char *path_index) {
         FILE *fout = fopen(path_index, "wb");
 
         fwrite(&d, sizeof(size_t), 1, fout);
@@ -1042,7 +1052,7 @@ namespace ivfhnsw {
         fclose(fout);
     }
 
-    void ModifiedIndex::read(const char *path_index) {
+    void IndexIVF_HNSW_Grouping::read(const char *path_index) {
         FILE *fin = fopen(path_index, "rb");
 
         fread(&d, sizeof(size_t), 1, fin);
@@ -1092,7 +1102,7 @@ namespace ivfhnsw {
         fclose(fin);
     }
 
-    void ModifiedIndex::train_pq(const size_t n, const float *x) {
+    void IndexIVF_HNSW_Grouping::train_pq(const size_t n, const float *x) {
         std::vector<float> train_subcentroids;
         std::vector<idx_t> train_subcentroid_idxs;
 
@@ -1210,7 +1220,7 @@ namespace ivfhnsw {
         norm_pq->train(n, train_norms.data());
     }
 
-    void ModifiedIndex::compute_centroid_norms() {
+    void IndexIVF_HNSW_Grouping::compute_centroid_norms() {
         //#pragma omp parallel for num_threads(16)
         for (int i = 0; i < nc; i++) {
             const float *centroid = (float *) quantizer->getDataByInternalId(i);
@@ -1218,7 +1228,7 @@ namespace ivfhnsw {
         }
     }
 
-    void ModifiedIndex::compute_s_c() {
+    void IndexIVF_HNSW_Grouping::compute_s_c() {
         for (int i = 0; i < nc; i++) {
             const float *centroid = (float *) quantizer->getDataByInternalId(i);
             s_c[i].resize(nsubc);
@@ -1230,24 +1240,24 @@ namespace ivfhnsw {
         }
     }
 
-    float ModifiedIndex::fstdistfunc(uint8_t *code) {
+    float IndexIVF_HNSW_Grouping::fstdistfunc(uint8_t *code) {
         float result = 0.;
         int dim = code_size >> 2;
         int m = 0;
         for (int i = 0; i < dim; i++) {
-            result += dis_table[pq->ksub * m + code[m]];
+            result += query_table[pq->ksub * m + code[m]];
             m++;
-            result += dis_table[pq->ksub * m + code[m]];
+            result += query_table[pq->ksub * m + code[m]];
             m++;
-            result += dis_table[pq->ksub * m + code[m]];
+            result += query_table[pq->ksub * m + code[m]];
             m++;
-            result += dis_table[pq->ksub * m + code[m]];
+            result += query_table[pq->ksub * m + code[m]];
             m++;
         }
         return result;
     }
 
-    void ModifiedIndex::compute_residuals(size_t n, float *residuals, const float *points, const float *subcentroids,
+    void IndexIVF_HNSW_Grouping::compute_residuals(size_t n, float *residuals, const float *points, const float *subcentroids,
                                           const idx_t *keys) {
         //#pragma omp parallel for num_threads(16)
         for (idx_t i = 0; i < n; i++) {
@@ -1259,7 +1269,7 @@ namespace ivfhnsw {
         }
     }
 
-    void ModifiedIndex::reconstruct(size_t n, float *x, const float *decoded_residuals, const float *subcentroids,
+    void IndexIVF_HNSW_Grouping::reconstruct(size_t n, float *x, const float *decoded_residuals, const float *subcentroids,
                                     const idx_t *keys) {
 //            #pragma omp parallel for num_threads(16)
         for (idx_t i = 0; i < n; i++) {
@@ -1271,12 +1281,12 @@ namespace ivfhnsw {
     }
 
 /** NEW **/
-    void ModifiedIndex::sub_vectors(float *target, const float *x, const float *y) {
+    void IndexIVF_HNSW_Grouping::sub_vectors(float *target, const float *x, const float *y) {
         for (int i = 0; i < d; i++)
             target[i] = x[i] - y[i];
     }
 
-    void ModifiedIndex::compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
+    void IndexIVF_HNSW_Grouping::compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
                                                  const float *points, const int groupsize) {
 //            #pragma omp parallel for num_threads(16)
         for (int i = 0; i < groupsize; i++) {
@@ -1292,14 +1302,14 @@ namespace ivfhnsw {
 
     }
 
-    void ModifiedIndex::compute_vectors(float *target, const float *x, const float *centroid, const int n) {
+    void IndexIVF_HNSW_Grouping::compute_vectors(float *target, const float *x, const float *centroid, const int n) {
 //            #pragma omp parallel for num_threads(16)
         for (int i = 0; i < n; i++)
             for (int j = 0; j < d; j++)
                 target[i * d + j] = x[i * d + j] - centroid[j];
     }
 
-    float ModifiedIndex::compute_alpha(const float *centroid_vectors, const float *points,
+    float IndexIVF_HNSW_Grouping::compute_alpha(const float *centroid_vectors, const float *points,
                                        const float *centroid, const float *centroid_vector_norms_L2sqr,
                                        const int groupsize) {
         int counter_positive = 0;
