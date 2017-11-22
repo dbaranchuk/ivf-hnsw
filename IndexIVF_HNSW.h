@@ -26,15 +26,17 @@ typedef unsigned char uint8_t;
 
 namespace ivfhnsw {
 
-    struct IndexIVF_HNSW {
-        size_t d;
-        size_t nc;
-        size_t code_size;
+    class IndexIVF_HNSW 
+    {
+        size_t d;             /** Vector Dimension **/
+        size_t nc;            /** Number of Centroids **/
+        size_t code_size;     /** PQ Code Size **/
 
-        /** Query members **/
+        /** Search parameters **/
         size_t nprobe = 16;
         size_t max_codes = 10000;
 
+        /** Fine Product Quantizers **/
         faiss::ProductQuantizer *norm_pq;
         faiss::ProductQuantizer *pq;
 
@@ -47,18 +49,18 @@ namespace ivfhnsw {
 
     public:
         IndexIVF_HNSW(size_t dim, size_t ncentroids,
-                         size_t bytes_per_code, size_t nbits_per_idx);
-
-
+                      size_t bytes_per_code, size_t nbits_per_idx);
+        
         ~IndexIVF_HNSW();
 
-        void buildQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
-                            const char *path_info, const char *path_edges, int efSearch);
+        
+        /** Construct HNSW Coarse Quantizer **/
+        void buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
+                                  const char *path_info, const char *path_edges, int efSearch);
 
 
         void assign(size_t n, const float *data, idx_t *idxs);
-
-
+        
         void add(idx_t n, float *x, const idx_t *xids, const idx_t *idx);
 
         struct CompareByFirst {
@@ -97,7 +99,8 @@ namespace ivfhnsw {
     };
 
 
-    struct ModifiedIndex {
+    class ModifiedIndex
+    {
         size_t d;             /** Vector Dimension **/
         size_t nc;            /** Number of Centroids **/
         size_t nsubc;         /** Number of Subcentroids **/
@@ -128,7 +131,7 @@ namespace ivfhnsw {
 
         ~ModifiedIndex();
 
-        void buildQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
+        void buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                             const char *path_info, const char *path_edges, int efSearch);
 
 
@@ -229,7 +232,7 @@ namespace ivfhnsw {
         delete quantizer;
     }
 
-    void IndexIVF_HNSW::buildQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
+    void IndexIVF_HNSW::buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                                           const char *path_info, const char *path_edges, int efSearch) {
         if (exists_test(path_info) && exists_test(path_edges)) {
             quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
@@ -316,8 +319,6 @@ namespace ivfhnsw {
         float q_c[nprobe];
 
         pq->compute_inner_prod_table(x, dis_table.data());
-        //std::priority_queue<std::pair<float, idx_t>, std::vector<std::pair<float, idx_t>>, CompareByFirst> topResults;
-        //std::priority_queue<std::pair<float, idx_t>> topResults;
         faiss::maxheap_heapify(k, distances, labels);
 
         auto coarse = quantizer->searchKnn(x, nprobe);
@@ -565,7 +566,7 @@ namespace ivfhnsw {
         delete quantizer;
     }
 
-    void ModifiedIndex::buildQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
+    void ModifiedIndex::buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                                        const char *path_info, const char *path_edges, int efSearch) {
         if (exists_test(path_info) && exists_test(path_edges)) {
             quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
