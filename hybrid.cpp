@@ -228,7 +228,7 @@ void hybrid_test(const char *path_centroids,
 
     /** Create Index **/
     //ModifiedIndex *index = new ModifiedIndex(vecdim, ncentroids, M_PQ, 8, nsubcentroids);
-    Index *index = new Index(vecdim, ncentroids, M_PQ, 8);
+    IndexIVF_HNSW *index = new IndexIVF_HNSW(vecdim, ncentroids, M_PQ, 8);
     index->buildQuantizer(l2space, path_centroids, path_info, path_edges, 500);
     index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
 
