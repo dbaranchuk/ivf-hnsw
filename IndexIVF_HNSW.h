@@ -278,7 +278,7 @@ namespace ivfhnsw {
                 ids[batch_size*b + i] = batch_size*b + i;
 
             printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
-            index->add_batch(batch_size, batch.data(), _ids.data() + batch_size*b, idx_batch.data());
+            add_batch(batch_size, batch.data(), _ids.data() + batch_size*b, idx_batch.data());
         }
         idx_input.close();
         base_input.close();
