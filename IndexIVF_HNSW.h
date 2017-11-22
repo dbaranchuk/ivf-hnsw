@@ -680,7 +680,6 @@ namespace ivfhnsw {
                 pdata.resize(groupsize * d);
                 idxs.resize(groupsize);
 
-                //input_groups.read((char *) data.data(), groupsize * d * sizeof(float));
                 input_groups.read((char *) pdata.data(), groupsize * d * sizeof(ptype));
                 for (int i = 0; i < groupsize * d; i++)
                     data[i] = (1.0) * pdata[i];
@@ -787,7 +786,8 @@ namespace ivfhnsw {
         input_idxs.close();
     }
 
-    void IndexIVF_HNSW_Grouping::search(float *x, idx_t k, float *distances, long *labels) {
+    void IndexIVF_HNSW_Grouping::search(float *x, idx_t k, float *distances, long *labels)
+    {
         if (isPruning) {
             searchPruning(x, k, distances, labels);
             return;
@@ -874,7 +874,6 @@ namespace ivfhnsw {
         for (idx_t subcentroid_num : subcentroid_nums)
             q_s[subcentroid_num] = 0;
     }
-    }
 
     void IndexIVF_HNSW_Grouping::searchPruning(float *x, idx_t k, float *distances, long *labels)
     {
@@ -937,7 +936,7 @@ namespace ivfhnsw {
                 } else counter_reused++;
 
                 ncode += groupsizes[subc];
-                subr[subc] = ((1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num]);
+                subr[subc] = (1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num];
                 r_threshold += subr[subc];
                 normalize++;
             }
