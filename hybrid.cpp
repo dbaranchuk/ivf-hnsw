@@ -197,7 +197,7 @@ void hybrid_test(const char *path_centroids,
 //    exit(0);
 //    check_groups(path_data, path_precomputed_idxs, path_groups, path_idxs);
 //    exit(0);
-    Dataset dataset = Dataset::DEEP1B;
+    Dataset dataset = Dataset::SIFT1B;
 
     cout << "Loading GT:\n";
     int gt_dim;
