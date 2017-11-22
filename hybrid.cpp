@@ -254,12 +254,14 @@ void hybrid_test(const char *path_centroids,
     /** Train PQ **/
     if (exists_test(path_pq) && exists_test(path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << path_pq << std::endl;
-        index->pq = faiss::read_ProductQuantizer(path_pq);
-        //read_pq(path_pq, index->pq);
+        //index->pq = faiss::read_ProductQuantizer(path_pq);
+        read_pq(path_pq, index->pq);
+        faiss::write_ProductQuantizer(index->pq, path_pq);
 
         std::cout << "Loading Norm PQ codebook from " << path_norm_pq << std::endl;
-        index->norm_pq = faiss::read_ProductQuantizer(path_norm_pq);
-        //read_pq(path_norm_pq, index->norm_pq);
+        //index->norm_pq = faiss::read_ProductQuantizer(path_norm_pq);
+        read_pq(path_norm_pq, index->norm_pq);
+        faiss::write_ProductQuantizer(index->norm_pq, path_norm_pq);
     }
     else {
         std::cout << "Training PQ codebooks" << std::endl;
