@@ -262,22 +262,23 @@ namespace ivfhnsw {
     template<typename ptype>
     void IndexIVF_HNSW::add(const char *path_data, const char *path_precomputed_idxs)
     {
+        const int vecsize = 1000000000;
         const size_t batch_size = 1000000;
         std::ifstream base_input(path_data, ios::binary);
         std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-        std::vector<float> batch(batch_size * vecdim);
+        std::vector<float> batch(batch_size * d);
         std::vector<idx_t> idx_batch(batch_size);
-        std::vector<idx_t> ids(vecsize);
+        std::vector<idx_t> _ids(vecsize);
 
         for (int b = 0; b < (vecsize / batch_size); b++) {
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-            readXvecFvec<ptype>(base_input, batch.data(), vecdim, batch_size);
+            readXvecFvec<ptype>(base_input, batch.data(), d, batch_size);
 
             for (size_t i = 0; i < batch_size; i++)
                 ids[batch_size*b + i] = batch_size*b + i;
 
             printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
-            index->add_batch(batch_size, batch.data(), ids.data() + batch_size*b, idx_batch.data());
+            index->add_batch(batch_size, batch.data(), _ids.data() + batch_size*b, idx_batch.data());
         }
         idx_input.close();
         base_input.close();
