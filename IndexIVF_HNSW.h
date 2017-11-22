@@ -61,7 +61,7 @@ namespace ivfhnsw {
 
         void assign(size_t n, const float *data, idx_t *idxs);
         
-        void add(idx_t n, float *x, const idx_t *xids, const idx_t *idx);
+        void add_batch(idx_t n, float *x, const idx_t *xids, const idx_t *idx);
 
         struct CompareByFirst {
             constexpr bool operator()(std::pair<float, idx_t> const &a,
@@ -185,13 +185,6 @@ namespace ivfhnsw {
         float compute_alpha(const float *centroid_vectors, const float *points,
                             const float *centroid, const float *centroid_vector_norms_L2sqr,
                             const int groupsize);
-
-        struct CompareByFirst {
-            constexpr bool operator()(std::pair<float, idx_t> const &a,
-                                      std::pair<float, idx_t> const &b) const noexcept {
-                return a.first < b.first;
-            }
-        };
     };
 
 
@@ -248,10 +241,10 @@ namespace ivfhnsw {
         quantizer->addPoint((void *) (mass), j1);
 
         size_t report_every = 100000;
-        //#pragma omp parallel for num_threads(16)
+        #pragma omp parallel for
         for (int i = 1; i < nc; i++) {
             float mass[d];
-            //#pragma omp critical
+            #pragma omp critical
             {
                 readXvec<float>(input, mass, d);
                 if (++j1 % report_every == 0)
@@ -271,8 +264,31 @@ namespace ivfhnsw {
             idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i * d), 1).top().second;
     }
 
+    template<typename ptype>
+    void IndexIVF_HNSW::add(const char *path_data, const char *path_precomputed_idxs)
+    {
+        const size_t batch_size = 1000000;
+        std::ifstream base_input(path_data, ios::binary);
+        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+        std::vector<float> batch(batch_size * vecdim);
+        std::vector<idx_t> idx_batch(batch_size);
+        std::vector<idx_t> ids(vecsize);
 
-    void IndexIVF_HNSW::add(idx_t n, float *x, const idx_t *xids, const idx_t *idx) {
+        for (int b = 0; b < (vecsize / batch_size); b++) {
+            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+            readXvecFvec<ptype>(base_input, batch.data(), vecdim, batch_size);
+
+            for (size_t i = 0; i < batch_size; i++)
+                ids[batch_size*b + i] = batch_size*b + i;
+
+            printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
+            index->add_batch(batch_size, batch.data(), ids.data() + batch_size*b, idx_batch.data());
+        }
+        idx_input.close();
+        base_input.close();
+    }
+
+    void IndexIVF_HNSW::add_batch(idx_t n, float *x, const idx_t *xids, const idx_t *idx) {
         float *residuals = new float[n * d];
         compute_residuals(n, x, residuals, idx);
 
@@ -500,14 +516,10 @@ namespace ivfhnsw {
         int dim = code_size >> 2;
         int m = 0;
         for (int i = 0; i < dim; i++) {
-            result += query_table[pq->ksub * m + code[m]];
-            m++;
-            result += query_table[pq->ksub * m + code[m]];
-            m++;
-            result += query_table[pq->ksub * m + code[m]];
-            m++;
-            result += query_table[pq->ksub * m + code[m]];
-            m++;
+            result += query_table[pq->ksub * m + code[m]]; m++;
+            result += query_table[pq->ksub * m + code[m]]; m++;
+            result += query_table[pq->ksub * m + code[m]]; m++;
+            result += query_table[pq->ksub * m + code[m]]; m++;
         }
         return result;
     }
@@ -529,6 +541,18 @@ namespace ivfhnsw {
             }
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /** IVF + HNSW + Grouping + Pruning **/
@@ -627,22 +651,6 @@ namespace ivfhnsw {
             const float *centroid = (float *) quantizer->getDataByInternalId(i);
             std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid,
                                                                                                  nsubc + 1);
-
-            /** Pruning **/
-//                std::priority_queue<std::pair<float, idx_t>> heuristic_nn_centroids;
-//                while (nn_centroids_raw.size() > 1) {
-//                    heuristic_nn_centroids.emplace(nn_centroids_raw.top());
-//                    nn_centroids_raw.pop();
-//                }
-//                quantizer->getNeighborsByHeuristicMerge(heuristic_nn_centroids, maxM);
-//
-//                centroid_vector_norms_L2sqr[i].resize(nsubc);
-//                nn_centroid_idxs[i].resize(nsubc);
-//                while (heuristic_nn_centroids.size() > 0) {
-//                    centroid_vector_norms_L2sqr[i][heuristic_nn_centroids.size() - 1] = heuristic_nn_centroids.top().first;
-//                    nn_centroid_idxs[i][heuristic_nn_centroids.size() - 1] = heuristic_nn_centroids.top().second;
-//                    heuristic_nn_centroids.pop();
-//                }
             /** Without heuristic **/
             centroid_vector_norms_L2sqr[i].resize(nsubc);
             nn_centroid_idxs[i].resize(nsubc);
@@ -786,7 +794,6 @@ namespace ivfhnsw {
         input_idxs.close();
     }
 
-
     void IndexIVF_HNSW_Grouping::search(float *x, idx_t k, float *distances, long *labels)
     {
         std::vector<float> r;
@@ -818,16 +825,13 @@ namespace ivfhnsw {
 
         /** Filtering **/
         double threshold = 0.0;
-        int max_probe = nprobe;
 
         if (isPruning) {
             int ncode = 0;
             int normalize = 0;
-            max_probe = 0;
 
             r.resize(nsubc * nprobe);
             for (int i = 0; i < nprobe; i++) {
-                max_probe++;
                 idx_t centroid_num = keys[i];
 
                 if (norm_codes[centroid_num].size() == 0)
@@ -863,7 +867,7 @@ namespace ivfhnsw {
         }
 
         int ncode = 0;
-        for (int i = 0; i < max_probe; i++) {
+        for (int i = 0; i < nprobe; i++) {
             idx_t centroid_num = keys[i];
             if (norm_codes[centroid_num].size() == 0)
                 continue;
