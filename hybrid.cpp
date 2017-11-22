@@ -197,7 +197,7 @@ void hybrid_test(const char *path_centroids,
 //    exit(0);
 //    check_groups(path_data, path_precomputed_idxs, path_groups, path_idxs);
 //    exit(0);
-    Dataset dataset = Dataset::DEEP1B;
+    Dataset dataset = Dataset::SIFT1B;
 
     cout << "Loading GT:\n";
     int gt_dim;
@@ -255,14 +255,14 @@ void hybrid_test(const char *path_centroids,
     if (exists_test(path_pq) && exists_test(path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << path_pq << std::endl;
         index->pq = faiss::read_ProductQuantizer(path_pq);
-        std::cout << index->pq->d << " " << " " << " " << index->pq->byte_per_idx << " " << index->pq->dsub << " "
+        std::cout << index->pq->d << " " << index->pq->code_size << " " << index->pq->dsub
                   << " " << index->pq->ksub << " " << " " << index->pq->centroids[0] << std::endl;
         //read_pq(path_pq, index->pq);
         //faiss::write_ProductQuantizer(index->pq, path_pq);
 
         std::cout << "Loading Norm PQ codebook from " << path_norm_pq << std::endl;
         index->norm_pq = faiss::read_ProductQuantizer(path_norm_pq);
-        std::cout << index->norm_pq->d << " " << " " << " " << index->norm_pq->byte_per_idx << " " << index->norm_pq->dsub << " "
+        std::cout << index->norm_pq->d << " " << index->norm_pq->code_size << " " << index->norm_pq->dsub
                   << " " << index->norm_pq->ksub << " " << " " << index->norm_pq->centroids[0] << std::endl;
         //read_pq(path_norm_pq, index->norm_pq);
         //faiss::write_ProductQuantizer(index->norm_pq, path_norm_pq);
