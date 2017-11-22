@@ -878,6 +878,7 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW_Grouping::searchPruning(float *x, idx_t k, float *distances, long *labels)
     {
+        std::vector<float> r;
         std::vector<idx_t> subcentroid_nums;
         subcentroid_nums.reserve(nsubc * nprobe);
         idx_t keys[nprobe];
@@ -903,52 +904,54 @@ namespace ivfhnsw {
 
         /** Prepare max heap with \k answers **/
         faiss::maxheap_heapify(k, distances, labels);
-
-        std::vector<float> r(nsubc * nprobe);
         
         /** Filtering **/
-        double r_threshold = 0.0;
-        int ncode = 0;
-        int max_probe = 0;
-        int normalize = 0;
+        double threshold = 0.0;
+        int max_probe = nprobe;
 
-        for (int i = 0; i < nprobe; i++) {
-            max_probe++;
-            idx_t centroid_num = keys[i];
+        if (isPruning) {
+            int ncode = 0;
+            int normalize = 0;
+            max_probe = 0;
 
-            if (norm_codes[centroid_num].size() == 0)
-                continue;
+            r.resize(nsubc * nprobe);
+            for (int i = 0; i < nprobe; i++) {
+                max_probe++;
+                idx_t centroid_num = keys[i];
 
-            float *subr = r.data() + i * nsubc;
-            const idx_t *groupsizes = group_sizes[centroid_num].data();
-            const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
-            float alpha = alphas[centroid_num];
-
-            for (int subc = 0; subc < nsubc; subc++) {
-                if (groupsizes[subc] == 0)
+                if (norm_codes[centroid_num].size() == 0)
                     continue;
 
-                idx_t subcentroid_num = nn_centroids[subc];
-                const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+                float *subr = r.data() + i * nsubc;
+                const idx_t *groupsizes = group_sizes[centroid_num].data();
+                const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
+                float alpha = alphas[centroid_num];
 
-                if (q_s[subcentroid_num] < 0.00001) {
-                    q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
-                    subcentroid_nums.push_back(subcentroid_num);
-                    counter_computed++;
-                } else counter_reused++;
+                for (int subc = 0; subc < nsubc; subc++) {
+                    if (groupsizes[subc] == 0)
+                        continue;
 
-                ncode += groupsizes[subc];
-                subr[subc] = (1 - alpha) * (q_c[i] - alpha * s_c[centroid_num][subc]) + alpha * q_s[subcentroid_num];
-                r_threshold += subr[subc];
-                normalize++;
+                    idx_t subcentroid_num = nn_centroids[subc];
+                    const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+
+                    if (q_s[subcentroid_num] < 0.00001) {
+                        q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
+                        subcentroid_nums.push_back(subcentroid_num);
+                        counter_computed++;
+                    } else counter_reused++;
+
+                    ncode += groupsizes[subc];
+                    subr[subc] = (1 - alpha)*(q_c[i] - alpha * s_c[centroid_num][subc]) + alpha*q_s[subcentroid_num];
+                    threshold += subr[subc];
+                    normalize++;
+                }
+                if (ncode >= 2 * max_codes)
+                    break;
             }
-            if (ncode >= 2 * max_codes)
-                break;
-
+            threshold /= normalize;
         }
-        r_threshold /= normalize;
 
-        ncode = 0;
+        int ncode = 0;
         for (int i = 0; i < max_probe; i++) {
             idx_t centroid_num = keys[i];
             if (norm_codes[centroid_num].size() == 0)
@@ -968,7 +971,7 @@ namespace ivfhnsw {
                 if (groupsize == 0)
                     continue;
 
-                if (r[i * nsubc + subc] > r_threshold) {
+                if (isPruning && r[i * nsubc + subc] > r_threshold) {
                     code += groupsize * code_size;
                     norm_code += groupsize;
                     id += groupsize;
@@ -977,6 +980,12 @@ namespace ivfhnsw {
                 }
 
                 idx_t subcentroid_num = nn_centroids[subc];
+                if (q_s[subcentroid_num] < 0.00001) {
+                    q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
+                    subcentroid_nums.push_back(subcentroid_num);
+                    counter_computed++;
+                } else counter_reused += !isPruning;
+
                 float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
 
                 float *norm = norms.data();
@@ -1242,14 +1251,10 @@ namespace ivfhnsw {
         int dim = code_size >> 2;
         int m = 0;
         for (int i = 0; i < dim; i++) {
-            result += query_table[pq->ksub * m + code[m]];
-            m++;
-            result += query_table[pq->ksub * m + code[m]];
-            m++;
-            result += query_table[pq->ksub * m + code[m]];
-            m++;
-            result += query_table[pq->ksub * m + code[m]];
-            m++;
+            result += query_table[pq->ksub * m + code[m]]; m++;
+            result += query_table[pq->ksub * m + code[m]]; m++;
+            result += query_table[pq->ksub * m + code[m]]; m++;
+            result += query_table[pq->ksub * m + code[m]]; m++;
         }
         return result;
     }
@@ -1277,7 +1282,6 @@ namespace ivfhnsw {
         }
     }
 
-/** NEW **/
     void IndexIVF_HNSW_Grouping::sub_vectors(float *target, const float *x, const float *y) {
         for (int i = 0; i < d; i++)
             target[i] = x[i] - y[i];
