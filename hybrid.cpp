@@ -256,28 +256,22 @@ void hybrid_test(const char *path_centroids,
         std::cout << "Loading Residual PQ codebook from " << path_pq << std::endl;
         index->pq = faiss::read_ProductQuantizer(path_pq);
         std::cout << index->pq->d << " " << index->pq->code_size << " " << index->pq->dsub
-                  << " " << index->pq->ksub << " " << " " << index->pq->centroids[0] << std::endl;
-        //read_pq(path_pq, index->pq);
-        //faiss::write_ProductQuantizer(index->pq, path_pq);
+                  << " " << index->pq->ksub << " " << index->pq->centroids[0] << std::endl;
 
         std::cout << "Loading Norm PQ codebook from " << path_norm_pq << std::endl;
         index->norm_pq = faiss::read_ProductQuantizer(path_norm_pq);
         std::cout << index->norm_pq->d << " " << index->norm_pq->code_size << " " << index->norm_pq->dsub
-                  << " " << index->norm_pq->ksub << " " << " " << index->norm_pq->centroids[0] << std::endl;
-        //read_pq(path_norm_pq, index->norm_pq);
-        //faiss::write_ProductQuantizer(index->norm_pq, path_norm_pq);
+                  << " " << index->norm_pq->ksub << " " << index->norm_pq->centroids[0] << std::endl;
     }
     else {
         std::cout << "Training PQ codebooks" << std::endl;
         index->train_pq(sub_nt, trainvecs_rnd_subset.data());
 
         std::cout << "Saving Residual PQ codebook to " << path_pq << std::endl;
-        //write_pq(path_pq, index->pq);
         faiss::write_ProductQuantizer(index->pq, path_pq);
 
         std::cout << "Saving Norm PQ codebook to " << path_norm_pq << std::endl;
         faiss::write_ProductQuantizer(index->norm_pq, path_norm_pq);
-        //write_pq(path_norm_pq, index->norm_pq);
     }
 
     if (exists_test(path_index)){
@@ -337,8 +331,7 @@ void hybrid_test(const char *path_centroids,
     std::cout << "Parsing gt\n";
     (vector<std::priority_queue< std::pair<float, labeltype >>>(qsize)).swap(answers);
     for (int i = 0; i < qsize; i++)
-        for (int j = 0; j < k; j++)
-            answers[i].emplace(0.0f, massQA[gt_dim*i + j]);
+        answers[i].emplace(0.0f, massQA[gt_dim*i]);
 
     /** Set search parameters **/
     index->max_codes = max_codes;
