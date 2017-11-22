@@ -282,34 +282,34 @@ void hybrid_test(const char *path_centroids,
         index->read(path_index);
     } else {
         /** Add elements **/
-//        switch (dataset) {
-//            case Dataset::SIFT1B:
-//                index->add<uint8_t>(path_groups, path_idxs);
-//                break;
-//            case Dataset::DEEP1B:
-//                index->add<float>(path_groups, path_idxs);
-//                break;
-//        }
-
-        size_t batch_size = 1000000;
-        std::ifstream base_input(path_data, ios::binary);
-        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-        std::vector<float> batch(batch_size * vecdim);
-        std::vector<idx_t> idx_batch(batch_size);
-        std::vector<idx_t> ids(vecsize);
-
-        for (int b = 0; b < (vecsize / batch_size); b++) {
-            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-            //readXvec<float>(base_input, batch.data(), vecdim, batch_size);
-            readXvecFvec<uint8_t>(base_input, batch.data(), vecdim, batch_size);
-            for (size_t i = 0; i < batch_size; i++)
-                ids[batch_size*b + i] = batch_size*b + i;
-
-            printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
-            index->add(batch_size, batch.data(), ids.data() + batch_size*b, idx_batch.data());
+        switch (dataset) {
+            case Dataset::SIFT1B:
+                index->add<uint8_t>(path_groups, path_idxs);
+                break;
+            case Dataset::DEEP1B:
+                index->add<float>(path_groups, path_idxs);
+                break;
         }
-        idx_input.close();
-        base_input.close();
+
+//        size_t batch_size = 1000000;
+//        std::ifstream base_input(path_data, ios::binary);
+//        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+//        std::vector<float> batch(batch_size * vecdim);
+//        std::vector<idx_t> idx_batch(batch_size);
+//        std::vector<idx_t> ids(vecsize);
+//
+//        for (int b = 0; b < (vecsize / batch_size); b++) {
+//            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+//            //readXvec<float>(base_input, batch.data(), vecdim, batch_size);
+//            readXvecFvec<uint8_t>(base_input, batch.data(), vecdim, batch_size);
+//            for (size_t i = 0; i < batch_size; i++)
+//                ids[batch_size*b + i] = batch_size*b + i;
+//
+//            printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
+//            index->add(batch_size, batch.data(), ids.data() + batch_size*b, idx_batch.data());
+//        }
+//        idx_input.close();
+//        base_input.close();
 
         /** Save index, pq and norm_pq **/
         std::cout << "Saving index to " << path_index << std::endl;
