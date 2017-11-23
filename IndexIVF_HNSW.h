@@ -72,7 +72,7 @@ namespace ivfhnsw {
 
         void train_pq(idx_t n, const float *x);
 
-        void precompute_idx(size_t n, const char *path_data, const char *fo_name);
+        void precompute_idx(size_t n, const char *path_data, const char *path_precomputed_idxs);
 
         void write(const char *path_index);
 
