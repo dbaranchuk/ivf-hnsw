@@ -181,8 +181,8 @@ namespace ivfhnsw {
 
         for (int b = 0; b < (n / batch_size); b++) {
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-            //readXvecFvec<ptype>(base_input, batch.data(), d, batch_size);
-            readXvec<float>(base_input, batch.data(), d, batch_size);
+            readXvecFvec<ptype>(base_input, batch.data(), d, batch_size);
+            //readXvec<float>(base_input, batch.data(), d, batch_size);
 
             for (size_t i = 0; i < batch_size; i++)
                 ids_batch[i] = batch_size*b + i;
@@ -233,7 +233,7 @@ namespace ivfhnsw {
             ids[key].push_back(id);
             uint8_t *code = xcodes.data() + i * code_size;
             for (size_t j = 0; j < code_size; j++)
-                codes[key].push_back(code[i * code_size + j]);
+                codes[key].push_back(code[j]);
 
             norm_codes[key].push_back(xnorm_codes[i]);
         }
