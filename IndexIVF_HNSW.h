@@ -162,6 +162,7 @@ namespace ivfhnsw {
         std::vector<float> centroid_norms;
 
         float fstdistfunc(uint8_t *code);
+        void fstdistfunc_n(size_t n, uint8_t *code);
 
     public:
         void compute_residuals(size_t n, float *residuals, const float *points, const float *subcentroids,
@@ -205,6 +206,8 @@ namespace ivfhnsw {
 
         centroid_norms.resize(ncentroids);
         query_table.resize(pq->ksub * pq->M);
+
+        dists.resize(65536);
         norms.resize(65536);
 
         code_size = pq->code_size;
@@ -566,6 +569,8 @@ namespace ivfhnsw {
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
 
         query_table.resize(pq->ksub * pq->M);
+
+        dists.resize(65536);
         norms.resize(65536);
         code_size = pq->code_size;
 
@@ -899,12 +904,12 @@ namespace ivfhnsw {
                 } else counter_reused += !isPruning;
 
                 float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
-                float *norm = norms.data();
-                norm_pq->decode(norm_code, norm, groupsize);
+                norm_pq->decode(norm_code, norms.data(), groupsize);
 
+                fstdistfunc_n(groupsize, code);
                 for (int j = 0; j < groupsize; j++) {
-                    float q_r = fstdistfunc(code + j * code_size);
-                    float dist = fst_term + snd_term - 2 * q_r + norm[j];
+                    //float q_r = fstdistfunc(code + j * code_size);
+                    float dist = fst_term + snd_term - 2 * dists[j] + norms[j];
                     if (dist < distances[0]) {
                         faiss::maxheap_pop(k, distances, labels);
                         faiss::maxheap_push(k, distances, labels, dist, id[j]);
@@ -925,8 +930,6 @@ namespace ivfhnsw {
         for (idx_t subcentroid_num : subcentroid_nums)
             q_s[subcentroid_num] = 0;
     }
-
-
 
     void IndexIVF_HNSW_Grouping::write(const char *path_index) {
         FILE *fout = fopen(path_index, "wb");
@@ -1156,6 +1159,30 @@ namespace ivfhnsw {
                 const float *subcentroid = (float *) quantizer->getDataByInternalId(subc_idx);
                 s_c[i][subc] = faiss::fvec_L2sqr(subcentroid, centroid, d);
             }
+        }
+    }
+
+    void IndexIVF_HNSW_Grouping::fstdistfunc_n(size_t n, uint8_t *code)
+    {
+        int m = 0;
+        for (int i = 0; i < n; i++) {
+            dists[i] = 0;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
         }
     }
 
