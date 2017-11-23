@@ -19,124 +19,6 @@ using namespace hnswlib;
 using namespace ivfhnsw;
 
 
-/*
-* Author:  David Robert Nadeau
-* Site:    http://NadeauSoftware.com/
-* License: Creative Commons Attribution 3.0 Unported License
-*          http://creativecommons.org/licenses/by/3.0/deed.en_US
-*/
-
-
-#if defined(_WIN32)
-#include <windows.h>
-#include <psapi.h>
-
-#elif defined(__unix__) || defined(__unix) || defined(unix) || (defined(__APPLE__) && defined(__MACH__))
-#include <unistd.h>
-#include <sys/resource.h>
-
-#if defined(__APPLE__) && defined(__MACH__)
-#include <mach/mach.h>
-
-#elif (defined(_AIX) || defined(__TOS__AIX__)) || (defined(__sun__) || defined(__sun) || defined(sun) && (defined(__SVR4) || defined(__svr4__)))
-#include <fcntl.h>
-#include <procfs.h>
-
-#elif defined(__linux__) || defined(__linux) || defined(linux) || defined(__gnu_linux__)
-#include <stdio.h>
-
-#endif
-
-#else
-#error "Cannot define getPeakRSS( ) or getCurrentRSS( ) for an unknown OS."
-#endif
-
-/**
-* Returns the peak (maximum so far) resident set size (physical
-* memory use) measured in bytes, or zero if the value cannot be
-* determined on this OS.
-*/
-size_t getPeakRSS()
-{
-#if defined(_WIN32)
-    /* Windows -------------------------------------------------- */
-	PROCESS_MEMORY_COUNTERS info;
-	GetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info));
-	return (size_t)info.PeakWorkingSetSize;
-
-#elif (defined(_AIX) || defined(__TOS__AIX__)) || (defined(__sun__) || defined(__sun) || defined(sun) && (defined(__SVR4) || defined(__svr4__)))
-    /* AIX and Solaris ------------------------------------------ */
-	struct psinfo psinfo;
-	int fd = -1;
-	if ((fd = open("/proc/self/psinfo", O_RDONLY)) == -1)
-		return (size_t)0L;      /* Can't open? */
-	if (read(fd, &psinfo, sizeof(psinfo)) != sizeof(psinfo))
-	{
-		close(fd);
-		return (size_t)0L;      /* Can't read? */
-	}
-	close(fd);
-	return (size_t)(psinfo.pr_rssize * 1024L);
-
-#elif defined(__unix__) || defined(__unix) || defined(unix) || (defined(__APPLE__) && defined(__MACH__))
-    /* BSD, Linux, and OSX -------------------------------------- */
-    struct rusage rusage;
-    getrusage(RUSAGE_SELF, &rusage);
-#if defined(__APPLE__) && defined(__MACH__)
-    return (size_t)rusage.ru_maxrss;
-#else
-    return (size_t)(rusage.ru_maxrss * 1024L);
-#endif
-
-#else
-    /* Unknown OS ----------------------------------------------- */
-	return (size_t)0L;          /* Unsupported. */
-#endif
-}
-
-
-/**
-* Returns the current resident set size (physical memory use) measured
-* in bytes, or zero if the value cannot be determined on this OS.
-*/
-size_t getCurrentRSS()
-{
-#if defined(_WIN32)
-    /* Windows -------------------------------------------------- */
-	PROCESS_MEMORY_COUNTERS info;
-	GetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info));
-	return (size_t)info.WorkingSetSize;
-
-#elif defined(__APPLE__) && defined(__MACH__)
-    /* OSX ------------------------------------------------------ */
-	struct mach_task_basic_info info;
-	mach_msg_type_number_t infoCount = MACH_TASK_BASIC_INFO_COUNT;
-	if (task_info(mach_task_self(), MACH_TASK_BASIC_INFO,
-		(task_info_t)&info, &infoCount) != KERN_SUCCESS)
-		return (size_t)0L;      /* Can't access? */
-	return (size_t)info.resident_size;
-
-#elif defined(__linux__) || defined(__linux) || defined(linux) || defined(__gnu_linux__)
-    /* Linux ---------------------------------------------------- */
-    long rss = 0L;
-    FILE* fp = NULL;
-    if ((fp = fopen("/proc/self/statm", "r")) == NULL)
-        return (size_t)0L;      /* Can't open? */
-    if (fscanf(fp, "%*s%ld", &rss) != 1)
-    {
-        fclose(fp);
-        return (size_t)0L;      /* Can't read? */
-    }
-    fclose(fp);
-    return (size_t)rss * (size_t)sysconf(_SC_PAGESIZE);
-
-#else
-    /* AIX, BSD, Solaris, and Unknown OS ------------------------ */
-	return (size_t)0L;          /* Unsupported. */
-#endif
-}
-
-
 template <typename format>
 static void loadXvecs(const char *path, format *mass, const int n, const int d)
 {
@@ -195,8 +77,6 @@ void hybrid_test(const char *path_centroids,
 //                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
 //                     993127, 128, vecsize);
 //    exit(0);
-//    check_groups(path_data, path_precomputed_idxs, path_groups, path_idxs);
-//    exit(0);
     Dataset dataset = Dataset::SIFT1B;
 
     cout << "Loading GT:\n";
@@ -227,10 +107,10 @@ void hybrid_test(const char *path_centroids,
     SpaceInterface<float> *l2space = new L2Space(vecdim);
 
     /** Create Index **/
-    IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(vecdim, ncentroids, M_PQ, 8, nsubcentroids);
-    //IndexIVF_HNSW *index = new IndexIVF_HNSW(vecdim, ncentroids, M_PQ, 8);
+    //IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(vecdim, ncentroids, M_PQ, 8, nsubcentroids);
+    IndexIVF_HNSW *index = new IndexIVF_HNSW(vecdim, ncentroids, M_PQ, 8);
     index->buildCoarseQuantizer(l2space, path_centroids, path_info, path_edges, 500);
-    //index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
+    index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
 
     /** Train PQ **/
     std::ifstream learn_input(path_learn, ios::binary);
@@ -280,40 +160,22 @@ void hybrid_test(const char *path_centroids,
         index->read(path_index);
     } else {
         /** Add elements **/
+//        switch (dataset) {
+//            case Dataset::SIFT1B:
+//                index->add<uint8_t>(path_groups, path_idxs);
+//                break;
+//            case Dataset::DEEP1B:
+//                index->add<float>(path_groups, path_idxs);
+//                break;
+//        }
         switch (dataset) {
             case Dataset::SIFT1B:
-                index->add<uint8_t>(path_groups, path_idxs);
+                index->add<uint8_t>(path_data, path_precomputed_idxs);
                 break;
             case Dataset::DEEP1B:
-                index->add<float>(path_groups, path_idxs);
+                index->add<float>(path_data, path_precomputed_idxs);
                 break;
         }
-
-//        size_t batch_size = 1000000;
-//        std::ifstream base_input(path_data, ios::binary);
-//        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-//        std::vector<float> batch(batch_size * vecdim);
-//        std::vector<idx_t> idx_batch(batch_size);
-//        std::vector<idx_t> ids(vecsize);
-//
-//        for (int b = 0; b < (vecsize / batch_size); b++) {
-//            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-//            switch (dataset) {
-//                case Dataset::SIFT1B:
-//                    readXvecFvec<uint8_t>(base_input, batch.data(), vecdim, batch_size);
-//                    break;
-//                case Dataset::DEEP1B:
-//                    readXvec<float>(base_input, batch.data(), vecdim, batch_size);
-//                    break;
-//            }
-//            for (size_t i = 0; i < batch_size; i++)
-//                ids[batch_size*b + i] = batch_size*b + i;
-//
-//            printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
-//            index->add(batch_size, batch.data(), ids.data() + batch_size*b, idx_batch.data());
-//        }
-//        idx_input.close();
-//        base_input.close();
 
         /** Save index, pq and norm_pq **/
         std::cout << "Saving index to " << path_index << std::endl;
@@ -324,7 +186,9 @@ void hybrid_test(const char *path_centroids,
     /** Computing Centroid Norms **/
     std::cout << "Computing centroid norms"<< std::endl;
     index->compute_centroid_norms();
-    index->compute_s_c();
+    //index->compute_s_c();
+    index->write(path_index);
+    exit(0);
 
     /** Parse groundtruth **/
     vector<std::priority_queue< std::pair<float, labeltype >>> answers;
