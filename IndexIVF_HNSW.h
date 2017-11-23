@@ -403,7 +403,7 @@ namespace ivfhnsw {
         }
 
         /** Read Centroid Norms **/
-        //fread(centroid_norms.data(), sizeof(float), nc, fin);
+        fread(centroid_norms.data(), sizeof(float), nc, fin);
         fclose(fin);
     }
 
