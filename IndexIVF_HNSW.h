@@ -159,6 +159,7 @@ namespace ivfhnsw {
 
         std::vector<float> query_table;
         std::vector<float> norms;
+        std::vector<float> dists;
         std::vector<float> centroid_norms;
 
         float fstdistfunc(uint8_t *code);
