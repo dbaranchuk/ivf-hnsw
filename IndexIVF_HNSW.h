@@ -62,9 +62,9 @@ namespace ivfhnsw {
         void assign(size_t n, const float *data, idx_t *idxs);
 
         template<typename ptype>
-        void add(const char *path_data, const char *path_precomputed_idxs);
+        void add(size_t n, const char *path_data, const char *path_precomputed_idxs);
 
-        void add_batch(idx_t n, float *x, const idx_t *xids, const idx_t *idx);
+        void add_batch(size_t n, float *x, const idx_t *xids, const idx_t *idx);
 
         double average_max_codes = 0;
 
@@ -165,24 +165,26 @@ namespace ivfhnsw {
     }
 
     template<typename ptype>
-    void IndexIVF_HNSW::add(const char *path_data, const char *path_precomputed_idxs)
+    void IndexIVF_HNSW::add(size_t n, const char *path_data, const char *path_precomputed_idxs)
     {
-        const int vecsize = 1000000000;
+        if (!exists_test(path_precomputed_idxs))
+            precompute_idx<ptype>(n, path_data, path_precomputed_idxs);
+
         const size_t batch_size = 1000000;
         std::ifstream base_input(path_data, ios::binary);
         std::ifstream idx_input(path_precomputed_idxs, ios::binary);
         std::vector<float> batch(batch_size * d);
         std::vector<idx_t> idx_batch(batch_size);
-        std::vector<idx_t> _ids(vecsize);
+        std::vector<idx_t> _ids(n);
 
-        for (int b = 0; b < (vecsize / batch_size); b++) {
+        for (int b = 0; b < (n / batch_size); b++) {
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
             readXvecFvec<ptype>(base_input, batch.data(), d, batch_size);
 
             for (size_t i = 0; i < batch_size; i++)
-                ids[batch_size*b + i] = batch_size*b + i;
+                _ids[batch_size*b + i] = batch_size*b + i;
 
-            if (b % 10 == 0) printf("%.1f %c \n", (100.*b)/(vecsize/batch_size), '%');
+            if (b % 10 == 0) printf("%.1f %c \n", (100.*b)/(n / batch_size), '%');
             add_batch(batch_size, batch.data(), _ids.data() + batch_size*b, idx_batch.data());
         }
         idx_input.close();
@@ -192,7 +194,7 @@ namespace ivfhnsw {
         compute_centroid_norms();
     }
 
-    void IndexIVF_HNSW::add_batch(idx_t n, float *x, const idx_t *xids, const idx_t *idx)
+    void IndexIVF_HNSW::add_batch(size_t n, float *x, const idx_t *xids, const idx_t *idx)
     {
         /** Compute residuals for original vectors **/
         std::vector<float> residuals(n * d);
@@ -308,9 +310,6 @@ namespace ivfhnsw {
     template<typename ptype>
     void IndexIVF_HNSW::precompute_idx(size_t n, const char *path_data, const char *path_precomputed_idxs)
     {
-        if (exists_test(path_precomputed_idxs))
-            return;
-
         std::cout << "Precomputing indexes" << std::endl;
         size_t batch_size = 1000000;
         FILE *fout = fopen(path_precomputed_idxs, "wb");

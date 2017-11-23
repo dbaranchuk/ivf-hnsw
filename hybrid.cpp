@@ -110,7 +110,6 @@ void hybrid_test(const char *path_centroids,
     //IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(vecdim, ncentroids, M_PQ, 8, nsubcentroids);
     IndexIVF_HNSW *index = new IndexIVF_HNSW(vecdim, ncentroids, M_PQ, 8);
     index->buildCoarseQuantizer(l2space, path_centroids, path_info, path_edges, 500);
-    index->precompute_idx(vecsize, path_data, path_precomputed_idxs);
 
     /** Train PQ **/
     std::ifstream learn_input(path_learn, ios::binary);
@@ -170,10 +169,10 @@ void hybrid_test(const char *path_centroids,
 //        }
         switch (dataset) {
             case Dataset::SIFT1B:
-                index->add<uint8_t>(path_data, path_precomputed_idxs);
+                index->add<uint8_t>(vecsize, path_data, path_precomputed_idxs);
                 break;
             case Dataset::DEEP1B:
-                index->add<float>(path_data, path_precomputed_idxs);
+                index->add<float>(vecsize, path_data, path_precomputed_idxs);
                 break;
         }
 
