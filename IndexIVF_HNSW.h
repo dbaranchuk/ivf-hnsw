@@ -170,6 +170,8 @@ namespace ivfhnsw {
         if (!exists_test(path_precomputed_idxs))
             precompute_idx<ptype>(n, path_data, path_precomputed_idxs);
 
+        StopW stopw = StopW();
+
         const size_t batch_size = 1000000;
         std::ifstream base_input(path_data, ios::binary);
         std::ifstream idx_input(path_precomputed_idxs, ios::binary);
@@ -185,7 +187,10 @@ namespace ivfhnsw {
             for (size_t i = 0; i < batch_size; i++)
                 ids_batch[i] = batch_size*b + i;
 
-            if (b % 10 == 0) printf("%.1f %c \n", (100.*b)/(n / batch_size), '%');
+            if (b % 10 == 0)
+                std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
+                          << (100.*b)/(n / batch_size) << "%" << std::endl;
+
             add_batch(batch_size, batch.data(), ids_batch.data(), idx_batch.data());
         }
         idx_input.close();
