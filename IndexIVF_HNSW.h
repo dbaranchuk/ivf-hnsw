@@ -405,9 +405,9 @@ namespace ivfhnsw {
         }
 
         /** Read Centroid Norms **/
-        //fread(&size, sizeof(size_t), 1, fin);
-        //centroid_norms.resize(size);
-        //fread(centroid_norms.data(), sizeof(float), size, fin);
+        fread(&size, sizeof(size_t), 1, fin);
+        centroid_norms.resize(size);
+        fread(centroid_norms.data(), sizeof(float), size, fin);
         fclose(fin);
     }
 
@@ -574,7 +574,6 @@ namespace ivfhnsw {
         code_size = pq->code_size;
 
         /** Compute centroid norms **/
-        centroid_norms.resize(nc);
         s_c.resize(nc);
         q_s.resize(nc);
         std::fill(q_s.begin(), q_s.end(), 0);
@@ -969,6 +968,11 @@ namespace ivfhnsw {
         }
         /** Save Alphas **/
         fwrite(alphas.data(), sizeof(float), nc, fout);
+
+        /** Save Centroid Norms **/
+        size = nc;
+        fwrite(&size, sizeof(size_t), 1, fout);
+        fwrite(centroid_norms.data(), sizeof(float), size, fout);
         fclose(fout);
     }
 
@@ -1018,7 +1022,14 @@ namespace ivfhnsw {
             fread(group_sizes[i].data(), sizeof(idx_t), size, fin);
         }
 
+        /** Read Alphas **/
         fread(alphas.data(), sizeof(float), nc, fin);
+
+        /** Read Centroid Norms **/
+        //fread(&size, sizeof(size_t), 1, fin);
+        //centroid_norms.resize(size);
+        //fread(centroid_norms.data(), sizeof(float), size, fin);
+
         fclose(fin);
     }
 
@@ -1140,8 +1151,10 @@ namespace ivfhnsw {
         norm_pq->train(n, train_norms.data());
     }
 
-    void IndexIVF_HNSW_Grouping::compute_centroid_norms() {
-        //#pragma omp parallel for num_threads(16)
+    void IndexIVF_HNSW_Grouping::compute_centroid_norms()
+    {
+        centroid_norms.resize(nc);
+        #pragma omp parallel for
         for (int i = 0; i < nc; i++) {
             const float *centroid = (float *) quantizer->getDataByInternalId(i);
             centroid_norms[i] = faiss::fvec_norm_L2sqr(centroid, d);
