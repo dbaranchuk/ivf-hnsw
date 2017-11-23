@@ -175,17 +175,18 @@ namespace ivfhnsw {
         std::ifstream idx_input(path_precomputed_idxs, ios::binary);
         std::vector<float> batch(batch_size * d);
         std::vector<idx_t> idx_batch(batch_size);
-        std::vector<idx_t> _ids(batch_size);
+        std::vector<idx_t> ids_batch(batch_size);
 
         for (int b = 0; b < (n / batch_size); b++) {
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-            readXvecFvec<ptype>(base_input, batch.data(), d, batch_size);
+            //readXvecFvec<ptype>(base_input, batch.data(), d, batch_size);
+            readXvec<float>(base_input, batch.data(), d, batch_size);
 
             for (size_t i = 0; i < batch_size; i++)
-                _ids[i] = batch_size*b + i;
+                ids_batch[i] = batch_size*b + i;
 
             if (b % 10 == 0) printf("%.1f %c \n", (100.*b)/(n / batch_size), '%');
-            add_batch(batch_size, batch.data(), _ids.data(), idx_batch.data());
+            add_batch(batch_size, batch.data(), ids_batch.data(), idx_batch.data());
         }
         idx_input.close();
         base_input.close();
