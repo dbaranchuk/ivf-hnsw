@@ -1165,24 +1165,27 @@ namespace ivfhnsw {
     void IndexIVF_HNSW_Grouping::fstdistfunc_n(size_t n, uint8_t *code)
     {
         int m = 0;
+        int dim = code_size >> 3;
         for (int i = 0; i < n; i++) {
             dists[i] = 0;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
-            dists[i] += query_table[pq->ksub * m + code[m]]; m++;
+            for (int j = 0; j < dim; j++) {
+                dists[i] += query_table[pq->ksub * m + code[m]];
+                m++;
+                dists[i] += query_table[pq->ksub * m + code[m]];
+                m++;
+                dists[i] += query_table[pq->ksub * m + code[m]];
+                m++;
+                dists[i] += query_table[pq->ksub * m + code[m]];
+                m++;
+                dists[i] += query_table[pq->ksub * m + code[m]];
+                m++;
+                dists[i] += query_table[pq->ksub * m + code[m]];
+                m++;
+                dists[i] += query_table[pq->ksub * m + code[m]];
+                m++;
+                dists[i] += query_table[pq->ksub * m + code[m]];
+                m++;
+            }
         }
     }
 
