@@ -208,7 +208,6 @@ namespace ivfhnsw {
         centroid_norms.resize(ncentroids);
         query_table.resize(pq->ksub * pq->M);
 
-        dists.resize(65536);
         norms.resize(65536);
 
         code_size = pq->code_size;
