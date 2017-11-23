@@ -159,22 +159,22 @@ void hybrid_test(const char *path_centroids,
         index->read(path_index);
     } else {
         /** Add elements **/
-//        switch (dataset) {
-//            case Dataset::SIFT1B:
-//                index->add<uint8_t>(path_groups, path_idxs);
-//                break;
-//            case Dataset::DEEP1B:
-//                index->add<float>(path_groups, path_idxs);
-//                break;
-//        }
         switch (dataset) {
             case Dataset::SIFT1B:
-                index->add<uint8_t>(vecsize, path_data, path_precomputed_idxs);
+                index->add<uint8_t>(path_groups, path_idxs);
                 break;
             case Dataset::DEEP1B:
-                index->add<float>(vecsize, path_data, path_precomputed_idxs);
+                index->add<float>(path_groups, path_idxs);
                 break;
         }
+//        switch (dataset) {
+//            case Dataset::SIFT1B:
+//                index->add<uint8_t>(vecsize, path_data, path_precomputed_idxs);
+//                break;
+//            case Dataset::DEEP1B:
+//                index->add<float>(vecsize, path_data, path_precomputed_idxs);
+//                break;
+//        }
 
         /** Save index, pq and norm_pq **/
         std::cout << "Saving index to " << path_index << std::endl;
