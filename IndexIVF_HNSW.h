@@ -304,6 +304,7 @@ namespace ivfhnsw {
     }
 
 
+    template<typename ptype>
     void IndexIVF_HNSW::precompute_idx(size_t n, const char *path_data, const char *path_precomputed_idxs)
     {
         if (exists_test(path_precomputed_idxs))
@@ -324,7 +325,7 @@ namespace ivfhnsw {
         for (int i = 0; i < n / batch_size; i++) {
             std::cout << "Batch number: " << i + 1 << " of " << n / batch_size << std::endl;
 
-            readXvecFvec(input, batch.data(), d, batch_size);
+            readXvecFvec<ptype>(input, batch.data(), d, batch_size);
             assign(batch_size, batch.data(), precomputed_idx.data());
 
             fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
