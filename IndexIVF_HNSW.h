@@ -64,7 +64,7 @@ namespace ivfhnsw {
         template<typename ptype>
         void add(size_t n, const char *path_data, const char *path_precomputed_idxs);
 
-        void add_batch(size_t n, float *x, const idx_t *xids, const idx_t *idx);
+        void add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *idx);
 
         double average_max_codes = 0;
 
