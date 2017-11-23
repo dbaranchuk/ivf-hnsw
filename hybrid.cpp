@@ -107,8 +107,8 @@ void hybrid_test(const char *path_centroids,
     SpaceInterface<float> *l2space = new L2Space(vecdim);
 
     /** Create Index **/
-    IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(vecdim, ncentroids, M_PQ, 8, nsubcentroids);
-    //IndexIVF_HNSW *index = new IndexIVF_HNSW(vecdim, ncentroids, M_PQ, 8);
+    //IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(vecdim, ncentroids, M_PQ, 8, nsubcentroids);
+    IndexIVF_HNSW *index = new IndexIVF_HNSW(vecdim, ncentroids, M_PQ, 8);
     index->buildCoarseQuantizer(l2space, path_centroids, path_info, path_edges, 500);
 
     /** Train PQ **/
