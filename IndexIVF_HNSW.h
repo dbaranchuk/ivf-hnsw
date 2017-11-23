@@ -986,7 +986,6 @@ namespace ivfhnsw {
         ids.resize(nc);
         codes.resize(nc);
         norm_codes.resize(nc);
-        alphas.resize(nc);
         nn_centroid_idxs.resize(nc);
         group_sizes.resize(nc);
 
@@ -1023,12 +1022,13 @@ namespace ivfhnsw {
         }
 
         /** Read Alphas **/
+        alphas.resize(nc);
         fread(alphas.data(), sizeof(float), nc, fin);
 
         /** Read Centroid Norms **/
-        fread(&size, sizeof(size_t), 1, fin);
-        centroid_norms.resize(size);
-        fread(centroid_norms.data(), sizeof(float), size, fin);
+//        fread(&size, sizeof(size_t), 1, fin);
+//        centroid_norms.resize(size);
+//        fread(centroid_norms.data(), sizeof(float), size, fin);
 
         fclose(fin);
     }
