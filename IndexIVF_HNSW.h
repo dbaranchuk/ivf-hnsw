@@ -1025,8 +1025,8 @@ namespace ivfhnsw {
         fread(alphas.data(), sizeof(float), nc, fin);
 
         /** Read Centroid Norms **/
-        //centroid_norms.resize(nc);
-        //fread(centroid_norms.data(), sizeof(float), nc, fin);
+        centroid_norms.resize(nc);
+        fread(centroid_norms.data(), sizeof(float), nc, fin);
 
         fclose(fin);
     }
