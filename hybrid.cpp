@@ -77,7 +77,7 @@ void hybrid_test(const char *path_centroids,
 //                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
 //                     993127, 128, vecsize);
 //    exit(0);
-    Dataset dataset = Dataset::SIFT1B;
+    Dataset dataset = Dataset::DEEP1B;
 
     cout << "Loading GT:\n";
     int gt_dim;
@@ -183,10 +183,10 @@ void hybrid_test(const char *path_centroids,
         index->write(path_index);
     }
     /** Computing Centroid Norms **/
-    //std::cout << "Computing centroid norms"<< std::endl;
-    //index->compute_centroid_norms();
-    //index->write(path_index);
-    //exit(0);
+    std::cout << "Computing centroid norms"<< std::endl;
+    index->compute_centroid_norms();
+    index->write(path_index);
+    exit(0);
     index->compute_s_c();
 
     /** Parse groundtruth **/
