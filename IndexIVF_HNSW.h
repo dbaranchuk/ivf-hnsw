@@ -787,6 +787,9 @@ namespace ivfhnsw {
 
         input_groups.close();
         input_idxs.close();
+
+        std::cout << "Computing centroid norms"<< std::endl;
+        compute_centroid_norms();
     }
 
     void IndexIVF_HNSW_Grouping::search(float *x, idx_t k, float *distances, long *labels)
