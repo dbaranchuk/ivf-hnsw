@@ -77,7 +77,7 @@ void hybrid_test(const char *path_centroids,
 //                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
 //                     993127, 128, vecsize);
 //    exit(0);
-    Dataset dataset = Dataset::DEEP1B;
+    Dataset dataset = Dataset::SIFT1B;
 
     cout << "Loading GT:\n";
     int gt_dim;
