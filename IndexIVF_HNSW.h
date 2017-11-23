@@ -366,9 +366,7 @@ namespace ivfhnsw {
         }
 
         /** Save Centroid Norms **/
-        size = nc;
-        fwrite(&size, sizeof(size_t), 1, fout);
-        fwrite(centroid_norms.data(), sizeof(float), size, fout);
+        fwrite(centroid_norms.data(), sizeof(float), nc, fout);
         fclose(fout);
     }
 
@@ -405,9 +403,7 @@ namespace ivfhnsw {
         }
 
         /** Read Centroid Norms **/
-        fread(&size, sizeof(size_t), 1, fin);
-        centroid_norms.resize(size);
-        fread(centroid_norms.data(), sizeof(float), size, fin);
+        //fread(centroid_norms.data(), sizeof(float), nc, fin);
         fclose(fin);
     }
 
