@@ -44,9 +44,6 @@ namespace ivfhnsw {
         /// set if the Index does not require training, or if training is done already
         bool is_trained;
 
-        /// type of metric this index uses for search
-        MetricType metric_type;
-
         explicit Index (idx_t d = 0, MetricType metric = METRIC_INNER_PRODUCT):
                 d(d),
                 ntotal(0),
@@ -631,6 +628,7 @@ namespace ivfhnsw {
 
         /** Distances from region centroids to their subcentroids **/
         std::vector<std::vector<float> > centroid_subcentroid_distances;
+        std::vector<std::vector<float> > s_c;
     public:
 
         IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
