@@ -44,12 +44,11 @@ namespace ivfhnsw {
         /// set if the Index does not require training, or if training is done already
         bool is_trained;
 
-        explicit Index (idx_t d = 0, MetricType metric = METRIC_INNER_PRODUCT):
+        explicit Index (idx_t d = 0):
                 d(d),
                 ntotal(0),
                 verbose(false),
                 is_trained(true),
-                metric_type (metric) {}
 
         virtual ~Index () {  }
 
