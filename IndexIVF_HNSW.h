@@ -26,6 +26,131 @@ typedef unsigned char uint8_t;
 
 namespace ivfhnsw {
 
+/** Abstract structure for an index
+ *
+ * Supports adding vertices and searching them.
+ *
+ * Currently only asymmetric queries are supported:
+ * database-to-database queries are not implemented.
+ */
+    struct Index {
+
+        typedef long idx_t;    ///< all indices are this type
+
+        int d;                 ///< vector dimension
+        idx_t ntotal;          ///< total nb of indexed vectors
+        bool verbose;          ///< verbosity level
+
+        /// set if the Index does not require training, or if training is done already
+        bool is_trained;
+
+        /// type of metric this index uses for search
+        MetricType metric_type;
+
+        explicit Index (idx_t d = 0, MetricType metric = METRIC_INNER_PRODUCT):
+                d(d),
+                ntotal(0),
+                verbose(false),
+                is_trained(true),
+                metric_type (metric) {}
+
+        virtual ~Index () {  }
+
+
+        /** Perform training on a representative set of vectors
+         *
+         * @param n      nb of training vectors
+         * @param x      training vecors, size n * d
+         */
+        virtual void train(idx_t /*n*/, const float* /*x*/) {
+            // does nothing by default
+        }
+
+        /** Add n vectors of dimension d to the index.
+         *
+         * Vectors are implicitly assigned labels ntotal .. ntotal + n - 1
+         * This function slices the input vectors in chuncks smaller than
+         * blocksize_add and calls add_core.
+         * @param x      input matrix, size n * d
+         */
+        virtual void add (idx_t n, const float *x) = 0;
+
+        /** Same as add, but stores xids instead of sequential ids.
+         *
+         * The default implementation fails with an assertion, as it is
+         * not supported by all indexes.
+         *
+         * @param xids if non-null, ids to store for the vectors (size n)
+         */
+        virtual void add_with_ids (idx_t n, const float * x, const long *xids);
+
+        /** query n vectors of dimension d to the index.
+         *
+         * return at most k vectors. If there are not enough results for a
+         * query, the result array is padded with -1s.
+         *
+         * @param x           input vectors to search, size n * d
+         * @param labels      output labels of the NNs, size n*k
+         * @param distances   output pairwise distances, size n*k
+         */
+        virtual void search (idx_t n, const float *x, idx_t k,
+                             float *distances, idx_t *labels) const = 0;
+
+        /** query n vectors of dimension d to the index.
+         *
+         * return all vectors with distance < radius. Note that many
+         * indexes do not implement the range_search (only the k-NN search
+         * is mandatory).
+         *
+         * @param x           input vectors to search, size n * d
+         * @param radius      search radius
+         * @param result      result table
+         */
+        virtual void range_search (idx_t n, const float *x, float radius,
+                                   RangeSearchResult *result) const;
+
+        /** return the indexes of the k vectors closest to the query x.
+         *
+         * This function is identical as search but only return labels of neighbors.
+         * @param x           input vectors to search, size n * d
+         * @param labels      output labels of the NNs, size n*k
+         */
+        void assign (idx_t n, const float * x, idx_t * labels, idx_t k = 1);
+
+        /** Reconstruct a stored vector (or an approximation if lossy coding)
+         *
+         * this function may not be defined for some indexes
+         * @param key         id of the vector to reconstruct
+         * @param recons      reconstucted vector (size d)
+         */
+        virtual void reconstruct (idx_t key, float * recons) const;
+
+
+        /** Reconstruct vectors i0 to i0 + ni - 1
+         *
+         * this function may not be defined for some indexes
+         * @param recons      reconstucted vector (size ni * d)
+         */
+        virtual void reconstruct_n (idx_t i0, idx_t ni, float *recons) const;
+
+
+        /** Computes a residual vector after indexing encoding.
+         *
+         * The residual vector is the difference between a vector and the
+         * reconstruction that can be decoded from its representation in
+         * the index. The residual can be used for multiple-stage indexing
+         * methods, like IndexIVF's methods.
+         *
+         * @param x           input vector, size d
+         * @param residual    output residual vector, size d
+         * @param key         encoded index, as returned by search and assign
+         */
+        void compute_residual (const float * x, float * residual, idx_t key) const;
+
+        /** Display the actual class name and some more info */
+        void display () const;
+    };
+
     struct IndexIVF_HNSW 
     {
         size_t d;             /** Vector Dimension **/
@@ -57,7 +182,6 @@ namespace ivfhnsw {
         /** Construct HNSW Coarse Quantizer **/
         void buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                                   const char *path_info, const char *path_edges, int efSearch);
-
 
         void assign(size_t n, const float *data, idx_t *idxs);
 
@@ -243,17 +367,20 @@ namespace ivfhnsw {
         idx_t keys[nprobe];
         float q_c[nprobe];
 
-        pq->compute_inner_prod_table(x, query_table.data());
-        faiss::maxheap_heapify(k, distances, labels);
-
+        /** Find NN Centroids **/
         auto coarse = quantizer->searchKnn(x, nprobe);
-
         for (int i = nprobe - 1; i >= 0; i--) {
             auto elem = coarse.top();
             q_c[i] = elem.first;
             keys[i] = elem.second;
             coarse.pop();
         }
+
+        /** Compute Query Table **/
+        pq->compute_inner_prod_table(x, query_table.data());
+
+        /** Prepare max heap with \k answers **/
+        faiss::maxheap_heapify(k, distances, labels);
 
         int ncode = 0;
         for (int i = 0; i < nprobe; i++) {
@@ -283,9 +410,11 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW::train_pq(idx_t n, const float *x)
     {
+        /** Assign train vectors **/
         std::vector<idx_t> assigned(n);
         assign(n, x, assigned.data());
 
+        /** Compute residuals for original vectors **/
         std:vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), assigned.data());
 
@@ -294,15 +423,19 @@ namespace ivfhnsw {
         pq->verbose = true;
         pq->train(n, residuals.data());
 
+        /** Encode Residuals **/
         std::vector<uint8_t> xcodes(n * code_size);
         pq->compute_codes(residuals.data(), xcodes.data(), n);
 
+        /** Decode Residuals **/
         std::vector<float> decoded_residuals(n * d);
         pq->decode(xcodes.data(), decoded_residuals.data(), n);
 
+        /** Reconstruct original vectors **/
         std::vector<float> reconstructed_x(n * d);
         reconstruct(n, reconstructed_x.data(), decoded_residuals.data(), assigned.data());
 
+        /** Compute l2 square norms for reconstructed vectors **/
         std::vector<float> norms(n);
         faiss::fvec_norms_L2sqr(norms.data(), reconstructed_x.data(), d, n);
 
@@ -330,14 +463,12 @@ namespace ivfhnsw {
 
         for (int i = 0; i < n / batch_size; i++) {
             std::cout << "Batch number: " << i + 1 << " of " << n / batch_size << std::endl;
-
             readXvecFvec<ptype>(input, batch.data(), d, batch_size);
             assign(batch_size, batch.data(), precomputed_idx.data());
 
             fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
             fwrite(precomputed_idx.data(), sizeof(idx_t), batch_size, fout);
         }
-
         input.close();
         fclose(fout);
     }
@@ -486,16 +617,20 @@ namespace ivfhnsw {
         std::vector<std::vector<idx_t> > ids;
         std::vector<std::vector<uint8_t> > codes;
         std::vector<std::vector<uint8_t> > norm_codes;
+
         std::vector<std::vector<idx_t> > nn_centroid_idxs;
         std::vector<std::vector<idx_t> > group_sizes;
         std::vector<float> alphas;
 
+        /** Product Quantizers for data compression **/
         faiss::ProductQuantizer *norm_pq;
         faiss::ProductQuantizer *pq;
 
+        /** Coarse Quantizer based on HNSW [Y.Malkov]**/
         HierarchicalNSW<float, float> *quantizer;
 
-        std::vector<std::vector<float> > s_c;
+        /** Distances from region centroids to their subcentroids **/
+        std::vector<std::vector<float> > centroid_subcentroid_distances;
     public:
 
         IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
@@ -827,9 +962,8 @@ namespace ivfhnsw {
         /** Prepare max heap with \k answers **/
         faiss::maxheap_heapify(k, distances, labels);
 
-        /** Filtering **/
+        /** Pruning **/
         double threshold = 0.0;
-
         if (isPruning) {
             int ncode = 0;
             int normalize = 0;
