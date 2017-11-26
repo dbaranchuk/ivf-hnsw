@@ -33,6 +33,7 @@ namespace ivfhnsw {
  * Currently only asymmetric queries are supported:
  * database-to-database queries are not implemented.
  */
+
 //    struct Index {
 //
 //        typedef long idx_t;    ///< all indices are this type
