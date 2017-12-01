@@ -24,21 +24,6 @@ inline bool exists_test(const std::string& name) {
 }
 
 namespace hnswlib {
-	//typedef float(*DISTFUNC) (const void *, const void *, const void *);
-	template<typename MTYPE>
-	using DISTFUNC = MTYPE(*) (const void *, const void *, const void *);
-
-
-
-//	template<typename MTYPE>
-//	class SpaceInterface {
-//	public:
-//		//virtual void search(void *);
-//		virtual size_t get_data_size() = 0;
-//		virtual DISTFUNC<MTYPE> get_dist_func() = 0;
-//		virtual void *get_dist_func_param() = 0;
-//
-//	};
     template<typename dist_t>
     class SpaceInterface {
     public:
