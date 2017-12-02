@@ -596,8 +596,7 @@ namespace ivfhnsw {
 
 
 
-
-
+    
     struct IndexIVF_HNSW_Grouping
     {
         size_t d;             /** Vector Dimension **/
