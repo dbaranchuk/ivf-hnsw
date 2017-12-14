@@ -10,21 +10,10 @@ void hybrid_test(const char *, const char *, const char *,
                  const int, const int, const int, const int, const int, const int,
                  const int, const int, const int, const int, const int, const int);
 
-//void deep_test10M();
-void hnsw_test( const char *,
-                const char *, const char *,
-                const char *, const char *, const char *, const char *,
-                const char *, const char *, const char *,
-                const int, const int, const int, const int, const int, const int, const int);
-
-
 void usage(const char * cmd)
 {
     printf ("Usage: %s [options]\n", cmd);
-
-    printf (
-            "  Input\n"
-                    "  HNSW Parameters\n"
+    printf ("  HNSW Parameters\n"
                     "    -path_edges filename        set of links in the constructed hnsw graph  (ivecs file format)\n"
                     "    -path_info filename         set of hnsw graph parameters\n"
                     "    -efConstruction #           -//-, default: 240\n"
