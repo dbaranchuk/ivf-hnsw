@@ -30,7 +30,7 @@ void usage(const char * cmd)
                     "    -efConstruction #           -//-, default: 240\n"
                     "    -M #                        number of mandatory links maxM0 = 2*M, default: M=16\n"
                     "  Path parameters\n"
-                    "    -path_data filename         set of base vectors (bvecs file format)\n
+                    "    -path_data filename         set of base vectors (bvecs file format)\n"
                     "    -path_index filename        output index structure\n"
                     "  Query Parameters\n"
                     "    -path_gt filename           groundtruth (ivecs file format)\n"
