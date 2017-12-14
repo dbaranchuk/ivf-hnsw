@@ -24,23 +24,28 @@ void usage(const char * cmd)
 
     printf (
             "  Input\n"
+                    "  HNSW Parameters\n"
+                    "    -path_edges filename        set of links in the constructed hnsw graph  (ivecs file format)\n"
+                    "    -path_info filename         set of hnsw graph parameters\n"
+                    "    -efConstruction #           -//-, default: 240\n"
+                    "    -M #                        number of mandatory links maxM0 = 2*M, default: M=16\n"
                     "  Path parameters\n"
-                    "    -path_data filename     set of base vectors (bvecs file format)\n"
-                    "    -path_edges filename     set of links in the constructed graph  (ivecs file format)\n"
-                    "    -path_info filename     set of graph parameters)\n"
-                    "    -path_gt filename     groundtruth (ivecs file format)\n"
-                    "    -path_q filename     set of queries (ivecs file format)\n"
-                    "    -path_codebooks filename     codebook for PQ vectors (fvecs file format)\n"
-                    "    -path_tables filename     precomputed distances for PQ vectors (dat file format)\n"
+                    "    -path_data filename         set of base vectors (bvecs file format)\n
+                    "    -path_index filename        output index structure\n"
+                    "  Query Parameters\n"
+                    "    -path_gt filename           groundtruth (ivecs file format)\n"
+                    "    -path_q filename            set of queries (ivecs file format)\n"
+                    "    -nq #                       number of queries, default: 10000\n"
+                    "  Compression Parameters\n"
+                    "    -path_codebooks filename    codebook for PQ vectors (fvecs file format)\n"
+                    "    -path_tables filename       precomputed distances for PQ vectors (dat file format)\n"
+                    "    -m #                        ***\n"
                     "  General parameters\n"
-                    "    -n #            use n points from the file, default: 1B\n"
-                    "    -d #            dimension of the vector, default: 128\n"
-                    "    -k #            number of NN to search, default: 1\n"
-                    "    -M #            number of mandatory links maxM0 = 2*M, default: M=4\n"
-                    "    -nq #           number of queries, default: 10000\n"
-                    "    -efConstruction #            -//-, default: 240\n"
-                    "    -l2space int / float            Choose int for PQ compressed data or integer datasets like SIFT\n"
-                    "                                    Choose float for real datasets like DEEP\n"
+                    "    -n #                        use n points from the file, default: 1B\n"
+                    "    -d #                        dimension of the vector, default: 128\n"
+                    "    -k #                        number of NN to search, default: 1\n"
+                    "    -dataset SIFT1B / DEEP1B    Choose int for PQ compressed data or integer datasets like SIFT\n"
+                    "                                Choose float for real datasets like DEEP\n"
     );
     exit (0);
 }
@@ -78,7 +83,6 @@ int main(int argc, char **argv) {
     const char *path_groups;
     const char *path_idxs;
 
-    const char *l2space_type = NULL; //{int, float, new_pq}
     int k = 1, ret, ep;
 
     if (argc == 1)
@@ -161,9 +165,6 @@ int main(int argc, char **argv) {
             ret = sscanf (argv[++i], "%d", &M);
             assert (ret);
         }
-        else if (!strcmp (a, "-l2space") && i+1 < argc) {
-            l2space_type = argv[++i];
-        }
         else if (!strcmp (a, "-nc") && i+1 < argc) {
             ret = sscanf (argv[++i], "%d", &ncentroids);
             assert (ret);
@@ -195,24 +196,11 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    //if (strcmp (l2space_type, "int") && strcmp (l2space_type, "float")) {
-    //    std::cerr << "Available l2space: float or int" << std::endl;
-    //    exit(1);
-    //}
-
-//    hnsw_test(l2space_type,
-//              path_pq, path_learn,
-//              path_codebooks, path_tables, path_data, path_q,
-//              path_gt, path_info, path_edges,
-//              k, vecsize, qsize, vecdim, efConstruction, M, M_PQ);
-
     hybrid_test(path_centroids, path_index, path_precomputed_idxs,
                 path_pq, path_norm_pq, path_learn, path_data, path_q,
                 path_gt, path_info, path_edges,
                 path_groups, path_idxs,
                 k, vecsize, ncentroids, qsize, vecdim, efConstruction, efSearch, M,
                 M_PQ, nprobes, max_codes, nsubcentroids);
-
-
     return 0;  
 };
