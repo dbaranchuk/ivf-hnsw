@@ -39,6 +39,8 @@ struct Parser
 
     Parser(int argc, char **argv)
     {
+        int ret;
+        
         cmd = argv[0];
         if (argc == 1)
             usage();
