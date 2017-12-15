@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 #include <queue>
 #include <chrono>
@@ -9,6 +9,18 @@
 #include <unordered_set>
 
 #include "../Parser.h"
+
+#include <vector>
+#include <limits>
+#include <cmath>
+
+#include "hnswlib/hnswlib.h"
+#include "utils.h"
+
+#include <faiss/ProductQuantizer.h>
+#include <faiss/utils.h>
+#include <faiss/index_io.h>
+
 
 using namespace std;
 using namespace hnswlib;
