@@ -11,9 +11,10 @@
 #include <cmath>
 
 #include "hnswlib/hnswlib.h"
-#include "faiss/ProductQuantizer.h"
-#include "faiss/index_io.h"
-#include "faiss/utils.h"
+#include <faiss/ProductQuantizer.h>
+#include <faiss/index_io.h>
+#include <faiss/utils.h>
+#include <faiss/Heap.h>
 
 using namespace hnswlib;
 
