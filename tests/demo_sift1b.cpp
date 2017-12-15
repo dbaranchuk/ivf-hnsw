@@ -14,7 +14,7 @@
 #include <limits>
 #include <cmath>
 
-#include "hnswlib/hnswlib.h"
+#include "../hnswlib/hnswlib.h"
 #include "utils.h"
 
 #include <faiss/ProductQuantizer.h>

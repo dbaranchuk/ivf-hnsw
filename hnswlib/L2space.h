@@ -17,7 +17,6 @@
 
 #include <cmath>
 #include "hnswlib.h"
-#include <faiss/utils.h>
 
 namespace hnswlib {
 	class L2Space : public SpaceInterface<float>
@@ -108,10 +107,6 @@ namespace hnswlib {
             return (res);
             #endif
         }
-
-//        float fstdistfunc(const void *x, const void *y) {
-//            return faiss::fvec_L2sqr ((float *) x, (float *) y, dim_);
-//        }
 
         float fstdistfuncST(const void *y_code) { return 0.0; }
 	};
