@@ -8,7 +8,7 @@
 #include <faiss/index_io.h>
 
 #include <ivf-hnsw/IndexIVF_HNSW.h>
-#include <hnswlib/hnswlib.h>
+#include "../hnswlib/hnswlib.h"
 
 #include <map>
 #include <set>
