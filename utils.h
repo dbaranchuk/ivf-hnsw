@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IVF_HNSW_LIB_UTILS_H
+#define IVF_HNSW_LIB_UTILS_H
 
 #include <queue>
 #include <limits>
@@ -198,7 +199,7 @@ enum class Dataset
     SIFT1B
 };
 
-
+#endif //IVF_HNSW_LIB_UTILS_H
 
 
 
