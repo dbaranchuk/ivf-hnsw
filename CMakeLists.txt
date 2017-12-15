@@ -10,7 +10,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(SOURCE_EXE demo_deep1b.cpp)
+#set(SOURCE_EXE demo_deep1b.cpp)
 
 set(SOURCE_LIB_h IndexIVF_HNSW.h)
 set(SOURCE_LIB_cpp IndexIVF_HNSW.cpp)
@@ -20,11 +20,11 @@ add_library(ivf-hnsw STATIC ${SOURCE_LIB_h} ${SOURCE_LIB_cpp})
 
 add_subdirectory(faiss)
 
-add_executable(demo_deep1b ${SOURCE_EXE})
+#add_executable(demo_deep1b ${SOURCE_EXE})
 
 SET( CMAKE_CXX_FLAGS  "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -march=native -fpic -w -fopenmp -ftree-vectorize -ftree-vectorizer-verbose=0" )
 
-target_link_libraries(demo_deep1b ivf-hnsw faiss) #ivf-hnsw
+target_link_libraries(ivf-hnsw faiss) #demo_deep1b
 
 # build tests
 if(BUILD_TEST)
