@@ -6,6 +6,7 @@
 #include <cmath>
 #include <chrono>
 #include <fstream>
+#include <iostream>
 #include <sys/time.h>
 
 #include <faiss/utils.h>
