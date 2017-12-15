@@ -91,7 +91,7 @@ double elapsed ()
 }
 
 namespace ivfhnsw {
-    
+
     template<typename format>
     void readXvec(std::ifstream &input, format *data, const int d, const int n = 1) {
         int in = 0;
