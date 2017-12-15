@@ -4,6 +4,9 @@
 
 #include <IndexIVF_HNSW.h>
 
+using namespace ivfhnsw;
+
+
 /** Common IndexIVF + HNSW **/
 
 /** Public **/
