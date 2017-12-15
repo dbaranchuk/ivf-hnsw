@@ -2,7 +2,7 @@
 // Created by dbaranchuk on 15.12.17.
 //
 
-#include <IndexIVF_HNSW.h>
+#include "IndexIVF_HNSW.h"
 
 using namespace ivfhnsw;
 
