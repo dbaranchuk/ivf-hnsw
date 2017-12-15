@@ -16,4 +16,4 @@ add_executable(demo_deep1b ${DEEP1B_EXE})
 
 SET( CMAKE_CXX_FLAGS  "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -march=native -fpic -w -fopenmp -ftree-vectorize -ftree-vectorizer-verbose=0" )
 
-target_link_libraries(demo_deep1b ${faiss_lib}) #demo_deep1b
+target_link_libraries(demo_deep1b faiss) #demo_deep1b
