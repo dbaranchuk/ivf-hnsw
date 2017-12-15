@@ -7,12 +7,19 @@
 
 #include <unordered_set>
 
-#include "IndexIVF_HNSW.h"
-#include "utils.h"
-#include "Parser.h"
+#include <ivf-hnsw/IndexIVF_HNSW.h>
+#include <ivf-hnsw/utils.h>
+#include "../Parser.h"
 
 using namespace hnswlib;
 using namespace ivfhnsw;
+
+double elapsed ()
+{
+    struct timeval tv;
+    gettimeofday (&tv, nullptr);
+    return  tv.tv_sec + tv.tv_usec * 1e-6;
+}
 
 /**
  * Run IVF-HNSW / IVF-HNSW + Grouping (+Pruning) on DEEP1B
