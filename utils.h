@@ -210,14 +210,6 @@ enum class Dataset
 
 
 
-
-
-
-
-
-
-
-
 //void compute_average_distance(const char *path_data, const char *path_centroids, const char *path_precomputed_idxs,
 //                              const int ncentroids, const int vecdim, const int vecsize)
 //{
