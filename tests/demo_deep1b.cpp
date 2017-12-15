@@ -6,10 +6,11 @@
 #include <chrono>
 
 #include <ivf-hnsw/IndexIVF_HNSW.h>
+#include <ivf-hnsw/utils.h>
+
 //#include <faiss/index_io.h>
 #include <unordered_set>
 
-//#include "../utils.h"
 #include "../Parser.h"
 
 using namespace hnswlib;
@@ -123,7 +124,7 @@ int main(int argc, char **argv)
     float distances[opt.k];
     long labels[opt.k];
 
-    StopW stopw = StopW();
+    //StopW stopw = StopW();
     for (int i = 0; i < opt.qsize; i++) {
         for (int j = 0; j < opt.k; j++){
             distances[j] = 0;
@@ -147,9 +148,9 @@ int main(int argc, char **argv)
             }
     }
     /**Represent results**/
-    float time_us_per_query = stopw.getElapsedTimeMicro() / opt.qsize;
+    //float time_us_per_query = stopw.getElapsedTimeMicro() / opt.qsize;
     std::cout << "Recall@" << opt.k << ": " << 1.0f * correct / opt.qsize << std::endl;
-    std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
+    //std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
     //std::cout << "Average max_codes: " << index->average_max_codes / 10000 << std::endl;
     //std::cout << "Average reused q_s: " << (1.0 * index->counter_reused) / (index->counter_computed + index->counter_reused) << std::endl;
     //std::cout << "Average number of pruned points: " << (1.0 * index->filter_points) / 10000 << std::endl;
