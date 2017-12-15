@@ -23,7 +23,7 @@ add_subdirectory(faiss)
 SET( CMAKE_CXX_FLAGS  "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -march=native -fpic -w -fopenmp -ftree-vectorize -ftree-vectorizer-verbose=0" )
 
 
-target_link_libraries(ivf-hnsw faiss)
+target_link_libraries(ivf-hnsw, faiss) #ivf-hnsw
 
 # build tests
 #if(BUILD_TEST)
