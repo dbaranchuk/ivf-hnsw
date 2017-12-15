@@ -74,8 +74,6 @@ void demo_sift1b(const char *path_centroids,
 //    exit(0);
 
     cout << "Loading GT:\n";
-    int gt_dim = 1000;
-
     idx_t *massQA = new idx_t[qsize * gt_dim];
     std::ifstream gt_input(path_gt, ios::binary);
     readXvec<idx_t>(gt_input, massQA, qsize, gt_dim);
@@ -253,7 +251,6 @@ void demo_deep1b(const char *path_centroids,
                  const int ncentroids, const int nsubcentroids)
 {
     cout << "Loading GT:\n";
-    int gt_dim = 1;
     idx_t *massQA = new idx_t[qsize * gt_dim];
     std::ifstream gt_input(path_gt, ios::binary);
     readXvec<idx_t>(gt_input, massQA, qsize, gt_dim);
