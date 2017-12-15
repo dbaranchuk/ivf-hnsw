@@ -9,6 +9,7 @@
 //#include <faiss/index_io.h>
 #include <unordered_set>
 
+#include "../utils.h"
 #include "../Parser.h"
 
 using namespace hnswlib;
