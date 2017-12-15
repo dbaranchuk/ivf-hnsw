@@ -20,7 +20,11 @@ set(SOURCE_LIB_cpp IndexIVF_HNSW.cpp)
 set(SOURCE_LIB_uh utils.h)
 set(SOURCE_LIB_ucpp utils.cpp)
 
-add_library(ivf-hnsw STATIC ${SOURCE_LIB_h} ${SOURCE_LIB_cpp} ${SOURCE_LIB_uh} ${SOURCE_LIB_ucpp})
+# specify header and cpp files
+file(GLOB ivf-hnsw_cpu_headers ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
+file(GLOB ivf-hnsw_cpu_cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+
+add_library(ivf-hnsw STATIC ${ivf-hnsw_cpu_headers} ${ivf-hnsw_cpu_cpp})
 
 #add_executable(demo_deep1b ${SOURCE_EXE})
 
