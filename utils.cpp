@@ -2,6 +2,8 @@
 // Created by dbaranchuk on 15.12.17.
 //
 
+#include "utils.h"
+
 namespace ivfhnsw {
 
     template<typename format>
