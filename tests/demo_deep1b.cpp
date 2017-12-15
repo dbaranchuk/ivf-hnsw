@@ -5,8 +5,8 @@
 #include <queue>
 #include <chrono>
 
-#include <ivf-hnsw/IndexIVF_HNSW.h>
-#include <ivf-hnsw/utils.h>
+#include "../IndexIVF_HNSW.h"
+#include "../utils.h"
 
 #include "../faiss/index_io.h"
 #include "../faiss/utils.h"
