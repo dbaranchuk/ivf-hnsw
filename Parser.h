@@ -47,7 +47,7 @@ struct Parser
             char *a = argv[i];
 
             if (!strcmp (a, "-h") || !strcmp (a, "--help"))
-                usage (argv[0]);
+                usage();
 
             /** Paths **/
             if (!strcmp (a, "-path_codebooks") && i+1 < argc) {
