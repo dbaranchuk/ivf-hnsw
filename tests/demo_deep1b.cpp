@@ -6,9 +6,6 @@
 #include <chrono>
 
 #include "../IndexIVF_HNSW.h"
-
-#include <map>
-#include <set>
 #include <unordered_set>
 
 #include "../Parser.h"
@@ -37,9 +34,9 @@ int main(int argc, char **argv)
     gt_input.close();
 
     cout << "Loading queries\n";
-    float massQ[opt.qsize * opt.vecdim];
+    std::vector<float> massQ(opt.qsize * opt.vecdim);
     std::ifstream query_input(opt.path_q, ios::binary);
-    readXvec<float>(query_input, massQ, opt.vecdim, opt.qsize);
+    readXvec<float>(query_input, massQ.data(), opt.vecdim, opt.qsize);
     query_input.close();
 
     SpaceInterface<float> *l2space = new L2Space(opt.vecdim);
@@ -132,7 +129,7 @@ int main(int argc, char **argv)
             labels[j] = 0;
         }
 
-        index->search(massQ + i*opt.vecdim, opt.k, distances, labels);
+        index->search(massQ.data() + i*opt.vecdim, opt.k, distances, labels);
 
         std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
         unordered_set<labeltype> g;

@@ -6,9 +6,6 @@
 #include <chrono>
 
 #include "../IndexIVF_HNSW.h"
-
-#include <map>
-#include <set>
 #include <unordered_set>
 
 #include "../Parser.h"
