@@ -14,8 +14,8 @@
 #include "hnswlib/hnswlib.h"
 #include "utils.h"
 
-#include <faiss/ProductQuantizer.h>
-#include <faiss/utils.h>
+//#include <faiss/ProductQuantizer.h>
+//#include <faiss/utils.h>
 #include <faiss/index_io.h>
 #include <faiss/Heap.h>
 
