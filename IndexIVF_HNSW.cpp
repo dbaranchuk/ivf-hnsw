@@ -3,6 +3,7 @@
 //
 
 #include "IndexIVF_HNSW.h"
+#include "utils.h"
 
 namespace ivfhnsw {
 
