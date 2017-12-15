@@ -26,7 +26,7 @@ add_library(ivf-hnsw STATIC ${SOURCE_LIB_h} ${SOURCE_LIB_cpp} ${SOURCE_LIB_uh} $
 
 SET( CMAKE_CXX_FLAGS  "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -march=native -fpic -w -fopenmp -ftree-vectorize -ftree-vectorizer-verbose=0" )
 
-target_link_libraries(demo_deep1b ivf-hnsw faiss) #demo_deep1b
+target_link_libraries(ivf-hnsw faiss) #demo_deep1b
 
 # build tests
 if(BUILD_TEST)
