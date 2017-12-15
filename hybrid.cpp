@@ -74,15 +74,15 @@ void demo_sift1b(const char *path_centroids,
 //    exit(0);
 
     cout << "Loading GT:\n";
-    idx_t *massQA = new idx_t[qsize * gt_dim];
+    std::vector<idx_t>massQA(qsize * gt_dim);
     std::ifstream gt_input(path_gt, ios::binary);
-    readXvec<idx_t>(gt_input, massQA, qsize, gt_dim);
+    readXvec<idx_t>(gt_input, massQA.data(), qsize, gt_dim);
     gt_input.close();
 
     cout << "Loading queries:\n";
-    float massQ[qsize * vecdim];
+    std::vector<float> massQ(qsize * vecdim);
     std::ifstream query_input(path_q, ios::binary);
-    readXvecFvec<uint8_t >(query_input, massQ, vecdim, qsize);
+    readXvecFvec<uint8_t >(query_input, massQ.data(), vecdim, qsize);
     query_input.close();
 
     SpaceInterface<float> *l2space = new L2Space(vecdim);
@@ -151,9 +151,9 @@ void demo_sift1b(const char *path_centroids,
     index->compute_s_c();
 
     /** Parse groundtruth **/
-    vector<std::priority_queue< std::pair<float, labeltype >>> answers;
+    std::vector<std::priority_queue< std::pair<float, labeltype >>> answers;
     std::cout << "Parsing gt\n";
-    (vector<std::priority_queue< std::pair<float, labeltype >>>(qsize)).swap(answers);
+    (std::vector<std::priority_queue< std::pair<float, labeltype >>>(qsize)).swap(answers);
     for (int i = 0; i < qsize; i++)
         answers[i].emplace(0.0f, massQA[gt_dim*i]);
 
@@ -174,10 +174,10 @@ void demo_sift1b(const char *path_centroids,
             labels[j] = 0;
         }
 
-        index->search(massQ + i * vecdim, k, distances, labels);
+        index->search(massQ.data() + i*vecdim, k, distances, labels);
 
         std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
-        unordered_set<labeltype> g;
+        std::unordered_set<labeltype> g;
 
         while (gt.size()) {
             g.insert(gt.top().second);
@@ -203,7 +203,6 @@ void demo_sift1b(const char *path_centroids,
     //check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize, gt_mistakes, gt_correct);
 
     delete index;
-    delete massQA;
     delete l2space;
 }
 
@@ -251,9 +250,9 @@ void demo_deep1b(const char *path_centroids,
                  const int ncentroids, const int nsubcentroids)
 {
     cout << "Loading GT:\n";
-    idx_t *massQA = new idx_t[qsize * gt_dim];
+    std::vector<idx_t> massQA(qsize * gt_dim);
     std::ifstream gt_input(path_gt, ios::binary);
-    readXvec<idx_t>(gt_input, massQA, qsize, gt_dim);
+    readXvec<idx_t>(gt_input, massQA.data(), qsize, gt_dim);
     gt_input.close();
 
     cout << "Loading queries:\n";
@@ -382,7 +381,6 @@ void demo_deep1b(const char *path_centroids,
     //check_precomputing(index, path_data, path_precomputed_idxs, vecdim, ncentroids, vecsize, gt_mistakes, gt_correct);
 
     delete index;
-    delete massQA;
     delete l2space;
 }
 
