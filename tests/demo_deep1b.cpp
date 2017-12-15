@@ -14,7 +14,7 @@
 #include <set>
 #include <unordered_set>
 
-#include "Parser.h"
+#include "../Parser.h"
 
 using namespace std;
 using namespace hnswlib;
