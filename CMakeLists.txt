@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8)
 project (ivf_hnsw_lib)
 
 option(BUILD_TEST "Build tests" ON)
@@ -19,13 +19,13 @@ add_library(ivf-hnsw STATIC ${SOURCE_LIB1})#, ${SOURCE_LIB2})
 
 add_subdirectory(faiss)
 
-# build tests
-#if(BUILD_TEST)
-add_subdirectory(tests)
-#endif(BUILD_TEST)
-
 #add_executable(main ${SOURCE_EXE})
 SET( CMAKE_CXX_FLAGS  "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -march=native -fpic -w -fopenmp -ftree-vectorize -ftree-vectorizer-verbose=0" )
 
 
 target_link_libraries(ivf-hnsw faiss)
+
+# build tests
+if(BUILD_TEST)
+    add_subdirectory(tests)
+endif(BUILD_TEST)
