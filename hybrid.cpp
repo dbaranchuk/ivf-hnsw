@@ -39,7 +39,7 @@ void demo_sift1b(int argc, char **argv)
     cout << "Loading GT:\n";
     std::vector<idx_t>massQA(opt.qsize * opt.gtdim);
     std::ifstream gt_input(opt.path_gt, ios::binary);
-    readXvec<idx_t>(gt_input, massQA.data(), opt.qsize, opt.gtdim);
+    readXvec<idx_t>(gt_input, massQA.data(), opt.gtdim, opt.qsize);
     gt_input.close();
 
     cout << "Loading queries:\n";
@@ -215,8 +215,7 @@ void demo_deep1b(const char *path_centroids,
     cout << "Loading GT:\n";
     std::vector<idx_t> massQA(qsize * gtdim);
     std::ifstream gt_input(path_gt, ios::binary);
-    std::cout << qsize << " " << gtdim << std::endl;
-    readXvec<idx_t>(gt_input, massQA.data(), qsize, gtdim);
+    readXvec<idx_t>(gt_input, massQA.data(), gtdim, qsize);
     gt_input.close();
 
     cout << "Loading queries:\n";
