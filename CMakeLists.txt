@@ -15,11 +15,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 #set(SOURCE_EXE demo_deep1b.cpp)
 
-set(SOURCE_LIB_h IndexIVF_HNSW.h)
-set(SOURCE_LIB_cpp IndexIVF_HNSW.cpp)
-set(SOURCE_LIB_uh utils.h)
-set(SOURCE_LIB_ucpp utils.cpp)
-
 # specify header and cpp files
 file(GLOB ivf-hnsw_cpu_headers ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 file(GLOB ivf-hnsw_cpu_cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
