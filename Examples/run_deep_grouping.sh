@@ -69,9 +69,9 @@ nprobes="32"
 max_codes="10000"
 efSearch="80"
 
-path_pq="/home/dbaranchuk/${subdir}pq${M_PQ}.pq"
-path_norm_pq="/home/dbaranchuk/${subdir}norm_pq${M_PQ}.pq"
-path_index="/home/dbaranchuk/${subdir}hybrid${nc}M_PQ${M_PQ}.index"
+path_pq="/home/dbaranchuk/${subdir}pq${M_PQ}_nsubc${nsubcentroids}.pq"
+path_norm_pq="/home/dbaranchuk/${subdir}norm_pq${M_PQ}_nsubc${nsubcentroids}.pq"
+path_index="/home/dbaranchuk/${subdir}hybrid${nc}M_PQ${M_PQ}_nsubc${nsubcentroids}.index"
 
 for i in {1..5}
 do
