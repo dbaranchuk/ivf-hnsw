@@ -23,7 +23,7 @@ using namespace ivfhnsw;
 /**
  * Run IVF-HNSW / IVF-HNSW + Grouping (+Pruning) on DEEP1B
  */
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 //    save_groups_sift("/home/dbaranchuk/data/groups/sift1B_groups.bvecs",
 //                     "/home/dbaranchuk/data/bigann/bigann_base.bvecs",
@@ -165,4 +165,5 @@ void main(int argc, char **argv)
 
     delete index;
     delete l2space;
+    return 0;
 }

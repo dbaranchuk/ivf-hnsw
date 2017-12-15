@@ -23,7 +23,7 @@ using namespace ivfhnsw;
 /**
  * Run IVF-HNSW / IVF-HNSW + Grouping (+Pruning) on SIFT1B
  */
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
     /** Parse Options **/
     Parser opt = Parser(argc, argv);
@@ -155,4 +155,5 @@ void main(int argc, char **argv)
 
     delete index;
     delete l2space;
+    return 0;
 }
