@@ -12,10 +12,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(SOURCE_EXE demo_deep1b.cpp)
 
-set(SOURCE_LIB1 IndexIVF_HNSW.cpp)
+set(SOURCE_LIB_h IndexIVF_HNSW.h)
+set(SOURCE_LIB_cpp IndexIVF_HNSW.cpp)
 #set(SOURCE_LIB2 demo_deep1b.cpp)
 
-add_library(ivf-hnsw STATIC ${SOURCE_LIB1})#, ${SOURCE_LIB2})
+add_library(ivf-hnsw STATIC ${SOURCE_LIB_h} ${SOURCE_LIB_cpp})
 
 add_subdirectory(faiss)
 
