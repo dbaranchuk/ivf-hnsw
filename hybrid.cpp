@@ -105,8 +105,8 @@ void demo_sift1b(const char *path_centroids,
     int gt_dim = 1000;
 
     idx_t *massQA = new idx_t[qsize * gt_dim];
-    std::ifstream gt_input(path_gt, ios::binary);
-    read
+    //std::ifstream gt_input(path_gt, ios::binary);
+    //read
     loadXvecs<idx_t>(path_gt, massQA, qsize, gt_dim);
 
     cout << "Loading queries:\n";
