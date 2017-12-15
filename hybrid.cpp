@@ -295,7 +295,7 @@ void demo_deep1b(const char *path_centroids,
     std::cout << "Parsing gt\n";
     (vector<std::priority_queue< std::pair<float, labeltype >>>(qsize)).swap(answers);
     for (int i = 0; i < qsize; i++)
-        answers[i].emplace(0.0f, massQA[gt_dim*i]);
+        answers[i].emplace(0.0f, massQA[gtdim*i]);
 
     /** Set search parameters **/
     index->max_codes = max_codes;
