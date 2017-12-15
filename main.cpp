@@ -60,6 +60,7 @@ int main(int argc, char **argv) {
     size_t M_PQ = 16;
     size_t nprobes = 64;
     size_t max_codes = 10000;
+    size_t gtdim = 1;
 
 
     const char *path_gt = NULL;
@@ -140,6 +141,10 @@ int main(int argc, char **argv) {
         }
         else if (!strcmp (a, "-d") && i+1 < argc) {
             ret = sscanf (argv[++i], "%d", &vecdim);
+            assert (ret);
+        }
+        else if (!strcmp (a, "-gt_d") && i+1 < argc) {
+            ret = sscanf (argv[++i], "%d", &gtdim);
             assert (ret);
         }
         else if (!strcmp (a, "-n") && i+1 < argc) {

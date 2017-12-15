@@ -26,97 +26,58 @@ enum class Dataset
     SIFT1B
 };
 
-/**
- * Run IVF-HNSW on SIFT1B
- *
- * @param path_centroids
- * @param path_index
- * @param path_precomputed_idxs
- * @param path_pq
- * @param path_norm_pq
- * @param path_learn
- * @param path_data
- * @param path_q
- * @param path_gt
- * @param path_info
- * @param path_edges
- * @param path_groups
- * @param path_idxs
- * @param k
- * @param vecsize
- * @param qsize
- * @param vecdim
- * @param gt_dim
- * @param efConstruction
- * @param M
- * @param M_PQ
- * @param efSearch
- * @param nprobes
- * @param max_codes
- * @param ncentroids
- * @param nsubcentroids
- */
-
-void demo_sift1b(const char *path_centroids,
-                 const char *path_index, const char *path_precomputed_idxs,
-                 const char *path_pq, const char *path_norm_pq,
-                 const char *path_learn, const char *path_data, const char *path_q,
-                 const char *path_gt, const char *path_info, const char *path_edges,
-                 const char *path_groups, const char *path_idxs,
-                 const int k, const int vecsize, const int qsize,
-                 const int vecdim, const int gt_dim,
-                 const int efConstruction, const int M, const int M_PQ,
-                 const int efSearch, const int nprobes, const int max_codes,
-                 const int ncentroids, const int nsubcentroids)
+void demo_sift1b(int argc, char **argv)
 {
 //    save_groups_sift("/home/dbaranchuk/data/groups/sift1B_groups.bvecs",
 //                     "/home/dbaranchuk/data/bigann/bigann_base.bvecs",
 //                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
 //                     993127, 128, vecsize);
 //    exit(0);
+    /** Parse Options **/
+    Parser opt = Parser(argc, argv);
 
     cout << "Loading GT:\n";
-    std::vector<idx_t>massQA(qsize * gt_dim);
-    std::ifstream gt_input(path_gt, ios::binary);
-    readXvec<idx_t>(gt_input, massQA.data(), qsize, gt_dim);
+    std::vector<idx_t>massQA(opt.qsize * opt.gtdim);
+    std::ifstream gt_input(opt.path_gt, ios::binary);
+    readXvec<idx_t>(gt_input, massQA.data(), opt.qsize, opt.gtdim);
     gt_input.close();
 
     cout << "Loading queries:\n";
-    std::vector<float> massQ(qsize * vecdim);
-    std::ifstream query_input(path_q, ios::binary);
-    readXvecFvec<uint8_t >(query_input, massQ.data(), vecdim, qsize);
+    std::vector<float> massQ(opt.qsize * opt.vecdim);
+    std::ifstream query_input(opt.path_q, ios::binary);
+    readXvecFvec<uint8_t >(query_input, massQ.data(), opt.vecdim, opt.qsize);
     query_input.close();
 
-    SpaceInterface<float> *l2space = new L2Space(vecdim);
+    SpaceInterface<float> *l2space = new L2Space(opt.vecdim);
 
     /** Create Index **/
     //IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(vecdim, ncentroids, M_PQ, 8, nsubcentroids);
-    IndexIVF_HNSW *index = new IndexIVF_HNSW(vecdim, ncentroids, M_PQ, 8);
-    index->buildCoarseQuantizer(l2space, path_centroids,
-                                path_info, path_edges,
-                                M, efConstruction);
+    IndexIVF_HNSW *index = new IndexIVF_HNSW(opt.vecdim, opt.ncentroids, opt.M_PQ, 8);
+    index->buildCoarseQuantizer(l2space, opt.path_centroids,
+                                opt.path_info, opt.path_edges,
+                                opt.M, opt.efConstruction);
 
     /** Train PQ **/
-    std::ifstream learn_input(path_learn, ios::binary);
+    std::ifstream learn_input(opt.path_learn, ios::binary);
     int nt = 1000000;//262144;
     int sub_nt = 131072;//262144;//65536;
-    std::vector<float> trainvecs(nt * vecdim);
-    readXvecFvec<uint8_t>(learn_input, trainvecs.data(), vecdim, nt);
+    std::vector<float> trainvecs(nt * opt.vecdim);
+    readXvecFvec<uint8_t>(learn_input, trainvecs.data(), opt.vecdim, nt);
     learn_input.close();
 
     /** Set Random Subset of sub_nt trainvecs **/
-    std::vector<float> trainvecs_rnd_subset(sub_nt * vecdim);
-    random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), vecdim, nt, sub_nt);
+    std::vector<float> trainvecs_rnd_subset(sub_nt * opt.vecdim);
+    random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), opt.vecdim, nt, sub_nt);
 
     /** Train PQ **/
-    if (exists_test(path_pq) && exists_test(path_norm_pq)) {
-        std::cout << "Loading Residual PQ codebook from " << path_pq << std::endl;
-        index->pq = faiss::read_ProductQuantizer(path_pq);
+    if (exists_test(opt.path_pq) && exists_test(opt.path_norm_pq)) {
+        std::cout << "Loading Residual PQ codebook from " << opt.path_pq << std::endl;
+        index->pq = faiss::read_ProductQuantizer(opt.path_pq);
         std::cout << index->pq->d << " " << index->pq->code_size << " " << index->pq->dsub
                   << " " << index->pq->ksub << " " << index->pq->centroids[0] << std::endl;
 
-        std::cout << "Loading Norm PQ codebook from " << path_norm_pq << std::endl;
-        index->norm_pq = faiss::read_ProductQuantizer(path_norm_pq);
+        std::cout << "Loading Norm PQ codebook from " << opt.path_norm_pq << std::endl;
+        index->norm_pq = faiss::read_ProductQuantizer(opt.path_norm_pq);
         std::cout << index->norm_pq->d << " " << index->norm_pq->code_size << " " << index->norm_pq->dsub
                   << " " << index->norm_pq->ksub << " " << index->norm_pq->centroids[0] << std::endl;
     }
@@ -124,59 +85,59 @@ void demo_sift1b(const char *path_centroids,
         std::cout << "Training PQ codebooks" << std::endl;
         index->train_pq(sub_nt, trainvecs_rnd_subset.data());
 
-        std::cout << "Saving Residual PQ codebook to " << path_pq << std::endl;
-        faiss::write_ProductQuantizer(index->pq, path_pq);
+        std::cout << "Saving Residual PQ codebook to " << opt.path_pq << std::endl;
+        faiss::write_ProductQuantizer(index->pq, opt.path_pq);
 
-        std::cout << "Saving Norm PQ codebook to " << path_norm_pq << std::endl;
-        faiss::write_ProductQuantizer(index->norm_pq, path_norm_pq);
+        std::cout << "Saving Norm PQ codebook to " << opt.path_norm_pq << std::endl;
+        faiss::write_ProductQuantizer(index->norm_pq, opt.path_norm_pq);
     }
 
-    if (exists_test(path_index)){
+    if (exists_test(opt.path_index)){
         /** Load Index **/
-        std::cout << "Loading index from " << path_index << std::endl;
-        index->read(path_index);
+        std::cout << "Loading index from " << opt.path_index << std::endl;
+        index->read(opt.path_index);
     } else {
         /** Add elements **/
-//      index->add<uint8_t>(path_groups, path_idxs);
-        index->add<uint8_t>(vecsize, path_data, path_precomputed_idxs);
+//      index->add<uint8_t>(opt.path_groups, opt.path_idxs);
+        index->add<uint8_t>(opt.vecsize, opt.path_data, opt.path_precomputed_idxs);
 
         /** Save index, pq and norm_pq **/
-        std::cout << "Saving index to " << path_index << std::endl;
-        std::cout << "       pq to " << path_pq << std::endl;
-        std::cout << "       norm pq to " << path_norm_pq << std::endl;
+        std::cout << "Saving index to " << opt.path_index << std::endl;
+        std::cout << "       pq to " << opt.path_pq << std::endl;
+        std::cout << "       norm pq to " << opt.path_norm_pq << std::endl;
 
         /** Computing Centroid Norms **/
         std::cout << "Computing centroid norms"<< std::endl;
         index->compute_centroid_norms();
-        index->write(path_index);
+        index->write(opt.path_index);
     }
     index->compute_s_c();
 
     /** Parse groundtruth **/
     std::vector<std::priority_queue< std::pair<float, labeltype >>> answers;
     std::cout << "Parsing gt\n";
-    (std::vector<std::priority_queue< std::pair<float, labeltype >>>(qsize)).swap(answers);
-    for (int i = 0; i < qsize; i++)
-        answers[i].emplace(0.0f, massQA[gt_dim*i]);
+    (std::vector<std::priority_queue< std::pair<float, labeltype >>>(opt.qsize)).swap(answers);
+    for (int i = 0; i < opt.qsize; i++)
+        answers[i].emplace(0.0f, massQA[opt.gtdim*i]);
 
     /** Set search parameters **/
-    index->max_codes = max_codes;
-    index->nprobe = nprobes;
-    index->quantizer->ef_ = efSearch;
+    index->max_codes = opt.max_codes;
+    index->nprobe = opt.nprobes;
+    index->quantizer->ef_ = opt.efSearch;
 
     /** Search **/
     int correct = 0;
-    float distances[k];
-    long labels[k];
+    float distances[opt.k];
+    long labels[opt.k];
 
     StopW stopw = StopW();
-    for (int i = 0; i < qsize; i++) {
-        for (int j = 0; j < k; j++){
+    for (int i = 0; i < opt.qsize; i++) {
+        for (int j = 0; j < opt.k; j++){
             distances[j] = 0;
             labels[j] = 0;
         }
 
-        index->search(massQ.data() + i*vecdim, k, distances, labels);
+        index->search(massQ.data() + i*opt.vecdim, opt.k, distances, labels);
 
         std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
         std::unordered_set<labeltype> g;
@@ -186,15 +147,15 @@ void demo_sift1b(const char *path_centroids,
             gt.pop();
         }
 
-        for (int j = 0; j < k; j++)
+        for (int j = 0; j < opt.k; j++)
             if (g.count(labels[j]) != 0) {
                 correct++;
                 break;
             }
     }
     /**Represent results**/
-    float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
-    std::cout << "Recall@" << k << ": " << 1.0f * correct / qsize << std::endl;
+    float time_us_per_query = stopw.getElapsedTimeMicro() / opt.qsize;
+    std::cout << "Recall@" << opt.k << ": " << 1.0f * correct / opt.qsize << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
     //std::cout << "Average max_codes: " << index->average_max_codes / 10000 << std::endl;
     //std::cout << "Average reused q_s: " << (1.0 * index->counter_reused) / (index->counter_computed + index->counter_reused) << std::endl;
