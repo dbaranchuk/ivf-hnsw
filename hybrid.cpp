@@ -18,35 +18,6 @@ using namespace std;
 using namespace hnswlib;
 using namespace ivfhnsw;
 
-
-template <typename format>
-static void loadXvecs(const char *path, format *mass, const int n, const int d)
-{
-    ifstream input(path, ios::binary);
-    for (int i = 0; i < n; i++) {
-        int in = 0;
-        input.read((char *)&in, sizeof(int));
-        if (in != d) {
-            cout << "file error\n";
-            exit(1);
-        }
-        input.read((char *)(mass + i*d), in*sizeof(format));
-    }
-    input.close();
-}
-
-
-void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx)
-{
-    int seed = 1234;
-    std::vector<int> perm (nx);
-    faiss::rand_perm (perm.data (), nx, seed);
-
-    for (idx_t i = 0; i < sub_nx; i++)
-        memcpy (x_out + i * d, x + perm[i] * d, sizeof(x_out[0]) * d);
-}
-
-
 enum class Dataset
 {
     DEEP1B,
@@ -73,6 +44,7 @@ enum class Dataset
  * @param vecsize
  * @param qsize
  * @param vecdim
+ * @param gt_dim
  * @param efConstruction
  * @param M
  * @param M_PQ
@@ -89,7 +61,8 @@ void demo_sift1b(const char *path_centroids,
                  const char *path_learn, const char *path_data, const char *path_q,
                  const char *path_gt, const char *path_info, const char *path_edges,
                  const char *path_groups, const char *path_idxs,
-                 const int k, const int vecsize, const int qsize, const int vecdim,
+                 const int k, const int vecsize, const int qsize,
+                 const int vecdim, const int gt_dim,
                  const int efConstruction, const int M, const int M_PQ,
                  const int efSearch, const int nprobes, const int max_codes,
                  const int ncentroids, const int nsubcentroids)
@@ -104,9 +77,9 @@ void demo_sift1b(const char *path_centroids,
     int gt_dim = 1000;
 
     idx_t *massQA = new idx_t[qsize * gt_dim];
-    //std::ifstream gt_input(path_gt, ios::binary);
-    //read
-    loadXvecs<idx_t>(path_gt, massQA, qsize, gt_dim);
+    std::ifstream gt_input(path_gt, ios::binary);
+    readXvec<idx_t>(gt_input, massQA, qsize, gt_dim);
+    gt_input.close();
 
     cout << "Loading queries:\n";
     float massQ[qsize * vecdim];
@@ -256,6 +229,7 @@ void demo_sift1b(const char *path_centroids,
  * @param vecsize
  * @param qsize
  * @param vecdim
+ * @param gt_dim
  * @param efConstruction
  * @param M
  * @param M_PQ
@@ -272,7 +246,8 @@ void demo_deep1b(const char *path_centroids,
                  const char *path_learn, const char *path_data, const char *path_q,
                  const char *path_gt, const char *path_info, const char *path_edges,
                  const char *path_groups, const char *path_idxs,
-                 const int k, const int vecsize, const int qsize, const int vecdim,
+                 const int k, const int vecsize, const int qsize,
+                 const int vecdim, const int gt_dim,
                  const int efConstruction, const int M, const int M_PQ,
                  const int efSearch, const int nprobes, const int max_codes,
                  const int ncentroids, const int nsubcentroids)
@@ -280,7 +255,9 @@ void demo_deep1b(const char *path_centroids,
     cout << "Loading GT:\n";
     int gt_dim = 1;
     idx_t *massQA = new idx_t[qsize * gt_dim];
-    loadXvecs<idx_t>(path_gt, massQA, qsize, gt_dim);
+    std::ifstream gt_input(path_gt, ios::binary);
+    readXvec<idx_t>(gt_input, massQA, qsize, gt_dim);
+    gt_input.close();
 
     cout << "Loading queries:\n";
     float massQ[qsize * vecdim];

@@ -8,7 +8,7 @@ void demo_sift1b(const char *, const char *, const char *,
                  const char *, const char *, const char *,
                  const char *, const char *,
                  const int, const int, const int, const int, const int, const int,
-                 const int, const int, const int, const int, const int, const int);
+                 const int, const int, const int, const int, const int, const int, const int);
 
 void demo_deep1b(const char *, const char *, const char *,
                  const char *, const char *,
@@ -16,7 +16,7 @@ void demo_deep1b(const char *, const char *, const char *,
                  const char *, const char *, const char *,
                  const char *, const char *,
                  const int, const int, const int, const int, const int, const int,
-                 const int, const int, const int, const int, const int, const int);
+                 const int, const int, const int, const int, const int, const int, const int);
 
 void usage(const char * cmd)
 {
@@ -193,11 +193,13 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    int gt_dim = 1000;
     demo_sift1b(path_centroids, path_index, path_precomputed_idxs,
                 path_pq, path_norm_pq, path_learn, path_data, path_q,
                 path_gt, path_info, path_edges,
                 path_groups, path_idxs,
-                k, vecsize, qsize, vecdim,
+                k, vecsize, qsize,
+                vecdim, gt_dim,
                 efConstruction, M, M_PQ,
                 efSearch, nprobes, max_codes,
                 ncentroids, nsubcentroids);

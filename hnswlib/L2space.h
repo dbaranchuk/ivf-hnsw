@@ -18,27 +18,8 @@
 #include <cmath>
 #include "hnswlib.h"
 #include <faiss/utils.h>
-#include <faiss/ProductQuantizer.h>
-#include <faiss/index_io.h>
-
-/** Another is readXvec_ **/
-template <typename format>
-void readXvecs(std::ifstream &input, format *mass, const int d, const int n = 1)
-{
-    int in = 0;
-    for (int i = 0; i < n; i++) {
-        input.read((char *) &in, sizeof(int));
-        if (in != d) {
-            std::cout << "file error\n";
-            exit(1);
-        }
-        input.read((char *)(mass+i*d), in * sizeof(format));
-    }
-}
 
 namespace hnswlib {
-    enum class L2SpaceType { Int, Float, PQ, NewPQ};
-
 	class L2Space : public SpaceInterface<float>
     {
 		size_t data_size_;
