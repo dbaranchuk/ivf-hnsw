@@ -178,7 +178,8 @@ namespace ivfhnsw {
         
         /** Construct HNSW Coarse Quantizer **/
         void buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
-                                  const char *path_info, const char *path_edges, int efSearch);
+                                  const char *path_info, const char *path_edges,
+                                  int M, int efSearch, int efConstruction);
 
         void assign(size_t n, const float *data, idx_t *idxs);
 
@@ -244,14 +245,16 @@ namespace ivfhnsw {
     }
 
     void IndexIVF_HNSW::buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
-                                          const char *path_info, const char *path_edges, int efSearch) {
+                                             const char *path_info, const char *path_edges,
+                                             int M, int efSearch, int efConstruction=500)
+    {
         if (exists_test(path_info) && exists_test(path_edges)) {
             quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
             quantizer->ef_ = efSearch;
             return;
         }
-        quantizer = new HierarchicalNSW<float, float>(l2space, nc, 16, 32, 500);
-        quantizer->ef_ = efSearch;
+        quantizer = new HierarchicalNSW<float, float>(l2space, nc, M, 2*M, efConstruction);
+        quantizer->ef_ = efConstruction;
 
         std::cout << "Constructing quantizer\n";
         int j1 = 0;
@@ -278,7 +281,6 @@ namespace ivfhnsw {
         quantizer->SaveEdges(path_edges);
     }
 
-
     void IndexIVF_HNSW::assign(size_t n, const float *data, idx_t *idxs) {
         #pragma omp parallel for
         for (int i = 0; i < n; i++)
@@ -303,7 +305,6 @@ namespace ivfhnsw {
         for (int b = 0; b < (n / batch_size); b++) {
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
             readXvecFvec<ptype>(base_input, batch.data(), d, batch_size);
-            //readXvec<float>(base_input, batch.data(), d, batch_size);
 
             for (size_t i = 0; i < batch_size; i++)
                 ids_batch[i] = batch_size*b + i;
@@ -636,7 +637,8 @@ namespace ivfhnsw {
         ~IndexIVF_HNSW_Grouping();
 
         void buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
-                                  const char *path_info, const char *path_edges, int efSearch);
+                                  const char *path_info, const char *path_edges,
+                                  int M, int efSearch, int efConstruction);
 
         void assign(size_t n, const float *data, idx_t *idxs);
 
@@ -721,14 +723,16 @@ namespace ivfhnsw {
     }
 
     void IndexIVF_HNSW_Grouping::buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
-                                       const char *path_info, const char *path_edges, int efSearch) {
+                                                      const char *path_info, const char *path_edges,
+                                                      int M, int efSearch, int efConstruction=500)
+    {
         if (exists_test(path_info) && exists_test(path_edges)) {
             quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
             quantizer->ef_ = efSearch;
             return;
         }
-        quantizer = new HierarchicalNSW<float, float>(l2space, nc, 16, 32, 500);
-        quantizer->ef_ = efSearch;
+        quantizer = new HierarchicalNSW<float, float>(l2space, nc, M, 2*M, efConstruction);
+        quantizer->ef_ = efConstruction;
 
         std::cout << "Constructing quantizer\n";
         int j1 = 0;

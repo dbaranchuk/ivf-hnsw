@@ -77,7 +77,7 @@ void hybrid_test(const char *path_centroids,
 //                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
 //                     993127, 128, vecsize);
 //    exit(0);
-    Dataset dataset = Dataset::DEEP1B;
+    Dataset dataset = Dataset::SIFT1B;
 
     cout << "Loading GT:\n";
     int gt_dim;
@@ -109,12 +109,14 @@ void hybrid_test(const char *path_centroids,
     /** Create Index **/
     //IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(vecdim, ncentroids, M_PQ, 8, nsubcentroids);
     IndexIVF_HNSW *index = new IndexIVF_HNSW(vecdim, ncentroids, M_PQ, 8);
-    index->buildCoarseQuantizer(l2space, path_centroids, path_info, path_edges, 500);
+    index->buildCoarseQuantizer(l2space, path_centroids,
+                                path_info, path_edges,
+                                M, efSearch, efConstruction);
 
     /** Train PQ **/
     std::ifstream learn_input(path_learn, ios::binary);
-    int nt = 100000;//262144;
-    int sub_nt = 100000;//262144;//65536;
+    int nt = 1000000;//262144;
+    int sub_nt = 131072;//262144;//65536;
     std::vector<float> trainvecs(nt * vecdim);
     switch (dataset) {
         case Dataset::SIFT1B:

@@ -45,7 +45,7 @@ namespace hnswlib {
             LoadEdges(edgeLocation);
         }
 
-        HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxelements, size_t M, size_t maxM, size_t efConstruction = 200)
+        HierarchicalNSW(SpaceInterface<dist_t> *s, size_t maxelements, size_t M, size_t maxM, size_t efConstruction = 500)
         {
             space = s;
             data_size_ = s->get_data_size();
