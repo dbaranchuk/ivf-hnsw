@@ -6,7 +6,6 @@
 #include <chrono>
 #include <sys/time.h>
 
-#include <faiss/ProductQuantizer.h>
 #include <faiss/utils.h>
 
 /*
