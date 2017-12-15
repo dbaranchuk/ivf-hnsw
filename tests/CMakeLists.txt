@@ -4,13 +4,14 @@ file(GLOB srcs ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
 # Build each source file independently
 include_directories(../../)	# ivf-hnsw root directory
+add_subdirectory(../faiss)
 
 foreach(source ${srcs})
     get_filename_component(name ${source} NAME_WE)
 
     # target
     add_executable(${name} ${source})
-    target_link_libraries(${name} ${faiss_lib})
+    target_link_libraries(${name} ${faiss_lib} ${ivf_hnsw_lib})
 
     # Install
     install(TARGETS ${name} DESTINATION test)
