@@ -13,7 +13,7 @@ foreach(source ${srcs})
 
     # target
     add_executable(${name} ${source})
-    target_link_libraries(${name} ${faiss_lib} ${ivf_hnsw_lib})
+    target_link_libraries(${name} ${ivf_hnsw_lib}) #${faiss_lib}
 
     # Install
     install(TARGETS ${name} DESTINATION test)
