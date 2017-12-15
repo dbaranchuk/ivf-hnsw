@@ -2,7 +2,15 @@
 #include <cstring>
 #include <cassert>
 
-void hybrid_test(const char *, const char *, const char *,
+void demo_sift1b(const char *, const char *, const char *,
+                 const char *, const char *,
+                 const char *, const char *, const char *,
+                 const char *, const char *, const char *,
+                 const char *, const char *,
+                 const int, const int, const int, const int, const int, const int,
+                 const int, const int, const int, const int, const int, const int);
+
+void demo_deep1b(const char *, const char *, const char *,
                  const char *, const char *,
                  const char *, const char *, const char *,
                  const char *, const char *, const char *,
@@ -185,7 +193,7 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    hybrid_test(path_centroids, path_index, path_precomputed_idxs,
+    demo_sift1b(path_centroids, path_index, path_precomputed_idxs,
                 path_pq, path_norm_pq, path_learn, path_data, path_q,
                 path_gt, path_info, path_edges,
                 path_groups, path_idxs,
