@@ -180,7 +180,7 @@ int main(int argc, char **argv) {
     }
 
     //demo_sift1b(argc, argv);
-    demo_demo1b(path_centroids, path_index, path_precomputed_idxs,
+    demo_deep1b(path_centroids, path_index, path_precomputed_idxs,
                 path_pq, path_norm_pq, path_learn, path_data, path_q,
                 path_gt, path_info, path_edges,
                 path_groups, path_idxs,

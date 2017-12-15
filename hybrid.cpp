@@ -207,15 +207,15 @@ void demo_deep1b(const char *path_centroids,
                  const char *path_gt, const char *path_info, const char *path_edges,
                  const char *path_groups, const char *path_idxs,
                  const int k, const int vecsize, const int qsize,
-                 const int vecdim, const int gt_dim,
+                 const int vecdim, const int gtdim,
                  const int efConstruction, const int M, const int M_PQ,
                  const int efSearch, const int nprobes, const int max_codes,
                  const int ncentroids, const int nsubcentroids)
 {
     cout << "Loading GT:\n";
-    std::vector<idx_t> massQA(qsize * gt_dim);
+    std::vector<idx_t> massQA(qsize * gtdim);
     std::ifstream gt_input(path_gt, ios::binary);
-    readXvec<idx_t>(gt_input, massQA.data(), qsize, gt_dim);
+    readXvec<idx_t>(gt_input, massQA.data(), qsize, gtdim);
     gt_input.close();
 
     cout << "Loading queries:\n";
