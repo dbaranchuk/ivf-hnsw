@@ -4,11 +4,8 @@
 #include <stdlib.h>
 #include <queue>
 #include <chrono>
-//#include <faiss/ProductQuantizer.h>
-//#include <faiss/index_io.h>
 
-#include <ivf-hnsw/IndexIVF_HNSW.h>
-#include "../hnswlib/hnswlib.h"
+#include "../IndexIVF_HNSW.h"
 
 #include <map>
 #include <set>
