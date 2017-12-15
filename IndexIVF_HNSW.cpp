@@ -5,9 +5,9 @@
 #include "IndexIVF_HNSW.h"
 
 
-#include <faiss/utils.h>
-#include <faiss/index_io.h>
-#include <faiss/Heap.h>
+#include "faiss/utils.h"
+#include "faiss/index_io.h"
+#include "faiss/Heap.h"
 #include "utils.h"
 
 namespace ivfhnsw {

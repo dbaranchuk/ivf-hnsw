@@ -9,7 +9,6 @@
 #include <iostream>
 #include <sys/time.h>
 
-#include <faiss/utils.h>
 
 /*
 * Author:  David Robert Nadeau
