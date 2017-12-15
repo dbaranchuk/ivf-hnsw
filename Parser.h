@@ -5,6 +5,37 @@
 #include <cstring>
 #include <cassert>
 
+/****************
+ * Parser Class *
+ ****************
+ * @param path_centroids
+ * @param path_index
+ * @param path_precomputed_idxs
+ * @param path_pq
+ * @param path_norm_pq
+ * @param path_learn
+ * @param path_data
+ * @param path_q
+ * @param path_gt
+ * @param path_info
+ * @param path_edges
+ * @param path_groups
+ * @param path_idxs
+ * @param k
+ * @param vecsize
+ * @param qsize
+ * @param vecdim
+ * @param gt_dim
+ * @param efConstruction
+ * @param M
+ * @param M_PQ
+ * @param efSearch
+ * @param nprobes
+ * @param max_codes
+ * @param ncentroids
+ * @param nsubcentroids
+ */
+
 struct Parser
 {
     const char * cmd;
@@ -175,4 +206,5 @@ struct Parser
         );
     }
 };
+
 #endif //IVF_HNSW_LIB_PARSER_H
