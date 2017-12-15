@@ -179,7 +179,7 @@ namespace ivfhnsw {
         /** Construct HNSW Coarse Quantizer **/
         void buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                                   const char *path_info, const char *path_edges,
-                                  int M, int efSearch, int efConstruction);
+                                  int M, int efConstruction);
 
         void assign(size_t n, const float *data, idx_t *idxs);
 
@@ -246,11 +246,11 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW::buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                                              const char *path_info, const char *path_edges,
-                                             int M, int efSearch, int efConstruction=500)
+                                             int M, int efConstruction=500)
     {
         if (exists_test(path_info) && exists_test(path_edges)) {
             quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
-            quantizer->ef_ = efSearch;
+            quantizer->ef_ = efConstruction;
             return;
         }
         quantizer = new HierarchicalNSW<float, float>(l2space, nc, M, 2*M, efConstruction);
@@ -638,7 +638,7 @@ namespace ivfhnsw {
 
         void buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                                   const char *path_info, const char *path_edges,
-                                  int M, int efSearch, int efConstruction);
+                                  int M, int efConstruction);
 
         void assign(size_t n, const float *data, idx_t *idxs);
 
@@ -724,11 +724,11 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW_Grouping::buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                                                       const char *path_info, const char *path_edges,
-                                                      int M, int efSearch, int efConstruction=500)
+                                                      int M, int efConstruction=500)
     {
         if (exists_test(path_info) && exists_test(path_edges)) {
             quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
-            quantizer->ef_ = efSearch;
+            quantizer->ef_ = efConstruction;
             return;
         }
         quantizer = new HierarchicalNSW<float, float>(l2space, nc, M, 2*M, efConstruction);

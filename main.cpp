@@ -189,7 +189,9 @@ int main(int argc, char **argv) {
                 path_pq, path_norm_pq, path_learn, path_data, path_q,
                 path_gt, path_info, path_edges,
                 path_groups, path_idxs,
-                k, vecsize, ncentroids, qsize, vecdim, efConstruction, efSearch, M,
-                M_PQ, nprobes, max_codes, nsubcentroids);
+                k, vecsize, qsize, vecdim,
+                efConstruction, M, M_PQ,
+                efSearch, nprobes, max_codes,
+                ncentroids, nsubcentroids);
     return 0;  
 };
