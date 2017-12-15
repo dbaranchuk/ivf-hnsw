@@ -26,6 +26,6 @@ SET( CMAKE_CXX_FLAGS  "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -mar
 target_link_libraries(ivf-hnsw faiss) #demo_deep1b
 
 # build tests
-if(BUILD_TEST)
+#if(BUILD_TEST)
     add_subdirectory(tests)
-endif(BUILD_TEST)
+#endif(BUILD_TEST)
