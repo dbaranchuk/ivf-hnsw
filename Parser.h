@@ -40,7 +40,7 @@ struct Parser
     Parser(int argc, char **argv)
     {
         int ret;
-        
+
         cmd = argv[0];
         if (argc == 1)
             usage();
@@ -52,13 +52,7 @@ struct Parser
                 usage();
 
             /** Paths **/
-            if (!strcmp (a, "-path_codebooks") && i+1 < argc) {
-                path_codebooks = argv[++i];
-            }
-            else if (!strcmp (a, "-path_tables") && i+1 < argc) {
-                path_tables = argv[++i];
-            }
-            else if (!strcmp (a, "-path_data") && i+1 < argc) {
+            if (!strcmp (a, "-path_data") && i+1 < argc) {
                 path_data = argv[++i];
             }
             else if (!strcmp (a, "-path_info") && i+1 < argc) {
@@ -169,8 +163,8 @@ struct Parser
                         "    -path_q filename            set of queries (ivecs file format)\n"
                         "    -nq #                       number of queries, default: 10000\n"
                         "  Compression Parameters\n"
-                        "    -path_codebooks filename    codebook for PQ vectors (fvecs file format)\n"
-                        "    -path_tables filename       precomputed distances for PQ vectors (dat file format)\n"
+                        "    -path_pq filename           product quantizer for residuals \n"
+                        "    -path_norm filename         product quantizer for norms of reconstructed vectors\n"
                         "    -m #                        ***\n"
                         "  General parameters\n"
                         "    -n #                        use n points from the file, default: 1B\n"

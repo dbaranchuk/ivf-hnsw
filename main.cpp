@@ -65,8 +65,6 @@ int main(int argc, char **argv) {
     const char *path_gt = NULL;
     const char *path_q = NULL;
     const char *path_data = NULL;
-    const char *path_codebooks = NULL;
-    const char *path_tables = NULL;
     const char *path_edges = NULL;
     const char *path_info = NULL;
 
@@ -92,13 +90,7 @@ int main(int argc, char **argv) {
             usage (argv[0]);
 
         /** Paths **/
-        if (!strcmp (a, "-path_codebooks") && i+1 < argc) {
-            path_codebooks = argv[++i];
-        }
-        else if (!strcmp (a, "-path_tables") && i+1 < argc) {
-            path_tables = argv[++i];
-        }
-        else if (!strcmp (a, "-path_data") && i+1 < argc) {
+        if (!strcmp (a, "-path_data") && i+1 < argc) {
             path_data = argv[++i];
         }
         else if (!strcmp (a, "-path_info") && i+1 < argc) {
