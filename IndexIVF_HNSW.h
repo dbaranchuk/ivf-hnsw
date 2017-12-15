@@ -17,33 +17,12 @@
 #include <faiss/utils.h>
 #include <faiss/Heap.h>
 
+#include "utils.h"
+
 using namespace hnswlib;
 
 typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
-
-class StopW {
-    std::chrono::steady_clock::time_point time_begin;
-public:
-    StopW() {
-        time_begin = std::chrono::steady_clock::now();
-    }
-    float getElapsedTimeMicro() {
-        std::chrono::steady_clock::time_point time_end = std::chrono::steady_clock::now();
-        return (std::chrono::duration_cast<std::chrono::microseconds>(time_end - time_begin).count());
-    }
-    void reset() {
-        time_begin = std::chrono::steady_clock::now();
-    }
-};
-
-template<typename format>
-void readXvec(std::ifstream &input, format *data, const int d, const int n = 1);
-
-template<typename format>
-void readXvecFvec(std::ifstream &input, float *data, const int d, const int n = 1);
-
-void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx);
 
 namespace ivfhnsw {
 
