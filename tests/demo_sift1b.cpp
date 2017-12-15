@@ -4,26 +4,29 @@
 #include <stdlib.h>
 #include <queue>
 #include <chrono>
+#include <sys/time.h>
 
 #include <unordered_set>
-
-#include "../Parser.h"
-#include "../IndexIVF_HNSW.h"
 
 #include <vector>
 #include <limits>
 #include <cmath>
 
-//#include "../hnswlib/hnswlib.h"
-//#include "../utils.h"
+#include <unordered_set>
 
-#include <faiss/ProductQuantizer.h>
-#include <faiss/utils.h>
-#include <faiss/index_io.h>
+#include <ivf-hnsw/IndexIVF_HNSW.h>
+#include "../utils.h"
+#include "../Parser.h"
 
-using namespace std;
 using namespace hnswlib;
 using namespace ivfhnsw;
+
+double elapsed ()
+{
+    struct timeval tv;
+    gettimeofday (&tv, nullptr);
+    return  tv.tv_sec + tv.tv_usec * 1e-6;
+}
 
 /**
  * Run IVF-HNSW / IVF-HNSW + Grouping (+Pruning) on SIFT1B
