@@ -19,7 +19,8 @@ add_library(ivf-hnsw STATIC ${SOURCE_LIB1})#, ${SOURCE_LIB2})
 
 add_subdirectory(faiss)
 
-#add_executable(main ${SOURCE_EXE})
+add_executable(demo_deep1b ${SOURCE_EXE})
+
 SET( CMAKE_CXX_FLAGS  "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -march=native -fpic -w -fopenmp -ftree-vectorize -ftree-vectorizer-verbose=0" )
 
 target_link_libraries(demo_deep1b ivf-hnsw faiss) #ivf-hnsw
