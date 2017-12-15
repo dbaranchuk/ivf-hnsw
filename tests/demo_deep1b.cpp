@@ -8,7 +8,7 @@
 #include "../IndexIVF_HNSW.h"
 #include "../utils.h"
 
-#include "../faiss/index_io.h"
+//#include "../faiss/index_io.h"
 //#include "../faiss/utils.h"
 //#include "../faiss/ProductQuantizer.h"
 
