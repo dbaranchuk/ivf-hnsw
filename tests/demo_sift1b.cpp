@@ -5,17 +5,17 @@
 #include <queue>
 #include <chrono>
 
-#include <ivf-hnsw/IndexIVF_HNSW.h>
 #include <unordered_set>
 
 #include "../Parser.h"
+#include "../IndexIVF_HNSW.h"
 
 #include <vector>
 #include <limits>
 #include <cmath>
 
 #include "../hnswlib/hnswlib.h"
-#include "utils.h"
+#include "../utils.h"
 
 //#include <faiss/ProductQuantizer.h>
 //#include <faiss/utils.h>
