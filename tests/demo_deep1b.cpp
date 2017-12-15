@@ -8,7 +8,7 @@
 
 #include <unordered_set>
 
-#include "../IndexIVF_HNSW.h"
+#include <ivf-hnsw/IndexIVF_HNSW.h>
 #include "../Parser.h"
 
 using namespace hnswlib;
