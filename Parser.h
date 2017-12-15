@@ -106,6 +106,7 @@ struct Parser
             }
             else if (!strcmp (a, "-gt_d") && i+1 < argc) {
                 ret = sscanf (argv[++i], "%d", &gtdim);
+                std::cout << gtdim;
                 assert (ret);
             }
             else if (!strcmp (a, "-n") && i+1 < argc) {
