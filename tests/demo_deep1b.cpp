@@ -5,7 +5,7 @@
 #include <queue>
 #include <chrono>
 
-#include "../IndexIVF_HNSW.h"
+#include <ivf-hnsw/IndexIVF_HNSW.h>
 #include <unordered_set>
 
 #include "../Parser.h"
