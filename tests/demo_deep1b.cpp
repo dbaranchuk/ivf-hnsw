@@ -7,8 +7,8 @@
 
 #include <ivf-hnsw/IndexIVF_HNSW.h>
 #include <ivf-hnsw/utils.h>
+#include <faiss/index_io.h>
 
-//#include <faiss/index_io.h>
 #include <unordered_set>
 
 #include "../Parser.h"
