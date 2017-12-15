@@ -6,10 +6,10 @@
 #include <chrono>
 
 #include <ivf-hnsw/IndexIVF_HNSW.h>
-#include <faiss/index_io.h>
+//#include <faiss/index_io.h>
 #include <unordered_set>
 
-#include "../utils.h"
+//#include "../utils.h"
 #include "../Parser.h"
 
 using namespace hnswlib;
