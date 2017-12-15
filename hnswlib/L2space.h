@@ -21,32 +21,6 @@
 #include <faiss/ProductQuantizer.h>
 #include <faiss/index_io.h>
 
-
-static void read_PQ(const char *path, faiss::ProductQuantizer *_pq)
-{
-    if (!_pq) {
-        std::cout << "PQ object does not exists" << std::endl;
-        return;
-    }
-    FILE *fin = fopen(path, "rb");
-
-    fread(&_pq->d, sizeof(size_t), 1, fin);
-    fread(&_pq->M, sizeof(size_t), 1, fin);
-    fread(&_pq->nbits, sizeof(size_t), 1, fin);
-    _pq->set_derived_values ();
-
-    size_t size;
-    fread (&size, sizeof(size_t), 1, fin);
-    _pq->centroids.resize(size);
-
-    float *centroids = _pq->centroids.data();
-    fread(centroids, sizeof(float), size, fin);
-
-    std::cout << _pq->d << " " << _pq->M << " " << _pq->nbits << " " << _pq->byte_per_idx << " " << _pq->dsub << " "
-              << _pq->code_size << " " << _pq->ksub << " " << size << " " << centroids[0] << std::endl;
-    fclose(fin);
-}
-
 /** Another is readXvec_ **/
 template <typename format>
 void readXvecs(std::ifstream &input, format *mass, const int d, const int n = 1)
@@ -61,30 +35,6 @@ void readXvecs(std::ifstream &input, format *mass, const int d, const int n = 1)
         input.read((char *)(mass+i*d), in * sizeof(format));
     }
 }
-
-static void write_PQ(const char *path, faiss::ProductQuantizer *_pq)
-{
-    if (!_pq){
-        std::cout << "PQ object does not exist" << std::endl;
-        return;
-    }
-    FILE *fout = fopen(path, "wb");
-
-    fwrite(&_pq->d, sizeof(size_t), 1, fout);
-    fwrite(&_pq->M, sizeof(size_t), 1, fout);
-    fwrite(&_pq->nbits, sizeof(size_t), 1, fout);
-
-    size_t size = _pq->centroids.size();
-    fwrite (&size, sizeof(size_t), 1, fout);
-
-    float *centroids = _pq->centroids.data();
-    fwrite(centroids, sizeof(float), size, fout);
-
-    std::cout << _pq->d << " " << _pq->M << " " << _pq->nbits << " " << _pq->byte_per_idx << " " << _pq->dsub << " "
-              << _pq->code_size << " " << _pq->ksub << " " << size << " " << centroids[0] << std::endl;
-    fclose(fout);
-}
-
 
 namespace hnswlib {
     enum class L2SpaceType { Int, Float, PQ, NewPQ};
