@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 2.8)
 
+file(GLOB srcs ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+
 # Build each source file independently
 include_directories(../../)	# ivf-hnsw root directory
 
