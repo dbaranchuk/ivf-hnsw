@@ -325,7 +325,7 @@ void demo_deep1b(int argc, char **argv)
     }
     /**Represent results**/
     float time_us_per_query = stopw.getElapsedTimeMicro() / opt.qsize;
-    std::cout << "Recall@" << k << ": " << 1.0f * correct / opt.qsize << std::endl;
+    std::cout << "Recall@" << opt.k << ": " << 1.0f * correct / opt.qsize << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
     //std::cout << "Average max_codes: " << index->average_max_codes / 10000 << std::endl;
     //std::cout << "Average reused q_s: " << (1.0 * index->counter_reused) / (index->counter_computed + index->counter_reused) << std::endl;
