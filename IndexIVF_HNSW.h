@@ -1,4 +1,6 @@
-#pragma once
+
+#ifndef IVF_HNSW_LIB_INDEXIVF_HNSW_H
+#define IVF_HNSW_LIB_INDEXIVF_HNSW_H
 
 #include <iostream>
 #include <fstream>
@@ -12,6 +14,7 @@
 #include <set>
 
 #include "hnswlib/hnswlib.h"
+#include "utils.h"
 
 #include <faiss/ProductQuantizer.h>
 #include <faiss/utils.h>
@@ -1064,3 +1067,5 @@ namespace ivfhnsw {
 //    }
 
 }
+
+#endif // IVF_HNSW_LIB_INDEXIVF_HNSW_H
