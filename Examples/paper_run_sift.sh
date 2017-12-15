@@ -26,8 +26,8 @@ subdir="final_models/SIFT1B/"
 path_data="${baseDir}data/bigann/bigann_base.bvecs" 
 path_learn="${baseDir}data/bigann/bigann_learn.bvecs"
 
-path_edges="${baseDir}${subdir}sift${nc}m_ef${efConstruction}_clusters_${ncentroids}.ivecs" 
-path_info="${baseDir}${subdir}sift${nc}m_ef${efConstruction}_clusters_${ncentroids}.bin" 
+path_edges="${baseDir}${subdir}centroids${ncentroids}_ef${efConstruction}.ivecs"
+path_info="${baseDir}${subdir}centroids${ncentroids}_ef${efConstruction}.bin"
 
 path_gt="${baseDir}data/bigann/gnd/idx_1000M.ivecs" 
 path_q="${baseDir}data/bigann/bigann_query.bvecs"
