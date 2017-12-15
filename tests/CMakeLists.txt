@@ -4,7 +4,8 @@ file(GLOB srcs ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
 # Build each source file independently
 include_directories(../../)	# ivf-hnsw root directory
-add_subdirectory(../faiss)
+include_directories(../)
+#add_subdirectory(../faiss)
 
 foreach(source ${srcs})
     get_filename_component(name ${source} NAME_WE)
