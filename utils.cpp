@@ -4,7 +4,6 @@
 
 
 #include "utils.h"
-#include "faiss/utils.h"
 
 size_t getPeakRSS()
 {
