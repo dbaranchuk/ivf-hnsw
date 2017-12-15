@@ -7,7 +7,6 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
-#include <sys/time.h>
 
 #include <faiss/utils.h>
 
@@ -27,15 +26,14 @@ public:
 };
 
 
-namespace ivfhnsw {
-    template<typename format>
-    void readXvec(std::ifstream &input, format *data, const int d, const int n = 1);
+template<typename format>
+void readXvec(std::ifstream &input, format *data, const int d, const int n = 1);
 
-    template<typename format>
-    void readXvecFvec(std::ifstream &input, float *data, const int d, const int n = 1);
+template<typename format>
+void readXvecFvec(std::ifstream &input, float *data, const int d, const int n = 1);
 
-    void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx);
-}
+void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx);
+
 
 enum class Dataset
 {
