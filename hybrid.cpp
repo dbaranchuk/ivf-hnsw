@@ -215,6 +215,7 @@ void demo_deep1b(const char *path_centroids,
     cout << "Loading GT:\n";
     std::vector<idx_t> massQA(qsize * gtdim);
     std::ifstream gt_input(path_gt, ios::binary);
+    std::cout << qsize << " " << gtdim << std::endl;
     readXvec<idx_t>(gt_input, massQA.data(), qsize, gtdim);
     gt_input.close();
 
