@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 2.8)
-project (ivf_hnsw_lib)
+
+# ivf-hnsw project
+project(ivf-hnsw C CXX)
 
 option(BUILD_TEST "Build tests" ON)
 
