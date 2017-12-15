@@ -9,9 +9,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(SOURCE_EXE main.cpp)
-set(SOURCE_LIB1 hybrid.cpp)
 
-add_library(ivf-hnsw STATIC ${SOURCE_LIB1})
+set(SOURCE_LIB1 demo_sift1b.cpp)
+set(SOURCE_LIB2 demo_deep1b.cpp)
+
+add_library(ivf-hnsw STATIC ${SOURCE_LIB1}, ${SOURCE_LIB2})
 
 add_subdirectory(faiss)
 
