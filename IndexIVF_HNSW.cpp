@@ -8,7 +8,7 @@
 #include "../faiss/utils.h"
 #include "../faiss/index_io.h"
 #include "../faiss/Heap.h"
-#include "../utils.h"
+#include <ivf-hnsw/utils.h>
 
 namespace ivfhnsw {
 
