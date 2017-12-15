@@ -1,3 +1,5 @@
+#pragma once
+
 #include <queue>
 #include <limits>
 #include <cmath>
