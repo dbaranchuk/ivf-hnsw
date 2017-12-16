@@ -132,19 +132,19 @@ struct Parser
                 assert (ret);
             }
             else if (!strcmp (a, "-d") && i+1 < argc) {
-                ret = sscanf (argv[++i], "%d", &vecdim);
+                ret = sscanf (argv[++i], "%d", &d);
                 assert (ret);
             }
             else if (!strcmp (a, "-gt_d") && i+1 < argc) {
-                ret = sscanf (argv[++i], "%d", &gtdim);
+                ret = sscanf (argv[++i], "%d", &gtd);
                 assert (ret);
             }
             else if (!strcmp (a, "-n") && i+1 < argc) {
-                ret = sscanf (argv[++i], "%d", &vecsize);
+                ret = sscanf (argv[++i], "%d", &nb);
                 assert (ret);
             }
             else if (!strcmp (a, "-nq") && i+1 < argc) {
-                ret = sscanf (argv[++i], "%d", &qsize);
+                ret = sscanf (argv[++i], "%d", &nq);
                 assert (ret);
             }
             else if (!strcmp (a, "-M") && i+1 < argc) {
@@ -152,7 +152,7 @@ struct Parser
                 assert (ret);
             }
             else if (!strcmp (a, "-nc") && i+1 < argc) {
-                ret = sscanf (argv[++i], "%d", &ncentroids);
+                ret = sscanf (argv[++i], "%d", &nc);
                 assert (ret);
             }
             else if (!strcmp (a, "-M_PQ") && i+1 < argc) {
@@ -171,8 +171,8 @@ struct Parser
                 ret = sscanf (argv[++i], "%d", &max_codes);
                 assert (ret);
             }
-            else if (!strcmp (a, "-nsubcentroids") && i+1 < argc) {
-                ret = sscanf (argv[++i], "%d", &nsubcentroids);
+            else if (!strcmp (a, "-nsubc") && i+1 < argc) {
+                ret = sscanf (argv[++i], "%d", &nsubc);
                 assert (ret);
             }
         }
