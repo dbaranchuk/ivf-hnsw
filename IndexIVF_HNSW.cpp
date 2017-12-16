@@ -385,7 +385,8 @@ namespace ivfhnsw {
             idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i * d), 1).top().second;
     }
 
-    void IndexIVF_HNSW_Grouping::add_group(int centroid_num, int groupsize, float *data, idx_t *idxs,
+    void IndexIVF_HNSW_Grouping::add_group(int centroid_num, int groupsize,
+                                           const float *data, const idx_t *idxs,
                                            int &baseline_average, int &modified_average)
     {
         if (groupsize == 0)
@@ -415,7 +416,7 @@ namespace ivfhnsw {
         }
 
         /** Find alphas for vectors **/
-        alphas[centroid_num] = compute_alpha(centroid_vectors.data(), data.data(), centroid,
+        alphas[centroid_num] = compute_alpha(centroid_vectors.data(), data, centroid,
                                              centroid_vector_norms, groupsize);
 
         /** Compute final subcentroids **/
@@ -428,11 +429,11 @@ namespace ivfhnsw {
 
         /** Find subcentroid idx **/
         std::vector<idx_t> subcentroid_idxs(groupsize);
-        compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data.data(), groupsize);
+        compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data, groupsize);
 
         /** Compute Residuals **/
         std::vector<float> residuals(groupsize * d);
-        compute_residuals(groupsize, residuals.data(), data.data(), subcentroids.data(), subcentroid_idxs.data());
+        compute_residuals(groupsize, residuals.data(), data, subcentroids.data(), subcentroid_idxs.data());
 
         /** Compute Codes **/
         std::vector<uint8_t> xcodes(groupsize * code_size);
@@ -469,7 +470,7 @@ namespace ivfhnsw {
                 construction_codes[subcentroid_idx].push_back(xcodes[i * code_size + j]);
 
             const float *subcentroid = subcentroids.data() + subcentroid_idx * d;
-            const float *point = data.data() + i * d;
+            const float *point = data + i * d;
             baseline_average += faiss::fvec_L2sqr(centroid, point, d);
             modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
         }
