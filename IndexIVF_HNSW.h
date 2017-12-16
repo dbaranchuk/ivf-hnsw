@@ -142,7 +142,7 @@ namespace ivfhnsw {
 
         void add_group(int centroid_num, int groupsize,
                        const float *data, const idx_t *idxs,
-                       int &baseline_average, int &modified_average);
+                       double &baseline_average, double &modified_average);
 
         double average_max_codes = 0;
         int counter_reused = 0;

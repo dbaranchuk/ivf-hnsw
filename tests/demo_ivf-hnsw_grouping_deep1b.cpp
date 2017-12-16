@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 
         int j1 = 0;
         #pragma omp parallel for reduction(+:baseline_average, modified_average)
-        for (int c = 0; c < nc; c++) {
+        for (int c = 0; c < opt.nc; c++) {
             idx_t centroid_num;
             int groupsize;
             std::vector<float> data;

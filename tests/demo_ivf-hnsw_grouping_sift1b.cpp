@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 
         int j1 = 0;
 #pragma omp parallel for reduction(+:baseline_average, modified_average)
-        for (int c = 0; c < nc; c++) {
+        for (int c = 0; c < opt.nc; c++) {
             idx_t centroid_num;
             int groupsize;
             std::vector<float> data;
@@ -135,12 +135,12 @@ int main(int argc, char **argv)
                     exit(1);
                 }
 
-                data.resize(groupsize * d);
-                pdata.resize(groupsize * d);
+                data.resize(groupsize * opt.d);
+                pdata.resize(groupsize * opt.d);
                 idxs.resize(groupsize);
 
-                input_groups.read((char *) pdata.data(), groupsize * d * sizeof(uint8_t));
-                for (int i = 0; i < groupsize * d; i++)
+                input_groups.read((char *) pdata.data(), groupsize * opt.d * sizeof(uint8_t));
+                for (int i = 0; i < groupsize * opt.d; i++)
                     data[i] = (1.0) * pdata[i];
 
                 input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));

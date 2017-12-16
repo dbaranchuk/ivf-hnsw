@@ -387,7 +387,7 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW_Grouping::add_group(int centroid_num, int groupsize,
                                            const float *data, const idx_t *idxs,
-                                           int &baseline_average, int &modified_average)
+                                           double &baseline_average, double &modified_average)
     {
         if (groupsize == 0)
             return;
