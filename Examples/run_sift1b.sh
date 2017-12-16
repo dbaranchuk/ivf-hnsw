@@ -20,7 +20,7 @@ nc="1"
 ncentroids="993127"
 efSearch="240"
 
-subdir="final_models/SIFT1B/"
+subdir="new_models/SIFT1B/"
 
 #Paths
 path_data="${baseDir}data/bigann/bigann_base.bvecs" 

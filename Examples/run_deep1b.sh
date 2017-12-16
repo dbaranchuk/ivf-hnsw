@@ -22,7 +22,7 @@ nc="1"
 ncentroids="999973"
 efSearch="240"
 
-subdir="final_models/DEEP1B/"
+subdir="new_models/DEEP1B/"
 
 #Paths
 path_data="${homeBabenko}Bigann/deep1B_base.fvecs" 
