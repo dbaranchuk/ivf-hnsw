@@ -16,11 +16,6 @@ using namespace ivfhnsw;
 /***************************************************/
 int main(int argc, char **argv)
 {
-//    save_groups_sift("/home/dbaranchuk/data/groups/sift1B_groups.bvecs",
-//                     "/home/dbaranchuk/data/bigann/bigann_base.bvecs",
-//                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
-//                     993127, 128, nb);
-//    exit(0);
     /*******************/
     /** Parse Options **/
     /*******************/
