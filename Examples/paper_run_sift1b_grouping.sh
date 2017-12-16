@@ -5,7 +5,7 @@ M="16"
 numMillions="1000"
 n="${numMillions}000000"
 baseDir="/home/dbaranchuk/"
-k="1"
+k="100"
 nq="10000"
 
 d="128"
