@@ -1,10 +1,16 @@
 #include <iostream>
 #include <fstream>
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 #include <queue>
 #include <chrono>
 #include <sys/time.h>
+
+#include <unordered_set>
+
+#include <vector>
+#include <limits>
+#include <cmath>
 
 #include <unordered_set>
 
@@ -15,16 +21,10 @@
 using namespace hnswlib;
 using namespace ivfhnsw;
 
-double elapsed ()
-{
-    struct timeval tv;
-    gettimeofday (&tv, nullptr);
-    return  tv.tv_sec + tv.tv_usec * 1e-6;
-}
 
-/**
- * Run IVF-HNSW on DEEP1B
- */
+/****************************/
+/** Run IVF-HNSW on SIFT1B **/
+/****************************/
 int main(int argc, char **argv)
 {
 //    save_groups_sift("/home/dbaranchuk/data/groups/sift1B_groups.bvecs",
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
     std::cout << "Loading queries" << std::endl;
     std::vector<float> massQ(opt.nq * opt.d);
     std::ifstream query_input(opt.path_q, ios::binary);
-    readXvec<float>(query_input, massQ.data(), opt.d, opt.nq);
+    readXvecFvec<uint8_t>(query_input, massQ.data(), opt.d, opt.nq);
     query_input.close();
 
     SpaceInterface<float> *l2space = new L2Space(opt.d);
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     int nt = 1000000;//262144;
     int sub_nt = 131072;//262144;//65536;
     std::vector<float> trainvecs(nt * opt.d);
-    readXvec<float>(learn_input, trainvecs.data(), opt.d, nt);
+    readXvecFvec<uint8_t>(learn_input, trainvecs.data(), opt.d, nt);
     learn_input.close();
 
     /** Set Random Subset of sub_nt trainvecs **/
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
 
         for (int i = 0; i < opt.nb / batch_size; i++) {
             std::cout << "Batch number: " << i + 1 << " of " << opt.nb / batch_size << std::endl;
-            readXvecFvec<float>(input, batch.data(), opt.d, batch_size);
+            readXvecFvec<uint8_t>(input, batch.data(), opt.d, batch_size);
             index->assign(batch_size, batch.data(), precomputed_idx.data());
 
             fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
 
         for (int b = 0; b < (opt.nb / batch_size); b++) {
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-            readXvecFvec<float>(base_input, batch.data(), opt.d, batch_size);
+            readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
 
             for (size_t i = 0; i < batch_size; i++)
                 ids_batch[i] = batch_size * b + i;

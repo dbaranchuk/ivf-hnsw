@@ -1,6 +1,13 @@
 
 #include "utils.h"
 
+double elapsed ()
+{
+    struct timeval tv;
+    gettimeofday (&tv, nullptr);
+    return  tv.tv_sec + tv.tv_usec * 1e-6;
+}
+
 void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx) {
     int seed = 1234;
     std::vector<int> perm(nx);

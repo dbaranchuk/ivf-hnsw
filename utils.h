@@ -57,13 +57,7 @@ void readXvecFvec(std::ifstream &input, float *data, const int d, const int n = 
 }
 
 void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx);
-
-
-enum class Dataset
-{
-    DEEP1B,
-    SIFT1B
-};
+double elapsed ();
 
 #endif //IVF_HNSW_LIB_UTILS_H
 

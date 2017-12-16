@@ -22,18 +22,18 @@
  * @param path_groups
  * @param path_idxs
  * @param k
- * @param vecsize
- * @param qsize
- * @param vecdim
- * @param gt_dim
+ * @param nb
+ * @param nq
+ * @param d
+ * @param gtd
  * @param efConstruction
  * @param M
  * @param M_PQ
  * @param efSearch
  * @param nprobes
  * @param max_codes
- * @param ncentroids
- * @param nsubcentroids
+ * @param nc
+ * @param nsubc
  */
 
 struct Parser
@@ -55,18 +55,18 @@ struct Parser
     const char *path_idxs;
 
     int k;
-    int vecsize;
-    int qsize;
-    int vecdim;
-    int gtdim;
+    int nb;
+    int nq;
+    int d;
+    int gtd;
     int efConstruction;
     int M;
     int M_PQ;
     int efSearch;
     int nprobes;
     int max_codes;
-    int ncentroids;
-    int nsubcentroids;
+    int nc;
+    int nsubc;
 
     Parser(int argc, char **argv)
     {
