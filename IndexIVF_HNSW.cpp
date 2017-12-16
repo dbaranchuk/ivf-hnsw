@@ -73,40 +73,6 @@ namespace ivfhnsw {
             idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i * d), 1).top().second;
     }
 
-    template<typename ptype>
-    void IndexIVF_HNSW::add(size_t n, const char *path_data, const char *path_precomputed_idxs) {
-        if (!exists_test(path_precomputed_idxs))
-            precompute_idx<ptype>(n, path_data, path_precomputed_idxs);
-
-        StopW stopw = StopW();
-
-        const size_t batch_size = 1000000;
-        std::ifstream base_input(path_data, ios::binary);
-        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-        std::vector<float> batch(batch_size * d);
-        std::vector <idx_t> idx_batch(batch_size);
-        std::vector <idx_t> ids_batch(batch_size);
-
-        for (int b = 0; b < (n / batch_size); b++) {
-            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-            readXvecFvec<ptype>(base_input, batch.data(), d, batch_size);
-
-            for (size_t i = 0; i < batch_size; i++)
-                ids_batch[i] = batch_size * b + i;
-
-            if (b % 10 == 0)
-                std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
-                          << (100. * b) / (n / batch_size) << "%" << std::endl;
-
-            add_batch(batch_size, batch.data(), ids_batch.data(), idx_batch.data());
-        }
-        idx_input.close();
-        base_input.close();
-
-        std::cout << "Computing centroid norms" << std::endl;
-        compute_centroid_norms();
-    }
-
     void IndexIVF_HNSW::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *idx) {
         /** Compute residuals for original vectors **/
         std::vector<float> residuals(n * d);
@@ -226,34 +192,6 @@ namespace ivfhnsw {
         norm_pq->verbose = true;
         norm_pq->train(n, norms.data());
     }
-
-
-    template<typename ptype>
-    void IndexIVF_HNSW::precompute_idx(size_t n, const char *path_data, const char *path_precomputed_idxs) {
-        std::cout << "Precomputing indexes" << std::endl;
-        size_t batch_size = 1000000;
-        FILE *fout = fopen(path_precomputed_idxs, "wb");
-
-        std::ifstream input(path_data, ios::binary);
-
-        /** TODO **/
-        //std::ofstream output(path_precomputed_idxs, ios::binary);
-
-        std::vector<float> batch(batch_size * d);
-        std::vector <idx_t> precomputed_idx(batch_size);
-
-        for (int i = 0; i < n / batch_size; i++) {
-            std::cout << "Batch number: " << i + 1 << " of " << n / batch_size << std::endl;
-            readXvecFvec<ptype>(input, batch.data(), d, batch_size);
-            assign(batch_size, batch.data(), precomputed_idx.data());
-
-            fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
-            fwrite(precomputed_idx.data(), sizeof(idx_t), batch_size, fout);
-        }
-        input.close();
-        fclose(fout);
-    }
-
 
     void IndexIVF_HNSW::write(const char *path_index) {
         FILE *fout = fopen(path_index, "wb");
