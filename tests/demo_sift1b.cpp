@@ -36,19 +36,20 @@ int main(int argc, char **argv)
     readXvec<idx_t>(gt_input, massQA.data(), opt.gtd, opt.nq);
     gt_input.close();
 
+    /******************/
+    /** Load Queries **/
+    /******************/
     std::cout << "Loading queries" << std::endl;
     std::vector<float> massQ(opt.nq * opt.d);
     std::ifstream query_input(opt.path_q, ios::binary);
     readXvecFvec<uint8_t>(query_input, massQ.data(), opt.d, opt.nq);
     query_input.close();
 
-    SpaceInterface<float> *l2space = new L2Space(opt.d);
-
     /**********************/
     /** Initialize Index **/
     /**********************/
-    //IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(opt.d, opt.nc, opt.M_PQ, 8, opt.nsubc);
     IndexIVF_HNSW *index = new IndexIVF_HNSW(opt.d, opt.nc, opt.M_PQ, 8);
+    SpaceInterface<float> *l2space = new L2Space(opt.d);
     index->buildCoarseQuantizer(l2space, opt.path_centroids,
                                 opt.path_info, opt.path_edges,
                                 opt.M, opt.efConstruction);

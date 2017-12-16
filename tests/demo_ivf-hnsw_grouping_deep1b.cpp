@@ -11,11 +11,16 @@
 using namespace hnswlib;
 using namespace ivfhnsw;
 
-/****************************/
-/** Run IVF-HNSW on DEEP1B **/
-/****************************/
+/***************************************************/
+/** Run IVF-HNSW + Grouping (+ Pruning) on DEEP1B **/
+/***************************************************/
 int main(int argc, char **argv)
 {
+//    save_groups_sift("/home/dbaranchuk/data/groups/sift1B_groups.bvecs",
+//                     "/home/dbaranchuk/data/bigann/bigann_base.bvecs",
+//                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
+//                     993127, 128, nb);
+//    exit(0);
     /*******************/
     /** Parse Options **/
     /*******************/
@@ -42,15 +47,15 @@ int main(int argc, char **argv)
     /**********************/
     /** Initialize Index **/
     /**********************/
-    IndexIVF_HNSW *index = new IndexIVF_HNSW(opt.d, opt.nc, opt.M_PQ, 8);
+    IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(opt.d, opt.nc, opt.M_PQ, 8, opt.nsubc);
     SpaceInterface<float> *l2space = new L2Space(opt.d);
     index->buildCoarseQuantizer(l2space, opt.path_centroids,
                                 opt.path_info, opt.path_edges,
                                 opt.M, opt.efConstruction);
 
-    /********************/
-    /** Load learn set **/
-    /********************/
+    /**************/
+    /** Train PQ **/
+    /**************/
     std::ifstream learn_input(opt.path_learn, ios::binary);
     int nt = 1000000;//262144;
     int sub_nt = 131072;//262144;//65536;
@@ -87,33 +92,10 @@ int main(int argc, char **argv)
         faiss::write_ProductQuantizer(index->norm_pq, opt.path_norm_pq);
     }
 
-    /************************/
-    /** Precompute indexes **/
-    /************************/
-    if (!exists_test(opt.path_precomputed_idxs)){
-        std::cout << "Precomputing indexes" << std::endl;
-        const size_t batch_size = 1000000;
-
-        FILE *fout = fopen(opt.path_precomputed_idxs, "wb");
-        std::ifstream input(opt.path_data, ios::binary);
-
-        /** TODO **/
-        //std::ofstream output(path_precomputed_idxs, ios::binary);
-
-        std::vector<float> batch(batch_size * opt.d);
-        std::vector<idx_t> precomputed_idx(batch_size);
-
-        for (int i = 0; i < opt.nb / batch_size; i++) {
-            std::cout << "Batch number: " << i + 1 << " of " << opt.nb / batch_size << std::endl;
-            readXvecFvec<float>(input, batch.data(), opt.d, batch_size);
-            index->assign(batch_size, batch.data(), precomputed_idx.data());
-
-            fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
-            fwrite(precomputed_idx.data(), sizeof(idx_t), batch_size, fout);
-        }
-        input.close();
-        fclose(fout);
-    }
+    /****************************/
+    /** TODO Precompute Groups **/
+    /****************************/
+    if (!exists_test(opt.path_groups)){ exit(0);}
 
     /******************************/
     /** Construct IVF-HNSW Index **/
@@ -123,31 +105,56 @@ int main(int argc, char **argv)
         std::cout << "Loading index from " << opt.path_index << std::endl;
         index->read(opt.path_index);
     } else {
-        /** Add elements **/
+        /** Adding groups to index **/
+        std::cout << "Adding groups to index" << std::endl;
         StopW stopw = StopW();
 
-        const size_t batch_size = 1000000;
-        std::ifstream base_input(opt.path_data, ios::binary);
-        std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
-        std::vector<float> batch(batch_size * opt.d);
-        std::vector <idx_t> idx_batch(batch_size);
-        std::vector <idx_t> ids_batch(batch_size);
+        double baseline_average = 0.0;
+        double modified_average = 0.0;
 
-        for (int b = 0; b < (opt.nb / batch_size); b++) {
-            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-            readXvecFvec<float>(base_input, batch.data(), opt.d, batch_size);
+        std::ifstream input_groups(opt.path_groups, ios::binary);
+        std::ifstream input_idxs(opt.path_idxs, ios::binary);
 
-            for (size_t i = 0; i < batch_size; i++)
-                ids_batch[i] = batch_size * b + i;
+        int j1 = 0;
+        #pragma omp parallel for reduction(+:baseline_average, modified_average)
+        for (int c = 0; c < nc; c++) {
+            idx_t centroid_num;
+            int groupsize;
+            std::vector<float> data;
+            std::vector <idx_t> idxs;
 
-            if (b % 10 == 0)
-                std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
-                          << (100. * b) / (opt.nb / batch_size) << "%" << std::endl;
+            #pragma omp critical
+            /** Read Original vectors from Group file**/
+            {
+                int check_groupsize;
+                input_groups.read((char *) &groupsize, sizeof(int));
+                input_idxs.read((char *) &check_groupsize, sizeof(int));
+                if (check_groupsize != groupsize) {
+                    std::cout << "Wrong groupsizes: " << groupsize << " vs "
+                              << check_groupsize << std::endl;
+                    exit(1);
+                }
 
-            index->add_batch(batch_size, batch.data(), ids_batch.data(), idx_batch.data());
+                data.resize(groupsize * opt.d);
+                idxs.resize(groupsize);
+
+                input_groups.read((char *) data.data(), groupsize * opt.d * sizeof(float));
+                input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
+
+                centroid_num = j1++;
+                if (j1 % 10000 == 0) {
+                    std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
+                              << (100. * j1) / 1000000 << "%" << std::endl;
+                }
+            }
+            index->add_group(centroid_num, groupsize, data.data(), idxs.data(), baseline_average, modified_average);
         }
-        idx_input.close();
-        base_input.close();
+
+        std::cout << "[Baseline] Average Distance: " << baseline_average / opt.nb << std::endl;
+        std::cout << "[Modified] Average Distance: " << modified_average / opt.nb << std::endl;
+
+        input_groups.close();
+        input_idxs.close();
 
         /** Save index, pq and norm_pq **/
         std::cout << "Saving index to " << opt.path_index << std::endl;
@@ -161,9 +168,7 @@ int main(int argc, char **argv)
     }
     index->compute_s_c();
 
-    /***********************/
     /** Parse groundtruth **/
-    /***********************/
     std::cout << "Parsing groundtruth" << std::endl;
     std::vector<std::priority_queue< std::pair<float, labeltype >>> answers;
     (std::vector<std::priority_queue< std::pair<float, labeltype >>>(opt.nq)).swap(answers);
