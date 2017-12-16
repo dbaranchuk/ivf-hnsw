@@ -14,13 +14,13 @@ nq="10000"
 d="96"
 gt_d="1"
 
-M_PQ="8"
+M_PQ="48"
 nprobes="32" # 8M: 128 260 450 600
 max_codes="10000"
 
 nc="1"
 ncentroids="999973"
-efSearch="240"
+efSearch="500"
 
 subdir="new_models/DEEP1B/"
 

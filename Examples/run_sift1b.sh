@@ -18,7 +18,7 @@ max_codes="10000"
 
 nc="1"
 ncentroids="993127"
-efSearch="240"
+efSearch="500"
 
 subdir="new_models/SIFT1B/"
 
