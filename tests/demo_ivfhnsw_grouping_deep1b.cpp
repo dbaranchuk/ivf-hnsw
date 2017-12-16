@@ -48,9 +48,9 @@ int main(int argc, char **argv)
                                 opt.path_info, opt.path_edges,
                                 opt.M, opt.efConstruction);
 
-    /**************/
-    /** Train PQ **/
-    /**************/
+    /********************/
+    /** Load learn set **/
+    /********************/
     std::ifstream learn_input(opt.path_learn, ios::binary);
     int nt = 1000000;//262144;
     int sub_nt = 131072;//262144;//65536;

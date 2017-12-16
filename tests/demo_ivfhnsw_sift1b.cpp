@@ -17,11 +17,6 @@ using namespace ivfhnsw;
 /****************************/
 int main(int argc, char **argv)
 {
-//    save_groups_sift("/home/dbaranchuk/data/groups/sift1B_groups.bvecs",
-//                     "/home/dbaranchuk/data/bigann/bigann_base.bvecs",
-//                     "/home/dbaranchuk/sift1B_precomputed_idxs_993127.ivecs",
-//                     993127, 128, nb);
-//    exit(0);
     /*******************/
     /** Parse Options **/
     /*******************/
@@ -54,9 +49,9 @@ int main(int argc, char **argv)
                                 opt.path_info, opt.path_edges,
                                 opt.M, opt.efConstruction);
 
-    /**************/
-    /** Train PQ **/
-    /**************/
+    /********************/
+    /** Load learn set **/
+    /********************/
     std::ifstream learn_input(opt.path_learn, ios::binary);
     int nt = 1000000;//262144;
     int sub_nt = 131072;//262144;//65536;
@@ -130,7 +125,6 @@ int main(int argc, char **argv)
         index->read(opt.path_index);
     } else {
         /** Add elements **/
-//      index->add<float>(opt.path_groups, opt.path_idxs);
         StopW stopw = StopW();
 
         const size_t batch_size = 1000000;
@@ -166,7 +160,6 @@ int main(int argc, char **argv)
         index->compute_centroid_norms();
         index->write(opt.path_index);
     }
-    index->compute_s_c();
 
     /** Parse groundtruth **/
     std::cout << "Parsing groundtruth" << std::endl;

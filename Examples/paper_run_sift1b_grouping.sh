@@ -5,7 +5,7 @@ M="16"
 numMillions="1000"
 n="${numMillions}000000"
 baseDir="/home/dbaranchuk/"
-k="100"
+k="1"
 nq="10000"
 
 d="128"
@@ -24,7 +24,7 @@ subdir="final_models/SIFT1B/"
 
 # Paths
 path_data="${baseDir}data/bigann/bigann_base.bvecs" 
-path_edges="${baseDir}${subdir}centroids${ncentroids}_ef${efConstruction}.ivecs" 
+path_edges="${baseDir}${subdir}centroids${ncentroids}_ef${efConstruction}.ivecs"
 path_info="${baseDir}${subdir}centroids${ncentroids}_ef${efConstruction}.bin" 
 
 path_gt="${baseDir}data/bigann/gnd/idx_1000M.ivecs" 

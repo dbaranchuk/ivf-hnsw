@@ -159,7 +159,6 @@ int main(int argc, char **argv)
         index->compute_centroid_norms();
         index->write(opt.path_index);
     }
-    index->compute_s_c();
 
     /***********************/
     /** Parse groundtruth **/
