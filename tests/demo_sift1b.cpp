@@ -3,15 +3,6 @@
 #include <cstdio>
 #include <stdlib.h>
 #include <queue>
-#include <chrono>
-#include <sys/time.h>
-
-#include <unordered_set>
-
-#include <vector>
-#include <limits>
-#include <cmath>
-
 #include <unordered_set>
 
 #include <ivf-hnsw/IndexIVF_HNSW.h>
