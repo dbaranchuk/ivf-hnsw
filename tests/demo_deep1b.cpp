@@ -109,8 +109,8 @@ int main(int argc, char **argv)
         std::cout << "Precomputing indexes" << std::endl;
         const size_t batch_size = 1000000;
 
-        FILE *fout = fopen(path_precomputed_idxs, "wb");
-        std::ifstream input(path_data, ios::binary);
+        FILE *fout = fopen(opt.path_precomputed_idxs, "wb");
+        std::ifstream input(opt.path_data, ios::binary);
 
         /** TODO **/
         //std::ofstream output(path_precomputed_idxs, ios::binary);
