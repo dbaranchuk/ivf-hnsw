@@ -27,6 +27,7 @@ namespace ivfhnsw {
         delete quantizer;
     }
 
+
     void IndexIVF_HNSW::buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                                              const char *path_info, const char *path_edges,
                                              int M, int efConstruction = 500) {
@@ -63,11 +64,13 @@ namespace ivfhnsw {
         quantizer->SaveEdges(path_edges);
     }
 
+
     void IndexIVF_HNSW::assign(size_t n, const float *data, idx_t *idxs) {
 #pragma omp parallel for
         for (int i = 0; i < n; i++)
             idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i * d), 1).top().second;
     }
+
 
     void IndexIVF_HNSW::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *idx) {
         /** Compute residuals for original vectors **/
@@ -106,6 +109,7 @@ namespace ivfhnsw {
             norm_codes[key].push_back(xnorm_codes[i]);
         }
     }
+
 
     void IndexIVF_HNSW::search(float *x, idx_t k, float *distances, long *labels) {
         idx_t keys[nprobe];
@@ -152,6 +156,7 @@ namespace ivfhnsw {
         average_max_codes += ncode;
     }
 
+
     void IndexIVF_HNSW::train_pq(idx_t n, const float *x) {
         /** Assign train vectors **/
         std::vector <idx_t> assigned(n);
@@ -189,6 +194,7 @@ namespace ivfhnsw {
         norm_pq->train(n, norms.data());
     }
 
+    /** Write index **/
     void IndexIVF_HNSW::write(const char *path_index) {
         FILE *fout = fopen(path_index, "wb");
 
@@ -221,6 +227,7 @@ namespace ivfhnsw {
         fclose(fout);
     }
 
+    /** Read index **/
     void IndexIVF_HNSW::read(const char *path_index) {
         FILE *fin = fopen(path_index, "rb");
 
@@ -268,7 +275,6 @@ namespace ivfhnsw {
         }
     }
 
-    void IndexIVF_HNSW::compute_s_c() {}
 
     float IndexIVF_HNSW::fstdistfunc(uint8_t *code) {
         float result = 0.;
@@ -310,8 +316,9 @@ namespace ivfhnsw {
     /** IVF + HNSW + Grouping( + Pruning) **/
     /***************************************/
     IndexIVF_HNSW_Grouping::IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
-                                                   size_t nbits_per_idx, size_t nsubcentroids = 64) :
-            d(dim), nc(ncentroids), nsubc(nsubcentroids) {
+                                                   size_t nbits_per_idx, size_t nsubcentroids = 64):
+            d(dim), nc(ncentroids), nsubc(nsubcentroids)
+    {
         codes.resize(nc);
         norm_codes.resize(nc);
         ids.resize(nc);
@@ -495,6 +502,7 @@ namespace ivfhnsw {
         subcentroid_nums.reserve(nsubc * nprobe);
         idx_t keys[nprobe];
         float q_c[nprobe];
+        const float eps = 0.00001;
 
         /** Find NN Centroids **/
         auto coarse = quantizer->searchKnn(x, nprobe);
@@ -542,7 +550,7 @@ namespace ivfhnsw {
 
                     idx_t subcentroid_num = nn_centroids[subc];
 
-                    if (q_s[subcentroid_num] < 0.00001) {
+                    if (q_s[subcentroid_num] < eps) {
                         const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
                         q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
                         subcentroid_nums.push_back(subcentroid_num);
@@ -622,7 +630,8 @@ namespace ivfhnsw {
             q_s[subcentroid_num] = 0;
     }
 
-    void IndexIVF_HNSW_Grouping::write(const char *path_index) {
+    void IndexIVF_HNSW_Grouping::write(const char *path_index)
+    {
         FILE *fout = fopen(path_index, "wb");
 
         fwrite(&d, sizeof(size_t), 1, fout);
@@ -669,7 +678,8 @@ namespace ivfhnsw {
         fclose(fout);
     }
 
-    void IndexIVF_HNSW_Grouping::read(const char *path_index) {
+    void IndexIVF_HNSW_Grouping::read(const char *path_index)
+    {
         FILE *fin = fopen(path_index, "rb");
 
         fread(&d, sizeof(size_t), 1, fin);
@@ -796,9 +806,7 @@ namespace ivfhnsw {
                 }
             }
         }
-
-        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n",
-               pq->M, pq->ksub, train_residuals.size() / d, d);
+        printf("Training %zdx%zd PQ on %ld vectors in %dD\n", pq->M, pq->ksub, train_residuals.size() / d, d);
         pq->verbose = true;
         pq->train(n, train_residuals.data());
 
@@ -837,11 +845,11 @@ namespace ivfhnsw {
             subcentroids += groupsize * d;
             subcentroid_idxs += groupsize;
         }
-        printf("Training %zdx%zd product quantizer on %ld vectors in 1D\n", norm_pq->M, norm_pq->ksub,
-               train_norms.size());
+        printf("Training %zdx%zd PQ on %ld vectors in 1D\n", norm_pq->M, norm_pq->ksub, train_norms.size());
         norm_pq->verbose = true;
         norm_pq->train(n, train_norms.data());
     }
+
 
     void IndexIVF_HNSW_Grouping::compute_centroid_norms()
     {
@@ -853,7 +861,9 @@ namespace ivfhnsw {
         }
     }
 
-    void IndexIVF_HNSW_Grouping::compute_s_c() {
+
+    void IndexIVF_HNSW_Grouping::compute_s_c()
+    {
         for (int i = 0; i < nc; i++) {
             const float *centroid = (float *) quantizer->getDataByInternalId(i);
             s_c[i].resize(nsubc);
@@ -865,7 +875,9 @@ namespace ivfhnsw {
         }
     }
 
-    float IndexIVF_HNSW_Grouping::fstdistfunc(uint8_t *code) {
+
+    float IndexIVF_HNSW_Grouping::fstdistfunc(uint8_t *code)
+    {
         float result = 0.;
         int dim = code_size >> 2;
         int m = 0;
@@ -878,9 +890,11 @@ namespace ivfhnsw {
         return result;
     }
 
-    void IndexIVF_HNSW_Grouping::compute_residuals(size_t n, float *residuals, const float *points, const float *subcentroids,
-                                                   const idx_t *keys) {
-        //#pragma omp parallel for num_threads(16)
+
+    void IndexIVF_HNSW_Grouping::compute_residuals(size_t n, float *residuals, const float *points,
+                                                   const float *subcentroids, const idx_t *keys)
+    {
+        //#pragma omp parallel for
         for (idx_t i = 0; i < n; i++) {
             const float *subcentroid = subcentroids + keys[i] * d;
             const float *point = points + i * d;
@@ -890,9 +904,10 @@ namespace ivfhnsw {
         }
     }
 
-    void IndexIVF_HNSW_Grouping::reconstruct(size_t n, float *x, const float *decoded_residuals, const float *subcentroids,
-                                             const idx_t *keys) {
-//            #pragma omp parallel for num_threads(16)
+    void IndexIVF_HNSW_Grouping::reconstruct(size_t n, float *x, const float *decoded_residuals,
+                                             const float *subcentroids, const idx_t *keys)
+    {
+//            #pragma omp parallel for
         for (idx_t i = 0; i < n; i++) {
             const float *subcentroid = subcentroids + keys[i] * d;
             const float *decoded_residual = decoded_residuals + i * d;
@@ -906,8 +921,10 @@ namespace ivfhnsw {
             target[i] = x[i] - y[i];
     }
 
+
     void IndexIVF_HNSW_Grouping::compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
-                                                          const float *points, const int groupsize) {
+                                                          const float *points, const int groupsize)
+    {
 //            #pragma omp parallel for num_threads(16)
         for (int i = 0; i < groupsize; i++) {
             std::priority_queue<std::pair<float, idx_t>> max_heap;
@@ -919,19 +936,22 @@ namespace ivfhnsw {
             }
             subcentroid_idxs[i] = max_heap.top().second;
         }
-
     }
 
-    void IndexIVF_HNSW_Grouping::compute_vectors(float *target, const float *x, const float *centroid, const int n) {
-//            #pragma omp parallel for num_threads(16)
+
+    void IndexIVF_HNSW_Grouping::compute_vectors(float *target, const float *x, const float *centroid, const int n)
+    {
+//            #pragma omp parallel for
         for (int i = 0; i < n; i++)
             for (int j = 0; j < d; j++)
                 target[i * d + j] = x[i * d + j] - centroid[j];
     }
 
+
     float IndexIVF_HNSW_Grouping::compute_alpha(const float *centroid_vectors, const float *points,
                                                 const float *centroid, const float *centroid_vector_norms_L2sqr,
-                                                const int groupsize) {
+                                                const int groupsize)
+    {
         int counter_positive = 0;
         int counter_negative = 0;
 

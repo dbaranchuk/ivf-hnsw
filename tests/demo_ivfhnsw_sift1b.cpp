@@ -53,15 +53,13 @@ int main(int argc, char **argv)
     /** Load learn set **/
     /********************/
     std::ifstream learn_input(opt.path_learn, ios::binary);
-    int nt = 1000000;//262144;
-    int sub_nt = 131072;//262144;//65536;
-    std::vector<float> trainvecs(nt * opt.d);
-    readXvecFvec<uint8_t>(learn_input, trainvecs.data(), opt.d, nt);
+    std::vector<float> trainvecs(opt.nt * opt.d);
+    readXvecFvec<uint8_t>(learn_input, trainvecs.data(), opt.d, opt.nt);
     learn_input.close();
 
     /** Set Random Subset of sub_nt trainvecs **/
-    std::vector<float> trainvecs_rnd_subset(sub_nt * opt.d);
-    random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), opt.d, nt, sub_nt);
+    std::vector<float> trainvecs_rnd_subset(opt.nsubt * opt.d);
+    random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), opt.d, opt.nt, opt.nsubt);
 
     /**************/
     /** Train PQ **/
@@ -212,12 +210,6 @@ int main(int argc, char **argv)
     std::cout << "Recall@" << opt.k << ": " << 1.0f * correct / opt.nq << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
     //std::cout << "Average max_codes: " << index->average_max_codes / 10000 << std::endl;
-    //std::cout << "Average reused q_s: " << (1.0 * index->counter_reused) / (index->counter_computed + index->counter_reused) << std::endl;
-    //std::cout << "Average number of pruned points: " << (1.0 * index->filter_points) / 10000 << std::endl;
-
-    //check_groupsizes(index, nc);
-    //std::cout << "Check precomputed idxs"<< std::endl;
-    //check_precomputing(index, path_data, path_precomputed_idxs, d, nc, nb, gt_mistakes, gt_correct);
 
     delete index;
     delete l2space;

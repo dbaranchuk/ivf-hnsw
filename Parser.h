@@ -34,6 +34,8 @@
  * @param max_codes
  * @param nc
  * @param nsubc
+ * @param nt
+ * @param nsubt
  */
 
 struct Parser
@@ -65,8 +67,8 @@ struct Parser
     int efSearch;
     int nprobes;
     int max_codes;
-    int nc;
-    int nsubc;
+    int nc, nsubc;
+    int nt = 1000000, nsubt=131072; //262144;//65536;
 
     Parser(int argc, char **argv)
     {
@@ -151,10 +153,6 @@ struct Parser
                 ret = sscanf (argv[++i], "%d", &M);
                 assert (ret);
             }
-            else if (!strcmp (a, "-nc") && i+1 < argc) {
-                ret = sscanf (argv[++i], "%d", &nc);
-                assert (ret);
-            }
             else if (!strcmp (a, "-M_PQ") && i+1 < argc) {
                 ret = sscanf (argv[++i], "%d", &M_PQ);
                 assert (ret);
@@ -171,8 +169,20 @@ struct Parser
                 ret = sscanf (argv[++i], "%d", &max_codes);
                 assert (ret);
             }
+            else if (!strcmp (a, "-nc") && i+1 < argc) {
+                ret = sscanf (argv[++i], "%d", &nc);
+                assert (ret);
+            }
             else if (!strcmp (a, "-nsubc") && i+1 < argc) {
                 ret = sscanf (argv[++i], "%d", &nsubc);
+                assert (ret);
+            }
+            else if (!strcmp (a, "-nt") && i+1 < argc) {
+                ret = sscanf (argv[++i], "%d", &nt);
+                assert (ret);
+            }
+            else if (!strcmp (a, "-nsubt") && i+1 < argc) {
+                ret = sscanf (argv[++i], "%d", &nsubt;
                 assert (ret);
             }
         }

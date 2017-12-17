@@ -40,8 +40,8 @@ namespace ivfhnsw {
         size_t code_size;     /** PQ Code Size **/
 
         /** Search parameters **/
-        size_t nprobe = 16;
-        size_t max_codes = 10000;
+        size_t nprobe;
+        size_t max_codes;
 
         /** Fine Product Quantizers **/
         faiss::ProductQuantizer *norm_pq;
@@ -81,8 +81,6 @@ namespace ivfhnsw {
         void read(const char *path_index);
 
         void compute_centroid_norms();
-
-        void compute_s_c();
 
     private:
         std::vector<float> query_table;
@@ -131,7 +129,6 @@ namespace ivfhnsw {
 
         IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
                                size_t nbits_per_idx, size_t nsubcentroids);
-
         ~IndexIVF_HNSW_Grouping();
 
         void buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,

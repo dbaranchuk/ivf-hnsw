@@ -52,15 +52,13 @@ int main(int argc, char **argv)
     /** Load learn set **/
     /********************/
     std::ifstream learn_input(opt.path_learn, ios::binary);
-    int nt = 1000000;//262144;
-    int sub_nt = 131072;//262144;//65536;
-    std::vector<float> trainvecs(nt * opt.d);
-    readXvec<float>(learn_input, trainvecs.data(), opt.d, nt);
+    std::vector<float> trainvecs(opt.nt * opt.d);
+    readXvec<float>(learn_input, trainvecs.data(), opt.d, opt.nt);
     learn_input.close();
 
     /** Set Random Subset of sub_nt trainvecs **/
-    std::vector<float> trainvecs_rnd_subset(sub_nt * opt.d);
-    random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), opt.d, nt, sub_nt);
+    std::vector<float> trainvecs_rnd_subset(opt.nsubt * opt.d);
+    random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), opt.d, opt.nt, opt.nsubt);
 
     /**************/
     /** Train PQ **/
