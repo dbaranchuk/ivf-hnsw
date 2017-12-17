@@ -182,7 +182,7 @@ struct Parser
                 assert (ret);
             }
             else if (!strcmp (a, "-nsubt") && i+1 < argc) {
-                ret = sscanf (argv[++i], "%d", &nsubt;
+                ret = sscanf (argv[++i], "%d", &nsubt);
                 assert (ret);
             }
         }

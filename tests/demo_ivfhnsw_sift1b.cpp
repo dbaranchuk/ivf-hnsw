@@ -77,7 +77,7 @@ int main(int argc, char **argv)
     }
     else {
         std::cout << "Training PQ codebooks" << std::endl;
-        index->train_pq(sub_nt, trainvecs_rnd_subset.data());
+        index->train_pq(opt.nsubt, trainvecs_rnd_subset.data());
 
         std::cout << "Saving Residual PQ codebook to " << opt.path_pq << std::endl;
         faiss::write_ProductQuantizer(index->pq, opt.path_pq);
