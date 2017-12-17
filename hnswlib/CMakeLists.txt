@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 2.8)
 
+# TODO Добавить cpp для сборки
+
 # hnswlib project
 project(hnswlib C CXX)
 
