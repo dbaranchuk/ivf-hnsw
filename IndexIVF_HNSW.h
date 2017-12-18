@@ -94,6 +94,8 @@ namespace ivfhnsw {
     };
 
 
+
+
     struct IndexIVF_HNSW_Grouping
     {
         size_t d;             /** Vector Dimension **/
@@ -168,11 +170,11 @@ namespace ivfhnsw {
         float fstdistfunc(uint8_t *code);
 
     public:
-        void compute_residuals(size_t n, float *residuals, const float *points, const float *subcentroids,
-                               const idx_t *keys);
+        void compute_residuals(size_t n, float *residuals, const float *points,
+                               const float *subcentroids, const idx_t *keys);
 
-        void
-        reconstruct(size_t n, float *x, const float *decoded_residuals, const float *subcentroids, const idx_t *keys);
+        void reconstruct(size_t n, float *x, const float *decoded_residuals,
+                         const float *subcentroids, const idx_t *keys);
 
         void sub_vectors(float *target, const float *x, const float *y);
 

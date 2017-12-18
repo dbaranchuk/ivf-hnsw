@@ -6,7 +6,8 @@ namespace ivfhnsw {
 
 /** Public **/
     IndexIVF_HNSW::IndexIVF_HNSW(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx) :
-            d(dim), nc(ncentroids) {
+            d(dim), nc(ncentroids)
+    {
         codes.resize(ncentroids);
         norm_codes.resize(ncentroids);
         ids.resize(ncentroids);
@@ -30,7 +31,8 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW::buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
                                              const char *path_info, const char *path_edges,
-                                             int M, int efConstruction = 500) {
+                                             int M, int efConstruction = 500)
+    {
         if (exists_test(path_info) && exists_test(path_edges)) {
             quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
             quantizer->ef_ = efConstruction;
@@ -111,7 +113,8 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW::search(float *x, idx_t k, float *distances, long *labels) {
+    void IndexIVF_HNSW::search(float *x, idx_t k, float *distances, long *labels)
+    {
         idx_t keys[nprobe];
         float q_c[nprobe];
 
@@ -157,7 +160,8 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW::train_pq(idx_t n, const float *x) {
+    void IndexIVF_HNSW::train_pq(idx_t n, const float *x)
+    {
         /** Assign train vectors **/
         std::vector <idx_t> assigned(n);
         assign(n, x, assigned.data());
@@ -228,7 +232,8 @@ namespace ivfhnsw {
     }
 
     /** Read index **/
-    void IndexIVF_HNSW::read(const char *path_index) {
+    void IndexIVF_HNSW::read(const char *path_index)
+    {
         FILE *fin = fopen(path_index, "rb");
 
         fread(&d, sizeof(size_t), 1, fin);
@@ -266,7 +271,8 @@ namespace ivfhnsw {
     }
 
 /** Private **/
-    void IndexIVF_HNSW::compute_centroid_norms() {
+    void IndexIVF_HNSW::compute_centroid_norms()
+    {
         centroid_norms.resize(nc);
 #pragma omp parallel for
         for (int i = 0; i < nc; i++) {
@@ -341,7 +347,8 @@ namespace ivfhnsw {
     }
 
 
-    IndexIVF_HNSW_Grouping::~IndexIVF_HNSW_Grouping() {
+    IndexIVF_HNSW_Grouping::~IndexIVF_HNSW_Grouping()
+    {
         delete pq;
         delete norm_pq;
         delete quantizer;
@@ -596,7 +603,7 @@ namespace ivfhnsw {
                 }
 
                 idx_t subcentroid_num = nn_centroids[subc];
-                if (q_s[subcentroid_num] < 0.00001) {
+                if (q_s[subcentroid_num] < eps) {
                     const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
                     q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
                     subcentroid_nums.push_back(subcentroid_num);
@@ -735,7 +742,9 @@ namespace ivfhnsw {
         fclose(fin);
     }
 
-    void IndexIVF_HNSW_Grouping::train_pq(const size_t n, const float *x) {
+
+    void IndexIVF_HNSW_Grouping::train_pq(const size_t n, const float *x)
+    {
         std::vector<float> train_subcentroids;
         std::vector<idx_t> train_subcentroid_idxs;
 
