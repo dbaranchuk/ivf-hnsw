@@ -2,6 +2,8 @@
 #include <mutex>
 #include <string.h>
 
+using namespace std;
+
 namespace hnswlib{
 typedef unsigned short vl_type;
 

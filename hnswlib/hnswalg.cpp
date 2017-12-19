@@ -1,7 +1,7 @@
 #include "hnswalg.h"
 
 namespace hnswlib {
-    
+
     HierarchicalNSW::HierarchicalNSW(const string &infoLocation, const string &dataLocation, const string &edgeLocation)
     {
         LoadInfo(infoLocation);
