@@ -300,35 +300,11 @@ void HierarchicalNSW::addPoint(void *datapoint, idx_t label)
 
 std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(void *query_data, int k)
 {
-    idx_t currObj = enterpoint_node;
-    float curdist = fstdistfunc(query_data, getDataByInternalId(enterpoint_node));
-
-    dist_calc++;
-//    for (int level = maxlevel_; level > 0; level--) {
-//        bool changed = true;
-//        while (changed) {
-//            changed = false;
-//            uint8_t *data = get_linklist0(currObj);
-//            uint8_t size = *data;
-//            idx_t *datal = (idx_t *) (data + 1);
-//            for (uint8_t i = 0; i < size; i++) {
-//                idx_t cand = datal[i];
-//                if (cand < 0 || cand > maxelements_)
-//                    throw runtime_error("cand error");
-//
-//                float dist = fstdistfunc(query_data, getDataByInternalId(cand));
-//                dist_calc++;
-//
-//                if (dist < curdist) {
-//                    curdist = dist;
-//                    currObj = cand;
-//                    changed = true;
-//                }
-//            }
-//        }
-//    }
+    //idx_t currObj = enterpoint_node;
+    //float curdist = fstdistfunc(query_data, getDataByInternalId(enterpoint_node));
+    //dist_calc++;
     //std::priority_queue<std::pair<float, idx_t>, vector<pair<float, idx_t>>, CompareByFirst>
-    auto tmpTopResults = searchBaseLayer(currObj, query_data, ef_);
+    auto tmpTopResults = searchBaseLayer(enterpoint_node, query_data, ef_);
 
     // Remove clusters as answers
     std::priority_queue<std::pair<float, idx_t >> topResults;
