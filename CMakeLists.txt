@@ -23,7 +23,7 @@ add_library(ivf-hnsw STATIC ${ivf-hnsw_cpu_headers} ${ivf-hnsw_cpu_cpp})
 
 SET( CMAKE_CXX_FLAGS  "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -march=native -fpic -w -fopenmp -ftree-vectorize -ftree-vectorizer-verbose=0" )
 
-target_link_libraries(ivf-hnsw faiss hnswlib) #hnswlib
+target_link_libraries(ivf-hnsw faiss hnswlib)
 
 # build tests
 #if(BUILD_TEST)
