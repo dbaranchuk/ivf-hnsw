@@ -376,10 +376,8 @@ void HierarchicalNSW::LoadEdges(const string &location)
     }
 }
 
-float HierarchicalNSW::fstdistfunc(const void *x, const void *y)
+float HierarchicalNSW::fstdistfunc(const float *pVect1, const float *pVect2)
 {
-    float *pVect1 = (float *) x;
-    float *pVect2 = (float *) y;
     float PORTABLE_ALIGN32 TmpRes[8];
 #ifdef USE_AVX
     size_t qty16 = d_ >> 4;
