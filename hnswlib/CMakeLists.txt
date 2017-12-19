@@ -5,6 +5,8 @@ cmake_minimum_required (VERSION 2.8)
 # hnswlib project
 project(hnswlib C CXX)
 
+SET( CMAKE_CXX_FLAGS  "-std=c++11")
+
 # specify output bin_path and lib_path
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
