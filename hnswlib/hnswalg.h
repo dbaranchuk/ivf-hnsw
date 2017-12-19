@@ -18,9 +18,11 @@
 #include <stdexcept>
 
 #define  __builtin_popcount(t) __popcnt(t)
-
+#else
+#include <x86intrin.h>
 #endif
 
+#define USE_AVX
 #if defined(__GNUC__)
 #define PORTABLE_ALIGN32 __attribute__((aligned(32)))
 #else
