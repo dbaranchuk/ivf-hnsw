@@ -44,6 +44,7 @@ static void readBinaryPOD(std::istream &in, T &podRef) {
     in.read((char *) &podRef, sizeof(T));
 }
 
+#define DEBUG_LIB 1
 namespace hnswlib {
     typedef unsigned int idx_t;
     typedef unsigned char uint8_t;
