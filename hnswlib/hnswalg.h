@@ -13,20 +13,20 @@
 #include <map>
 #include <cmath>
 #include <queue>
-//
-//#ifdef _MSC_VER
-//#include <intrin.h>
-//#include <stdexcept>
-//
-//#define  __builtin_popcount(t) __popcnt(t)
-//
-//#endif
-//
-//#if defined(__GNUC__)
-//#define PORTABLE_ALIGN32 __attribute__((aligned(32)))
-//#else
-//#define PORTABLE_ALIGN32 __declspec(align(32))
-//#endif
+
+#ifdef _MSC_VER
+#include <intrin.h>
+#include <stdexcept>
+
+#define  __builtin_popcount(t) __popcnt(t)
+
+#endif
+
+#if defined(__GNUC__)
+#define PORTABLE_ALIGN32 __attribute__((aligned(32)))
+#else
+#define PORTABLE_ALIGN32 __declspec(align(32))
+#endif
 
 using namespace std;
 
@@ -46,7 +46,7 @@ static void readBinaryPOD(std::istream &in, T &podRef) {
 }
 
 namespace hnswlib {
-    //typedef unsigned int idx_t;
+    typedef unsigned int idx_t;
     typedef unsigned char uint8_t;
 
     struct HierarchicalNSW
