@@ -27,6 +27,7 @@
 #define PORTABLE_ALIGN32 __declspec(align(32))
 #endif
 
+using namespace std;
 
 inline bool exists_test(const std::string& name) {
     std::ifstream f(name.c_str());
