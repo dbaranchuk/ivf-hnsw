@@ -54,7 +54,7 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(id
     vl_type currentV = vl->curV;
     //std::priority_queue<std::pair<float, idx_t>, vector<pair<float, idx_t>>, CompareByFirst> topResults;
     //std::priority_queue<std::pair<float, idx_t>, vector<pair<float, idx_t>>, CompareByFirst> candidateSet;
-    std::priority_queue<std::pair<float, idx_t  >> topResults;
+    std::priority_queue<std::pair<float, idx_t >> topResults;
     std::priority_queue<std::pair<float, idx_t >> candidateSet;
 
     float dist = fstdistfunc(datapoint, getDataByInternalId(ep));
@@ -79,7 +79,7 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(id
         idx_t *data = (idx_t *)(ll_cur + 1);
 
         _mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
-        _mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
+        //_mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
         _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
 
         for (uint8_t j = 0; j < size; ++j) {
