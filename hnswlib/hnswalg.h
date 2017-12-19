@@ -1,5 +1,6 @@
 #pragma once
 
+#include "hnswlib.h"
 #include "visited_list_pool.h"
 #include <random>
 #include <iostream>
@@ -45,7 +46,7 @@ static void readBinaryPOD(std::istream &in, T &podRef) {
 }
 
 namespace hnswlib {
-    typedef unsigned int idx_t;
+    //typedef unsigned int idx_t;
     typedef unsigned char uint8_t;
 
     struct HierarchicalNSW
