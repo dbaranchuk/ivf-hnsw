@@ -33,11 +33,11 @@ namespace ivfhnsw {
                                              const char *path_edges, int M, int efConstruction = 500)
     {
         if (exists_test(path_info) && exists_test(path_edges)) {
-            quantizer = new HierarchicalNSW(path_info, path_clusters, path_edges);
+            quantizer = new hnswlib::HierarchicalNSW(path_info, path_clusters, path_edges);
             quantizer->ef_ = efConstruction;
             return;
         }
-        quantizer = new HierarchicalNSW(d, nc, M, 2 * M, efConstruction);
+        quantizer = new hnswlib::HierarchicalNSW(d, nc, M, 2 * M, efConstruction);
         quantizer->ef_ = efConstruction;
 
         std::cout << "Constructing quantizer\n";
@@ -358,11 +358,11 @@ namespace ivfhnsw {
                                                       int M, int efConstruction=500)
     {
         if (exists_test(path_info) && exists_test(path_edges)) {
-            quantizer = new HierarchicalNSW(path_info, path_clusters, path_edges);
+            quantizer = new hnswlib::HierarchicalNSW(path_info, path_clusters, path_edges);
             quantizer->ef_ = efConstruction;
             return;
         }
-        quantizer = new HierarchicalNSW(d, nc, M, 2*M, efConstruction);
+        quantizer = new hnswlib::HierarchicalNSW(d, nc, M, 2*M, efConstruction);
         quantizer->ef_ = efConstruction;
 
         std::cout << "Constructing quantizer\n";
