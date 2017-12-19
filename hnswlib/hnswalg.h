@@ -1,6 +1,5 @@
 #pragma once
 
-#include "hnswlib.h"
 #include "visited_list_pool.h"
 #include <random>
 #include <iostream>
