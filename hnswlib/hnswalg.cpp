@@ -9,7 +9,7 @@ namespace hnswlib {
         LoadEdges(edgeLocation);
     }
 
-    HierarchicalNSW::HierarchicalNSW(size_t d, size_t maxelements, size_t M, size_t maxM, size_t efConstruction = 500)
+    HierarchicalNSW::HierarchicalNSW(size_t d, size_t maxelements, size_t M, size_t maxM, size_t efConstruction)
 {
     d_ = d;
     data_size_ = d * sizeof(float);
@@ -312,7 +312,7 @@ void HierarchicalNSW::addPoint(void *datapoint, idx_t label)
     }
 };
 
-std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(void *query_data, int k, int q_idx = -1)
+std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(void *query_data, int k)
 {
     idx_t currObj = enterpoint_node;
     float curdist = fstdistfunc(query_data, getDataByInternalId(enterpoint_node));

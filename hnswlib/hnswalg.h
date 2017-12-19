@@ -101,7 +101,7 @@ namespace hnswlib {
 
         void addPoint(void *datapoint, idx_t label);
 
-        std::priority_queue<std::pair<float, idx_t >> searchKnn(void *query_data, int k, int q_idx = -1);
+        std::priority_queue<std::pair<float, idx_t >> searchKnn(void *query_data, int k);
 
         void SaveInfo(const string &location);
         void SaveEdges(const string &location);
