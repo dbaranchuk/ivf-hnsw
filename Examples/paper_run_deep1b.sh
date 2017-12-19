@@ -66,9 +66,9 @@ nprobes="32"
 max_codes="10000"
 efSearch="80"
 
-path_pq=      "${homeBaranchuk}${subdir}pq${M_PQ}.pq"
-path_norm_pq= "${homeBaranchuk}${subdir}norm_pq${M_PQ}.pq"
-path_index=   "${homeBaranchuk}${subdir}hybrid${nc}M_PQ${M_PQ}.index"
+path_pq="${homeBaranchuk}${subdir}pq${M_PQ}.pq"
+path_norm_pq="${homeBaranchuk}${subdir}norm_pq${M_PQ}.pq"
+path_index="${homeBaranchuk}${subdir}hybrid${nc}M_PQ${M_PQ}.index"
 
 for i in {1..5}
 do

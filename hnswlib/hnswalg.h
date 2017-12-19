@@ -116,67 +116,6 @@ namespace hnswlib {
             return (uint8_t *) (data_level0_memory_ + internal_id * size_data_per_element);
         };
 
-//        std::priority_queue<std::pair<dist_t, idx_t >> searchBaseLayer(idx_t ep, void *datapoint, int level, int ef)
-//        {
-//            VisitedList *vl = visitedlistpool->getFreeVisitedList();
-//            vl_type *massVisited = vl->mass;
-//            vl_type currentV = vl->curV;
-//
-//            std::priority_queue<std::pair<dist_t, idx_t  >> topResults;
-//            std::priority_queue<std::pair<dist_t, idx_t >> candidateSet;
-//            dist_t dist = fstdistfunc(datapoint, getDataByInternalId(ep));
-//
-//            topResults.emplace(dist, ep);
-//            candidateSet.emplace(-dist, ep);
-//            massVisited[ep] = currentV;
-//
-//            dist_t lowerBound = dist;
-//
-//            while (!candidateSet.empty()) {
-//                std::pair<dist_t, idx_t> curr_el_pair = candidateSet.top();
-//
-//                if ((-curr_el_pair.first) > lowerBound) {
-//                    break;
-//                }
-//                candidateSet.pop();
-//
-//                idx_t curNodeNum = curr_el_pair.second;
-//
-//                uint8_t *ll_cur = get_linklist0(curNodeNum);
-//                uint8_t size = *ll_cur;
-//                idx_t *data = (idx_t *) (ll_cur + 1);
-//
-//                _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
-//
-//                for (uint8_t j = 0; j < size; ++j) {
-//                    idx_t tnum = *(data + j);
-//                    _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
-//                    if (!(massVisited[tnum] == currentV)) {
-//                        massVisited[tnum] = currentV;
-//                        dist_t dist = fstdistfunc(datapoint, getDataByInternalId(tnum));
-//                        if (topResults.top().first > dist || topResults.size() < ef) {
-//                            candidateSet.emplace(-dist, tnum);
-//                            _mm_prefetch(getDataByInternalId(candidateSet.top().second), _MM_HINT_T0);
-//                            topResults.emplace(dist, tnum);
-//                            if (topResults.size() > ef) {
-//                                topResults.pop();
-//                            }
-//                            lowerBound = topResults.top().first;
-//                        }
-//                    }
-//                }
-//            }
-//            visitedlistpool->releaseVisitedList(vl);
-//            return topResults;
-//        }
-
-        struct CompareByFirst {
-            constexpr bool operator()(pair<dist_t, idx_t> const &a,
-                                      pair<dist_t, idx_t> const &b) const noexcept {
-                return a.first < b.first;
-            }
-        };
-
         //std::priority_queue<std::pair<dist_t, idx_t>, vector<pair<dist_t, idx_t>>, CompareByFirst>
         std::priority_queue<std::pair<dist_t, idx_t>> searchBaseLayer(idx_t ep, void *datapoint, size_t ef)
         {
@@ -346,7 +285,7 @@ namespace hnswlib {
                     for (int j = 0; j < sz_link_list_other; j++)
                         candidates.emplace(fstdistfunc(getDataByInternalId(data[j]), getDataByInternalId(rez[idx])), data[j]);
 
-                    getNeighborsByHeuristic(candidates, rezMmax);
+                    getNeighborsByHeuristic(candidates, rezMmax); // Merge
 
                     int indx = 0;
                     while (candidates.size() > 0) {
@@ -483,27 +422,6 @@ namespace hnswlib {
 
             return topResults;
         };
-
-
-        void printListsize()
-        {
-            float av_M = 0;
-            int numLinks[32];
-            for (int i = 0; i < 32; i++)
-                numLinks[i] = 0;
-
-            for (int i = 0; i < maxelements_; i++){
-                uint8_t *ll_cur = get_linklist0(i);
-                numLinks[*ll_cur - 1]++;
-                av_M += (1.0 * *ll_cur) / maxelements_;
-            }
-
-            std::cout << "Links distribution" << std::endl;
-            for (int i = 0; i < 32; i++){
-                cout << " Number of elements with " << i+1 << " links: " << numLinks[i] << endl;
-            }
-        }
-
 
         void SaveInfo(const string &location) {
             cout << "Saving info to " << location << endl;
