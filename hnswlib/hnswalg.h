@@ -177,8 +177,8 @@ namespace hnswlib {
             }
         };
 
-        std::priority_queue<std::pair<dist_t, idx_t>, vector<pair<dist_t, idx_t>>, CompareByFirst>
-        searchBaseLayer(idx_t ep, void *datapoint, size_t ef)
+        //std::priority_queue<std::pair<dist_t, idx_t>, vector<pair<dist_t, idx_t>>, CompareByFirst>
+        std::priority_queue<std::pair<dist_t, idx_t>> searchBaseLayer(idx_t ep, void *datapoint, size_t ef)
         {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
             vl_type *massVisited = vl->mass;
@@ -355,7 +355,6 @@ namespace hnswlib {
 
                     *ll_other = indx;
                 }
-
             }
         }
 
@@ -466,8 +465,8 @@ namespace hnswlib {
             }
             enterpoint0 = currObj;
 
-            std::priority_queue<std::pair<dist_t, idx_t>, vector<pair<dist_t, idx_t>>, CompareByFirst> tmpTopResults = searchBaseLayer(
-                    currObj, query_data, ef_);
+            //std::priority_queue<std::pair<dist_t, idx_t>, vector<pair<dist_t, idx_t>>, CompareByFirst>
+            auto tmpTopResults = searchBaseLayer(currObj, query_data, ef_);
             
             // Remove clusters as answers
             std::priority_queue<std::pair<dist_t, idx_t >> topResults;
