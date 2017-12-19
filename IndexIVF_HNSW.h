@@ -11,7 +11,7 @@
 #include <cmath>
 
 //#include "hnswlib/hnswlib.h"
-#include <hnswlib/hnswlib.h>
+#include <hnswlib/hnswalg.h>
 
 #include <faiss/ProductQuantizer.h>
 #include <faiss/index_io.h>
