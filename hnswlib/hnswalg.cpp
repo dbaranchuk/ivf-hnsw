@@ -45,15 +45,6 @@ HierarchicalNSW::~HierarchicalNSW()
     delete visitedlistpool;
 }
 
-inline char *HierarchicalNSW::getDataByInternalId(idx_t internal_id) const
-{
-    return (data_level0_memory_ + internal_id * size_data_per_element + offsetData);
-}
-
-inline uint8_t *HierarchicalNSW::get_linklist0(idx_t internal_id) const
-{
-    return (uint8_t *) (data_level0_memory_ + internal_id * size_data_per_element);
-};
 
 //std::priority_queue<std::pair<float, idx_t>, vector<pair<float, idx_t>>, CompareByFirst>
 std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(idx_t ep, void *datapoint, size_t ef)
