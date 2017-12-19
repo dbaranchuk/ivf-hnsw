@@ -163,8 +163,8 @@ int main(int argc, char **argv)
 
     /** Parse groundtruth **/
     std::cout << "Parsing groundtruth" << std::endl;
-    std::vector<std::priority_queue< std::pair<float, labeltype >>> answers;
-    (std::vector<std::priority_queue< std::pair<float, labeltype >>>(opt.nq)).swap(answers);
+    std::vector<std::priority_queue< std::pair<float, idx_t >>> answers;
+    (std::vector<std::priority_queue< std::pair<float, idx_t >>>(opt.nq)).swap(answers);
     for (int i = 0; i < opt.nq; i++)
         answers[i].emplace(0.0f, massQA[opt.gtd*i]);
 
@@ -191,8 +191,8 @@ int main(int argc, char **argv)
 
         index->search(massQ.data() + i*opt.d, opt.k, distances, labels);
 
-        std::priority_queue<std::pair<float, labeltype >> gt(answers[i]);
-        unordered_set<labeltype> g;
+        std::priority_queue<std::pair<float, idx_t >> gt(answers[i]);
+        unordered_set<idx_t> g;
 
         while (gt.size()) {
             g.insert(gt.top().second);
