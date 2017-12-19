@@ -45,21 +45,18 @@ HierarchicalNSW::~HierarchicalNSW()
     delete visitedlistpool;
 }
 
-inline char *
-HierarchicalNSW::getDataByInternalId(idx_t internal_id) const
+inline char *HierarchicalNSW::getDataByInternalId(idx_t internal_id) const
 {
     return (data_level0_memory_ + internal_id * size_data_per_element + offsetData);
 }
 
-inline uint8_t *
-HierarchicalNSW::get_linklist0(idx_t internal_id) const
+inline uint8_t *HierarchicalNSW::get_linklist0(idx_t internal_id) const
 {
     return (uint8_t *) (data_level0_memory_ + internal_id * size_data_per_element);
 };
 
 //std::priority_queue<std::pair<float, idx_t>, vector<pair<float, idx_t>>, CompareByFirst>
-std::priority_queue<std::pair<float, idx_t>>
-    HierarchicalNSW::searchBaseLayer(idx_t ep, void *datapoint, size_t ef)
+std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(idx_t ep, void *datapoint, size_t ef)
 {
     VisitedList *vl = visitedlistpool->getFreeVisitedList();
     vl_type *massVisited = vl->mass;
@@ -124,8 +121,7 @@ std::priority_queue<std::pair<float, idx_t>>
     return topResults;
 }
 
-void
-HierarchicalNSW::getNeighborsByHeuristic(std::priority_queue<std::pair<float, idx_t>> &topResults, const int NN)
+void HierarchicalNSW::getNeighborsByHeuristic(std::priority_queue<std::pair<float, idx_t>> &topResults, const int NN)
 {
     if (topResults.size() < NN)
         return;
@@ -159,8 +155,7 @@ HierarchicalNSW::getNeighborsByHeuristic(std::priority_queue<std::pair<float, id
         topResults.emplace(-curen2.first, curen2.second);
 }
 
-void
-HierarchicalNSW::mutuallyConnectNewElement(void *datapoint, idx_t cur_c,
+void HierarchicalNSW::mutuallyConnectNewElement(void *datapoint, idx_t cur_c,
                                std::priority_queue<std::pair<float, idx_t>> topResults, int level)
 {
     size_t curMmax = maxM_;

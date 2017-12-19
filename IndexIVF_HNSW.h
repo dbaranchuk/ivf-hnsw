@@ -20,8 +20,6 @@
 
 #include "utils.h"
 
-using namespace hnswlib;
-
 typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
 
@@ -53,7 +51,7 @@ namespace ivfhnsw {
         std::vector<std::vector<uint8_t> > norm_codes;
 
         std::vector<float> centroid_norms;
-        HierarchicalNSW *quantizer;
+        hnswlib::HierarchicalNSW *quantizer;
 
     public:
         IndexIVF_HNSW(size_t dim, size_t ncentroids,
@@ -123,7 +121,7 @@ namespace ivfhnsw {
         faiss::ProductQuantizer *pq;
 
         /** Coarse Quantizer based on HNSW [Y.Malkov]**/
-        HierarchicalNSW *quantizer;
+        hnswlib::HierarchicalNSW *quantizer;
 
         /** Distances from region centroids to their subcentroids **/
         std::vector<std::vector<float> > centroid_subcentroid_distances;
