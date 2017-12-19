@@ -53,7 +53,7 @@ namespace ivfhnsw {
         std::vector<std::vector<uint8_t> > norm_codes;
 
         std::vector<float> centroid_norms;
-        HierarchicalNSW<float, float> *quantizer;
+        HierarchicalNSW *quantizer;
 
     public:
         IndexIVF_HNSW(size_t dim, size_t ncentroids,
@@ -123,7 +123,7 @@ namespace ivfhnsw {
         faiss::ProductQuantizer *pq;
 
         /** Coarse Quantizer based on HNSW [Y.Malkov]**/
-        HierarchicalNSW<float, float> *quantizer;
+        HierarchicalNSW *quantizer;
 
         /** Distances from region centroids to their subcentroids **/
         std::vector<std::vector<float> > centroid_subcentroid_distances;
