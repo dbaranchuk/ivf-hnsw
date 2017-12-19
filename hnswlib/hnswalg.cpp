@@ -62,7 +62,7 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(vo
 
     topResults.emplace(dist, enterpoint_node);
     candidateSet.emplace(-dist, enterpoint_node);
-    massVisited[ep] = currentV;
+    massVisited[enterpoint_node] = currentV;
     float lowerBound = dist;
 
     while (!candidateSet.empty()) {
