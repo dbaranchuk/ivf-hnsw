@@ -47,7 +47,7 @@ HierarchicalNSW::~HierarchicalNSW()
 
 
 //std::priority_queue<std::pair<float, idx_t>, vector<pair<float, idx_t>>, CompareByFirst>
-std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(idx_t ep, void *datapoint, size_t ef)
+std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(void *datapoint, size_t ef)
 {
     VisitedList *vl = visitedlistpool->getFreeVisitedList();
     vl_type *massVisited = vl->mass;
@@ -60,8 +60,8 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(id
     float dist = fstdistfunc(datapoint, getDataByInternalId(ep));
     dist_calc++;
 
-    topResults.emplace(dist, ep);
-    candidateSet.emplace(-dist, ep);
+    topResults.emplace(dist, enterpoint_node);
+    candidateSet.emplace(-dist, enterpoint_node);
     massVisited[ep] = currentV;
     float lowerBound = dist;
 
@@ -251,40 +251,9 @@ void HierarchicalNSW::addPoint(void *datapoint, idx_t label)
     memset((char *) get_linklist0(cur_c), 0, size_data_per_element);
     memcpy(getDataByInternalId(cur_c), datapoint, data_size_);
 
-    idx_t currObj = enterpoint_node;
-    if (currObj != -1) {
-        if (curlevel < maxlevelcopy) {
-            float curdist = fstdistfunc(datapoint, getDataByInternalId(currObj));
-            for (int level = maxlevelcopy; level > curlevel; level--) {
-
-                bool changed = true;
-                while (changed) {
-                    changed = false;
-                    uint8_t *data = get_linklist0(currObj);
-                    uint8_t size = *data;
-                    idx_t *datal = (idx_t *) (data + 1);
-                    for (uint8_t i = 0; i < size; i++) {
-                        idx_t cand = datal[i];
-                        if (cand < 0 || cand > maxelements_)
-                            throw runtime_error("cand error");
-                        float d = fstdistfunc(datapoint, getDataByInternalId(cand));
-                        if (d < curdist) {
-                            curdist = d;
-                            currObj = cand;
-                            changed = true;
-                        }
-                    }
-                }
-            }
-        }
-        for (int level = 0; level <= min(curlevel, maxlevelcopy); level++) {
-            if (level > maxlevelcopy || level < 0)
-                throw runtime_error("Level error");
-
-            std::priority_queue<std::pair<float, idx_t>> topResults = searchBaseLayer(currObj, datapoint, efConstruction_);
-            mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
-        }
-
+    if (enterpoint_node != -1) {
+        std::priority_queue<std::pair<float, idx_t>> topResults = searchBaseLayer(datapoint, efConstruction_);
+        mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
     } else {
         // Do nothing for the first element
         enterpoint_node = 0;
@@ -301,15 +270,6 @@ void HierarchicalNSW::addPoint(void *datapoint, idx_t label)
 std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(void *query_data, int k)
 {
     auto topResults = searchBaseLayer(enterpoint_node, query_data, ef_);
-
-    // Remove clusters as answers
-//    std::priority_queue<std::pair<float, idx_t >> topResults;
-//    while (tmpTopResults.size() > 0) {
-//        std::pair<float, idx_t> rez = tmpTopResults.top();
-//        topResults.push(rez);
-//        tmpTopResults.pop();
-//    }
-
     while (topResults.size() > k)
         topResults.pop();
 

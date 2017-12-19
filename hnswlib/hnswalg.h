@@ -70,7 +70,7 @@ namespace hnswlib {
 
         char *data_level0_memory_;
 
-        vector<char> elementLevels;
+        std::vector<char> elementLevels;
 
         size_t d_;
         size_t data_size_;
@@ -99,7 +99,7 @@ namespace hnswlib {
         }
 
         //std::priority_queue<std::pair<dist_t, idx_t>, vector<pair<dist_t, idx_t>>, CompareByFirst>
-        std::priority_queue<std::pair<float, idx_t>> searchBaseLayer(idx_t ep, void *datapoint, size_t ef);
+        std::priority_queue<std::pair<float, idx_t>> searchBaseLayer(void *datapoint, size_t ef);
 
         void getNeighborsByHeuristic(std::priority_queue<std::pair<float, idx_t>> &topResults, const int NN);
 

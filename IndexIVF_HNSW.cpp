@@ -66,10 +66,13 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW::assign(size_t n, const float *data, idx_t *idxs) {
+    void IndexIVF_HNSW::assign(size_t n, const float *data, idx_t *idxs)
+    {
 #pragma omp parallel for
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < n; i++) {
             idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i * d), 1).top().second;
+
+        }
     }
 
 
