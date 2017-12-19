@@ -88,13 +88,11 @@ namespace hnswlib {
         HierarchicalNSW(size_t d, size_t maxelements, size_t M, size_t maxM, size_t efConstruction = 500);
         ~HierarchicalNSW();
 
-        inline char *HierarchicalNSW::getDataByInternalId(idx_t internal_id) const
-        {
+        inline char *getDataByInternalId(idx_t internal_id) const {
             return (data_level0_memory_ + internal_id * size_data_per_element + offsetData);
         }
 
-        inline uint8_t *HierarchicalNSW::get_linklist0(idx_t internal_id) const
-        {
+        inline uint8_t *get_linklist0(idx_t internal_id) const {
             return (uint8_t *) (data_level0_memory_ + internal_id * size_data_per_element);
         }
 
