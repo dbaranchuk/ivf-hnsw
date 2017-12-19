@@ -418,8 +418,7 @@ namespace hnswlib {
                     if (level > maxlevelcopy || level < 0)
                         throw runtime_error("Level error");
 
-                    std::priority_queue<std::pair<dist_t, idx_t>> topResults = searchBaseLayer(currObj, datapoint,
-                                                                                                  level, efConstruction_);
+                    std::priority_queue<std::pair<dist_t, idx_t>> topResults = searchBaseLayer(currObj, datapoint, efConstruction_);
                     mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
                 }
 
