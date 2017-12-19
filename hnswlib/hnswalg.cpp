@@ -300,19 +300,15 @@ void HierarchicalNSW::addPoint(void *datapoint, idx_t label)
 
 std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(void *query_data, int k)
 {
-    //idx_t currObj = enterpoint_node;
-    //float curdist = fstdistfunc(query_data, getDataByInternalId(enterpoint_node));
-    //dist_calc++;
-    //std::priority_queue<std::pair<float, idx_t>, vector<pair<float, idx_t>>, CompareByFirst>
-    auto tmpTopResults = searchBaseLayer(enterpoint_node, query_data, ef_);
+    auto topResults = searchBaseLayer(enterpoint_node, query_data, ef_);
 
     // Remove clusters as answers
-    std::priority_queue<std::pair<float, idx_t >> topResults;
-    while (tmpTopResults.size() > 0) {
-        std::pair<float, idx_t> rez = tmpTopResults.top();
-        topResults.push(rez);
-        tmpTopResults.pop();
-    }
+//    std::priority_queue<std::pair<float, idx_t >> topResults;
+//    while (tmpTopResults.size() > 0) {
+//        std::pair<float, idx_t> rez = tmpTopResults.top();
+//        topResults.push(rez);
+//        tmpTopResults.pop();
+//    }
 
     while (topResults.size() > k)
         topResults.pop();
@@ -320,7 +316,8 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(void *qu
     return topResults;
 };
 
-void HierarchicalNSW::SaveInfo(const string &location) {
+void HierarchicalNSW::SaveInfo(const string &location)
+{
     cout << "Saving info to " << location << endl;
     std::ofstream output(location, std::ios::binary);
     streampos position;
