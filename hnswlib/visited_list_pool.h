@@ -4,7 +4,7 @@
 #include <deque>
 
 namespace hnswlib{
-typedef unsigned short vl_type;
+typedef unsigned int vl_type;
 
 class VisitedList {
 public:
