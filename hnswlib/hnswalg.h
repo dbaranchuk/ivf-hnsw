@@ -183,8 +183,10 @@ namespace hnswlib {
             VisitedList *vl = visitedlistpool->getFreeVisitedList();
             vl_type *massVisited = vl->mass;
             vl_type currentV = vl->curV;
-            std::priority_queue<std::pair<dist_t, idx_t>, vector<pair<dist_t, idx_t>>, CompareByFirst> topResults;
-            std::priority_queue<std::pair<dist_t, idx_t>, vector<pair<dist_t, idx_t>>, CompareByFirst> candidateSet;
+            //std::priority_queue<std::pair<dist_t, idx_t>, vector<pair<dist_t, idx_t>>, CompareByFirst> topResults;
+            //std::priority_queue<std::pair<dist_t, idx_t>, vector<pair<dist_t, idx_t>>, CompareByFirst> candidateSet;
+            std::priority_queue<std::pair<dist_t, idx_t  >> topResults;
+            std::priority_queue<std::pair<dist_t, idx_t >> candidateSet;
 
             dist_t dist = fstdistfunc(datapoint, getDataByInternalId(ep));
             dist_calc++;
@@ -344,7 +346,7 @@ namespace hnswlib {
                     for (int j = 0; j < sz_link_list_other; j++)
                         candidates.emplace(fstdistfunc(getDataByInternalId(data[j]), getDataByInternalId(rez[idx])), data[j]);
 
-                    getNeighborsByHeuristicMerge(candidates, rezMmax);
+                    getNeighborsByHeuristic(candidates, rezMmax);
 
                     int indx = 0;
                     while (candidates.size() > 0) {
