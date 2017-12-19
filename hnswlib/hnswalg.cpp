@@ -115,7 +115,7 @@ void HierarchicalNSW::getNeighborsByHeuristic(std::priority_queue<std::pair<floa
 
     std::priority_queue<std::pair<float, idx_t>> resultSet;
     std::priority_queue<std::pair<float, idx_t>> templist;
-    vector<std::pair<float, idx_t>> returnlist;
+    std::vector<std::pair<float, idx_t>> returnlist;
     while (topResults.size() > 0) {
         resultSet.emplace(-topResults.top().first, topResults.top().second);
         topResults.pop();
@@ -125,13 +125,13 @@ void HierarchicalNSW::getNeighborsByHeuristic(std::priority_queue<std::pair<floa
         if (returnlist.size() >= NN)
             break;
         std::pair<float, idx_t> curen = resultSet.top();
-        float floato_query = -curen.first;
+        float dist_to_query = -curen.first;
         resultSet.pop();
         bool good = true;
         for (std::pair<float, idx_t> curen2 : returnlist) {
             float curdist = fstdistfunc(getDataByInternalId(curen2.second),
                                          getDataByInternalId(curen.second));
-            if (curdist < floato_query) {
+            if (curdist < dist_to_query) {
                 good = false;
                 break;
             }
@@ -145,18 +145,15 @@ void HierarchicalNSW::getNeighborsByHeuristic(std::priority_queue<std::pair<floa
 void HierarchicalNSW::mutuallyConnectNewElement(void *datapoint, idx_t cur_c,
                                std::priority_queue<std::pair<float, idx_t>> topResults)
 {
-    size_t curMmax = maxM_;
-    size_t curM = M_;
+    getNeighborsByHeuristic(topResults, M_);
 
-    getNeighborsByHeuristic(topResults, curM);
-
-    while (topResults.size() > curM) {
+    while (topResults.size() > M_) {
         throw exception();
         topResults.pop();
     }
 
-    vector<idx_t> rez;
-    rez.reserve(curM);
+    std::vector<idx_t> rez;
+    rez.reserve(M_);
     while (topResults.size() > 0) {
         rez.push_back(topResults.top().second);
         topResults.pop();
