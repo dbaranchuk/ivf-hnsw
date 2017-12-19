@@ -61,16 +61,14 @@ namespace hnswlib {
 
         VisitedListPool *visitedlistpool;
 
-        mutex cur_element_count_guard_;
-        mutex MaxLevelGuard_;
+        std::mutex cur_element_count_guard_;
+        std::mutex MaxLevelGuard_;
 
         idx_t enterpoint_node;
 
         size_t dist_calc;
 
         char *data_level0_memory_;
-
-        std::vector<char> elementLevels;
 
         size_t d_;
         size_t data_size_;
@@ -80,10 +78,8 @@ namespace hnswlib {
         size_t maxM_;
         size_t size_links_level0;
 
-
         mutex global;
         size_t ef_;
-        float hops0 = 0.0;
 
     public:
         HierarchicalNSW(const string &infoLocation, const string &dataLocation, const string &edgeLocation);
@@ -103,7 +99,7 @@ namespace hnswlib {
 
         void getNeighborsByHeuristic(std::priority_queue<std::pair<float, idx_t>> &topResults, const int NN);
 
-        void mutuallyConnectNewElement(void *datapoint, idx_t cur_c, std::priority_queue<std::pair<float, idx_t>> topResults, int level);
+        void mutuallyConnectNewElement(void *datapoint, idx_t cur_c, std::priority_queue<std::pair<float, idx_t>> topResults);
 
         void addPoint(void *datapoint, idx_t label);
 

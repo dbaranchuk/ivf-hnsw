@@ -33,10 +33,6 @@ namespace hnswlib {
     //initializations for special treatment of the first node
     enterpoint_node = -1;
     maxlevel_ = -1;
-
-    elementLevels = vector<char>(maxelements_);
-    for (size_t i = 0; i < maxelements_; ++i)
-    elementLevels[i] = 0;
 }
 
 HierarchicalNSW::~HierarchicalNSW()
@@ -65,8 +61,8 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(vo
     massVisited[enterpoint_node] = currentV;
     float lowerBound = dist;
 
-    while (!candidateSet.empty()) {
-        hops0 += 1.0 / 10000;
+    while (!candidateSet.empty())
+    {
         std::pair<float, idx_t> curr_el_pair = candidateSet.top();
         if (-curr_el_pair.first > lowerBound)
             break;
@@ -147,7 +143,7 @@ void HierarchicalNSW::getNeighborsByHeuristic(std::priority_queue<std::pair<floa
 }
 
 void HierarchicalNSW::mutuallyConnectNewElement(void *datapoint, idx_t cur_c,
-                               std::priority_queue<std::pair<float, idx_t>> topResults, int level)
+                               std::priority_queue<std::pair<float, idx_t>> topResults)
 {
     size_t curMmax = maxM_;
     size_t curM = M_;
@@ -167,11 +163,8 @@ void HierarchicalNSW::mutuallyConnectNewElement(void *datapoint, idx_t cur_c,
     }
     {
         uint8_t *ll_cur = get_linklist0(cur_c);
-
         if (*ll_cur) {
-            cout << *ll_cur << "\n";
-            cout << (int) elementLevels[cur_c] << "\n";
-            cout << level << "\n";
+            std::cout << *ll_cur << std::endl;
             throw runtime_error("Should be blank");
         }
         *ll_cur = rez.size();
@@ -180,8 +173,6 @@ void HierarchicalNSW::mutuallyConnectNewElement(void *datapoint, idx_t cur_c,
         for (int idx = 0; idx < rez.size(); idx++) {
             if (data[idx])
                 throw runtime_error("Should be blank");
-            if (level > elementLevels[rez[idx]])
-                throw runtime_error("Bad level");
             data[idx] = rez[idx];
         }
     }
@@ -191,10 +182,6 @@ void HierarchicalNSW::mutuallyConnectNewElement(void *datapoint, idx_t cur_c,
 
         size_t rezMmax = maxM_;
         uint8_t *ll_other = get_linklist0(rez[idx]);
-
-        if (level > elementLevels[rez[idx]])
-            throw runtime_error("Bad level");
-
         uint8_t sz_link_list_other = *ll_other;
 
         if (sz_link_list_other > rezMmax || sz_link_list_other < 0)
@@ -241,7 +228,7 @@ void HierarchicalNSW::addPoint(void *datapoint, idx_t label)
         cur_c = cur_element_count;
         cur_element_count++;
     }
-    int curlevel = elementLevels[cur_c];
+    int curlevel = 0;
 
     unique_lock <mutex> templock(global);
     int maxlevelcopy = maxlevel_;
@@ -253,7 +240,7 @@ void HierarchicalNSW::addPoint(void *datapoint, idx_t label)
 
     if (enterpoint_node != -1) {
         std::priority_queue<std::pair<float, idx_t>> topResults = searchBaseLayer(datapoint, efConstruction_);
-        mutuallyConnectNewElement(datapoint, cur_c, topResults, 0);
+        mutuallyConnectNewElement(datapoint, cur_c, topResults);
     } else {
         // Do nothing for the first element
         enterpoint_node = 0;
@@ -332,10 +319,6 @@ void HierarchicalNSW::LoadInfo(const string &location)
     cur_element_count = maxelements_;
 
     visitedlistpool = new VisitedListPool(1, maxelements_);
-
-    elementLevels = vector<char>(maxelements_);
-    for (size_t i = 0; i < maxelements_; ++i)
-        elementLevels[i] = 0;
     maxlevel_ = 0;
 
     cout << "Predicted size=" << maxelements_ * size_data_per_element / (1000 * 1000) << "\n";
@@ -376,8 +359,10 @@ void HierarchicalNSW::LoadEdges(const string &location)
     }
 }
 
-float HierarchicalNSW::fstdistfunc(const float *pVect1, const float *pVect2)
+float HierarchicalNSW::fstdistfunc(const void *x, const void *y)
 {
+    float *pVect1 = (float *) x;
+    float *pVect2 = (float *) y;
     float PORTABLE_ALIGN32 TmpRes[8];
 #ifdef USE_AVX
     size_t qty16 = d_ >> 4;
