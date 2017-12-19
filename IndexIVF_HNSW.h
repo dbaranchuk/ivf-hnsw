@@ -62,7 +62,7 @@ namespace ivfhnsw {
 
         
         /** Construct HNSW Coarse Quantizer **/
-        void buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
+        void buildCoarseQuantizer(const char *path_clusters,
                                   const char *path_info, const char *path_edges,
                                   int M, int efConstruction);
 

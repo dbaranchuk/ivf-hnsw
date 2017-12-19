@@ -29,16 +29,15 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW::buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
-                                             const char *path_info, const char *path_edges,
-                                             int M, int efConstruction = 500)
+    void IndexIVF_HNSW::buildCoarseQuantizer(const char *path_clusters, const char *path_info,
+                                             const char *path_edges, int M, int efConstruction = 500)
     {
         if (exists_test(path_info) && exists_test(path_edges)) {
-            quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
+            quantizer = new HierarchicalNSW<float, float>(path_info, path_clusters, path_edges);
             quantizer->ef_ = efConstruction;
             return;
         }
-        quantizer = new HierarchicalNSW<float, float>(l2space, nc, M, 2 * M, efConstruction);
+        quantizer = new HierarchicalNSW<float, float>(d, nc, M, 2 * M, efConstruction);
         quantizer->ef_ = efConstruction;
 
         std::cout << "Constructing quantizer\n";
@@ -354,16 +353,16 @@ namespace ivfhnsw {
         delete quantizer;
     }
 
-    void IndexIVF_HNSW_Grouping::buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
+    void IndexIVF_HNSW_Grouping::buildCoarseQuantizer(const char *path_clusters,
                                                       const char *path_info, const char *path_edges,
                                                       int M, int efConstruction=500)
     {
         if (exists_test(path_info) && exists_test(path_edges)) {
-            quantizer = new HierarchicalNSW<float, float>(l2space, path_info, path_clusters, path_edges);
+            quantizer = new HierarchicalNSW<float, float>(path_info, path_clusters, path_edges);
             quantizer->ef_ = efConstruction;
             return;
         }
-        quantizer = new HierarchicalNSW<float, float>(l2space, nc, M, 2*M, efConstruction);
+        quantizer = new HierarchicalNSW<float, float>(d, nc, M, 2*M, efConstruction);
         quantizer->ef_ = efConstruction;
 
         std::cout << "Constructing quantizer\n";

@@ -33,17 +33,17 @@ namespace hnswlib {
     template<typename dist_t, typename vtype>
     struct HierarchicalNSW
     {
-        HierarchicalNSW(const string &infoLocation, const string &dataLocation,
-                        const string &edgeLocation, bool nmslib = false)
+        HierarchicalNSW(const string &infoLocation, const string &dataLocation, const string &edgeLocation)
         {
             LoadInfo(infoLocation);
             LoadData(dataLocation);
             LoadEdges(edgeLocation);
         }
 
-        HierarchicalNSW(size_t maxelements, size_t M, size_t maxM, size_t efConstruction = 500)
+        HierarchicalNSW(size_t d, size_t maxelements, size_t M, size_t maxM, size_t efConstruction = 500)
         {
             //space = s;
+            d_ = d;
             data_size_ = d * sizeof(dist_t);//s->get_data_size();
 
             efConstruction_ = efConstruction;
@@ -98,6 +98,7 @@ namespace hnswlib {
 
         vector<char> elementLevels;
 
+        size_t d_;
         size_t data_size_;
         size_t offsetData;
         size_t size_data_per_element;
@@ -543,9 +544,6 @@ namespace hnswlib {
             std::ifstream input(location, std::ios::binary);
             streampos position;
 
-            //space = s;
-            data_size_ = d * sizeof(dist_t);//s->get_data_size();
-
             readBinaryPOD(input, maxelements_);
             readBinaryPOD(input, enterpoint_node);
             readBinaryPOD(input, data_size_);
@@ -555,6 +553,7 @@ namespace hnswlib {
             readBinaryPOD(input, maxM_);
             readBinaryPOD(input, size_links_level0);
 
+            d_ = data_size_ / sizeof(dist_t);
             data_level0_memory_ = (char *) malloc(maxelements_ * size_data_per_element);
 
             efConstruction_ = 0;
@@ -576,11 +575,10 @@ namespace hnswlib {
             cout << "Loading data from " << location << endl;
             FILE *fin = fopen(location.c_str(), "rb");
             int dim;
-            const int D = space->get_data_dim();
-            vtype mass[D];
+            vtype mass[d];
             for (idx_t i = 0; i < maxelements_; i++) {
                 fread((int *) &dim, sizeof(int), 1, fin);
-                if (dim != D)
+                if (dim != d)
                     cerr << "Wront data dim" << endl;
 
                 fread(mass, sizeof(vtype), dim, fin);
@@ -611,7 +609,7 @@ namespace hnswlib {
             float *pVect2 = (float *) y;
             float PORTABLE_ALIGN32 TmpRes[8];
             #ifdef USE_AVX
-            size_t qty16 = dim_ >> 4;
+            size_t qty16 = d_ >> 4;
 
             const float *pEnd1 = pVect1 + (qty16 << 4);
 
@@ -639,7 +637,7 @@ namespace hnswlib {
 
             return (res);
             #else
-                size_t qty16 = dim_ >> 4;
+                size_t qty16 = d_ >> 4;
 
             const float *pEnd1 = pVect1 + (qty16 << 4);
 
