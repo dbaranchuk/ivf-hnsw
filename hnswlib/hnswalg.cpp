@@ -57,7 +57,7 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(vo
     std::priority_queue<std::pair<float, idx_t >> topResults;
     std::priority_queue<std::pair<float, idx_t >> candidateSet;
 
-    float dist = fstdistfunc(datapoint, getDataByInternalId(ep));
+    float dist = fstdistfunc(datapoint, getDataByInternalId(enterpoint_node));
     dist_calc++;
 
     topResults.emplace(dist, enterpoint_node);
@@ -253,7 +253,7 @@ void HierarchicalNSW::addPoint(void *datapoint, idx_t label)
 
     if (enterpoint_node != -1) {
         std::priority_queue<std::pair<float, idx_t>> topResults = searchBaseLayer(datapoint, efConstruction_);
-        mutuallyConnectNewElement(datapoint, cur_c, topResults, level);
+        mutuallyConnectNewElement(datapoint, cur_c, topResults, 0);
     } else {
         // Do nothing for the first element
         enterpoint_node = 0;
@@ -269,7 +269,7 @@ void HierarchicalNSW::addPoint(void *datapoint, idx_t label)
 
 std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(void *query_data, int k)
 {
-    auto topResults = searchBaseLayer(enterpoint_node, query_data, ef_);
+    auto topResults = searchBaseLayer(query_data, ef_);
     while (topResults.size() > k)
         topResults.pop();
 
