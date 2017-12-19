@@ -298,7 +298,7 @@ void HierarchicalNSW::addPoint(void *datapoint, idx_t label)
     }
 };
 
-std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(float *query_data, int k)
+std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(void *query_data, int k)
 {
     //idx_t currObj = enterpoint_node;
     //float curdist = fstdistfunc(query_data, getDataByInternalId(enterpoint_node));
@@ -425,7 +425,6 @@ float HierarchicalNSW::fstdistfunc(const void *x, const void *y)
     float *pVect2 = (float *) y;
     float PORTABLE_ALIGN32 TmpRes[8];
 #ifdef USE_AVX
-    std::cout << "\n";
     size_t qty16 = d_ >> 4;
 
             const float *pEnd1 = pVect1 + (qty16 << 4);
