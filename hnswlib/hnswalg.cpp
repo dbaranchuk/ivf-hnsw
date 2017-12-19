@@ -425,6 +425,7 @@ float HierarchicalNSW::fstdistfunc(const void *x, const void *y)
     float *pVect2 = (float *) y;
     float PORTABLE_ALIGN32 TmpRes[8];
 #ifdef USE_AVX
+    std::cout << "\n";
     size_t qty16 = d_ >> 4;
 
             const float *pEnd1 = pVect1 + (qty16 << 4);
