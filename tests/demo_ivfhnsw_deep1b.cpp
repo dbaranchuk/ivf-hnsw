@@ -43,8 +43,8 @@ int main(int argc, char **argv)
     /** Initialize Index **/
     /**********************/
     IndexIVF_HNSW *index = new IndexIVF_HNSW(opt.d, opt.nc, opt.M_PQ, 8);
-    SpaceInterface<float> *l2space = new L2Space(opt.d);
-    index->buildCoarseQuantizer(l2space, opt.path_centroids,
+    //SpaceInterface<float> *l2space = new L2Space(opt.d);
+    index->buildCoarseQuantizer(opt.path_centroids,
                                 opt.path_info, opt.path_edges,
                                 opt.M, opt.efConstruction);
 
@@ -213,6 +213,6 @@ int main(int argc, char **argv)
     //std::cout << "Average max_codes: " << index->average_max_codes / 10000 << std::endl;
 
     delete index;
-    delete l2space;
+    //delete l2space;
     return 0;
 }

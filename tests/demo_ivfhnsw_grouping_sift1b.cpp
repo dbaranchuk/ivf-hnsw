@@ -48,8 +48,8 @@ int main(int argc, char **argv)
     /** Initialize Index **/
     /**********************/
     IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(opt.d, opt.nc, opt.M_PQ, 8, opt.nsubc);
-    SpaceInterface<float> *l2space = new L2Space(opt.d);
-    index->buildCoarseQuantizer(l2space, opt.path_centroids,
+    //SpaceInterface<float> *l2space = new L2Space(opt.d);
+    index->buildCoarseQuantizer(opt.path_centroids,
                                 opt.path_info, opt.path_edges,
                                 opt.M, opt.efConstruction);
 
@@ -229,6 +229,6 @@ int main(int argc, char **argv)
     //check_precomputing(index, path_data, path_precomputed_idxs, d, nc, nb, gt_mistakes, gt_correct);
 
     delete index;
-    delete l2space;
+    //delete l2space;
     return 0;
 }
