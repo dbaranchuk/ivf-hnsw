@@ -575,10 +575,10 @@ namespace hnswlib {
             cout << "Loading data from " << location << endl;
             FILE *fin = fopen(location.c_str(), "rb");
             int dim;
-            vtype mass[d];
+            vtype mass[d_];
             for (idx_t i = 0; i < maxelements_; i++) {
                 fread((int *) &dim, sizeof(int), 1, fin);
-                if (dim != d)
+                if (dim != d_)
                     cerr << "Wront data dim" << endl;
 
                 fread(mass, sizeof(vtype), dim, fin);

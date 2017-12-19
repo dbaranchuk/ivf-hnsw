@@ -133,9 +133,8 @@ namespace ivfhnsw {
                                size_t nbits_per_idx, size_t nsubcentroids);
         ~IndexIVF_HNSW_Grouping();
 
-        void buildCoarseQuantizer(SpaceInterface<float> *l2space, const char *path_clusters,
-                                  const char *path_info, const char *path_edges,
-                                  int M, int efConstruction);
+        void buildCoarseQuantizer(const char *path_clusters, const char *path_info,
+                                  const char *path_edges, int M, int efConstruction);
 
         void assign(size_t n, const float *data, idx_t *idxs);
 
