@@ -131,8 +131,9 @@ namespace ivfhnsw {
 
         quantizer->search(x, q_c, keys, nprobe, quantizer->ef_);
 
-        //for (int i = 0; i < nprobe; i++)
-        //         std:: cout << q_c[i] << ' ' << keys[i] << std::endl;
+        for (int i = 0; i < nprobe; i++)
+                 std:: cout << q_c[i] << ' ' << keys[i] << std::endl;
+        std:: cout << "HUI1" << std::endl;
 
         /** Compute Query Table **/
         pq->compute_inner_prod_table(x, query_table.data());
@@ -166,7 +167,7 @@ namespace ivfhnsw {
             if (ncode >= max_codes)
                 break;
         }
-        std:: cout << "HUI" << std::endl;
+        std:: cout << "HUI2" << std::endl;
         average_max_codes += ncode;
     }
 
