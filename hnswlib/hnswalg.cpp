@@ -157,12 +157,13 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(vo
                     float dist = fstdistfunc(datapoint, getDataByInternalId(label));
                     dist_calc++;
 
-                    if (dist < distances[0] || topResults.size() < ef) {
+                    if (dist < distances[0] || init_counter > 0) {
                         faiss::maxheap_pop(ef, distances, labels);
                         faiss::maxheap_push(ef, distances, labels, dist, label);
 
                         candidateSet.emplace(-dist, label);
                         _mm_prefetch(get_linklist0(candidateSet.top().second), _MM_HINT_T0);
+                        if (init_counter > 0) init_counter--;
                     }
                 }
             }
