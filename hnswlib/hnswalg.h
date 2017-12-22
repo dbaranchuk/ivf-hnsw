@@ -117,7 +117,7 @@ namespace hnswlib {
         float fstdistfunc(const void *x, const void *y);
 
 
-        void search(void *datapoint, float *distances, long *labels, idx_t k, size_t ef);
+        void search(void *datapoint, float *distances, long *labels, size_t ef);
 
     };
 }

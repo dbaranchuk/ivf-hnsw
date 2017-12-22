@@ -117,8 +117,8 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW::search(float *x, idx_t k, float *distances, long *labels)
     {
-        long keys[nprobe];
-        float q_c[nprobe];
+        long keys[quantizer->ef_];
+        float q_c[quantizer->ef_];
 
         /** Find NN Centroids **/
 //        auto coarse = quantizer->searchKnn(x, nprobe);
@@ -129,7 +129,7 @@ namespace ivfhnsw {
 //            coarse.pop();
 //        }
 
-        quantizer->search(x, q_c, keys, nprobe, quantizer->ef_);
+        quantizer->search(x, q_c, keys, quantizer->ef_);
 
 //        for (int i = 0; i < nprobe; i++)
 //                 std:: cout << q_c[i] << ' ' << keys[i] << std::endl;

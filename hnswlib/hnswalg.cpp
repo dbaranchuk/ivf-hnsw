@@ -107,22 +107,23 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(vo
     return topResults;
 }
 
-    void HierarchicalNSW::search(void *datapoint, float *distances, long *labels, idx_t k, size_t ef)
+    void HierarchicalNSW::search(void *datapoint, float *distances, long *labels, size_t ef)
     {
         VisitedList *vl = visitedlistpool->getFreeVisitedList();
         vl_type *massVisited = vl->mass;
         vl_type currentV = vl->curV;
 
         /** Prepare max heap with \k answers **/
-        faiss::maxheap_heapify(k, distances, labels);
-
+        faiss::maxheap_heapify(ef, distances, labels);
+        int init_counter = ef;
         std::priority_queue<std::pair<float, idx_t >> candidateSet;
 
         float dist = fstdistfunc(datapoint, getDataByInternalId(enterpoint_node));
         dist_calc++;
 
-        faiss::maxheap_pop(k, distances, labels);
-        faiss::maxheap_push(k, distances, labels, dist, enterpoint_node);
+        faiss::maxheap_pop(ef, distances, labels);
+        faiss::maxheap_push(ef, distances, labels, dist, enterpoint_node);
+        init_counter--;
 
         candidateSet.emplace(-dist, enterpoint_node);
         massVisited[enterpoint_node] = currentV;
@@ -156,9 +157,9 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(vo
                     float dist = fstdistfunc(datapoint, getDataByInternalId(label));
                     dist_calc++;
 
-                    if (dist < distances[0]) {
-                        faiss::maxheap_pop(k, distances, labels);
-                        faiss::maxheap_push(k, distances, labels, dist, label);
+                    if (dist < distances[0] || topResults.size() < ef) {
+                        faiss::maxheap_pop(ef, distances, labels);
+                        faiss::maxheap_push(ef, distances, labels, dist, label);
 
                         candidateSet.emplace(-dist, label);
                         _mm_prefetch(get_linklist0(candidateSet.top().second), _MM_HINT_T0);
@@ -167,7 +168,7 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(vo
             }
         }
         visitedlistpool->releaseVisitedList(vl);
-        faiss::maxheap_reorder(k, distances, labels);
+        faiss::maxheap_reorder(ef, distances, labels);
     }
 
 
