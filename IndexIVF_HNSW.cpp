@@ -149,6 +149,7 @@ namespace ivfhnsw {
             float term1 = q_c[0] - centroid_norms[key];
             int ncodes = norm_code.size();
 
+            std:: cout << q_c[0] << ' ' << keys[0] << std::endl;
             faiss::minheap_pop(nprobe, q_c, keys);
             norm_pq->decode(norm_code.data(), norms.data(), ncodes);
 
@@ -165,6 +166,7 @@ namespace ivfhnsw {
             if (ncode >= max_codes)
                 break;
         }
+        std:: cout << "HUI" << std::endl;
         average_max_codes += ncode;
     }
 
