@@ -130,7 +130,7 @@ namespace ivfhnsw {
 //        }
 
         quantizer->search(x, q_c, keys, nprobe, quantizer->ef_);
-
+        std::cout << "HUI\n";
         /** Compute Query Table **/
         pq->compute_inner_prod_table(x, query_table.data());
 
@@ -146,7 +146,7 @@ namespace ivfhnsw {
             float term1 = q_c[0] - centroid_norms[key];
             int ncodes = norm_code.size();
 
-            faiss::minheap_pop(nprobe-i, q_c, keys);
+            faiss::minheap_pop(nprobe, q_c, keys);
             norm_pq->decode(norm_code.data(), norms.data(), ncodes);
 
             for (int j = 0; j < ncodes; j++) {
