@@ -131,9 +131,9 @@ namespace ivfhnsw {
 
         quantizer->search(x, q_c, keys, nprobe, quantizer->ef_);
 
-        for (int i = 0; i < nprobe; i++)
-                 std:: cout << q_c[i] << ' ' << keys[i] << std::endl;
-        std:: cout << "HUI1" << std::endl;
+//        for (int i = 0; i < nprobe; i++)
+//                 std:: cout << q_c[i] << ' ' << keys[i] << std::endl;
+//        std:: cout << "HUI" << std::endl;
 
         /** Compute Query Table **/
         pq->compute_inner_prod_table(x, query_table.data());
@@ -143,15 +143,13 @@ namespace ivfhnsw {
 
         int ncode = 0;
         for (int i = 0; i < nprobe; i++) {
-            idx_t key = keys[0];//keys[i];
+            idx_t key = keys[i];
 
             std::vector <uint8_t> code = codes[key];
             std::vector <uint8_t> norm_code = norm_codes[key];
-            float term1 = q_c[0] - centroid_norms[key];
+            float term1 = q_c[i] - centroid_norms[key];
             int ncodes = norm_code.size();
 
-            std:: cout << q_c[0] << ' ' << keys[0] << std::endl;
-            faiss::minheap_pop(nprobe-i, q_c, keys);
             norm_pq->decode(norm_code.data(), norms.data(), ncodes);
 
             for (int j = 0; j < ncodes; j++) {
