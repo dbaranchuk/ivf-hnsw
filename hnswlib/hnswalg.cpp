@@ -41,7 +41,6 @@ HierarchicalNSW::~HierarchicalNSW()
     delete visitedlistpool;
 }
 
-
 //std::priority_queue<std::pair<float, idx_t>, vector<pair<float, idx_t>>, CompareByFirst>
 std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(void *datapoint, size_t ef)
 {
@@ -107,6 +106,70 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(vo
     visitedlistpool->releaseVisitedList(vl);
     return topResults;
 }
+
+    std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(void *datapoint, size_t ef)
+    {
+        VisitedList *vl = visitedlistpool->getFreeVisitedList();
+        vl_type *massVisited = vl->mass;
+        vl_type currentV = vl->curV;
+        std::priority_queue<std::pair<float, idx_t >> topResults;
+        std::priority_queue<std::pair<float, idx_t >> candidateSet;
+
+        float dist = fstdistfunc(datapoint, getDataByInternalId(enterpoint_node));
+        dist_calc++;
+
+        topResults.emplace(dist, enterpoint_node);
+        candidateSet.emplace(-dist, enterpoint_node);
+        massVisited[enterpoint_node] = currentV;
+        float lowerBound = dist;
+
+        while (!candidateSet.empty())
+        {
+            std::pair<float, idx_t> curr_el_pair = candidateSet.top();
+            if (-curr_el_pair.first > lowerBound)
+                break;
+
+            candidateSet.pop();
+            idx_t curNodeNum = curr_el_pair.second;
+
+            uint8_t *ll_cur = get_linklist0(curNodeNum);
+            uint8_t size = *ll_cur;
+            idx_t *data = (idx_t *)(ll_cur + 1);
+
+            _mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
+            _mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
+            _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
+
+            for (uint8_t j = 0; j < size; ++j) {
+                int tnum = *(data + j);
+
+                _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
+                _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
+
+                if (!(massVisited[tnum] == currentV)) {
+                    massVisited[tnum] = currentV;
+
+                    float dist = fstdistfunc(datapoint, getDataByInternalId(tnum));
+                    dist_calc++;
+
+                    if (topResults.top().first > dist || topResults.size() < ef) {
+                        candidateSet.emplace(-dist, tnum);
+
+                        _mm_prefetch(get_linklist0(candidateSet.top().second), _MM_HINT_T0);
+                        topResults.emplace(dist, tnum);
+
+                        if (topResults.size() > ef)
+                            topResults.pop();
+
+                        lowerBound = topResults.top().first;
+                    }
+                }
+            }
+        }
+        visitedlistpool->releaseVisitedList(vl);
+        return topResults;
+    }
+
 
 void HierarchicalNSW::getNeighborsByHeuristic(std::priority_queue<std::pair<float, idx_t>> &topResults, const int NN)
 {
