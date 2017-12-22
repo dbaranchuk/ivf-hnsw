@@ -117,23 +117,17 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW::search(float *x, idx_t k, float *distances, long *labels)
     {
-        long keys[quantizer->ef_];
-        float q_c[quantizer->ef_];
+        idx_t keys[nprobe];
+        float q_c[nprobe];
 
         /** Find NN Centroids **/
-//        auto coarse = quantizer->searchKnn(x, nprobe);
-//        for (int i = nprobe - 1; i >= 0; i--) {
-//            auto elem = coarse.top();
-//            q_c[i] = elem.first;
-//            keys[i] = elem.second;
-//            coarse.pop();
-//        }
-
-        quantizer->search(x, q_c, keys, quantizer->ef_);
-
-//        for (int i = 0; i < nprobe; i++)
-//                 std:: cout << q_c[i] << ' ' << keys[i] << std::endl;
-//        std:: cout << "HUI" << std::endl;
+        auto coarse = quantizer->searchKnn(x, nprobe);
+        for (int i = nprobe - 1; i >= 0; i--) {
+            auto elem = coarse.top();
+            q_c[i] = elem.first;
+            keys[i] = elem.second;
+            coarse.pop();
+        }
 
         /** Compute Query Table **/
         pq->compute_inner_prod_table(x, query_table.data());
