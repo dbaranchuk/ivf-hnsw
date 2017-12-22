@@ -167,7 +167,7 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(vo
             }
         }
         visitedlistpool->releaseVisitedList(vl);
-        faiss::minheap_reorder(k, distances, labels);
+        faiss::maxheap_reorder(k, distances, labels);
     }
 
 
