@@ -165,7 +165,6 @@ namespace ivfhnsw {
             if (ncode >= max_codes)
                 break;
         }
-        std:: cout << "HUI2" << std::endl;
         average_max_codes += ncode;
     }
 
