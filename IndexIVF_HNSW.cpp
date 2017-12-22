@@ -117,17 +117,19 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW::search(float *x, idx_t k, float *distances, long *labels)
     {
-        idx_t keys[nprobe];
+        long keys[nprobe];
         float q_c[nprobe];
 
         /** Find NN Centroids **/
-        auto coarse = quantizer->searchKnn(x, nprobe);
-        for (int i = nprobe - 1; i >= 0; i--) {
-            auto elem = coarse.top();
-            q_c[i] = elem.first;
-            keys[i] = elem.second;
-            coarse.pop();
-        }
+//        auto coarse = quantizer->searchKnn(x, nprobe);
+//        for (int i = nprobe - 1; i >= 0; i--) {
+//            auto elem = coarse.top();
+//            q_c[i] = elem.first;
+//            keys[i] = elem.second;
+//            coarse.pop();
+//        }
+
+        quantizer->search(x, q_c, keys, nprobe, quantizer->ef_);
 
         /** Compute Query Table **/
         pq->compute_inner_prod_table(x, query_table.data());
@@ -137,12 +139,14 @@ namespace ivfhnsw {
 
         int ncode = 0;
         for (int i = 0; i < nprobe; i++) {
-            idx_t key = keys[i];
+            idx_t key = keys[0];//keys[i];
+
             std::vector <uint8_t> code = codes[key];
             std::vector <uint8_t> norm_code = norm_codes[key];
-            float term1 = q_c[i] - centroid_norms[key];
+            float term1 = q_c[0] - centroid_norms[key];
             int ncodes = norm_code.size();
 
+            faiss::minheap_pop(nprobe, q_c, keys);
             norm_pq->decode(norm_code.data(), norms.data(), ncodes);
 
             for (int j = 0; j < ncodes; j++) {

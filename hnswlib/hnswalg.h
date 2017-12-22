@@ -13,6 +13,8 @@
 #include <cmath>
 #include <queue>
 
+#include <faiss/Heap.h>
+
 #ifdef _MSC_VER
 #include <intrin.h>
 #include <stdexcept>
@@ -113,5 +115,9 @@ namespace hnswlib {
         void LoadEdges(const string &location);
         
         float fstdistfunc(const void *x, const void *y);
+
+
+        void search(void *datapoint, float *distances, long *labels, idx_t k, size_t ef);
+
     };
 }

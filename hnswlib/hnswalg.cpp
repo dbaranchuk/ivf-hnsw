@@ -107,26 +107,30 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(vo
     return topResults;
 }
 
-    std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(void *datapoint, size_t ef)
+    void HierarchicalNSW::search(void *datapoint, float *distances, long *labels, idx_t k, size_t ef)
     {
         VisitedList *vl = visitedlistpool->getFreeVisitedList();
         vl_type *massVisited = vl->mass;
         vl_type currentV = vl->curV;
-        std::priority_queue<std::pair<float, idx_t >> topResults;
+
+        /** Prepare max heap with \k answers **/
+        faiss::maxheap_heapify(k, distances, labels);
+
         std::priority_queue<std::pair<float, idx_t >> candidateSet;
 
         float dist = fstdistfunc(datapoint, getDataByInternalId(enterpoint_node));
         dist_calc++;
 
-        topResults.emplace(dist, enterpoint_node);
+        faiss::maxheap_pop(k, distances, labels);
+        faiss::maxheap_push(k, distances, labels, dist, enterpoint_node);
+
         candidateSet.emplace(-dist, enterpoint_node);
         massVisited[enterpoint_node] = currentV;
-        float lowerBound = dist;
 
         while (!candidateSet.empty())
         {
             std::pair<float, idx_t> curr_el_pair = candidateSet.top();
-            if (-curr_el_pair.first > lowerBound)
+            if (-curr_el_pair.first > distances[0])
                 break;
 
             candidateSet.pop();
@@ -141,7 +145,7 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(vo
             _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
 
             for (uint8_t j = 0; j < size; ++j) {
-                int tnum = *(data + j);
+                idx_t label = *(data + j);
 
                 _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
                 _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
@@ -152,22 +156,18 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(vo
                     float dist = fstdistfunc(datapoint, getDataByInternalId(tnum));
                     dist_calc++;
 
-                    if (topResults.top().first > dist || topResults.size() < ef) {
+                    if (dist < distances[0]) {
+                        faiss::maxheap_pop(k, distances, labels);
+                        faiss::maxheap_push(k, distances, labels, dist, label);
+
                         candidateSet.emplace(-dist, tnum);
-
                         _mm_prefetch(get_linklist0(candidateSet.top().second), _MM_HINT_T0);
-                        topResults.emplace(dist, tnum);
-
-                        if (topResults.size() > ef)
-                            topResults.pop();
-
-                        lowerBound = topResults.top().first;
                     }
                 }
             }
         }
         visitedlistpool->releaseVisitedList(vl);
-        return topResults;
+        faiss::minheap_heapify(k, distances, labels);
     }
 
 
