@@ -131,6 +131,9 @@ namespace ivfhnsw {
 
         quantizer->search(x, q_c, keys, nprobe, quantizer->ef_);
         std::cout << "HUI\n";
+        for (int i = 0; i < nprobe; i++){
+            std:: cout << q_c[i] << ' ' << keys[i] << std::endl;
+        }
         /** Compute Query Table **/
         pq->compute_inner_prod_table(x, query_table.data());
 
