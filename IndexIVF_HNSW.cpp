@@ -150,7 +150,7 @@ namespace ivfhnsw {
             int ncodes = norm_code.size();
 
             std:: cout << q_c[0] << ' ' << keys[0] << std::endl;
-            faiss::minheap_pop(nprobe, q_c, keys);
+            faiss::minheap_pop(nprobe-i, q_c, keys);
             norm_pq->decode(norm_code.data(), norms.data(), ncodes);
 
             for (int j = 0; j < ncodes; j++) {
