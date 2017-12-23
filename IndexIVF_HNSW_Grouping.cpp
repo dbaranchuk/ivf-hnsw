@@ -464,23 +464,28 @@ namespace ivfhnsw{
             const vector<float> data = p.second;
             const int groupsize = data.size() / d;
 
+            std::cout << "a\n";
             /** Compute Codes **/
             std::vector<uint8_t> xcodes(groupsize * code_size);
             pq->compute_codes(residuals, xcodes.data(), groupsize);
 
+            std::cout << "b\n";
             /** Decode Codes **/
             std::vector<float> decoded_residuals(groupsize * d);
             pq->decode(xcodes.data(), decoded_residuals.data(), groupsize);
 
+            std::cout << "c\n";
             /** Reconstruct Data **/
             std::vector<float> reconstructed_x(groupsize * d);
             reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(),
                         subcentroids, subcentroid_idxs);
 
+            std::cout << "d\n";
             /** Compute norms **/
             std::vector<float> group_norms(groupsize);
             faiss::fvec_norms_L2sqr(group_norms.data(), reconstructed_x.data(), d, groupsize);
 
+            std::cout << "e\n";
             for (int i = 0; i < groupsize; i++)
                 train_norms.push_back(group_norms[i]);
 
