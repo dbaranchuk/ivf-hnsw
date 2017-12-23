@@ -68,7 +68,7 @@ struct Parser
     int nprobes;
     int max_codes;
     int nc, nsubc;
-    int nt, nsubt; //262144;//65536;
+    int nt=1000000, nsubt=65536; //262144;//65536;
 
     Parser(int argc, char **argv)
     {
