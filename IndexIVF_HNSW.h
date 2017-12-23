@@ -45,7 +45,7 @@ namespace ivfhnsw {
 
         void search(float *x, idx_t k, float *distances, long *labels);
 
-        void train_pq(idx_t n, const float *x);
+        void train_pq(const size_t n, const float *x);
 
         void write(const char *path_index);
 
