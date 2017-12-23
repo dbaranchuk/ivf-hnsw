@@ -20,7 +20,7 @@ ncentroids="993127"
 efSearch="80"
 nsubcentroids="64"
 
-nt="10000000"
+nt="1000000"
 nsubt="262144"
 
 subdir="new_models/SIFT1B/"

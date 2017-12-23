@@ -395,9 +395,10 @@ namespace ivfhnsw{
         for (int i = 0; i < n; i++) {
             idx_t key = assigned[i];
             for (int j = 0; j < d; j++)
-                group_map[key].push_back(x[i * d + j]);
+                group_map[key].push_back(x[i*d + j]);
         }
 
+        std::cout << assigned[0] << " " << assigned[n-1] << std::endl;
         int counter = 0;
         /** Train Residual PQ **/
         std::cout << "Training Residual PQ codebook " << std::endl;
@@ -425,8 +426,7 @@ namespace ivfhnsw{
             }
 
             /** Find alphas for vectors **/
-            float alpha = compute_alpha(centroid_vectors.data(), data.data(), centroid,
-                                        centroid_vector_norms.data(), groupsize);
+            float alpha = compute_alpha(centroid_vectors.data(), data.data(), centroid, centroid_vector_norms.data(), groupsize);
 
             /** Compute final subcentroids **/
             std::vector<float> subcentroids(nsubc * d);
@@ -450,11 +450,10 @@ namespace ivfhnsw{
                 }
             }
             if (counter == 223855)
-                std::cout << alpha << " " << subcentroids.size() << " " << subcentroid_idxs.size() << " " << residuals.size() << std::endl;
+                std::cout << alpha << " " << subcentroids.size() << " " << subcentroid_idxs[i] << " " << residuals.size() << std::endl;
             counter++;
         }
         std::cout << counter << std::endl;
-        exit(0);
         printf("Training %zdx%zd PQ on %ld vectors in %dD\n", pq->M, pq->ksub, train_residuals.size() / d, d);
         pq->verbose = true;
         pq->train(n, train_residuals.data());
