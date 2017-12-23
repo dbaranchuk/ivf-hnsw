@@ -5,6 +5,16 @@
 #ifndef IVF_HNSW_LIB_INDEX_H
 #define IVF_HNSW_LIB_INDEX_H
 
+#include <iostream>
+#include <fstream>
+#include <cstdio>
+#include <vector>
+#include <queue>
+#include <limits>
+#include <cmath>
+
+#include <hnswlib/hnswalg.h>
+
 typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
 
