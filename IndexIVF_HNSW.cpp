@@ -5,8 +5,8 @@ namespace ivfhnsw {
 /** Common IndexIVF + HNSW **/
 
 /** Public **/
-    IndexIVF_HNSW::IndexIVF_HNSW(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx) :
-            d(dim), nc(ncentroids)
+    IndexIVF_HNSW::IndexIVF_HNSW(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx):
+            Index(dim , ncentroids)
     {
         codes.resize(ncentroids);
         norm_codes.resize(ncentroids);
@@ -25,7 +25,6 @@ namespace ivfhnsw {
     IndexIVF_HNSW::~IndexIVF_HNSW() {
         delete pq;
         delete norm_pq;
-        delete quantizer;
     }
 
 

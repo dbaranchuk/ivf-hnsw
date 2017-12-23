@@ -32,8 +32,8 @@ namespace ivfhnsw {
     */
     struct IndexIVF_HNSW:Index
     {
-        size_t d;             /** Vector Dimension **/
-        size_t nc;            /** Number of Centroids **/
+        //size_t d;             /** Vector Dimension **/
+        //size_t nc;            /** Number of Centroids **/
         size_t code_size;     /** PQ Code Size **/
 
         /** Search parameters **/
@@ -49,7 +49,7 @@ namespace ivfhnsw {
         std::vector<std::vector<uint8_t> > norm_codes;
 
         std::vector<float> centroid_norms;
-        hnswlib::HierarchicalNSW *quantizer;
+        //hnswlib::HierarchicalNSW *quantizer;
 
     public:
         IndexIVF_HNSW(size_t dim, size_t ncentroids,

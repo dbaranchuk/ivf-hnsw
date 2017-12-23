@@ -14,12 +14,12 @@
 #include <cmath>
 
 #include <hnswlib/hnswalg.h>
+#include "utils.h"
 
 typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
 
 namespace ivfhnsw {
-
     /** Abstract structure for an index
     *
     * Supports adding vertices and searching them.
@@ -28,6 +28,20 @@ namespace ivfhnsw {
     * database-to-database queries are not implemented.
     */
     struct Index {
+        size_t d;             /** Vector Dimension **/
+        size_t nc;            /** Number of Centroids **/
+
+        hnswlib::HierarchicalNSW *quantizer;
+
+        Index(size_t dim, size_t ncentroids): d(dim), nc(ncentroids)
+        {}
+
+        virtual ~Index()
+        {
+            if (quantizer)
+                delete quantizer;
+        }
+
         /** Construct HNSW Coarse Quantizer **/
         virtual void buildCoarseQuantizer(const char *path_clusters,
                                           const char *path_info, const char *path_edges,
