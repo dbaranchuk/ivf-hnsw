@@ -50,6 +50,10 @@ namespace ivfhnsw {
         /** Query Table **/
         std::vector<float> query_table;
 
+    protected:
+        std::vector<float> norms;           /** Reconstructed vectors L2 square norms **/
+        std::vector<float> centroid_norms;  /** Region centroids L2 square norms **/
+
     public:
         Index(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx);
         virtual ~Index();

@@ -12,6 +12,8 @@ namespace ivfhnsw {
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
         code_size = pq->code_size;
 
+        norms.resize(65536);
+
         query_table.resize(pq->ksub * pq->M);
     }
 

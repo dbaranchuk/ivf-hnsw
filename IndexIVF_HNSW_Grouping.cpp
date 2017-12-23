@@ -20,10 +20,7 @@ namespace ivfhnsw{
         nn_centroid_idxs.resize(nc);
         group_sizes.resize(nc);
 
-        norms.resize(65536);
-
         /** Compute centroid norms **/
-        centroid_dists.resize(nc);
         q_s.resize(nc);
         std::fill(q_s.begin(), q_s.end(), 0);
     }
@@ -501,6 +498,7 @@ namespace ivfhnsw{
 
     void IndexIVF_HNSW_Grouping::compute_centroid_dists()
     {
+        centroid_dists.resize(nc);
         for (int i = 0; i < nc; i++) {
             const float *centroid = quantizer->getDataByInternalId(i);
             centroid_dists[i].resize(nsubc);

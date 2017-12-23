@@ -61,8 +61,6 @@ namespace ivfhnsw{
 
     private:
         std::vector<float> q_s;
-        std::vector<float> norms;
-        std::vector<float> centroid_norms;               /** Region centroids L2 square norms **/
         std::vector<std::vector<float> > centroid_dists; /** Distances from region centroids to their subcentroids **/
 
     public:

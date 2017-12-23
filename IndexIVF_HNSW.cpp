@@ -11,7 +11,6 @@ namespace ivfhnsw {
         codes.resize(ncentroids);
         norm_codes.resize(ncentroids);
         ids.resize(ncentroids);
-        norms.resize(65536);
     }
 
     void IndexIVF_HNSW::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *idx)

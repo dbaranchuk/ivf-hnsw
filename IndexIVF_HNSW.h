@@ -39,10 +39,8 @@ namespace ivfhnsw {
 
         void write(const char *path_index);
         void read(const char *path_index);
-    private:
-        std::vector<float> norms;
-        std::vector<float> centroid_norms;
 
+    private:
         void reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys);
         void compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys);
     };
