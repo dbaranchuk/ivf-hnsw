@@ -454,6 +454,7 @@ namespace ivfhnsw{
             counter++;
         }
         std::cout << counter << std::endl;
+        exit(0);
         printf("Training %zdx%zd PQ on %ld vectors in %dD\n", pq->M, pq->ksub, train_residuals.size() / d, d);
         pq->verbose = true;
         pq->train(n, train_residuals.data());
@@ -538,17 +539,20 @@ namespace ivfhnsw{
     }
 
     void IndexIVF_HNSW_Grouping::compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
-                                                          const float *points, const int groupsize)
+                                                          const float *x, const int groupsize)
     {
         for (int i = 0; i < groupsize; i++) {
-            std::priority_queue<std::pair<float, idx_t>> max_heap;
+            float min_dist = 0.0;
+            idx_t min_idx = -1;
             for (int subc = 0; subc < nsubc; subc++) {
                 const float *subcentroid = subcentroids + subc * d;
-                const float *point = points + i * d;
-                float dist = fvec_L2sqr(subcentroid, point, d);
-                max_heap.emplace(std::make_pair(-dist, subc));
+                float dist = fvec_L2sqr(subcentroid, x + i*d, d);
+                if (min_idx == -1 || dist < min_dist){
+                    min_dist = dist;
+                    min_idx = subc;
+                }
             }
-            subcentroid_idxs[i] = max_heap.top().second;
+            subcentroid_idxs[i] = min_idx;
         }
     }
 
