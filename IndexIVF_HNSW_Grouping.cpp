@@ -19,7 +19,7 @@ namespace ivfhnsw{
         alphas.resize(nc);
         nn_centroid_idxs.resize(nc);
         group_sizes.resize(nc);
-        
+
         q_s.resize(nc);
         std::fill(q_s.begin(), q_s.end(), 0);
     }
@@ -71,7 +71,7 @@ namespace ivfhnsw{
 
         /** Compute Residuals **/
         std::vector<float> residuals(groupsize * d);
-        compute_residuals(groupsize, residuals.data(), data, subcentroids.data(), subcentroid_idxs.data());
+        compute_residuals(groupsize, data, residuals.data(), subcentroids.data(), subcentroid_idxs.data());
 
         /** Compute Codes **/
         std::vector<uint8_t> xcodes(groupsize * code_size);
@@ -439,8 +439,7 @@ namespace ivfhnsw{
 
             /** Compute Residuals **/
             std::vector<float> residuals(groupsize * d);
-            compute_residuals(groupsize, residuals.data(), data.data(), subcentroids.data(),
-                              subcentroid_idxs.data());
+            compute_residuals(groupsize, data.data(), residuals.data(), subcentroids.data(), subcentroid_idxs.data());
 
             for (int i = 0; i < groupsize; i++) {
                 train_subcentroid_idxs.push_back(subcentroid_idxs[i]);
@@ -522,7 +521,7 @@ namespace ivfhnsw{
     {
         for (idx_t i = 0; i < n; i++) {
             const float *subcentroid = subcentroids + keys[i] * d;
-            faiss::fvec_madd(d, decoded_residuals + i*d, 1., centroid, x + i*d);
+            faiss::fvec_madd(d, decoded_residuals + i*d, 1., subcentroid, x + i*d);
         }
     }
 
