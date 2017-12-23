@@ -28,19 +28,32 @@ namespace ivfhnsw {
     * database-to-database queries are not implemented.
     */
     struct Index {
-        size_t d;     /** Vector Dimension **/
-        size_t nc;    /** Number of Centroids **/
+        size_t d;             /** Vector Dimension **/
+        size_t nc;            /** Number of Centroids **/
+        size_t code_size;     /** PQ Code Size **/
 
         /** Coarse Quantizer based on HNSW [Y.Malkov]**/
         hnswlib::HierarchicalNSW *quantizer;
 
-        Index(size_t dim, size_t ncentroids): d(dim), nc(ncentroids)
-        {}
+        /** Fine Product Quantizers **/
+        faiss::ProductQuantizer *norm_pq;
+        faiss::ProductQuantizer *pq;
+
+
+
+        Index(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx):
+                d(dim), nc(ncentroids)
+        {
+            pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
+            norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
+            code_size = pq->code_size;
+        }
 
         virtual ~Index()
         {
-            if (quantizer)
-                delete quantizer;
+            if (quantizer) delete quantizer;
+            if (pq) delete pq;
+            if (norm_pq) delete norm_pq;
         }
 
         /** Construct HNSW Coarse Quantizer **/

@@ -42,8 +42,6 @@ namespace ivfhnsw {
     public:
         IndexIVF_HNSW(size_t dim, size_t ncentroids,
                       size_t bytes_per_code, size_t nbits_per_idx);
-        
-        ~IndexIVF_HNSW();
 
         void add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *idx);
 

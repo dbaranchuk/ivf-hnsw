@@ -11,7 +11,7 @@ namespace ivfhnsw{
     /***************************************/
     IndexIVF_HNSW_Grouping::IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
                                                    size_t nbits_per_idx, size_t nsubcentroids = 64):
-           Index(dim, ncentroids), nsubc(nsubcentroids)
+           Index(dim, ncentroids, bytes_per_code, nbits_per_idx), nsubc(nsubcentroids)
     {
         codes.resize(nc);
         norm_codes.resize(nc);
@@ -20,25 +20,14 @@ namespace ivfhnsw{
         nn_centroid_idxs.resize(nc);
         group_sizes.resize(nc);
 
-        pq = new faiss::ProductQuantizer(d, bytes_per_code, nbits_per_idx);
-        norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
-
         query_table.resize(pq->ksub * pq->M);
 
         norms.resize(65536);
-        code_size = pq->code_size;
 
         /** Compute centroid norms **/
         centroid_dists.resize(nc);
         q_s.resize(nc);
         std::fill(q_s.begin(), q_s.end(), 0);
-    }
-
-
-    IndexIVF_HNSW_Grouping::~IndexIVF_HNSW_Grouping()
-    {
-        delete pq;
-        delete norm_pq;
     }
 
     void IndexIVF_HNSW_Grouping::add_group(int centroid_num, int groupsize,

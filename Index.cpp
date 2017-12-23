@@ -48,6 +48,7 @@ namespace ivfhnsw {
         }
     }
 
+    
     float Index::fstdistfunc(uint8_t *code)
     {
         float result = 0.;

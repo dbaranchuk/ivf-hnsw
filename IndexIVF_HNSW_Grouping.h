@@ -54,12 +54,6 @@ namespace ivfhnsw{
 
         IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
                                size_t nbits_per_idx, size_t nsubcentroids);
-        ~IndexIVF_HNSW_Grouping();
-
-        void buildCoarseQuantizer(const char *path_clusters, const char *path_info,
-                                  const char *path_edges, int M, int efConstruction);
-
-        void assign(size_t n, const float *data, idx_t *idxs);
 
         void add_group(int centroid_num, int groupsize,
                        const float *data, const idx_t *idxs,

@@ -6,27 +6,16 @@ namespace ivfhnsw {
 
 /** Public **/
     IndexIVF_HNSW::IndexIVF_HNSW(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx):
-            Index(dim , ncentroids)
+            Index(dim , ncentroids, bytes_per_code, nbits_per_idx)
     {
         codes.resize(ncentroids);
         norm_codes.resize(ncentroids);
         ids.resize(ncentroids);
 
-        pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
-        norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
-
         query_table.resize(pq->ksub * pq->M);
 
         norms.resize(65536);
-        code_size = pq->code_size;
     }
-
-
-    IndexIVF_HNSW::~IndexIVF_HNSW() {
-        delete pq;
-        delete norm_pq;
-    }
-
 
     void IndexIVF_HNSW::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *idx) {
         /** Compute residuals for original vectors **/
@@ -236,7 +225,7 @@ namespace ivfhnsw {
         }
     }
 
-    
+
     void IndexIVF_HNSW::reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys) {
         for (idx_t i = 0; i < n; i++) {
             float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
