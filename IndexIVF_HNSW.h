@@ -29,10 +29,6 @@ namespace ivfhnsw {
         size_t nprobe;
         size_t max_codes;
 
-        /** Fine Product Quantizers **/
-        faiss::ProductQuantizer *norm_pq;
-        faiss::ProductQuantizer *pq;
-
         std::vector<std::vector<idx_t> > ids;
         std::vector<std::vector<uint8_t> > codes;
         std::vector<std::vector<uint8_t> > norm_codes;

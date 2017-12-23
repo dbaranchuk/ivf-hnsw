@@ -43,10 +43,6 @@ namespace ivfhnsw{
         std::vector<std::vector<idx_t> > group_sizes;
         std::vector<float> alphas;
 
-        /** Product Quantizers for data compression **/
-        faiss::ProductQuantizer *norm_pq;
-        faiss::ProductQuantizer *pq;
-
         /** Distances from region centroids to their subcentroids **/
         std::vector<std::vector<float> > centroid_subcentroid_distances;
         std::vector<std::vector<float> > s_c;
@@ -77,8 +73,6 @@ namespace ivfhnsw{
 
     private:
         std::vector<float> q_s;
-
-        std::vector<float> query_table;
         std::vector<float> norms;
 
         std::vector<float> centroid_norms;               /** Region centroids L2 square norms **/

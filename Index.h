@@ -13,6 +13,11 @@
 #include <limits>
 #include <cmath>
 
+#include <faiss/ProductQuantizer.h>
+#include <faiss/index_io.h>
+#include <faiss/utils.h>
+#include <faiss/Heap.h>
+
 #include <hnswlib/hnswalg.h>
 #include "utils.h"
 
@@ -27,7 +32,8 @@ namespace ivfhnsw {
     * Currently only asymmetric queries are supported:
     * database-to-database queries are not implemented.
     */
-    struct Index {
+    struct Index
+    {
         size_t d;             /** Vector Dimension **/
         size_t nc;            /** Number of Centroids **/
         size_t code_size;     /** PQ Code Size **/
@@ -39,8 +45,10 @@ namespace ivfhnsw {
         faiss::ProductQuantizer *norm_pq;
         faiss::ProductQuantizer *pq;
 
+        /** Query Table **/
+        std::vector<float> query_table;
 
-
+    public:
         Index(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx):
                 d(dim), nc(ncentroids)
         {
