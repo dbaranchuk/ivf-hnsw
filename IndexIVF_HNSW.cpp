@@ -11,13 +11,11 @@ namespace ivfhnsw {
         codes.resize(ncentroids);
         norm_codes.resize(ncentroids);
         ids.resize(ncentroids);
-
-        query_table.resize(pq->ksub * pq->M);
-
         norms.resize(65536);
     }
 
-    void IndexIVF_HNSW::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *idx) {
+    void IndexIVF_HNSW::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *idx)
+    {
         /** Compute residuals for original vectors **/
         std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), idx);
@@ -215,20 +213,9 @@ namespace ivfhnsw {
     }
 
 /** Private **/
-    void IndexIVF_HNSW::compute_centroid_norms()
-    {
-        centroid_norms.resize(nc);
-#pragma omp parallel for
-        for (int i = 0; i < nc; i++) {
-            float *c = (float *) quantizer->getDataByInternalId(i);
-            centroid_norms[i] = faiss::fvec_norm_L2sqr(c, d);
-        }
-    }
-
-
     void IndexIVF_HNSW::reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys) {
         for (idx_t i = 0; i < n; i++) {
-            float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
+            float *centroid = quantizer->getDataByInternalId(keys[i]);
             for (int j = 0; j < d; j++)
                 x[i * d + j] = centroid[j] + decoded_residuals[i * d + j];
         }
@@ -237,7 +224,7 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW::compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys) {
         for (idx_t i = 0; i < n; i++) {
-            float *centroid = (float *) quantizer->getDataByInternalId(keys[i]);
+            float *centroid = quantizer->getDataByInternalId(keys[i]);
             for (int j = 0; j < d; j++) {
                 residuals[i * d + j] = x[i * d + j] - centroid[j];
             }

@@ -14,9 +14,7 @@
 #include <cmath>
 
 #include <faiss/ProductQuantizer.h>
-#include <faiss/index_io.h>
 #include <faiss/utils.h>
-#include <faiss/Heap.h>
 
 #include <hnswlib/hnswalg.h>
 #include "utils.h"
@@ -45,24 +43,16 @@ namespace ivfhnsw {
         faiss::ProductQuantizer *norm_pq;
         faiss::ProductQuantizer *pq;
 
+        /** Search Parameters **/
+        size_t nprobe = 16;
+        size_t max_codes = 10000;
+
         /** Query Table **/
         std::vector<float> query_table;
 
     public:
-        Index(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx):
-                d(dim), nc(ncentroids)
-        {
-            pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
-            norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
-            code_size = pq->code_size;
-        }
-
-        virtual ~Index()
-        {
-            if (quantizer) delete quantizer;
-            if (pq) delete pq;
-            if (norm_pq) delete norm_pq;
-        }
+        Index(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx);
+        virtual ~Index();
 
         /** Construct HNSW Coarse Quantizer **/
         virtual void buildCoarseQuantizer(const char *path_clusters,
@@ -92,10 +82,9 @@ namespace ivfhnsw {
         virtual void train_pq(const size_t n, const float *x) = 0;
 
         virtual void write(const char *path_index) = 0;
-
         virtual void read(const char *path_index) = 0;
 
-        //void compute_centroid_norms() = 0;
+        virtual void compute_centroid_norms();
 
     protected:
         virtual float fstdistfunc(uint8_t *code);

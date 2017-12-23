@@ -13,9 +13,7 @@
 #include <limits>
 #include <cmath>
 
-#include <faiss/ProductQuantizer.h>
 #include <faiss/index_io.h>
-#include <faiss/utils.h>
 #include <faiss/Heap.h>
 
 #include "Index.h"
@@ -27,11 +25,6 @@ namespace ivfhnsw{
     struct IndexIVF_HNSW_Grouping: Index
     {
         size_t nsubc;         /** Number of Subcentroids **/
-        size_t code_size;     /** PQ Code Size **/
-
-        /** Search Parameters **/
-        size_t nprobe = 16;
-        size_t max_codes = 10000;
         bool isPruning = true;
 
         /** NEW **/
@@ -43,9 +36,6 @@ namespace ivfhnsw{
         std::vector<std::vector<idx_t> > group_sizes;
         std::vector<float> alphas;
 
-        /** Distances from region centroids to their subcentroids **/
-        std::vector<std::vector<float> > centroid_subcentroid_distances;
-        std::vector<std::vector<float> > s_c;
     public:
 
         IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
@@ -63,18 +53,15 @@ namespace ivfhnsw{
         void search(float *x, idx_t k, float *distances, long *labels);
 
         void write(const char *path_index);
-
         void read(const char *path_index);
 
         void train_pq(const size_t n, const float *x);
 
-        void compute_centroid_norms();
         void compute_centroid_dists();
 
     private:
         std::vector<float> q_s;
         std::vector<float> norms;
-
         std::vector<float> centroid_norms;               /** Region centroids L2 square norms **/
         std::vector<std::vector<float> > centroid_dists; /** Distances from region centroids to their subcentroids **/
 

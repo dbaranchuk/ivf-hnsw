@@ -5,6 +5,25 @@
 #include "Index.h"
 
 namespace ivfhnsw {
+    Index::Index(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx):
+            d(dim), nc(ncentroids)
+    {
+        pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
+        norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
+        code_size = pq->code_size;
+
+        query_table.resize(pq->ksub * pq->M);
+    }
+
+
+    Index::~Index()
+    {
+        if (quantizer) delete quantizer;
+        if (pq) delete pq;
+        if (norm_pq) delete norm_pq;
+    }
+
+
     void Index::buildCoarseQuantizer(const char *path_clusters, const char *path_info,
                                      const char *path_edges, int M, int efConstruction = 500) {
         if (exists_test(path_info) && exists_test(path_edges)) {
@@ -45,6 +64,17 @@ namespace ivfhnsw {
         for (int i = 0; i < n; i++) {
             idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i * d), 1).top().second;
 
+        }
+    }
+
+
+    void Index::compute_centroid_norms()
+    {
+        centroid_norms.resize(nc);
+#pragma omp parallel for
+        for (int i = 0; i < nc; i++) {
+            float *centroid = quantizer->getDataByInternalId(i);
+            centroid_norms[i] = faiss::fvec_norm_L2sqr(centroid, d);
         }
     }
 

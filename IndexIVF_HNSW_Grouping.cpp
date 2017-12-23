@@ -20,8 +20,6 @@ namespace ivfhnsw{
         nn_centroid_idxs.resize(nc);
         group_sizes.resize(nc);
 
-        query_table.resize(pq->ksub * pq->M);
-
         norms.resize(65536);
 
         /** Compute centroid norms **/
@@ -500,18 +498,6 @@ namespace ivfhnsw{
         norm_pq->verbose = true;
         norm_pq->train(n, train_norms.data());
     }
-
-
-    void IndexIVF_HNSW_Grouping::compute_centroid_norms()
-    {
-        centroid_norms.resize(nc);
-#pragma omp parallel for
-        for (int i = 0; i < nc; i++) {
-            const float *centroid = (float *) quantizer->getDataByInternalId(i);
-            centroid_norms[i] = faiss::fvec_norm_L2sqr(centroid, d);
-        }
-    }
-
 
     void IndexIVF_HNSW_Grouping::compute_centroid_dists()
     {
