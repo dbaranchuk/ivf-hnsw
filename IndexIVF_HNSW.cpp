@@ -412,8 +412,7 @@ namespace ivfhnsw {
 
         /** Find NN centroids to source centroid **/
         const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
-        std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn((void *) centroid,
-                                                                                                 nsubc + 1);
+        std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn(centroid, nsubc + 1);
         /** Vectors for construction **/
         std::vector<float> centroid_vector_norms_L2sqr(nsubc);
         nn_centroid_idxs[centroid_num].resize(nsubc);
@@ -774,7 +773,7 @@ namespace ivfhnsw {
 
             std::vector<idx_t> nn_centroids(nsubc);
             std::vector<float> centroid_vector_norms(nsubc);
-            auto nn_centroids_raw = quantizer->searchKnn((void *) centroid, nsubc + 1);
+            auto nn_centroids_raw = quantizer->searchKnn(centroid, nsubc + 1);
 
             while (nn_centroids_raw.size() > 1) {
                 centroid_vector_norms[nn_centroids_raw.size() - 2] = nn_centroids_raw.top().first;
