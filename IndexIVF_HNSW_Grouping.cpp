@@ -460,15 +460,18 @@ namespace ivfhnsw{
         const float *subcentroids = train_subcentroids.data();
         const idx_t *subcentroid_idxs = train_subcentroid_idxs.data();
 
+        std::cout << code_size << std::endl;
         for (auto p : group_map) {
             const vector<float> data = p.second;
             const int groupsize = data.size() / d;
 
+            std::cout << groupsize << std::endl;
             std::cout << "a\n";
             /** Compute Codes **/
             std::vector<uint8_t> xcodes(groupsize * code_size);
             pq->compute_codes(residuals, xcodes.data(), groupsize);
 
+            std::cout << d << std::endl;
             std::cout << "b\n";
             /** Decode Codes **/
             std::vector<float> decoded_residuals(groupsize * d);
