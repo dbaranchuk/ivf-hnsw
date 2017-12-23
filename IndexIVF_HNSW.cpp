@@ -685,7 +685,11 @@ namespace ivfhnsw {
         fwrite(centroid_norms.data(), sizeof(float), nc, fout);
 
         /** Save Centroid Dists **/
-        fwrite(centroid_norms.data(), sizeof(float), nc, fout);
+        for (int i = 0; i < nc; i++) {
+            size = centroid_dists[i].size();
+            fwrite(&size, sizeof(idx_t), 1, fout);
+            fwrite(centroid_dists[i].data(), sizeof(float), size, fout);
+        }
         fclose(fout);
     }
 
