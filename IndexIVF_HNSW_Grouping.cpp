@@ -383,8 +383,11 @@ namespace ivfhnsw{
 
     void IndexIVF_HNSW_Grouping::train_pq(const size_t n, const float *x)
     {
-        std::vector<float> train_subcentroids.reserve(n*d);
-        std::vector<float> train_residuals.reserve(n*d);
+        std::vector<float> train_subcentroids;
+        std::vector<float> train_residuals;
+
+        train_subcentroids.reserve(n*d);
+        train_residuals.reserve(n*d);
 
         std::vector<idx_t> assigned(n);
         assign(n, x, assigned.data());
@@ -477,13 +480,11 @@ namespace ivfhnsw{
             std::vector<float> group_norms(groupsize);
             faiss::fvec_norms_L2sqr(group_norms.data(), reconstructed_x.data(), d, groupsize);
 
-            std::cout << counter++ << std::endl;
             for (int i = 0; i < groupsize; i++)
                 train_norms.push_back(group_norms[i]);
 
             residuals += groupsize * d;
             subcentroids += groupsize * d;
-            subcentroid_idxs += groupsize;
         }
         printf("Training %zdx%zd PQ on %ld vectors in 1D\n", norm_pq->M, norm_pq->ksub, train_norms.size());
         norm_pq->verbose = true;
