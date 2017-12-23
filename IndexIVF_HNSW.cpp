@@ -171,8 +171,7 @@ namespace ivfhnsw {
         assign(n, x, assigned.data());
 
         /** Compute residuals for original vectors **/
-        std:
-        vector<float> residuals(n * d);
+        std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), assigned.data());
 
         /** Train Residual PQ **/
@@ -561,7 +560,7 @@ namespace ivfhnsw {
                     idx_t subcentroid_num = nn_centroids[subc];
 
                     if (q_s[subcentroid_num] < eps) {
-                        const float *nn_centroid = (float *) quantizer->getDataByInternalId(subcentroid_num);
+                        const float *nn_centroid = quantizer->getDataByInternalId(subcentroid_num);
                         q_s[subcentroid_num] = faiss::fvec_L2sqr(x, nn_centroid, d);
                         subcentroid_nums.push_back(subcentroid_num);
                         counter_computed++;
@@ -685,6 +684,8 @@ namespace ivfhnsw {
         /** Save Centroid Norms **/
         fwrite(centroid_norms.data(), sizeof(float), nc, fout);
 
+        /** Save Centroid Dists **/
+        fwrite(centroid_norms.data(), sizeof(float), nc, fout);
         fclose(fout);
     }
 

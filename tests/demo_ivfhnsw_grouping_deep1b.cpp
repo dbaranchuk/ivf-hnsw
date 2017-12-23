@@ -160,6 +160,8 @@ int main(int argc, char **argv)
         index->write(opt.path_index);
     }
     index->compute_centroid_dists();
+    index->write(opt.path_index);
+    exit(0);
 
     /** Parse groundtruth **/
     std::cout << "Parsing groundtruth" << std::endl;
@@ -220,6 +222,5 @@ int main(int argc, char **argv)
     //check_precomputing(index, path_data, path_precomputed_idxs, d, nc, nb, gt_mistakes, gt_correct);
 
     delete index;
-    //delete l2space;
     return 0;
 }
