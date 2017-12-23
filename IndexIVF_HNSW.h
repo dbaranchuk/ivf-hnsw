@@ -18,8 +18,7 @@
 #include <faiss/utils.h>
 #include <faiss/Heap.h>
 
-#include "utils.h"
-#include "index.h"
+#include "Index.h"
 
 namespace ivfhnsw {
 
