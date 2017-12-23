@@ -398,6 +398,7 @@ namespace ivfhnsw{
                 group_map[key].push_back(x[i * d + j]);
         }
 
+        int counter = 0;
         /** Train Residual PQ **/
         std::cout << "Training Residual PQ codebook " << std::endl;
         for (auto p : group_map) {
@@ -430,8 +431,7 @@ namespace ivfhnsw{
             /** Compute final subcentroids **/
             std::vector<float> subcentroids(nsubc * d);
             for (int subc = 0; subc < nsubc; subc++)
-                faiss::fvec_madd(d, centroid, alpha, centroid_vectors.data() + subc*d,
-                                 subcentroids.data() + subc*d);
+                faiss::fvec_madd(d, centroid, alpha, centroid_vectors.data() + subc*d, subcentroids.data() + subc*d);
 
             /** Find subcentroid idx **/
             std::vector<idx_t> subcentroid_idxs(groupsize);
@@ -444,11 +444,13 @@ namespace ivfhnsw{
             for (int i = 0; i < groupsize; i++) {
                 train_subcentroid_idxs.push_back(subcentroid_idxs[i]);
                 for (int j = 0; j < d; j++) {
-                    train_subcentroids.push_back(subcentroids[i * d + j]);
-                    train_residuals.push_back(residuals[i * d + j]);
+                    train_subcentroids.push_back(subcentroids[i*d + j]);
+                    train_residuals.push_back(residuals[i*d + j]);
                 }
             }
+            counter++;
         }
+        std::cout << counter << std::endl;
         printf("Training %zdx%zd PQ on %ld vectors in %dD\n", pq->M, pq->ksub, train_residuals.size() / d, d);
         pq->verbose = true;
         pq->train(n, train_residuals.data());
@@ -460,7 +462,7 @@ namespace ivfhnsw{
         const float *subcentroids = train_subcentroids.data();
         const idx_t *subcentroid_idxs = train_subcentroid_idxs.data();
 
-        std::cout << code_size << std::endl;
+        counter = 0;
         for (auto p : group_map) {
             const vector<float> data = p.second;
             const int groupsize = data.size() / d;
@@ -471,7 +473,6 @@ namespace ivfhnsw{
             std::vector<uint8_t> xcodes(groupsize * code_size);
             pq->compute_codes(residuals, xcodes.data(), groupsize);
 
-            std::cout << d << std::endl;
             std::cout << "b\n";
             /** Decode Codes **/
             std::vector<float> decoded_residuals(groupsize * d);
@@ -488,7 +489,7 @@ namespace ivfhnsw{
             std::vector<float> group_norms(groupsize);
             faiss::fvec_norms_L2sqr(group_norms.data(), reconstructed_x.data(), d, groupsize);
 
-            std::cout << "e\n";
+            std::cout << counter++ << std::endl;
             for (int i = 0; i < groupsize; i++)
                 train_norms.push_back(group_norms[i]);
 
