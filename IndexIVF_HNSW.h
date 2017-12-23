@@ -174,12 +174,8 @@ namespace ivfhnsw {
         void reconstruct(size_t n, float *x, const float *decoded_residuals,
                          const float *subcentroids, const idx_t *keys);
 
-        void sub_vectors(float *target, const float *x, const float *y);
-
         void compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
                                       const float *points, const int groupsize);
-
-        void compute_vectors(float *target, const float *x, const float *centroid, const int n);
 
         float compute_alpha(const float *centroid_vectors, const float *points,
                             const float *centroid, const float *centroid_vector_norms_L2sqr,

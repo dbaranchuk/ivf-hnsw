@@ -411,7 +411,7 @@ namespace ivfhnsw {
             return;
 
         /** Find NN centroids to source centroid **/
-        const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
+        const float *centroid = quantizer->getDataByInternalId(centroid_num);
         std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn(centroid, nsubc + 1);
         /** Vectors for construction **/
         std::vector<float> centroid_vector_norms_L2sqr(nsubc);
@@ -428,8 +428,8 @@ namespace ivfhnsw {
         /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
         std::vector<float> centroid_vectors(nsubc * d);
         for (int subc = 0; subc < nsubc; subc++) {
-            float *neighbor_centroid = (float *) quantizer->getDataByInternalId(nn_centroids[subc]);
-            sub_vectors(centroid_vectors.data() + subc * d, neighbor_centroid, centroid);
+            float *neighbor_centroid = quantizer->getDataByInternalId(nn_centroids[subc]);
+            faiss::fvec_madd(d, neighbor_centroid, -1., centroid, centroid_vectors.data() + subc * d);
         }
 
         /** Find alphas for vectors **/
@@ -785,7 +785,7 @@ namespace ivfhnsw {
             std::vector<float> centroid_vectors(nsubc * d);
             for (int i = 0; i < nsubc; i++) {
                 const float *neighbor_centroid = (float *) quantizer->getDataByInternalId(nn_centroids[i]);
-                sub_vectors(centroid_vectors.data() + i * d, neighbor_centroid, centroid);
+                faiss::fvec_madd(d, neighbor_centroid, -1., centroid, centroid_vectors.data() + subc * d);
             }
 
             /** Find alphas for vectors **/
@@ -928,12 +928,6 @@ namespace ivfhnsw {
         }
     }
 
-    void IndexIVF_HNSW_Grouping::sub_vectors(float *target, const float *x, const float *y) {
-        for (int i = 0; i < d; i++)
-            target[i] = x[i] - y[i];
-    }
-
-
     void IndexIVF_HNSW_Grouping::compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
                                                           const float *points, const int groupsize)
     {
@@ -949,16 +943,6 @@ namespace ivfhnsw {
             subcentroid_idxs[i] = max_heap.top().second;
         }
     }
-
-
-    void IndexIVF_HNSW_Grouping::compute_vectors(float *target, const float *x, const float *centroid, const int n)
-    {
-//            #pragma omp parallel for
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j < d; j++)
-                target[i * d + j] = x[i * d + j] - centroid[j];
-    }
-
 
     float IndexIVF_HNSW_Grouping::compute_alpha(const float *centroid_vectors, const float *points,
                                                 const float *centroid, const float *centroid_vector_norms_L2sqr,
@@ -977,7 +961,8 @@ namespace ivfhnsw {
         float negative_alpha = 0.0;
 
         std::vector<float> point_vectors(groupsize * d);
-        compute_vectors(point_vectors.data(), points, centroid, groupsize);
+        for (int i = 0; i < groupsize; i++)
+            faiss::fvec_madd(d, points + i*d , -1., centroid, point_vectors.data() + i*d);
 
         for (int i = 0; i < groupsize; i++) {
             const float *point_vector = point_vectors.data() + i * d;
