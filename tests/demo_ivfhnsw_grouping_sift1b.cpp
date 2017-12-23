@@ -166,11 +166,10 @@ int main(int argc, char **argv)
         /** Computing Centroid Norms **/
         std::cout << "Computing centroid norms"<< std::endl;
         index->compute_centroid_norms();
+        index->compute_centroid_dists();
         index->write(opt.path_index);
     }
-    index->compute_centroid_dists();
-    index->write(opt.path_index);
-    exit(0);
+    
     /** Parse groundtruth **/
     std::cout << "Parsing groundtruth" << std::endl;
     std::vector<std::priority_queue< std::pair<float, idx_t >>> answers;

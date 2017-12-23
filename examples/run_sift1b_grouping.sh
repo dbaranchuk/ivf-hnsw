@@ -11,7 +11,7 @@ nq="10000"
 d="128"
 gt_d="1000"
 
-M_PQ="16"
+M_PQ="8"
 nprobes="32"
 max_codes="10000"
 
@@ -40,7 +40,8 @@ path_centroids="${baseDir}data/sift1B_centroids${nc}M.fvecs"
 path_groups="${baseDir}data/groups/sift1B_groups.dat";
 path_idxs="${baseDir}data/groups/sift1B_idxs.ivecs"
 
-path_edges="${baseDir}${subdir}centroids${ncentroids}_ef${efConstruction}_nsubc${nsubcentroids}_PQ${M_PQ}.ivecs"
-path_info="${baseDir}${subdir}centroids${ncentroids}_ef${efConstruction}_nsubc${nsubcentroids}_PQ${M_PQ}.bin"
+#M_PQ="16"
+#path_edges="${baseDir}${subdir}centroids${ncentroids}_ef${efConstruction}_nsubc${nsubcentroids}_PQ${M_PQ}.ivecs"
+#path_info="${baseDir}${subdir}centroids${ncentroids}_ef${efConstruction}_nsubc${nsubcentroids}_PQ${M_PQ}.bin"
 #./main --help
 /home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_grouping_sift1b -path_centroids ${path_centroids} -path_learn ${path_learn} -path_index ${path_index} -path_precomputed_idx ${path_precomputed_idxs} -path_pq ${path_pq} -path_norm_pq ${path_norm_pq} -path_data ${path_data} -path_edges ${path_edges} -path_info ${path_info} -path_gt ${path_gt} -path_q ${path_q} -path_groups ${path_groups} -path_idxs ${path_idxs} -k ${k} -n ${n} -nq ${nq} -nc ${ncentroids} -M ${M} -M_PQ ${M_PQ} -efConstruction ${efConstruction} -efSearch ${efSearch} -d ${d} -gt_d ${gt_d} -nprobes ${nprobes} -max_codes ${max_codes} -nsubc ${nsubcentroids}

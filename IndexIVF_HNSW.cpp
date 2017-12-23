@@ -747,6 +747,12 @@ namespace ivfhnsw {
         centroid_norms.resize(nc);
         fread(centroid_norms.data(), sizeof(float), nc, fin);
 
+        /** Read Centroid Dists **/
+        for (int i = 0; i < nc; i++) {
+            fread(&size, sizeof(idx_t), 1, fin);
+            centroid_dists[i].resize(size);
+            fread(centroid_dists[i].data(), sizeof(float), size, fin);
+        }
         fclose(fin);
     }
 
