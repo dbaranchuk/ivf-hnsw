@@ -450,7 +450,7 @@ namespace ivfhnsw{
                 }
             }
             if (counter == 223855)
-                std::cout << alpha << " " << subcentroids.size() << " " << subcentroid_idxs[i] << " " << residuals.size() << std::endl;
+                std::cout << alpha << " " << groupsize << " " << subcentroid_idxs[0] << " " << residuals.size() << std::endl;
             counter++;
         }
         std::cout << counter << std::endl;
