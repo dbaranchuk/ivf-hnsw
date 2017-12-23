@@ -357,29 +357,29 @@ void HierarchicalNSW::LoadEdges(const string &location)
     }
 }
 
-float HierarchicalNSW::fstdistfunc(const float *pVect1, const float *pVect2)
+float HierarchicalNSW::fstdistfunc(const float *x, const float *y)
 {
     float PORTABLE_ALIGN32 TmpRes[8];
 #ifdef USE_AVX
     size_t qty16 = d_ >> 4;
 
-            const float *pEnd1 = pVect1 + (qty16 << 4);
+            const float *pEnd1 = x + (qty16 << 4);
 
             __m256 diff, v1, v2;
             __m256 sum = _mm256_set1_ps(0);
 
-            while (pVect1 < pEnd1) {
-                v1 = _mm256_loadu_ps(pVect1);
-                pVect1 += 8;
-                v2 = _mm256_loadu_ps(pVect2);
-                pVect2 += 8;
+            while (x < pEnd1) {
+                v1 = _mm256_loadu_ps(x);
+                x += 8;
+                v2 = _mm256_loadu_ps(y);
+                y += 8;
                 diff = _mm256_sub_ps(v1, v2);
                 sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
 
-                v1 = _mm256_loadu_ps(pVect1);
-                pVect1 += 8;
-                v2 = _mm256_loadu_ps(pVect2);
-                pVect2 += 8;
+                v1 = _mm256_loadu_ps(x);
+                x += 8;
+                v2 = _mm256_loadu_ps(y);
+                y += 8;
                 diff = _mm256_sub_ps(v1, v2);
                 sum = _mm256_add_ps(sum, _mm256_mul_ps(diff, diff));
             }
@@ -391,37 +391,37 @@ float HierarchicalNSW::fstdistfunc(const float *pVect1, const float *pVect2)
 #else
     size_t qty16 = d_ >> 4;
 
-    const float *pEnd1 = pVect1 + (qty16 << 4);
+    const float *pEnd1 = x + (qty16 << 4);
 
     __m128 diff, v1, v2;
     __m128 sum = _mm_set1_ps(0);
 
-    while (pVect1 < pEnd1) {
-        v1 = _mm_loadu_ps(pVect1);
-        pVect1 += 4;
-        v2 = _mm_loadu_ps(pVect2);
-        pVect2 += 4;
+    while (x < pEnd1) {
+        v1 = _mm_loadu_ps(x);
+        x += 4;
+        v2 = _mm_loadu_ps(y);
+        y += 4;
         diff = _mm_sub_ps(v1, v2);
         sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
 
-        v1 = _mm_loadu_ps(pVect1);
-        pVect1 += 4;
-        v2 = _mm_loadu_ps(pVect2);
-        pVect2 += 4;
+        v1 = _mm_loadu_ps(x);
+        x += 4;
+        v2 = _mm_loadu_ps(y);
+        y += 4;
         diff = _mm_sub_ps(v1, v2);
         sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
 
-        v1 = _mm_loadu_ps(pVect1);
-        pVect1 += 4;
-        v2 = _mm_loadu_ps(pVect2);
-        pVect2 += 4;
+        v1 = _mm_loadu_ps(x);
+        x += 4;
+        v2 = _mm_loadu_ps(y);
+        y += 4;
         diff = _mm_sub_ps(v1, v2);
         sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
 
-        v1 = _mm_loadu_ps(pVect1);
-        pVect1 += 4;
-        v2 = _mm_loadu_ps(pVect2);
-        pVect2 += 4;
+        v1 = _mm_loadu_ps(x);
+        x += 4;
+        v2 = _mm_loadu_ps(y);
+        y += 4;
         diff = _mm_sub_ps(v1, v2);
         sum = _mm_add_ps(sum, _mm_mul_ps(diff, diff));
     }

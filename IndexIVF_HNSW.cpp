@@ -149,25 +149,28 @@ namespace ivfhnsw {
         fwrite(&max_codes, sizeof(size_t), 1, fout);
 
         size_t size;
+        /** Save ids **/
         for (size_t i = 0; i < nc; i++) {
             size = ids[i].size();
             fwrite(&size, sizeof(size_t), 1, fout);
             fwrite(ids[i].data(), sizeof(idx_t), size, fout);
         }
 
+        /** Save codes **/
         for (int i = 0; i < nc; i++) {
             size = codes[i].size();
             fwrite(&size, sizeof(size_t), 1, fout);
             fwrite(codes[i].data(), sizeof(uint8_t), size, fout);
         }
 
+        /** Save norm codes **/
         for (int i = 0; i < nc; i++) {
             size = norm_codes[i].size();
             fwrite(&size, sizeof(size_t), 1, fout);
             fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
         }
 
-        /** Save Centroid Norms **/
+        /** Save centroid norms **/
         fwrite(centroid_norms.data(), sizeof(float), nc, fout);
         fclose(fout);
     }
@@ -182,51 +185,51 @@ namespace ivfhnsw {
         fread(&nprobe, sizeof(size_t), 1, fin);
         fread(&max_codes, sizeof(size_t), 1, fin);
 
-        ids = std::vector < std::vector < idx_t >> (nc);
-        codes = std::vector < std::vector < uint8_t >> (nc);
-        norm_codes = std::vector < std::vector < uint8_t >> (nc);
-
         size_t size;
+        /** Read ids **/
+        ids = std::vector < std::vector < idx_t >> (nc);
         for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(size_t), 1, fin);
             ids[i].resize(size);
             fread(ids[i].data(), sizeof(idx_t), size, fin);
         }
 
+        /** Read codes **/
+        codes = std::vector<std::vector<uint8_t>> (nc);
         for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(size_t), 1, fin);
             codes[i].resize(size);
             fread(codes[i].data(), sizeof(uint8_t), size, fin);
         }
 
+        /** Read norm codes **/
+        norm_codes = std::vector<std::vector<uint8_t>> (nc);
         for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(size_t), 1, fin);
             norm_codes[i].resize(size);
             fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
         }
 
-        /** Read Centroid Norms **/
+        /** Read centroid norms **/
         centroid_norms.resize(nc);
         fread(centroid_norms.data(), sizeof(float), nc, fin);
         fclose(fin);
     }
 
 /** Private **/
-    void IndexIVF_HNSW::reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys) {
+    void IndexIVF_HNSW::reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys)
+    {
         for (idx_t i = 0; i < n; i++) {
             float *centroid = quantizer->getDataByInternalId(keys[i]);
-            for (int j = 0; j < d; j++)
-                x[i * d + j] = centroid[j] + decoded_residuals[i * d + j];
+            faiss::fvec_madd(d, decoded_residuals + i*d, 1., centroid, x + i*d);
         }
     }
 
-
-    void IndexIVF_HNSW::compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys) {
+    void IndexIVF_HNSW::compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys)
+    {
         for (idx_t i = 0; i < n; i++) {
             float *centroid = quantizer->getDataByInternalId(keys[i]);
-            for (int j = 0; j < d; j++) {
-                residuals[i * d + j] = x[i * d + j] - centroid[j];
-            }
+            faiss::fvec_madd(d, x + i*d, -1., centroid, residuals + i*d);
         }
     }
 }

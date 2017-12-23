@@ -64,7 +64,7 @@ namespace ivfhnsw{
         std::vector<std::vector<float> > centroid_dists; /** Distances from region centroids to their subcentroids **/
 
     public:
-        void compute_residuals(size_t n, float *residuals, const float *points,
+        void compute_residuals(size_t n, const float *x, float *residuals,
                                const float *subcentroids, const idx_t *keys);
 
         void reconstruct(size_t n, float *x, const float *decoded_residuals,
