@@ -89,7 +89,7 @@ namespace ivfhnsw {
          */
         virtual void search(float *x, idx_t k, float *distances, long *labels) = 0;
 
-        virtual void train_pq(idx_t n, const float *x) = 0;
+        virtual void train_pq(const size_t n, const float *x) = 0;
 
         virtual void write(const char *path_index) = 0;
 

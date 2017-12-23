@@ -105,7 +105,7 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW::train_pq(idx_t n, const float *x)
+    void IndexIVF_HNSW::train_pq(const size_t n, const float *x)
     {
         /** Assign train vectors **/
         std::vector <idx_t> assigned(n);
