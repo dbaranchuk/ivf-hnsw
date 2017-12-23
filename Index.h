@@ -28,9 +28,10 @@ namespace ivfhnsw {
     * database-to-database queries are not implemented.
     */
     struct Index {
-        size_t d;             /** Vector Dimension **/
-        size_t nc;            /** Number of Centroids **/
+        size_t d;     /** Vector Dimension **/
+        size_t nc;    /** Number of Centroids **/
 
+        /** Coarse Quantizer based on HNSW [Y.Malkov]**/
         hnswlib::HierarchicalNSW *quantizer;
 
         Index(size_t dim, size_t ncentroids): d(dim), nc(ncentroids)
@@ -76,7 +77,7 @@ namespace ivfhnsw {
         //void compute_centroid_norms() = 0;
 
     protected:
-        virtual float fstdistfunc(uint8_t *code) = 0;
+        virtual float fstdistfunc(uint8_t *code);
 
         //void reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys) = 0;
         //void compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys) = 0;

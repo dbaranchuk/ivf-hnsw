@@ -47,4 +47,18 @@ namespace ivfhnsw {
 
         }
     }
+
+    float Index::fstdistfunc(uint8_t *code)
+    {
+        float result = 0.;
+        int dim = code_size >> 2;
+        int m = 0;
+        for (int i = 0; i < dim; i++) {
+            result += query_table[pq->ksub * m + code[m]]; m++;
+            result += query_table[pq->ksub * m + code[m]]; m++;
+            result += query_table[pq->ksub * m + code[m]]; m++;
+            result += query_table[pq->ksub * m + code[m]]; m++;
+        }
+        return result;
+    }
 }
