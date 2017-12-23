@@ -124,6 +124,9 @@ namespace ivfhnsw {
         auto coarse = quantizer->searchKnn(x, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
             std::tie(q_c[i], keys[i]) = coarse.top();
+            auto elem = coarse.top();
+            q_c[i] = elem.first;
+            keys[i] = elem.second;
             coarse.pop();
         }
 
