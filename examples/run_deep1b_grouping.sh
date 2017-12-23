@@ -20,6 +20,9 @@ max_codes="10000"
 
 nsubcentroids="64"
 
+nt="1000000"
+nsubt="131072"
+
 nc="1"
 ncentroids="999973"
 efSearch="80"
@@ -46,4 +49,4 @@ path_groups="${homeBaranchuk}data/groups/groups${ncentroids}.dat"
 path_idxs="${homeBaranchuk}data/groups/idxs${ncentroids}.ivecs"
 
 #./main --help
-/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_grouping_deep1b -path_centroids ${path_centroids} -path_learn ${path_learn} -path_index ${path_index} -path_precomputed_idx ${path_precomputed_idxs} -path_pq ${path_pq} -path_norm_pq ${path_norm_pq} -path_data ${path_data} -path_edges ${path_edges} -path_info ${path_info} -path_gt ${path_gt} -path_q ${path_q} -path_groups ${path_groups} -path_idxs ${path_idxs} -k ${k} -n ${n} -nq ${nq} -nc ${ncentroids} -M ${M} -M_PQ ${M_PQ} -efConstruction ${efConstruction} -efSearch ${efSearch} -d ${d} -gt_d ${gt_d} -nprobes ${nprobes} -max_codes ${max_codes} -nsubc ${nsubcentroids}
+/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_grouping_deep1b -path_centroids ${path_centroids} -path_learn ${path_learn} -path_index ${path_index} -path_precomputed_idx ${path_precomputed_idxs} -path_pq ${path_pq} -path_norm_pq ${path_norm_pq} -path_data ${path_data} -path_edges ${path_edges} -path_info ${path_info} -path_gt ${path_gt} -path_q ${path_q} -path_groups ${path_groups} -path_idxs ${path_idxs} -k ${k} -n ${n} -nq ${nq} -nc ${ncentroids} -M ${M} -M_PQ ${M_PQ} -efConstruction ${efConstruction} -efSearch ${efSearch} -d ${d} -gt_d ${gt_d} -nprobes ${nprobes} -max_codes ${max_codes} -nsubc ${nsubcentroids} -nt ${nt} -nsubt ${nsubt}

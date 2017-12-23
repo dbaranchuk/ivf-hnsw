@@ -451,6 +451,11 @@ namespace ivfhnsw{
         }
         printf("Training %zdx%zd PQ on %ld vectors in %dD\n", pq->M, pq->ksub, train_residuals.size() / d, d);
         pq->verbose = true;
+        for (int i = 0; i < 10; i++) {
+            for (j = 0; j < d; j++)
+                std::cout << train_residuals[i * d + j] << " ";
+            std::cout << std::endl;
+        }
         pq->train(n, train_residuals.data());
 
         /** Norm PQ **/
