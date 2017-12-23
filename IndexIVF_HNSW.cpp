@@ -345,7 +345,7 @@ namespace ivfhnsw {
         code_size = pq->code_size;
 
         /** Compute centroid norms **/
-        s_c.resize(nc);
+        centroid_dists.resize(nc);
         q_s.resize(nc);
         std::fill(q_s.begin(), q_s.end(), 0);
     }
@@ -567,7 +567,7 @@ namespace ivfhnsw {
                         counter_computed++;
                     } else counter_reused++;
 
-                    subr[subc] = (1 - alpha)*(q_c[i] - alpha * s_c[centroid_num][subc]) + alpha*q_s[subcentroid_num];
+                    subr[subc] = (1 - alpha)*(q_c[i] - alpha * centroid_dists[centroid_num][subc]) + alpha*q_s[subcentroid_num];
                     threshold += subr[subc];
                     normalize++;
                 }
@@ -874,15 +874,15 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW_Grouping::compute_s_c()
+    void IndexIVF_HNSW_Grouping::compute_centroid_dists()
     {
         for (int i = 0; i < nc; i++) {
-            const float *centroid = (float *) quantizer->getDataByInternalId(i);
-            s_c[i].resize(nsubc);
+            const float *centroid = quantizer->getDataByInternalId(i);
+            centroid_dists[i].resize(nsubc);
             for (int subc = 0; subc < nsubc; subc++) {
                 idx_t subc_idx = nn_centroid_idxs[i][subc];
-                const float *subcentroid = (float *) quantizer->getDataByInternalId(subc_idx);
-                s_c[i][subc] = faiss::fvec_L2sqr(subcentroid, centroid, d);
+                const float *subcentroid = quantizer->getDataByInternalId(subc_idx);
+                centroid_dists[i][subc] = faiss::fvec_L2sqr(subcentroid, centroid, d);
             }
         }
     }

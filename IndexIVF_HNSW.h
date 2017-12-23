@@ -155,15 +155,16 @@ namespace ivfhnsw {
         void train_pq(const size_t n, const float *x);
 
         void compute_centroid_norms();
-
-        void compute_s_c();
+        void compute_centroid_dists();
 
     private:
         std::vector<float> q_s;
 
         std::vector<float> query_table;
         std::vector<float> norms;
-        std::vector<float> centroid_norms;
+
+        std::vector<float> centroid_norms;               /** Region centroids L2 square norms **/
+        std::vector<std::vector<float> > centroid_dists; /** Distances from region centroids to their subcentroids **/
 
         float fstdistfunc(uint8_t *code);
 

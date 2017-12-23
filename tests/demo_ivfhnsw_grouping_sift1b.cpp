@@ -168,7 +168,7 @@ int main(int argc, char **argv)
         index->compute_centroid_norms();
         index->write(opt.path_index);
     }
-    index->compute_s_c();
+    index->compute_centroid_dists();
 
     /** Parse groundtruth **/
     std::cout << "Parsing groundtruth" << std::endl;
