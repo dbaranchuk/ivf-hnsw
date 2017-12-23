@@ -103,7 +103,7 @@ namespace hnswlib {
 
         void mutuallyConnectNewElement(const float *datapoint, idx_t cur_c, std::priority_queue<std::pair<float, idx_t>> topResults);
 
-        void addPoint(const float *datapoint, idx_t label);
+        void addPoint(const float *point);
 
         std::priority_queue<std::pair<float, idx_t >> searchKnn(const float *query_data, int k);
 

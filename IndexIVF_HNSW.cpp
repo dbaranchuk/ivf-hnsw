@@ -46,7 +46,7 @@ namespace ivfhnsw {
 
         float mass[d];
         readXvec<float>(input, mass, d);
-        quantizer->addPoint((void *) (mass), j1);
+        quantizer->addPoint(mass);
 
         size_t report_every = 100000;
 #pragma omp parallel for
@@ -58,7 +58,7 @@ namespace ivfhnsw {
                 if (++j1 % report_every == 0)
                     std::cout << j1 / (0.01 * nc) << " %\n";
             }
-            quantizer->addPoint((void *) (mass), (size_t) j1);
+            quantizer->addPoint(mass);
         }
         input.close();
         quantizer->SaveInfo(path_info);
@@ -376,7 +376,7 @@ namespace ivfhnsw {
 
         float mass[d];
         readXvec<float>(input, mass, d);
-        quantizer->addPoint((void *) (mass), j1);
+        quantizer->addPoint(mass);
 
         size_t report_every = 100000;
 #pragma omp parallel for
@@ -388,7 +388,7 @@ namespace ivfhnsw {
                 if (++j1 % report_every == 0)
                     std::cout << j1 / (0.01 * nc) << " %\n";
             }
-            quantizer->addPoint((void *) (mass), (size_t) j1);
+            quantizer->addPoint(mass);
         }
         input.close();
         quantizer->SaveInfo(path_info);

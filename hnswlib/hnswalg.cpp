@@ -42,7 +42,7 @@ HierarchicalNSW::~HierarchicalNSW()
 }
 
 //std::priority_queue<std::pair<float, idx_t>, vector<pair<float, idx_t>>, CompareByFirst>
-std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(const float *datapoint, size_t ef)
+std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(const float *point, size_t ef)
 {
     VisitedList *vl = visitedlistpool->getFreeVisitedList();
     vl_type *massVisited = vl->mass;
@@ -52,7 +52,7 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(co
     std::priority_queue<std::pair<float, idx_t >> topResults;
     std::priority_queue<std::pair<float, idx_t >> candidateSet;
 
-    float dist = fstdistfunc(datapoint, getDataByInternalId(enterpoint_node));
+    float dist = fstdistfunc(point, getDataByInternalId(enterpoint_node));
     dist_calc++;
 
     topResults.emplace(dist, enterpoint_node);
@@ -86,7 +86,7 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(co
             if (!(massVisited[tnum] == currentV)) {
                 massVisited[tnum] = currentV;
 
-                float dist = fstdistfunc(datapoint, getDataByInternalId(tnum));
+                float dist = fstdistfunc(point, getDataByInternalId(tnum));
                 dist_calc++;
 
                 if (topResults.top().first > dist || topResults.size() < ef) {
@@ -141,7 +141,7 @@ void HierarchicalNSW::getNeighborsByHeuristic(std::priority_queue<std::pair<floa
         topResults.emplace(-curen2.first, curen2.second);
 }
 
-void HierarchicalNSW::mutuallyConnectNewElement(const float *datapoint, idx_t cur_c,
+void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
                                std::priority_queue<std::pair<float, idx_t>> topResults)
 {
     getNeighborsByHeuristic(topResults, M_);
@@ -212,7 +212,7 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *datapoint, idx_t cu
     }
 }
 
-void HierarchicalNSW::addPoint(const float *datapoint, idx_t label)
+void HierarchicalNSW::addPoint(const float *point)
 {
     idx_t cur_c = 0;
     {
@@ -232,11 +232,11 @@ void HierarchicalNSW::addPoint(const float *datapoint, idx_t label)
         templock.unlock();
 
     memset((char *) get_linklist0(cur_c), 0, size_data_per_element);
-    memcpy(getDataByInternalId(cur_c), datapoint, data_size_);
+    memcpy(getDataByInternalId(cur_c), point, data_size_);
 
     if (enterpoint_node != -1) {
-        std::priority_queue<std::pair<float, idx_t>> topResults = searchBaseLayer(datapoint, efConstruction_);
-        mutuallyConnectNewElement(datapoint, cur_c, topResults);
+        std::priority_queue<std::pair<float, idx_t>> topResults = searchBaseLayer(point, efConstruction_);
+        mutuallyConnectNewElement(point, cur_c, topResults);
     } else {
         // Do nothing for the first element
         enterpoint_node = 0;
