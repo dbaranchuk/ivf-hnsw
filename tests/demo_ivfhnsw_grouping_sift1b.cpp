@@ -169,7 +169,7 @@ int main(int argc, char **argv)
         index->compute_centroid_dists();
         index->write(opt.path_index);
     }
-    
+
     /** Parse groundtruth **/
     std::cout << "Parsing groundtruth" << std::endl;
     std::vector<std::priority_queue< std::pair<float, idx_t >>> answers;

@@ -19,9 +19,7 @@
 #include <faiss/Heap.h>
 
 #include "utils.h"
-
-typedef unsigned int idx_t;
-typedef unsigned char uint8_t;
+#include "index.h"
 
 namespace ivfhnsw {
 
@@ -32,7 +30,7 @@ namespace ivfhnsw {
       * Currently only asymmetric queries are supported:
       * database-to-database queries are not implemented.
     */
-    struct IndexIVF_HNSW 
+    struct IndexIVF_HNSW:Index
     {
         size_t d;             /** Vector Dimension **/
         size_t nc;            /** Number of Centroids **/
@@ -61,11 +59,11 @@ namespace ivfhnsw {
 
         
         /** Construct HNSW Coarse Quantizer **/
-        void buildCoarseQuantizer(const char *path_clusters,
-                                  const char *path_info, const char *path_edges,
-                                  int M, int efConstruction);
+        //void buildCoarseQuantizer(const char *path_clusters,
+        //                          const char *path_info, const char *path_edges,
+        //                          int M, int efConstruction);
 
-        void assign(size_t n, const float *data, idx_t *idxs);
+        //void assign(size_t n, const float *data, idx_t *idxs);
 
         void add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *idx);
 
