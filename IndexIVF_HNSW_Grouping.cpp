@@ -442,12 +442,15 @@ namespace ivfhnsw{
             compute_residuals(groupsize, data.data(), residuals.data(), subcentroids.data(), subcentroid_idxs.data());
 
             for (int i = 0; i < groupsize; i++) {
-                train_subcentroid_idxs.push_back(subcentroid_idxs[i]);
+                int subcentroid_idx = subcentroid_idxs[i];
+                train_subcentroid_idxs.push_back(subcentroid_idx);
                 for (int j = 0; j < d; j++) {
-                    train_subcentroids.push_back(subcentroids[i*d + j]);
+                    train_subcentroids.push_back(subcentroids[subcentroid_idx*d + j]);
                     train_residuals.push_back(residuals[i*d + j]);
                 }
             }
+            if (counter == 223855)
+                std::cout << alpha << " " << subcentroids.size() << " " << subcentroid_idxs.size() << " " << residuals.size() << std::endl;
             counter++;
         }
         std::cout << counter << std::endl;
