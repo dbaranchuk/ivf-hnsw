@@ -767,7 +767,7 @@ namespace ivfhnsw {
         std::cout << "Training Residual PQ codebook " << std::endl;
         for (auto p : group_map) {
             const idx_t centroid_num = p.first;
-            const float *centroid = (float *) quantizer->getDataByInternalId(centroid_num);
+            const float *centroid = quantizer->getDataByInternalId(centroid_num);
             const vector<float> data = p.second;
             const int groupsize = data.size() / d;
 
@@ -783,8 +783,8 @@ namespace ivfhnsw {
 
             /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
             std::vector<float> centroid_vectors(nsubc * d);
-            for (int i = 0; i < nsubc; i++) {
-                const float *neighbor_centroid = (float *) quantizer->getDataByInternalId(nn_centroids[i]);
+            for (int subc = 0; subc < nsubc; subc++) {
+                const float *neighbor_centroid = quantizer->getDataByInternalId(nn_centroids[i]);
                 faiss::fvec_madd(d, neighbor_centroid, -1., centroid, centroid_vectors.data() + subc * d);
             }
 
