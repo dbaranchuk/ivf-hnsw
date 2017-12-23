@@ -97,15 +97,15 @@ namespace hnswlib {
         }
 
         //std::priority_queue<std::pair<dist_t, idx_t>, vector<pair<dist_t, idx_t>>, CompareByFirst>
-        std::priority_queue<std::pair<float, idx_t>> searchBaseLayer(void *datapoint, size_t ef);
+        std::priority_queue<std::pair<float, idx_t>> searchBaseLayer(const float *datapoint, size_t ef);
 
         void getNeighborsByHeuristic(std::priority_queue<std::pair<float, idx_t>> &topResults, const int NN);
 
-        void mutuallyConnectNewElement(void *datapoint, idx_t cur_c, std::priority_queue<std::pair<float, idx_t>> topResults);
+        void mutuallyConnectNewElement(const float *datapoint, idx_t cur_c, std::priority_queue<std::pair<float, idx_t>> topResults);
 
-        void addPoint(void *datapoint, idx_t label);
+        void addPoint(const float *datapoint, idx_t label);
 
-        std::priority_queue<std::pair<float, idx_t >> searchKnn(void *query_data, int k);
+        std::priority_queue<std::pair<float, idx_t >> searchKnn(const float *query_data, int k);
 
         void SaveInfo(const string &location);
         void SaveEdges(const string &location);
@@ -114,10 +114,6 @@ namespace hnswlib {
         void LoadData(const string &location);
         void LoadEdges(const string &location);
         
-        float fstdistfunc(const void *x, const void *y);
-
-
-        void search(void *datapoint, float *distances, long *labels, size_t ef);
-
+        float fstdistfunc(const float *x, const float *y);
     };
 }

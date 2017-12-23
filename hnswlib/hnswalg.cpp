@@ -42,7 +42,7 @@ HierarchicalNSW::~HierarchicalNSW()
 }
 
 //std::priority_queue<std::pair<float, idx_t>, vector<pair<float, idx_t>>, CompareByFirst>
-std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(void *datapoint, size_t ef)
+std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(const float *datapoint, size_t ef)
 {
     VisitedList *vl = visitedlistpool->getFreeVisitedList();
     vl_type *massVisited = vl->mass;
@@ -107,72 +107,6 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(vo
     return topResults;
 }
 
-    void HierarchicalNSW::search(void *datapoint, float *distances, long *labels, size_t ef)
-    {
-        VisitedList *vl = visitedlistpool->getFreeVisitedList();
-        vl_type *massVisited = vl->mass;
-        vl_type currentV = vl->curV;
-
-        /** Prepare max heap with \k answers **/
-        faiss::maxheap_heapify(ef, distances, labels);
-        int init_counter = ef;
-        std::priority_queue<std::pair<float, idx_t >> candidateSet;
-
-        float dist = fstdistfunc(datapoint, getDataByInternalId(enterpoint_node));
-        dist_calc++;
-
-        faiss::maxheap_pop(ef, distances, labels);
-        faiss::maxheap_push(ef, distances, labels, dist, enterpoint_node);
-        init_counter--;
-
-        candidateSet.emplace(-dist, enterpoint_node);
-        massVisited[enterpoint_node] = currentV;
-
-        while (!candidateSet.empty())
-        {
-            std::pair<float, idx_t> curr_el_pair = candidateSet.top();
-            if (-curr_el_pair.first > distances[0])
-                break;
-
-            candidateSet.pop();
-            idx_t curNodeNum = curr_el_pair.second;
-
-            uint8_t *ll_cur = get_linklist0(curNodeNum);
-            uint8_t size = *ll_cur;
-            idx_t *data = (idx_t *)(ll_cur + 1);
-
-            _mm_prefetch((char *) (massVisited + *data), _MM_HINT_T0);
-            _mm_prefetch((char *) (massVisited + *data + 64), _MM_HINT_T0);
-            _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
-
-            for (uint8_t j = 0; j < size; ++j) {
-                idx_t label = *(data + j);
-
-                _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
-                _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
-
-                if (!(massVisited[label] == currentV)) {
-                    massVisited[label] = currentV;
-
-                    float dist = fstdistfunc(datapoint, getDataByInternalId(label));
-                    dist_calc++;
-
-                    if (dist < distances[0] || init_counter > 0) {
-                        faiss::maxheap_pop(ef, distances, labels);
-                        faiss::maxheap_push(ef, distances, labels, dist, label);
-
-                        candidateSet.emplace(-dist, label);
-                        _mm_prefetch(get_linklist0(candidateSet.top().second), _MM_HINT_T0);
-                        if (init_counter > 0) init_counter--;
-                    }
-                }
-            }
-        }
-        visitedlistpool->releaseVisitedList(vl);
-        //faiss::maxheap_reorder(ef, distances, labels);
-    }
-
-
 void HierarchicalNSW::getNeighborsByHeuristic(std::priority_queue<std::pair<float, idx_t>> &topResults, const int NN)
 {
     if (topResults.size() < NN)
@@ -207,7 +141,7 @@ void HierarchicalNSW::getNeighborsByHeuristic(std::priority_queue<std::pair<floa
         topResults.emplace(-curen2.first, curen2.second);
 }
 
-void HierarchicalNSW::mutuallyConnectNewElement(void *datapoint, idx_t cur_c,
+void HierarchicalNSW::mutuallyConnectNewElement(const float *datapoint, idx_t cur_c,
                                std::priority_queue<std::pair<float, idx_t>> topResults)
 {
     getNeighborsByHeuristic(topResults, M_);
@@ -278,7 +212,7 @@ void HierarchicalNSW::mutuallyConnectNewElement(void *datapoint, idx_t cur_c,
     }
 }
 
-void HierarchicalNSW::addPoint(void *datapoint, idx_t label)
+void HierarchicalNSW::addPoint(const float *datapoint, idx_t label)
 {
     idx_t cur_c = 0;
     {
@@ -316,9 +250,9 @@ void HierarchicalNSW::addPoint(void *datapoint, idx_t label)
     }
 };
 
-std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(void *query_data, int k)
+std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(const float *query, int k)
 {
-    auto topResults = searchBaseLayer(query_data, ef_);
+    auto topResults = searchBaseLayer(query, ef_);
     while (topResults.size() > k)
         topResults.pop();
 
@@ -421,10 +355,8 @@ void HierarchicalNSW::LoadEdges(const string &location)
     }
 }
 
-float HierarchicalNSW::fstdistfunc(const void *x, const void *y)
+float HierarchicalNSW::fstdistfunc(const float *pVect1, const float *pVect2)
 {
-    float *pVect1 = (float *) x;
-    float *pVect2 = (float *) y;
     float PORTABLE_ALIGN32 TmpRes[8];
 #ifdef USE_AVX
     size_t qty16 = d_ >> 4;
