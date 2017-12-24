@@ -152,7 +152,7 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(co
                     float dist = fstdistfunc(point, getDataByInternalId(tnum));
                     dist_calc++;
 
-                    if (topResults.top().first > dist || topResults.size() < ef) {
+                    if (topResults.top().first > dist || topResults.size() < k) {
                         candidateSet.emplace(-dist, tnum);
 
                         _mm_prefetch(get_linklist0(candidateSet.top().second), _MM_HINT_T0);
