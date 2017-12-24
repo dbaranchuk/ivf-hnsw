@@ -28,9 +28,6 @@ namespace ivfhnsw{
                                            const float *data, const idx_t *idxs,
                                            double &baseline_average, double &modified_average)
     {
-        if (groupsize == 0)
-            return;
-
         /** Find NN centroids to source centroid **/
         const float *centroid = quantizer->getDataByInternalId(centroid_num);
         std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn(centroid, nsubc + 1);
@@ -42,6 +39,8 @@ namespace ivfhnsw{
             nn_centroid_idxs[centroid_num][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
             nn_centroids_raw.pop();
         }
+        if (groupsize == 0)
+            return;
 
         const float *centroid_vector_norms = centroid_vector_norms_L2sqr.data();
         const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
@@ -109,8 +108,8 @@ namespace ivfhnsw{
 
             const float *subcentroid = subcentroids.data() + subcentroid_idx * d;
             const float *point = data + i * d;
-            baseline_average += faiss::fvec_L2sqr(centroid, point, d);
-            modified_average += faiss::fvec_L2sqr(subcentroid, point, d);
+            baseline_average += fvec_L2sqr(centroid, point, d);
+            modified_average += fvec_L2sqr(subcentroid, point, d);
         }
         /** Add codes **/
         for (int subc = 0; subc < nsubc; subc++) {
