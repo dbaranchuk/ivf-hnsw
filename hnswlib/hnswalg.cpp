@@ -114,20 +114,19 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(co
         vl_type currentV = vl->curV;
         std::priority_queue<std::pair<float, idx_t >> topResults;
         std::priority_queue<std::pair<float, idx_t >> candidateSet;
-        std::priority_queue<float> lowerBounds;
 
         float dist = fstdistfunc(point, getDataByInternalId(enterpoint_node));
         dist_calc++;
 
         topResults.emplace(dist, enterpoint_node);
-        lowerBounds.emplace(dist);
         candidateSet.emplace(-dist, enterpoint_node);
         massVisited[enterpoint_node] = currentV;
+        float lowerBound = dist;
 
         while (!candidateSet.empty())
         {
             std::pair<float, idx_t> curr_el_pair = candidateSet.top();
-            if (-curr_el_pair.first > lowerBounds.top())
+            if (-curr_el_pair.first > lowerBound)
                 break;
 
             candidateSet.pop();
@@ -153,23 +152,16 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(co
                     float dist = fstdistfunc(point, getDataByInternalId(tnum));
                     dist_calc++;
 
-                    if (lowerBounds.top() > dist || lowerBounds.size() < ef-k) {
+                    if (topResults.top().first > dist || topResults.size() < k) {
                         candidateSet.emplace(-dist, tnum);
 
                         _mm_prefetch(get_linklist0(candidateSet.top().second), _MM_HINT_T0);
+                        topResults.emplace(dist, tnum);
 
-                        if (topResults.top().first > dist) {
-                            topResults.emplace(dist, tnum);
-                        } else {
-                            lowerBounds.emplace(dist);
-                        }
-                        if (topResults.size() > k) {
-                            lowerBounds.emplace(topResults.top().first);
+                        if (topResults.size() > ef)
                             topResults.pop();
-                        }
-                        if (lowerBounds.size() > ef-k)
-                            lowerBounds.pop();
 
+                        lowerBound = topResults.top().first;
                     }
                 }
             }
