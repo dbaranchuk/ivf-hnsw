@@ -315,7 +315,7 @@ void HierarchicalNSW::addPoint(const float *point)
 
 std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(const float *query, int k)
 {
-    auto topResults = searchBaseLayer(query, ef_);
+    auto topResults = search(query, k, ef_);
     while (topResults.size() > k)
         topResults.pop();
 
