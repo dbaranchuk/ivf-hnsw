@@ -55,9 +55,7 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(co
     float dist = fstdistfunc(point, getDataByInternalId(enterpoint_node));
     dist_calc++;
 
-    topResults.emplace_back(dist, enterpoint_node);
-    std::push_heap(topResults.begin(), topResults.end());
-
+    topResults.emplace(dist, enterpoint_node);
     candidateSet.emplace(-dist, enterpoint_node);
     massVisited[enterpoint_node] = currentV;
     float lowerBound = dist;
