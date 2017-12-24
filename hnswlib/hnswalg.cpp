@@ -160,13 +160,16 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(co
 
                         if (topResults.top().first > dist) {
                             topResults.emplace(dist, tnum);
-                            if (topResults.size() > k)
-                                topResults.pop();
                         } else {
                             lowerBounds.emplace(dist);
-                            if (lowerBounds.size() > ef-k)
-                                lowerBounds.pop();
                         }
+                        if (topResults.size() > k) {
+                            lowerBounds.emplace(topResults.top().first);
+                            topResults.pop();
+                        }
+                        if (lowerBounds.size() > ef-k)
+                            lowerBounds.pop();
+
                     }
                 }
             }
