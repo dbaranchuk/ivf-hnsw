@@ -25,7 +25,7 @@ namespace ivfhnsw{
     struct IndexIVF_HNSW_Grouping: Index
     {
         size_t nsubc;         /** Number of Subcentroids **/
-        bool isPruning = true;
+        bool isPruning = false;//true;
 
         /** NEW **/
         std::vector<std::vector<idx_t> > ids;
