@@ -132,7 +132,6 @@ namespace ivfhnsw{
         subcentroid_nums.reserve(nsubc * nprobe);
         idx_t keys[nprobe];
         float q_c[nprobe];
-        const float eps = 0.00001;
 
         /** Find NN Centroids **/
         auto coarse = quantizer->searchKnn(x, nprobe);
@@ -148,12 +147,6 @@ namespace ivfhnsw{
 
             coarse.pop();
         }
-
-        /** Compute Query Table **/
-        pq->compute_inner_prod_table(x, query_table.data());
-
-        /** Prepare max heap with \k answers **/
-        faiss::maxheap_heapify(k, distances, labels);
 
         /** Pruning **/
         double threshold = 0.0;
@@ -180,7 +173,7 @@ namespace ivfhnsw{
 
                     idx_t subcentroid_num = nn_centroids[subc];
 
-                    if (q_s[subcentroid_num] < eps) {
+                    if (q_s[subcentroid_num] < EPS) {
                         const float *nn_centroid = quantizer->getDataByInternalId(subcentroid_num);
                         q_s[subcentroid_num] = fvec_L2sqr(x, nn_centroid, d);
                         subcentroid_nums.push_back(subcentroid_num);
@@ -196,6 +189,12 @@ namespace ivfhnsw{
             }
             threshold /= normalize;
         }
+
+        /** Compute Query Table **/
+        pq->compute_inner_prod_table(x, query_table.data());
+
+        /** Prepare max heap with \k answers **/
+        faiss::maxheap_heapify(k, distances, labels);
 
         int ncode = 0;
         for (int i = 0; i < nprobe; i++) {
@@ -227,7 +226,7 @@ namespace ivfhnsw{
                 }
 
                 idx_t subcentroid_num = nn_centroids[subc];
-                if (q_s[subcentroid_num] < eps) {
+                if (q_s[subcentroid_num] < EPS) {
                     const float *nn_centroid = quantizer->getDataByInternalId(subcentroid_num);
                     q_s[subcentroid_num] = fvec_L2sqr(x, nn_centroid, d);
                     subcentroid_nums.push_back(subcentroid_num);

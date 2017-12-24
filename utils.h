@@ -27,6 +27,8 @@
 #define PORTABLE_ALIGN32 __declspec(align(32))
 #endif
 
+#define EPS 0.00001
+
 namespace ivfhnsw {
 
     class StopW {
