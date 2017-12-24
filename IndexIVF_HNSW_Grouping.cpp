@@ -135,7 +135,7 @@ namespace ivfhnsw{
         const float eps = 0.00001;
 
         /** Find NN Centroids **/
-        auto coarse = quantizer->search(x, k, quantizer->ef_);//searchKnn(x, nprobe);
+        auto coarse = quantizer->search(x, nprobe, quantizer->ef_);//searchKnn(x, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
             auto elem = coarse.top();
             q_c[i] = elem.first;
