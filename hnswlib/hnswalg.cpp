@@ -113,7 +113,7 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(co
         vl_type *massVisited = vl->mass;
         vl_type currentV = vl->curV;
         std::priority_queue<std::pair<float, idx_t >> topResults;
-        std::priority_queue<std::less, std::pair<float, idx_t >> candidateSet;
+        std::priority_queue<std::less(), std::pair<float, idx_t >> candidateSet;
 
         float dist = fstdistfunc(point, getDataByInternalId(enterpoint_node));
         dist_calc++;
