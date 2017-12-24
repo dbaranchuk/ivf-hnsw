@@ -106,7 +106,7 @@ namespace hnswlib {
         void addPoint(const float *point);
 
         std::priority_queue<std::pair<float, idx_t >> searchKnn(const float *query_data, int k);
-        std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::search(const float *point, size_t k, size_t ef);
+        std::priority_queue<std::pair<float, idx_t>> search(const float *point, size_t k, size_t ef);
 
         void SaveInfo(const string &location);
         void SaveEdges(const string &location);
