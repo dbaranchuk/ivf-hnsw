@@ -135,9 +135,22 @@ namespace ivfhnsw{
         const float eps = 0.00001;
 
         /** Find NN Centroids **/
-        auto coarse = quantizer->searchKnn(x, nprobe);
-        for (int i = nprobe - 1; i >= 0; i--) {
-            auto elem = coarse.top();
+//        auto coarse = quantizer->searchKnn(x, nprobe);
+//        for (int i = nprobe - 1; i >= 0; i--) {
+//            auto elem = coarse.top();
+//            q_c[i] = elem.first;
+//            keys[i] = elem.second;
+//
+//            /** Add q_c to precomputed q_s **/
+//            idx_t key = keys[i];
+//            q_s[key] = q_c[i];
+//            subcentroid_nums.push_back(key);
+//
+//            coarse.pop();
+//        }
+        auto coarse = quantizer->search(x, quantizer->ef_);
+        for (int i = 0; i < nprobe; i--) {
+            auto elem = coarse[i];
             q_c[i] = elem.first;
             keys[i] = elem.second;
 
@@ -145,8 +158,6 @@ namespace ivfhnsw{
             idx_t key = keys[i];
             q_s[key] = q_c[i];
             subcentroid_nums.push_back(key);
-
-            coarse.pop();
         }
 
         /** Compute Query Table **/

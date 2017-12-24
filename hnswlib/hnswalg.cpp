@@ -55,7 +55,9 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(co
     float dist = fstdistfunc(point, getDataByInternalId(enterpoint_node));
     dist_calc++;
 
-    topResults.emplace(dist, enterpoint_node);
+    topResults.emplace_back(dist, enterpoint_node);
+    std::push_heap(topResults.begin(), topResults.end());
+
     candidateSet.emplace(-dist, enterpoint_node);
     massVisited[enterpoint_node] = currentV;
     float lowerBound = dist;
@@ -107,26 +109,29 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(co
     return topResults;
 }
 
-    std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::search(const float *point, size_t k, size_t ef)
+    std::vector<std::pair<float, idx_t>> HierarchicalNSW::search(const float *point, size_t ef)
     {
         VisitedList *vl = visitedlistpool->getFreeVisitedList();
         vl_type *massVisited = vl->mass;
         vl_type currentV = vl->curV;
-        std::priority_queue<std::pair<float, idx_t >> topResults;
-        std::priority_queue<std::pair<float, idx_t >> candidateSet(std::less<std::pair<float, idx_t >>());
+
+        std::vector<std::pair<float, idx_t>> topResults;
+        std::priority_queue<std::pair<float, idx_t >> candidateSet;
 
         float dist = fstdistfunc(point, getDataByInternalId(enterpoint_node));
         dist_calc++;
 
-        topResults.emplace(dist, enterpoint_node);
-        candidateSet.emplace(dist, enterpoint_node);
+        topResults.emplace_back(dist, enterpoint_node);
+        std::push_heap(topResults.begin(), topResults.end());
+
+        candidateSet.emplace(-dist, enterpoint_node);
         massVisited[enterpoint_node] = currentV;
         float lowerBound = dist;
 
         while (!candidateSet.empty())
         {
             std::pair<float, idx_t> curr_el_pair = candidateSet.top();
-            if (curr_el_pair.first > lowerBound)
+            if (-curr_el_pair.first > lowerBound)
                 break;
 
             candidateSet.pop();
@@ -153,20 +158,24 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(co
                     dist_calc++;
 
                     if (topResults.top().first > dist || topResults.size() < ef) {
-                        candidateSet.emplace(dist, tnum);
+                        candidateSet.emplace(-dist, tnum);
 
                         _mm_prefetch(get_linklist0(candidateSet.top().second), _MM_HINT_T0);
-                        topResults.emplace(dist, tnum);
 
-                        if (topResults.size() > ef)
-                            topResults.pop();
+                        topResults.emplace_back(dist, enterpoint_node);
+                        std::push_heap(topResults.begin(), topResults.end());
 
-                        lowerBound = topResults.top().first;
+                        if (topResults.size() > ef) {
+                            std::pop_heap(topResults.begin(), topResults.end());
+                            topResults.pop_back();
+                        }
+                        lowerBound = topResults[0].first;
                     }
                 }
             }
         }
         visitedlistpool->releaseVisitedList(vl);
+        std::sort_heap(topResults.begin(), topResults.end());
         return topResults;
     }
 
@@ -315,7 +324,7 @@ void HierarchicalNSW::addPoint(const float *point)
 
 std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(const float *query, int k)
 {
-    auto topResults = search(query, k, ef_);
+    auto topResults = searchBaseLayer(query, ef_);
     while (topResults.size() > k)
         topResults.pop();
 
