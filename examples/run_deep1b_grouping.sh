@@ -20,8 +20,8 @@ max_codes="10000"
 
 nsubcentroids="64"
 
-nt="1000000"
-nsubt="131072"
+nt="10000000"
+nsubt="1000000"
 
 nc="1"
 ncentroids="999973"

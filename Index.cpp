@@ -73,9 +73,8 @@ namespace ivfhnsw {
     void Index::compute_centroid_norms()
     {
         centroid_norms.resize(nc);
-#pragma omp parallel for
         for (int i = 0; i < nc; i++) {
-            float *centroid = quantizer->getDataByInternalId(i);
+            const float *centroid = quantizer->getDataByInternalId(i);
             centroid_norms[i] = faiss::fvec_norm_L2sqr(centroid, d);
         }
     }

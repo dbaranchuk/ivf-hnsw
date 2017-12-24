@@ -158,15 +158,16 @@ int main(int argc, char **argv)
         input_groups.close();
         input_idxs.close();
 
+        /** Computing Centroid Norms **/
+        std::cout << "Computing centroid norms"<< std::endl;
+        index->compute_centroid_norms();
+        std::cout << "Computing centroid dists"<< std::endl;
+        index->compute_centroid_dists();
+
         /** Save index, pq and norm_pq **/
         std::cout << "Saving index to " << opt.path_index << std::endl;
         std::cout << "       pq to " << opt.path_pq << std::endl;
         std::cout << "       norm pq to " << opt.path_norm_pq << std::endl;
-
-        /** Computing Centroid Norms **/
-        std::cout << "Computing centroid norms"<< std::endl;
-        index->compute_centroid_norms();
-        index->compute_centroid_dists();
         index->write(opt.path_index);
     }
 
