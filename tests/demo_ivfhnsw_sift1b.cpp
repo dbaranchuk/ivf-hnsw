@@ -211,7 +211,6 @@ int main(int argc, char **argv)
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
     //std::cout << "Average max_codes: " << index->average_max_codes / 10000 << std::endl;
 
-    delete index;
-    //delete l2space;
+    delete index;\
     return 0;
 }

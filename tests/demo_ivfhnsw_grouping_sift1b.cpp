@@ -48,7 +48,6 @@ int main(int argc, char **argv)
     /** Initialize Index **/
     /**********************/
     IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(opt.d, opt.nc, opt.M_PQ, 8, opt.nsubc);
-    //SpaceInterface<float> *l2space = new L2Space(opt.d);
     index->buildCoarseQuantizer(opt.path_centroids,
                                 opt.path_info, opt.path_edges,
                                 opt.M, opt.efConstruction);
@@ -143,11 +142,11 @@ int main(int argc, char **argv)
 
                 input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
 
-                centroid_num = j1++;
                 if (j1 % 10000 == 0) {
                     std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
                               << (100. * j1) / 1000000 << "%" << std::endl;
                 }
+                centroid_num = j1++;
             }
             index->add_group(centroid_num, groupsize, data.data(), idxs.data(), baseline_average, modified_average);
         }
