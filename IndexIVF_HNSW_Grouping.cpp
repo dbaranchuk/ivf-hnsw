@@ -148,7 +148,7 @@ namespace ivfhnsw{
             coarse.pop();
         }
 
-        /** Pruning **/
+        /** Computing threshold for pruning **/
         double threshold = 0.0;
         if (isPruning) {
             int ncode = 0;
@@ -577,7 +577,7 @@ namespace ivfhnsw{
                 faiss::fvec_madd(d, centroid, alpha, centroid_vector, subcentroid.data());
 
                 float dist = fvec_L2sqr(point, subcentroid.data(), d);
-                max_heap.emplace(std::make_pair(-dist, std::make_pair(numerator, denominator)));
+                max_heap.emplace(-dist, std::make_pair(numerator, denominator));
             }
             float optim_numerator = max_heap.top().second.first;
             float optim_denominator = max_heap.top().second.second;
