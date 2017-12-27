@@ -8,10 +8,6 @@
 #include <iostream>
 #include <fstream>
 #include <cstdio>
-#include <vector>
-#include <queue>
-#include <limits>
-#include <cmath>
 
 #include <faiss/ProductQuantizer.h>
 #include <faiss/utils.h>

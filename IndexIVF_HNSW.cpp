@@ -98,7 +98,6 @@ namespace ivfhnsw {
             if (ncode >= max_codes)
                 break;
         }
-        average_max_codes += ncode;
     }
 
 

@@ -2,14 +2,6 @@
 #ifndef IVF_HNSW_LIB_IVF_HNSW_H
 #define IVF_HNSW_LIB_IVF_HNSW_H
 
-#include <iostream>
-#include <fstream>
-#include <cstdio>
-#include <vector>
-#include <queue>
-#include <limits>
-#include <cmath>
-
 #include <faiss/index_io.h>
 #include <faiss/Heap.h>
 
@@ -30,8 +22,6 @@ namespace ivfhnsw {
                       size_t bytes_per_code, size_t nbits_per_idx);
 
         void add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *idx);
-
-        double average_max_codes = 0;
 
         void search(float *x, idx_t k, float *distances, long *labels);
 

@@ -177,8 +177,7 @@ namespace ivfhnsw{
                         const float *nn_centroid = quantizer->getDataByInternalId(subcentroid_num);
                         q_s[subcentroid_num] = fvec_L2sqr(x, nn_centroid, d);
                         subcentroid_nums.push_back(subcentroid_num);
-                        counter_computed++;
-                    } else counter_reused++;
+                    }
 
                     subr[subc] = (1 - alpha)*(q_c[i] - alpha * centroid_dists[centroid_num][subc]) + alpha*q_s[subcentroid_num];
                     threshold += subr[subc];
@@ -221,7 +220,6 @@ namespace ivfhnsw{
                     code += groupsize * code_size;
                     norm_code += groupsize;
                     id += groupsize;
-                    filter_points += groupsize;
                     continue;
                 }
 
@@ -230,8 +228,7 @@ namespace ivfhnsw{
                     const float *nn_centroid = quantizer->getDataByInternalId(subcentroid_num);
                     q_s[subcentroid_num] = fvec_L2sqr(x, nn_centroid, d);
                     subcentroid_nums.push_back(subcentroid_num);
-                    counter_computed++;
-                } else counter_reused += !isPruning;
+                }
 
                 float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
                 norm_pq->decode(norm_code, norms.data(), groupsize);
@@ -253,7 +250,6 @@ namespace ivfhnsw{
             if (ncode >= max_codes)
                 break;
         }
-        average_max_codes += ncode;
 
         /** Zero subcentroids **/
         for (idx_t subcentroid_num : subcentroid_nums)

@@ -5,13 +5,6 @@
 #ifndef IVF_HNSW_LIB_INDEXIVF_HNSW_GROUPING_H
 #define IVF_HNSW_LIB_INDEXIVF_HNSW_GROUPING_H
 
-#include <iostream>
-#include <fstream>
-#include <cstdio>
-#include <vector>
-#include <queue>
-#include <limits>
-#include <cmath>
 
 #include <faiss/index_io.h>
 #include <faiss/Heap.h>
@@ -44,11 +37,6 @@ namespace ivfhnsw{
         void add_group(int centroid_num, int groupsize,
                        const float *data, const idx_t *idxs,
                        double &baseline_average, double &modified_average);
-
-        double average_max_codes = 0;
-        int counter_reused = 0;
-        int counter_computed = 0;
-        int filter_points = 0;
 
         void search(float *x, idx_t k, float *distances, long *labels);
 
