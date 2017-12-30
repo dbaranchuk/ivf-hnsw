@@ -100,7 +100,7 @@ namespace ivfhnsw {
         idx_t *idx;
         /// Check whether idxs are precomputed. If not, assign x 
         if (precomputed_idx)
-            idx = precomputed_idx;
+            idx = const_cast<idx_t *>(precomputed_idx);
         else {
             idx = new idx_t[n];
             assign(n, x, idx, 1);

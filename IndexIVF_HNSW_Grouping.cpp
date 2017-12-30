@@ -149,7 +149,7 @@ namespace ivfhnsw{
 
         /** Computing threshold for pruning **/
         double threshold = 0.0;
-        if (isPruning) {
+        if (do_pruning) {
             int ncode = 0;
             int normalize = 0;
 
@@ -189,7 +189,7 @@ namespace ivfhnsw{
         }
 
         /** Compute Query Table **/
-        pq->compute_inner_prod_table(x, query_table.data());
+        pq->compute_inner_prod_table(x, precomputed_table.data());
 
         /** Prepare max heap with \k answers **/
         faiss::maxheap_heapify(k, distances, labels);
@@ -215,7 +215,7 @@ namespace ivfhnsw{
                 if (groupsize == 0)
                     continue;
 
-                if (isPruning && r[i * nsubc + subc] > threshold) {
+                if (do_pruning && r[i * nsubc + subc] > threshold) {
                     code += groupsize * code_size;
                     norm_code += groupsize;
                     id += groupsize;
