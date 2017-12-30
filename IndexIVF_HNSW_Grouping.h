@@ -1,17 +1,13 @@
 #ifndef IVF_HNSW_LIB_INDEXIVF_HNSW_GROUPING_H
 #define IVF_HNSW_LIB_INDEXIVF_HNSW_GROUPING_H
 
-
-#include <faiss/index_io.h>
-#include <faiss/Heap.h>
-
-#include "Index.h"
+#include "IndexIVF_HNSW.h"
 
 namespace ivfhnsw{
     /*********************************************************/
     /** Structure for IVF_HNSW + Grouping( + Pruning) index **/
     /*********************************************************/
-    struct IndexIVF_HNSW_Grouping: Index
+    struct IndexIVF_HNSW_Grouping: IndexIVF_HNSW
     {
         size_t nsubc;         /** Number of Subcentroids **/
         bool isPruning = false;//true;
