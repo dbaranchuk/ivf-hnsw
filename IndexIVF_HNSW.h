@@ -36,9 +36,9 @@ namespace ivfhnsw {
 
         void add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *idx);
 
-        void search(float *x, idx_t k, float *distances, long *labels);
+        void search(float *x, size_t k, float *distances, long *labels);
 
-        void train_pq(const size_t n, const float *x);
+        void train_pq(size_t n, const float *x);
 
         void write(const char *path_index);
         void read(const char *path_index);
