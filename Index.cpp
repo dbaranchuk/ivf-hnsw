@@ -21,7 +21,8 @@ namespace ivfhnsw {
 
 
     void Index::buildQuantizer(const char *path_clusters, const char *path_info,
-                                     const char *path_edges, int M, int efConstruction = 500) {
+                                     const char *path_edges, int M, int efConstruction)
+    {
         if (exists_test(path_info) && exists_test(path_edges)) {
             quantizer = new hnswlib::HierarchicalNSW(path_info, path_clusters, path_edges);
             quantizer->ef_ = efConstruction;
