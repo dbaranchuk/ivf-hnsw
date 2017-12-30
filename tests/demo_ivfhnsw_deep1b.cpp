@@ -43,9 +43,8 @@ int main(int argc, char **argv)
     /** Initialize Index **/
     /**********************/
     IndexIVF_HNSW *index = new IndexIVF_HNSW(opt.d, opt.nc, opt.M_PQ, 8);
-    index->buildQuantizer(opt.path_centroids,
-                                opt.path_info, opt.path_edges,
-                                opt.M, opt.efConstruction);
+    index->buildQuantizer(opt.path_centroids, opt.path_info, opt.path_edges,
+                          opt.M, opt.efConstruction);
 
     /********************/
     /** Load learn set **/

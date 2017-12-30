@@ -13,7 +13,6 @@ namespace ivfhnsw {
         norms.resize(65536);
         precomputed_table.resize(pq->ksub * pq->M);
 
-        /// size nlist * pq.M * pq.ksub
         codes.resize(ncentroids);
         norm_codes.resize(ncentroids);
         ids.resize(ncentroids);
@@ -28,11 +27,11 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW::buildQuantizer(const char *path_clusters, const char *path_info,
-                               const char *path_edges, int M, int efConstruction)
+    void IndexIVF_HNSW::buildQuantizer(const char *path_data, const char *path_info,
+                                       const char *path_edges, int M, int efConstruction)
     {
         if (exists_test(path_info) && exists_test(path_edges)) {
-            quantizer = new hnswlib::HierarchicalNSW(path_info, path_clusters, path_edges);
+            quantizer = new hnswlib::HierarchicalNSW(path_info, path_data, path_edges);
             quantizer->ef_ = efConstruction;
             return;
         }
@@ -40,7 +39,7 @@ namespace ivfhnsw {
 
         std::cout << "Constructing quantizer\n";
         int j1 = 0;
-        std::ifstream input(path_clusters, ios::binary);
+        std::ifstream input(path_data, ios::binary);
 
         float mass[d];
         readXvec<float>(input, mass, d);
