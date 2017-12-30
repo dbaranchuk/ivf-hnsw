@@ -22,7 +22,6 @@ namespace ivfhnsw{
         std::vector<float> alphas;
 
     public:
-
         IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
                                size_t nbits_per_idx, size_t nsubcentroids);
 
@@ -30,12 +29,12 @@ namespace ivfhnsw{
                        const float *data, const idx_t *idxs,
                        double &baseline_average, double &modified_average);
 
-        void search(float *x, idx_t k, float *distances, long *labels);
+        void search(float *x, size_t k, float *distances, long *labels);
 
         void write(const char *path_index);
         void read(const char *path_index);
 
-        void train_pq(const size_t n, const float *x);
+        void train_pq(size_t n, const float *x);
 
         void compute_centroid_dists();
 

@@ -53,7 +53,7 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW::search(float *x, idx_t k, float *distances, long *labels)
+    void IndexIVF_HNSW::search(float *x, size_t k, float *distances, long *labels)
     {
         idx_t keys[nprobe];
         float q_c[nprobe];
@@ -101,7 +101,7 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW::train_pq(const size_t n, const float *x)
+    void IndexIVF_HNSW::train_pq(size_t n, const float *x)
     {
         /** Assign train vectors **/
         std::vector <idx_t> assigned(n);

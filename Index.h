@@ -74,7 +74,7 @@ namespace ivfhnsw {
           * @param labels      output labels of the NNs, size n * k
           * @param k           number of closest vertices to the query x
         */
-        void assign (size_t n, const float *x, idx_t *labels, idx_t k = 1);
+        void assign (size_t n, const float *x, idx_t *labels, size_t k = 1);
 
         /** Query n vectors of dimension d to the index.
          *
@@ -85,9 +85,9 @@ namespace ivfhnsw {
          * @param labels      output labels of the NNs, size n*k
          * @param distances   output pairwise distances, size n*k
          */
-        virtual void search(float *x, idx_t k, float *distances, long *labels) = 0;
+        virtual void search(float *x, size_t k, float *distances, long *labels) = 0;
 
-        virtual void train_pq(const size_t n, const float *x) = 0;
+        virtual void train_pq(size_t n, const float *x) = 0;
 
         virtual void write(const char *path_index) = 0;
         virtual void read(const char *path_index) = 0;

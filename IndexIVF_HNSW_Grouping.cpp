@@ -125,7 +125,7 @@ namespace ivfhnsw{
         }
     }
 
-    void IndexIVF_HNSW_Grouping::search(float *x, idx_t k, float *distances, long *labels)
+    void IndexIVF_HNSW_Grouping::search(float *x, size_t k, float *distances, long *labels)
     {
         std::vector<float> r;
         std::vector<idx_t> subcentroid_nums;
@@ -375,7 +375,7 @@ namespace ivfhnsw{
     }
 
 
-    void IndexIVF_HNSW_Grouping::train_pq(const size_t n, const float *x)
+    void IndexIVF_HNSW_Grouping::train_pq(size_t n, const float *x)
     {
         std::vector<float> train_subcentroids;
         std::vector<float> train_residuals;
