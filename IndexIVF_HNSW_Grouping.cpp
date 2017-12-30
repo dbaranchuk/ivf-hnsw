@@ -11,11 +11,8 @@ namespace ivfhnsw{
     /***************************************/
     IndexIVF_HNSW_Grouping::IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
                                                    size_t nbits_per_idx, size_t nsubcentroids = 64):
-           Index(dim, ncentroids, bytes_per_code, nbits_per_idx), nsubc(nsubcentroids)
+           IndexIVF_HNSW(dim, ncentroids, bytes_per_code, nbits_per_idx), nsubc(nsubcentroids)
     {
-        codes.resize(nc);
-        norm_codes.resize(nc);
-        ids.resize(nc);
         alphas.resize(nc);
         nn_centroid_idxs.resize(nc);
         group_sizes.resize(nc);
