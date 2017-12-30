@@ -11,10 +11,10 @@ homeBaranchuk="/home/dbaranchuk/"
 k="100"
 nq="10000"
 
-d="16"
+d="96"
 gt_d="1"
 
-M_PQ="96"
+M_PQ="16"
 nprobes="32" # 8M: 128 260 450 600
 max_codes="10000"
 
