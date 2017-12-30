@@ -99,12 +99,12 @@ namespace ivfhnsw {
          * @param labels      output labels of the NNs, size n*k
          * @param distances   output pairwise distances, size n*k
          */
-        virtual void search(float *x, size_t k, float *distances, long *labels) = 0;
+        virtual void search(float *x, size_t k, float *distances, long *labels);
 
-        virtual void train_pq(size_t n, const float *x) = 0;
+        virtual void train_pq(size_t n, const float *x);
 
-        virtual void write(const char *path_index) = 0;
-        virtual void read(const char *path_index) = 0;
+        virtual void write(const char *path_index);
+        virtual void read(const char *path_index);
 
         void compute_centroid_norms();
 
@@ -112,8 +112,8 @@ namespace ivfhnsw {
         virtual float fstdistfunc(uint8_t *code);
 
     private:
-        //void reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys) = 0;
-        //void compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys) = 0;
+        void reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys);
+        void compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys);
     };
 }
 #endif //IVF_HNSW_LIB_INDEX_HNSW_H
