@@ -1,7 +1,3 @@
-//
-// Created by dbaranchuk on 23.12.17.
-//
-
 #ifndef IVF_HNSW_LIB_INDEXIVF_HNSW_GROUPING_H
 #define IVF_HNSW_LIB_INDEXIVF_HNSW_GROUPING_H
 
@@ -21,10 +17,6 @@ namespace ivfhnsw{
         bool isPruning = false;//true;
 
         /** NEW **/
-        std::vector<std::vector<idx_t> > ids;
-        std::vector<std::vector<uint8_t> > codes;
-        std::vector<std::vector<uint8_t> > norm_codes;
-
         std::vector<std::vector<idx_t> > nn_centroid_idxs;
         std::vector<std::vector<idx_t> > group_sizes;
         std::vector<float> alphas;

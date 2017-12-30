@@ -158,7 +158,9 @@ int main(int argc, char **argv)
         index->write(opt.path_index);
     }
 
+    /***********************/
     /** Parse groundtruth **/
+    /***********************/
     std::cout << "Parsing groundtruth" << std::endl;
     std::vector<std::priority_queue< std::pair<float, idx_t >>> answers;
     (std::vector<std::priority_queue< std::pair<float, idx_t >>>(opt.nq)).swap(answers);
@@ -208,8 +210,7 @@ int main(int argc, char **argv)
     float time_us_per_query = stopw.getElapsedTimeMicro() / opt.nq;
     std::cout << "Recall@" << opt.k << ": " << 1.0f * correct / opt.nq << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
-    //std::cout << "Average max_codes: " << index->average_max_codes / 10000 << std::endl;
 
-    delete index;\
+    delete index;
     return 0;
 }

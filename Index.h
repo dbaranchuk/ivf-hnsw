@@ -11,8 +11,8 @@
 #include <hnswlib/hnswalg.h>
 #include "utils.h"
 
-typedef unsigned int idx_t;
 typedef unsigned char uint8_t;
+typedef unsigned int idx_t;    ///< all indices are this type
 
 namespace ivfhnsw {
     /** Abstract structure for an index
@@ -26,52 +26,59 @@ namespace ivfhnsw {
     {
         size_t d;             ///< Vector dimension 
         size_t nc;            ///< Number of centroids
-        size_t code_size;     ///< PQ code size 
+        size_t code_size;     ///< Code size per vector in bytes
 
-        /** Coarse Quantizer based on HNSW [Y.Malkov]**/
-        hnswlib::HierarchicalNSW *quantizer;
+        /** HNSW [Y.Malkov] Quantizer **/
+        hnswlib::HierarchicalNSW *quantizer;  ///< Quantizer that maps vectors to inverted lists (HNSW [Y.Malkov])
 
-        /** Fine Product Quantizers **/
-        faiss::ProductQuantizer *norm_pq;
+        /** Product quantizers **/
         faiss::ProductQuantizer *pq;
+        faiss::ProductQuantizer *norm_pq;
 
         /** Search Parameters **/
-        size_t nprobe = 16;
-        size_t max_codes = 10000;
+        size_t nprobe = 16;        ///< Number of probes at query time
+        size_t max_codes = 10000;  ///< Number of possible key values
 
         /** Query Table **/
         std::vector<float> query_table;
 
+        std::vector<std::vector<idx_t> > ids;           ///< Inverted lists for indexes
+        std::vector<std::vector<uint8_t> > codes;       ///< PQ codes of data
+        std::vector<std::vector<uint8_t> > norm_codes;  ///< PQ codes of norms of reconstructed vectors
+
     protected:
-        std::vector<float> norms;           /** Reconstructed vectors L2 square norms **/
-        std::vector<float> centroid_norms;  /** Region centroids L2 square norms **/
+        std::vector<float> norms;           ///< Reconstructed vectors L2 square norms
+        std::vector<float> centroid_norms;  ///< Region centroids L2 square norms
 
     public:
-        Index(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx);
+        explicit Index(size_t dim, size_t ncentroids,
+                       size_t bytes_per_code, size_t nbits_per_idx);
         virtual ~Index();
 
         /** Construct from stretch or load the existing quantizer (HNSW) instance
           *
-          * This function is identical as search but only return labels of neighbors.
-          * @param x           input vectors to search, size n * d
-          * @param labels      output labels of the NNs, size n*k
+          * if all files exist, quantizer will be loaded, else HNSW will be constructed
+          * @param path_data           path to input vectors
+          * @param path_info           path to parameters for HNSW
+          * @param path_edges          path to edges for HNSW
+          * @param M                   minimum number of edges per point, default: 16
+          * @param efConstruction      maximum number of observed vertices at once during construction, default: 500
         */
-        void buildQuantizer(const char *path_clusters,
-                                  const char *path_info, const char *path_edges,
-                                  int M, int efConstruction);
+        void buildQuantizer(const char *path_data, const char *path_info, const char *path_edges,
+                            int M=16, int efConstruction = 500);
 
-
-        /** return the indexes of the k vectors closest to the query x.
+        /** Return the indexes of the k HNSW vertices closest to the query x.
           *
-          * This function is identical as search but only return labels of neighbors.
+          * @param n           number of input vectors
           * @param x           input vectors to search, size n * d
-          * @param labels      output labels of the NNs, size n*k
+          * @param labels      output labels of the NNs, size n * k
+          * @param k           number of closest vertices to the query x
         */
-        void assign (idx_t n, const float * x, idx_t * labels, idx_t k = 1);
+        void assign (idx_t n, const float *x, idx_t *labels, idx_t k = 1);
 
-        /** query n vectors of dimension d to the index.
+        /** Query n vectors of dimension d to the index.
          *
-         * return at most k vectors. If there are not enough results for a
+         * Return at most k vectors. If there are not enough results for a
          * query, the result array is padded with -1s.
          *
          * @param x           input vectors to search, size n * d

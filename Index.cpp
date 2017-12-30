@@ -1,7 +1,3 @@
-//
-// Created by dbaranchuk on 23.12.17.
-//
-
 #include "Index.h"
 
 namespace ivfhnsw {
@@ -11,9 +7,7 @@ namespace ivfhnsw {
         pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
         code_size = pq->code_size;
-
         norms.resize(65536);
-
         query_table.resize(pq->ksub * pq->M);
     }
 

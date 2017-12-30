@@ -29,9 +29,6 @@ namespace ivfhnsw {
     /*************************************/
     struct IndexIVF_HNSW: Index
     {
-        std::vector<std::vector<idx_t> > ids;
-        std::vector<std::vector<uint8_t> > codes;
-        std::vector<std::vector<uint8_t> > norm_codes;
 
     public:
         IndexIVF_HNSW(size_t dim, size_t ncentroids,

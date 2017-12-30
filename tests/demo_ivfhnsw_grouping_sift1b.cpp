@@ -220,13 +220,6 @@ int main(int argc, char **argv)
     float time_us_per_query = stopw.getElapsedTimeMicro() / opt.nq;
     std::cout << "Recall@" << opt.k << ": " << 1.0f * correct / opt.nq << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
-    //std::cout << "Average max_codes: " << index->average_max_codes / 10000 << std::endl;
-    //std::cout << "Average reused q_s: " << (1.0 * index->counter_reused) / (index->counter_computed + index->counter_reused) << std::endl;
-    //std::cout << "Average number of pruned points: " << (1.0 * index->filter_points) / 10000 << std::endl;
-
-    //check_groupsizes(index, nc);
-    //std::cout << "Check precomputed idxs"<< std::endl;
-    //check_precomputing(index, path_data, path_precomputed_idxs, d, nc, nb, gt_mistakes, gt_correct);
 
     delete index;
     return 0;
