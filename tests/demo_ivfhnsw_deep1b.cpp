@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     /**********************/
     IndexIVF_HNSW *index = new IndexIVF_HNSW(opt.d, opt.nc, opt.M_PQ, 8);
     //SpaceInterface<float> *l2space = new L2Space(opt.d);
-    index->buildCoarseQuantizer(opt.path_centroids,
+    index->buildQuantizer(opt.path_centroids,
                                 opt.path_info, opt.path_edges,
                                 opt.M, opt.efConstruction);
 

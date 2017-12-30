@@ -7,6 +7,22 @@
 
 #include "Index.h"
 
+
+/** Index based on a inverted file (IVF)
+ *
+ * In the inverted file, the quantizer (an HNSW instance) provides a
+ * quantization index for each vector to be added. The quantization
+ * index maps to a list (aka inverted list or posting list), where the
+ * id of the vector is then stored.
+ *
+ * At search time, the vector to be searched is also quantized, and
+ * only the list corresponding to the quantization index is
+ * searched. This speeds up the search by making it
+ * non-exhaustive. This can be relaxed using multi-probe search: a few
+ * (nprobe) quantization indices are selected and several inverted
+ * lists are visited.
+ *
+ */
 namespace ivfhnsw {
     /*************************************/
     /** Structure for an IVF-HNSW index **/

@@ -26,7 +26,7 @@ namespace ivfhnsw {
     }
 
 
-    void Index::buildCoarseQuantizer(const char *path_clusters, const char *path_info,
+    void Index::buildQuantizer(const char *path_clusters, const char *path_info,
                                      const char *path_edges, int M, int efConstruction = 500) {
         if (exists_test(path_info) && exists_test(path_edges)) {
             quantizer = new hnswlib::HierarchicalNSW(path_info, path_clusters, path_edges);
@@ -60,13 +60,11 @@ namespace ivfhnsw {
         quantizer->SaveEdges(path_edges);
     }
 
-
-    void Index::assign(size_t n, const float *data, idx_t *idxs) {
+    
+    void Index::assign(size_t n, const float *x, idx_t *labels, idx_t k) {
 #pragma omp parallel for
-        for (int i = 0; i < n; i++) {
-            idxs[i] = quantizer->searchKnn(const_cast<float *>(data + i * d), 1).top().second;
-
-        }
+        for (int i = 0; i < n; i++)
+            labels[i] = quantizer->searchKnn(const_cast<float *>(x + i * d), k).top().second;
     }
 
 

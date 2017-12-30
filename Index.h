@@ -1,7 +1,3 @@
-//
-// Created by dbaranchuk on 23.12.17.
-//
-
 #ifndef IVF_HNSW_LIB_INDEX_H
 #define IVF_HNSW_LIB_INDEX_H
 
@@ -21,16 +17,16 @@ typedef unsigned char uint8_t;
 namespace ivfhnsw {
     /** Abstract structure for an index
     *
-    * Supports adding vertices and searching them.
+    * Supports HNSW construction, PQ training, serialization and searching.
     *
     * Currently only asymmetric queries are supported:
     * database-to-database queries are not implemented.
     */
     struct Index
     {
-        size_t d;             /** Vector Dimension **/
-        size_t nc;            /** Number of Centroids **/
-        size_t code_size;     /** PQ Code Size **/
+        size_t d;             ///< Vector dimension 
+        size_t nc;            ///< Number of centroids
+        size_t code_size;     ///< PQ code size 
 
         /** Coarse Quantizer based on HNSW [Y.Malkov]**/
         hnswlib::HierarchicalNSW *quantizer;
@@ -54,19 +50,24 @@ namespace ivfhnsw {
         Index(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx);
         virtual ~Index();
 
-        /** Construct HNSW Coarse Quantizer **/
-        virtual void buildCoarseQuantizer(const char *path_clusters,
-                                          const char *path_info, const char *path_edges,
-                                          int M, int efConstruction);
+        /** Construct from stretch or load the existing quantizer (HNSW) instance
+          *
+          * This function is identical as search but only return labels of neighbors.
+          * @param x           input vectors to search, size n * d
+          * @param labels      output labels of the NNs, size n*k
+        */
+        void buildQuantizer(const char *path_clusters,
+                                  const char *path_info, const char *path_edges,
+                                  int M, int efConstruction);
 
 
         /** return the indexes of the k vectors closest to the query x.
-         *
-         * This function is identical as search but only return labels of neighbors.
-         * @param x           input vectors to search, size n * d
-         * @param labels      output labels of the NNs, size n*k
-         */
-        virtual void assign(size_t n, const float *data, idx_t *idxs);
+          *
+          * This function is identical as search but only return labels of neighbors.
+          * @param x           input vectors to search, size n * d
+          * @param labels      output labels of the NNs, size n*k
+        */
+        void assign (idx_t n, const float * x, idx_t * labels, idx_t k = 1);
 
         /** query n vectors of dimension d to the index.
          *
