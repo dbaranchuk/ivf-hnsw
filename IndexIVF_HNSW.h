@@ -101,6 +101,8 @@ namespace ivfhnsw {
          */
         virtual void search(float *x, size_t k, float *distances, long *labels);
 
+        virtual void add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *idx);
+
         virtual void train_pq(size_t n, const float *x);
 
         virtual void write(const char *path_index);
@@ -109,7 +111,7 @@ namespace ivfhnsw {
         void compute_centroid_norms();
 
     protected:
-        virtual float fstdistfunc(uint8_t *code);
+        float fstdistfunc(uint8_t *code);
 
     private:
         void reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys);
