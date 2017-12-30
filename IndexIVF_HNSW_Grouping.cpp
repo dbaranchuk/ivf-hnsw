@@ -6,9 +6,9 @@
 
 
 namespace ivfhnsw{
-    /***************************************/
-    /** IVF + HNSW + Grouping( + Pruning) **/
-    /***************************************/
+    /****************************************************/
+    /** IVF_HNSW + grouping( + pruning) implementation **/
+    /****************************************************/
     IndexIVF_HNSW_Grouping::IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
                                                    size_t nbits_per_idx, size_t nsubcentroids = 64):
            IndexIVF_HNSW(dim, ncentroids, bytes_per_code, nbits_per_idx), nsubc(nsubcentroids)
@@ -19,6 +19,8 @@ namespace ivfhnsw{
 
         q_s.resize(nc);
         std::fill(q_s.begin(), q_s.end(), 0);
+
+        do_pruning = false;
     }
 
     void IndexIVF_HNSW_Grouping::add_group(int centroid_num, int groupsize,
@@ -122,7 +124,7 @@ namespace ivfhnsw{
         }
     }
 
-    void IndexIVF_HNSW_Grouping::search(float *x, size_t k, float *distances, long *labels)
+    void IndexIVF_HNSW_Grouping::search(size_t k, const float *x, float *distances, long *labels)
     {
         std::vector<float> r;
         std::vector<idx_t> subcentroid_nums;

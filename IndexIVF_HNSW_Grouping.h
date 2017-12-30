@@ -10,9 +10,8 @@ namespace ivfhnsw{
     struct IndexIVF_HNSW_Grouping: IndexIVF_HNSW
     {
         size_t nsubc;         /** Number of Subcentroids **/
-        bool isPruning = false;//true;
+        bool do_pruning;
 
-        /** NEW **/
         std::vector<std::vector<idx_t> > nn_centroid_idxs;
         std::vector<std::vector<idx_t> > group_sizes;
         std::vector<float> alphas;
@@ -25,7 +24,8 @@ namespace ivfhnsw{
                        const float *data, const idx_t *idxs,
                        double &baseline_average, double &modified_average);
 
-        void search(float *x, size_t k, float *distances, long *labels);
+
+        void search(size_t k, const float *x, float *distances, long *labels);
 
         void write(const char *path_index);
         void read(const char *path_index);
@@ -34,7 +34,7 @@ namespace ivfhnsw{
 
         void compute_centroid_dists();
 
-    private:
+    protected:
         std::vector<float> q_s;
         std::vector<std::vector<float> > centroid_dists; /** Distances from region centroids to their subcentroids **/
 

@@ -188,7 +188,7 @@ int main(int argc, char **argv)
             labels[j] = 0;
         }
 
-        index->search(massQ.data() + i*opt.d, opt.k, distances, labels);
+        index->search(opt.k, massQ.data() + i*opt.d, distances, labels);
 
         std::priority_queue<std::pair<float, idx_t >> gt(answers[i]);
         unordered_set<idx_t> g;

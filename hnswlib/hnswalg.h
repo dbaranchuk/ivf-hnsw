@@ -96,7 +96,6 @@ namespace hnswlib {
             return (uint8_t *) (data_level0_memory_ + internal_id * size_data_per_element);
         }
 
-        //std::priority_queue<std::pair<dist_t, idx_t>, vector<pair<dist_t, idx_t>>, CompareByFirst>
         std::priority_queue<std::pair<float, idx_t>> searchBaseLayer(const float *datapoint, size_t ef);
 
         void getNeighborsByHeuristic(std::priority_queue<std::pair<float, idx_t>> &topResults, const int NN);

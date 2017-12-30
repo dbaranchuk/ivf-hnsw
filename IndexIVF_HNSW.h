@@ -13,9 +13,6 @@
 #include <hnswlib/hnswalg.h>
 #include "utils.h"
 
-typedef unsigned char uint8_t;
-typedef unsigned int idx_t;    ///< all indices are this type
-
 namespace ivfhnsw {
     /** Index based on a inverted file (IVF)
       *
@@ -31,30 +28,28 @@ namespace ivfhnsw {
       * (nprobe) quantization indices are selected and several inverted
       * lists are visited.
       *
-      * Supports HNSW construction, PQ training, serialization and searching.
+      * Supports HNSW construction, PQ training, adding vertices,
+      * serialization and searching.
       *
       * Currently only asymmetric queries are supported:
       * database-to-database queries are not implemented.
     */
     struct IndexIVF_HNSW
     {
+        typedef unsigned char uint8_t;  ///< all codes are this type
+        typedef unsigned int idx_t;     ///< all indices are this type
+
         size_t d;             ///< Vector dimension 
         size_t nc;            ///< Number of centroids
         size_t code_size;     ///< Code size per vector in bytes
 
-        /** HNSW [Y.Malkov] Quantizer **/
-        hnswlib::HierarchicalNSW *quantizer;  ///< Quantizer that maps vectors to inverted lists (HNSW [Y.Malkov])
+        hnswlib::HierarchicalNSW *quantizer; ///< Quantizer that maps vectors to inverted lists (HNSW [Y.Malkov])
 
-        /** Product quantizers **/
-        faiss::ProductQuantizer *pq;
-        faiss::ProductQuantizer *norm_pq;
+        faiss::ProductQuantizer *pq;         ///< Produces the vector codes
+        faiss::ProductQuantizer *norm_pq;    ///< Produces the norm codes
 
-        /** Search Parameters **/
         size_t nprobe = 16;        ///< Number of probes at query time
         size_t max_codes = 10000;  ///< Number of possible key values
-
-        /** Query Table **/
-        std::vector<float> query_table;
 
         std::vector<std::vector<idx_t> > ids;           ///< Inverted lists for indexes
         std::vector<std::vector<uint8_t> > codes;       ///< PQ codes of data
@@ -86,7 +81,7 @@ namespace ivfhnsw {
           * @param n           number of input vectors
           * @param x           input vectors to search, size n * d
           * @param labels      output labels of the NNs, size n * k
-          * @param k           number of closest vertices to the query x
+          * @param k           number of closest HNSW vertices to the query x
         */
         void assign (size_t n, const float *x, idx_t *labels, size_t k = 1);
 
@@ -95,22 +90,41 @@ namespace ivfhnsw {
          * Return at most k vectors. If there are not enough results for a
          * query, the result array is padded with -1s.
          *
+         * @param k           number of closest vertices to search
          * @param x           input vectors to search, size n * d
-         * @param labels      output labels of the NNs, size n*k
-         * @param distances   output pairwise distances, size n*k
+         * @param distances   output pairwise distances, size n * k
+         * @param labels      output labels of the NNs, size n * k
          */
-        virtual void search(float *x, size_t k, float *distances, long *labels);
+        virtual void search(size_t k, const float *x, float *distances, long *labels);
 
-        virtual void add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *idx);
+        /** Add n vectors of dimension d to the index.
+          *
+          * @param n                 number of input vectors
+          * @param x                 input vectors to add, size n * d
+          * @param xids              ids to store for the vectors (size n)
+          * @param precomputed_idx   if non-null, assigned idxs to store for the vectors (size n)
+        */
+        virtual void add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *precomputed_idx = nullptr);
 
+        /** Train product quantizers
+          *
+          * @param n     number of training vectors of dimension d
+          * @param x     learn vectors, size n * d
+        */
         virtual void train_pq(size_t n, const float *x);
 
-        virtual void write(const char *path_index);
-        virtual void read(const char *path_index);
+        /// Write index to the path
+        virtual void write(const char *path);
 
+        /// Read index from the path
+        virtual void read(const char *path);
+
+        /// Compute norms of the HNSW vertices
         void compute_centroid_norms();
 
     protected:
+        /** Query Table **/
+        std::vector<float> precomputed_table;
         float fstdistfunc(uint8_t *code);
 
     private:

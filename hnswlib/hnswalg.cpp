@@ -147,10 +147,8 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
 {
     getNeighborsByHeuristic(topResults, M_);
 
-    while (topResults.size() > M_) {
+    while (topResults.size() > M_)
         throw exception();
-        topResults.pop();
-    }
 
     std::vector<idx_t> rez;
     rez.reserve(M_);

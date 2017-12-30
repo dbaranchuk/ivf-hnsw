@@ -1,8 +1,9 @@
 #include "IndexIVF_HNSW.h"
 
 namespace ivfhnsw {
-
-    /** Public **/
+    /*****************************/
+    /** IVF_HNSW implementation **/
+    /*****************************/
     IndexIVF_HNSW::IndexIVF_HNSW(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx):
             d(dim), nc(ncentroids)
     {
@@ -10,8 +11,9 @@ namespace ivfhnsw {
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
         code_size = pq->code_size;
         norms.resize(65536);
-        query_table.resize(pq->ksub * pq->M);
+        precomputed_table.resize(pq->ksub * pq->M);
 
+        /// size nlist * pq.M * pq.ksub
         codes.resize(ncentroids);
         norm_codes.resize(ncentroids);
         ids.resize(ncentroids);
@@ -85,16 +87,24 @@ namespace ivfhnsw {
         int dim = code_size >> 2;
         int m = 0;
         for (int i = 0; i < dim; i++) {
-            result += query_table[pq->ksub * m + code[m]]; m++;
-            result += query_table[pq->ksub * m + code[m]]; m++;
-            result += query_table[pq->ksub * m + code[m]]; m++;
-            result += query_table[pq->ksub * m + code[m]]; m++;
+            result += precomputed_table[pq->ksub * m + code[m]]; m++;
+            result += precomputed_table[pq->ksub * m + code[m]]; m++;
+            result += precomputed_table[pq->ksub * m + code[m]]; m++;
+            result += precomputed_table[pq->ksub * m + code[m]]; m++;
         }
         return result;
     }
 
-    void IndexIVF_HNSW::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *idx)
+    void IndexIVF_HNSW::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *precomputed_idx)
     {
+        idx_t *idx;
+        /// Check whether idxs are precomputed. If not, assign x 
+        if (precomputed_idx)
+            idx = precomputed_idx;
+        else {
+            idx = new idx_t[n];
+            assign(n, x, idx, 1);
+        }
         /** Compute residuals for original vectors **/
         std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), idx);
@@ -130,10 +140,14 @@ namespace ivfhnsw {
 
             norm_codes[key].push_back(xnorm_codes[i]);
         }
+        
+        /** Free memory, if it is allocated **/
+        if (idx != precomputed_idx)
+            delete idx;
     }
 
 
-    void IndexIVF_HNSW::search(float *x, size_t k, float *distances, long *labels)
+    void IndexIVF_HNSW::search(size_t k, const float *x, float *distances, long *labels)
     {
         idx_t keys[nprobe];
         float q_c[nprobe];
@@ -149,7 +163,7 @@ namespace ivfhnsw {
         }
 
         /** Compute Query Table **/
-        pq->compute_inner_prod_table(x, query_table.data());
+        pq->compute_inner_prod_table(x, precomputed_table.data());
 
         /** Prepare max heap with \k answers **/
         faiss::maxheap_heapify(k, distances, labels);
