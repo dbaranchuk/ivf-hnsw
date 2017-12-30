@@ -74,7 +74,7 @@ namespace ivfhnsw {
           * @param labels      output labels of the NNs, size n * k
           * @param k           number of closest vertices to the query x
         */
-        void assign (idx_t n, const float *x, idx_t *labels, idx_t k = 1);
+        void assign (size_t n, const float *x, idx_t *labels, idx_t k = 1);
 
         /** Query n vectors of dimension d to the index.
          *
