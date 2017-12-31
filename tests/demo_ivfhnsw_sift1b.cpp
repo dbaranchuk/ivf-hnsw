@@ -164,7 +164,7 @@ int main(int argc, char **argv)
     std::vector<std::priority_queue< std::pair<float, idx_t >>> answers;
     (std::vector<std::priority_queue< std::pair<float, idx_t >>>(opt.nq)).swap(answers);
     for (int i = 0; i < opt.nq; i++)
-        answers[i].emplace(0.0f, massQA[opt.gtd*i]);
+        answers[i].emplace(0.0f, massQA[opt.ngt*i]);
 
     /***************************/
     /** Set search parameters **/
