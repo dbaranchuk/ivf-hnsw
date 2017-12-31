@@ -89,19 +89,22 @@ int main(int argc, char **argv)
     /************************/
     if (!exists_test(opt.path_precomputed_idxs)){
         std::cout << "Precomputing indexes" << std::endl;
-        const size_t batch_size = 1000000;
+        StopW stopw = StopW();
 
         FILE *fout = fopen(opt.path_precomputed_idxs, "wb");
         std::ifstream input(opt.path_data, ios::binary);
 
         /** TODO **/
         //std::ofstream output(path_precomputed_idxs, ios::binary);
-
+        size_t batch_size = 1000000;
+        size_t nbatch = opt.nb / batch_size;
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> precomputed_idx(batch_size);
 
-        for (int i = 0; i < opt.nb / batch_size; i++) {
-            std::cout << "Batch number: " << i + 1 << " of " << opt.nb / batch_size << std::endl;
+        for (int i = 0; i < nbatch; i++) {
+            if (i % 10 == 0) {
+                std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100.*i) / nbatch << "%\n";
+            }
             readXvecFvec<float>(input, batch.data(), opt.d, batch_size);
             index->assign(batch_size, batch.data(), precomputed_idx.data());
 

@@ -90,19 +90,20 @@ int main(int argc, char **argv)
     /************************/
     if (!exists_test(opt.path_precomputed_idxs)){
         std::cout << "Precomputing indexes" << std::endl;
-        const size_t batch_size = 1000000;
+        StopW stopw = StopW();
 
         FILE *fout = fopen(opt.path_precomputed_idxs, "wb");
         std::ifstream input(opt.path_data, ios::binary);
 
-        /** TODO **/
-        //std::ofstream output(path_precomputed_idxs, ios::binary);
-
+        size_t batch_size = 1000000;
+        size_t nbatch = opt.nb / batch_size;
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> precomputed_idx(batch_size);
 
-        for (int i = 0; i < opt.nb / batch_size; i++) {
-            std::cout << "Batch number: " << i + 1 << " of " << opt.nb / batch_size << std::endl;
+        for (int i = 0; i < nbatch; i++) {
+            if (i % 10 == 0) {
+                std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100.*i) / nbatch << "%\n";
+            }
             readXvecFvec<uint8_t>(input, batch.data(), opt.d, batch_size);
             index->assign(batch_size, batch.data(), precomputed_idx.data());
 
@@ -124,23 +125,24 @@ int main(int argc, char **argv)
         /** Add elements **/
         StopW stopw = StopW();
 
-        const size_t batch_size = 1000000;
         std::ifstream base_input(opt.path_data, ios::binary);
         std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
+
+        size_t batch_size = 1000000;
+        size_t nbatch = opt.nb / batch_size;
         std::vector<float> batch(batch_size * opt.d);
         std::vector <idx_t> idx_batch(batch_size);
         std::vector <idx_t> ids_batch(batch_size);
 
-        for (int b = 0; b < (opt.nb / batch_size); b++) {
+        for (int b = 0; b < nbatch; b++) {
+            if (b % 10 == 0) {
+                std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100. * b) / nbatch << "%\n";
+            }
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
             readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
 
             for (size_t i = 0; i < batch_size; i++)
                 ids_batch[i] = batch_size * b + i;
-
-            if (b % 10 == 0)
-                std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
-                          << (100. * b) / (opt.nb / batch_size) << "%" << std::endl;
 
             index->add_batch(batch_size, batch.data(), ids_batch.data(), idx_batch.data());
         }
