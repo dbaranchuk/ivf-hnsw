@@ -25,9 +25,9 @@ int main(int argc, char **argv)
     /** Load Groundtruth **/
     /**********************/
     std::cout << "Loading groundtruth" << std::endl;
-    std::vector<idx_t> massQA(opt.nq * opt.gtd);
+    std::vector<idx_t> massQA(opt.nq * opt.ngt);
     std::ifstream gt_input(opt.path_gt, ios::binary);
-    readXvec<idx_t>(gt_input, massQA.data(), opt.gtd, opt.nq);
+    readXvec<idx_t>(gt_input, massQA.data(), opt.ngt, opt.nq);
     gt_input.close();
 
     /******************/
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
         StopW stopw = StopW();
 
         FILE *fout = fopen(opt.path_precomputed_idxs, "wb");
-        std::ifstream input(opt.path_data, ios::binary);
+        std::ifstream input(opt.path_base, ios::binary);
 
         size_t batch_size = 1000000;
         size_t nbatch = opt.nb / batch_size;
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
         /** Add elements **/
         StopW stopw = StopW();
 
-        std::ifstream base_input(opt.path_data, ios::binary);
+        std::ifstream base_input(opt.path_base, ios::binary);
         std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
 
         size_t batch_size = 1000000;

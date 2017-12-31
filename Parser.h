@@ -137,8 +137,8 @@ struct Parser
                 ret = sscanf (argv[++i], "%d", &d);
                 assert (ret);
             }
-            else if (!strcmp (a, "-gt_d") && i+1 < argc) {
-                ret = sscanf (argv[++i], "%d", &gtd);
+            else if (!strcmp (a, "-ngt") && i+1 < argc) {
+                ret = sscanf (argv[++i], "%d", &ngt);
                 assert (ret);
             }
             else if (!strcmp (a, "-n") && i+1 < argc) {

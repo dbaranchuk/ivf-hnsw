@@ -25,9 +25,9 @@ int main(int argc, char **argv)
     /** Load Groundtruth **/
     /**********************/
     std::cout << "Loading groundtruth" << std::endl;
-    std::vector<idx_t> massQA(opt.nq * opt.gtd);
+    std::vector<idx_t> massQA(opt.nq * opt.ngt);
     std::ifstream gt_input(opt.path_gt, ios::binary);
-    readXvec<idx_t>(gt_input, massQA.data(), opt.gtd, opt.nq);
+    readXvec<idx_t>(gt_input, massQA.data(), opt.ngt, opt.nq);
     gt_input.close();
 
     /******************/
@@ -43,9 +43,8 @@ int main(int argc, char **argv)
     /** Initialize Index **/
     /**********************/
     IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(opt.d, opt.nc, opt.M_PQ, 8, opt.nsubc);
-    index->buildQuantizer(opt.path_centroids,
-                                opt.path_info, opt.path_edges,
-                                opt.M, opt.efConstruction);
+    index->buildQuantizer(opt.path_centroids, opt.path_info, opt.path_edges,
+                          opt.M, opt.efConstruction);
 
     /********************/
     /** Load learn set **/
@@ -92,7 +91,7 @@ int main(int argc, char **argv)
         StopW stopw = StopW();
 
         FILE *fout = fopen(opt.path_precomputed_idxs, "wb");
-        std::ifstream input(opt.path_data, ios::binary);
+        std::ifstream input(opt.path_base, ios::binary);
 
         /** TODO **/
         //std::ofstream output(path_precomputed_idxs, ios::binary);
