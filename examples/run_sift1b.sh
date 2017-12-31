@@ -65,14 +65,14 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}.index"
                                                   -nsubt ${nsubt} \
                                                   -nc ${nc} \
                                                   -nq ${nq} \
-                                                  -gt_d ${ngt} \
+                                                  -ngt ${ngt} \
                                                   -d ${d} \
-                                                  -M_PQ ${code_size} \
+                                                  -code_size ${code_size} \
                                                   -k ${k} \
-                                                  -nprobes ${nprobe} \
+                                                  -nprobe ${nprobe} \
                                                   -max_codes ${max_codes} \
                                                   -efSearch ${efSearch} \
-                                                  -path_data ${path_base} \
+                                                  -path_base ${path_base} \
                                                   -path_learn ${path_learn} \
                                                   -path_gt ${path_gt} \
                                                   -path_q ${path_q} \

@@ -32,7 +32,7 @@ struct Parser
     int ngt;
     int efConstruction;
     int M;
-    int M_PQ;
+    int code_size;
     int efSearch;
     int nprobe;
     int max_codes;
@@ -122,8 +122,8 @@ struct Parser
                 ret = sscanf (argv[++i], "%d", &M);
                 assert (ret);
             }
-            else if (!strcmp (a, "-M_PQ") && i+1 < argc) {
-                ret = sscanf (argv[++i], "%d", &M_PQ);
+            else if (!strcmp (a, "-code_size") && i+1 < argc) {
+                ret = sscanf (argv[++i], "%d", &code_size);
                 assert (ret);
             }
             else if (!strcmp (a, "-efSearch") && i+1 < argc) {
