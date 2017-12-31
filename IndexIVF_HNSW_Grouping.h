@@ -4,9 +4,9 @@
 #include "IndexIVF_HNSW.h"
 
 namespace ivfhnsw{
-    /*********************************************************/
-    /** Structure for IVF_HNSW + Grouping( + Pruning) index **/
-    /*********************************************************/
+    //=======================================
+    // IVF_HNSW + Grouping( + Pruning) index
+    //=======================================
     struct IndexIVF_HNSW_Grouping: IndexIVF_HNSW
     {
         size_t nsubc;         /** Number of Subcentroids **/

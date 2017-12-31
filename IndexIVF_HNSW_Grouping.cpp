@@ -1,14 +1,9 @@
-//
-// Created by dbaranchuk on 23.12.17.
-//
-
 #include "IndexIVF_HNSW_Grouping.h"
 
-
 namespace ivfhnsw{
-    /****************************************************/
-    /** IVF_HNSW + grouping( + pruning) implementation **/
-    /****************************************************/
+    //================================================
+    // IVF_HNSW + grouping( + pruning) implementation
+    //================================================
     IndexIVF_HNSW_Grouping::IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
                                                    size_t nbits_per_idx, size_t nsubcentroids = 64):
            IndexIVF_HNSW(dim, ncentroids, bytes_per_code, nbits_per_idx), nsubc(nsubcentroids)
@@ -27,10 +22,10 @@ namespace ivfhnsw{
                                            const float *data, const idx_t *idxs,
                                            double &baseline_average, double &modified_average)
     {
-        /** Find NN centroids to source centroid **/
+        // Find NN centroids to source centroid 
         const float *centroid = quantizer->getDataByInternalId(centroid_num);
         std::priority_queue<std::pair<float, idx_t>> nn_centroids_raw = quantizer->searchKnn(centroid, nsubc + 1);
-        /** Vectors for construction **/
+
         std::vector<float> centroid_vector_norms_L2sqr(nsubc);
         nn_centroid_idxs[centroid_num].resize(nsubc);
         while (nn_centroids_raw.size() > 1) {
@@ -44,18 +39,18 @@ namespace ivfhnsw{
         const float *centroid_vector_norms = centroid_vector_norms_L2sqr.data();
         const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
 
-        /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
+        // Compute centroid-neighbor_centroid and centroid-group_point vectors
         std::vector<float> centroid_vectors(nsubc * d);
         for (int subc = 0; subc < nsubc; subc++) {
             float *neighbor_centroid = quantizer->getDataByInternalId(nn_centroids[subc]);
             faiss::fvec_madd(d, neighbor_centroid, -1., centroid, centroid_vectors.data() + subc * d);
         }
 
-        /** Find alphas for vectors **/
+        // Find alphas for vectors
         alphas[centroid_num] = compute_alpha(centroid_vectors.data(), data, centroid,
                                              centroid_vector_norms, groupsize);
 
-        /** Compute final subcentroids **/
+        // Compute final subcentroids
         std::vector<float> subcentroids(nsubc * d);
         for (int subc = 0; subc < nsubc; subc++) {
             const float *centroid_vector = centroid_vectors.data() + subc * d;
@@ -63,36 +58,36 @@ namespace ivfhnsw{
             faiss::fvec_madd(d, centroid, alphas[centroid_num], centroid_vector, subcentroid);
         }
 
-        /** Find subcentroid idx **/
+        // Find subcentroid idx
         std::vector<idx_t> subcentroid_idxs(groupsize);
         compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data, groupsize);
 
-        /** Compute Residuals **/
+        // Compute residuals
         std::vector<float> residuals(groupsize * d);
         compute_residuals(groupsize, data, residuals.data(), subcentroids.data(), subcentroid_idxs.data());
 
-        /** Compute Codes **/
+        // Compute codes
         std::vector<uint8_t> xcodes(groupsize * code_size);
         pq->compute_codes(residuals.data(), xcodes.data(), groupsize);
 
-        /** Decode Codes **/
+        // Decode codes
         std::vector<float> decoded_residuals(groupsize * d);
         pq->decode(xcodes.data(), decoded_residuals.data(), groupsize);
 
-        /** Reconstruct Data **/
+        // Reconstruct data
         std::vector<float> reconstructed_x(groupsize * d);
         reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(),
                     subcentroids.data(), subcentroid_idxs.data());
 
-        /** Compute norms **/
+        // Compute norms 
         std::vector<float> norms(groupsize);
         faiss::fvec_norms_L2sqr(norms.data(), reconstructed_x.data(), d, groupsize);
 
-        /** Compute norm codes **/
+        // Compute norm codes
         std::vector<uint8_t> xnorm_codes(groupsize);
         norm_pq->compute_codes(norms.data(), xnorm_codes.data(), groupsize);
 
-        /** Distribute codes **/
+        // Distribute codes
         std::vector<std::vector<idx_t> > construction_ids(nsubc);
         std::vector<std::vector<uint8_t> > construction_codes(nsubc);
         std::vector<std::vector<uint8_t> > construction_norm_codes(nsubc);
@@ -110,7 +105,7 @@ namespace ivfhnsw{
             baseline_average += fvec_L2sqr(centroid, point, d);
             modified_average += fvec_L2sqr(subcentroid, point, d);
         }
-        /** Add codes **/
+        // Add codes
         for (int subc = 0; subc < nsubc; subc++) {
             idx_t subcsize = construction_norm_codes[subc].size();
             group_sizes[centroid_num].push_back(subcsize);
@@ -132,14 +127,14 @@ namespace ivfhnsw{
         idx_t keys[nprobe];
         float q_c[nprobe];
 
-        /** Find NN Centroids **/
+        // Find NN centroids
         auto coarse = quantizer->searchKnn(x, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
             auto elem = coarse.top();
             q_c[i] = elem.first;
             keys[i] = elem.second;
 
-            /** Add q_c to precomputed q_s **/
+            // Add q_c to precomputed q_s
             idx_t key = keys[i];
             q_s[key] = q_c[i];
             subcentroid_nums.push_back(key);
@@ -147,7 +142,7 @@ namespace ivfhnsw{
             coarse.pop();
         }
 
-        /** Computing threshold for pruning **/
+        // Computing threshold for pruning
         double threshold = 0.0;
         if (do_pruning) {
             int ncode = 0;
@@ -188,10 +183,10 @@ namespace ivfhnsw{
             threshold /= normalize;
         }
 
-        /** Compute Query Table **/
+        // Precompute table
         pq->compute_inner_prod_table(x, precomputed_table.data());
 
-        /** Prepare max heap with \k answers **/
+        // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
 
         int ncode = 0;
@@ -240,7 +235,7 @@ namespace ivfhnsw{
                         faiss::maxheap_push(k, distances, labels, dist, id[j]);
                     }
                 }
-                /** Shift to the next group **/
+                // Shift to the next group
                 code += groupsize * code_size;
                 norm_code += groupsize;
                 id += groupsize;
@@ -250,7 +245,7 @@ namespace ivfhnsw{
                 break;
         }
 
-        /** Zero subcentroids **/
+        // Zero subcentroids
         for (idx_t subcentroid_num : subcentroid_nums)
             q_s[subcentroid_num] = 0;
     }
@@ -264,43 +259,43 @@ namespace ivfhnsw{
         fwrite(&nsubc, sizeof(size_t), 1, fout);
 
         idx_t size;
-        /** Save Vector Indexes per  **/
+        // Save vector indices
         for (size_t i = 0; i < nc; i++) {
             size = ids[i].size();
             fwrite(&size, sizeof(idx_t), 1, fout);
             fwrite(ids[i].data(), sizeof(idx_t), size, fout);
         }
-        /** Save PQ Codes **/
+        // Save PQ codes
         for (int i = 0; i < nc; i++) {
             size = codes[i].size();
             fwrite(&size, sizeof(idx_t), 1, fout);
             fwrite(codes[i].data(), sizeof(uint8_t), size, fout);
         }
-        /** Save Norm Codes **/
+        // Save norm PQ codes
         for (int i = 0; i < nc; i++) {
             size = norm_codes[i].size();
             fwrite(&size, sizeof(idx_t), 1, fout);
             fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
         }
-        /** Save NN Centroid Indexes **/
+        // Save NN centroid indices
         for (int i = 0; i < nc; i++) {
             size = nn_centroid_idxs[i].size();
             fwrite(&size, sizeof(idx_t), 1, fout);
             fwrite(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fout);
         }
-        /** Write Group Sizes **/
+        // Write group sizes
         for (int i = 0; i < nc; i++) {
             size = group_sizes[i].size();
             fwrite(&size, sizeof(idx_t), 1, fout);
             fwrite(group_sizes[i].data(), sizeof(idx_t), size, fout);
         }
-        /** Save Alphas **/
+        // Save alphas
         fwrite(alphas.data(), sizeof(float), nc, fout);
 
-        /** Save Centroid Norms **/
+        // Save centroid norms
         fwrite(centroid_norms.data(), sizeof(float), nc, fout);
 
-        /** Save Centroid Dists **/
+        // Save centroid distances
         for (int i = 0; i < nc; i++) {
             size = centroid_dists[i].size();
             fwrite(&size, sizeof(idx_t), 1, fout);
@@ -324,46 +319,46 @@ namespace ivfhnsw{
         group_sizes.resize(nc);
 
         idx_t size;
-        /** Read Ids **/
+        // Read indices
         for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(idx_t), 1, fin);
             ids[i].resize(size);
             fread(ids[i].data(), sizeof(idx_t), size, fin);
         }
-        /** Read Codes **/
+        // Read PQ codes
         for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(idx_t), 1, fin);
             codes[i].resize(size);
             fread(codes[i].data(), sizeof(uint8_t), size, fin);
         }
-        /** Read Norm Codes **/
+        // Read norm PQ codes
         for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(idx_t), 1, fin);
             norm_codes[i].resize(size);
             fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
         }
-        /** Read NN Centroid Indexes **/
+        // Read NN centroid indices
         for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(idx_t), 1, fin);
             nn_centroid_idxs[i].resize(size);
             fread(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fin);
         }
-        /** Read Group Sizes **/
+        // Read group sizes
         for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(idx_t), 1, fin);
             group_sizes[i].resize(size);
             fread(group_sizes[i].data(), sizeof(idx_t), size, fin);
         }
 
-        /** Read Alphas **/
+        // Read alphas
         alphas.resize(nc);
         fread(alphas.data(), sizeof(float), nc, fin);
 
-        /** Read Centroid Norms **/
+        // Read centroid norms
         centroid_norms.resize(nc);
         fread(centroid_norms.data(), sizeof(float), nc, fin);
 
-        /** Read Centroid Dists **/
+        // Read centroid distances
         centroid_dists.resize(nc);
         for (int i = 0; i < nc; i++) {
             fread(&size, sizeof(idx_t), 1, fin);
@@ -393,7 +388,7 @@ namespace ivfhnsw{
                 group_map[key].push_back(x[i*d + j]);
         }
 
-        /** Train Residual PQ **/
+        // Train Residual PQ
         std::cout << "Training Residual PQ codebook " << std::endl;
         for (auto p : group_map) {
             const idx_t centroid_num = p.first;
@@ -411,26 +406,26 @@ namespace ivfhnsw{
                 nn_centroids_raw.pop();
             }
 
-            /** Compute centroid-neighbor_centroid and centroid-group_point vectors **/
+            // Compute centroid-neighbor_centroid and centroid-group_point vectors
             std::vector<float> centroid_vectors(nsubc * d);
             for (int subc = 0; subc < nsubc; subc++) {
                 const float *neighbor_centroid = quantizer->getDataByInternalId(nn_centroids[subc]);
                 faiss::fvec_madd(d, neighbor_centroid, -1., centroid, centroid_vectors.data() + subc * d);
             }
 
-            /** Find alphas for vectors **/
+            // Find alphas for vectors
             float alpha = compute_alpha(centroid_vectors.data(), data.data(), centroid, centroid_vector_norms.data(), groupsize);
 
-            /** Compute final subcentroids **/
+            // Compute final subcentroids 
             std::vector<float> subcentroids(nsubc * d);
             for (int subc = 0; subc < nsubc; subc++)
                 faiss::fvec_madd(d, centroid, alpha, centroid_vectors.data() + subc*d, subcentroids.data() + subc*d);
 
-            /** Find subcentroid idx **/
+            // Find subcentroid idx
             std::vector<idx_t> subcentroid_idxs(groupsize);
             compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data.data(), groupsize);
 
-            /** Compute Residuals **/
+            // Compute Residuals
             std::vector<float> residuals(groupsize * d);
             compute_residuals(groupsize, data.data(), residuals.data(), subcentroids.data(), subcentroid_idxs.data());
 
@@ -446,7 +441,7 @@ namespace ivfhnsw{
         pq->verbose = true;
         pq->train(n, train_residuals.data());
 
-        /** Norm PQ **/
+        // Norm PQ
         std::cout << "Training Norm PQ codebook " << std::endl;
         std::vector<float> train_norms;
         const float *residuals = train_residuals.data();
@@ -456,20 +451,20 @@ namespace ivfhnsw{
             const vector<float> data = p.second;
             const int groupsize = data.size() / d;
 
-            /** Compute Codes **/
+            // Compute Codes 
             std::vector<uint8_t> xcodes(groupsize * code_size);
             pq->compute_codes(residuals, xcodes.data(), groupsize);
 
-            /** Decode Codes **/
+            // Decode Codes 
             std::vector<float> decoded_residuals(groupsize * d);
             pq->decode(xcodes.data(), decoded_residuals.data(), groupsize);
 
-            /** Reconstruct Data **/
+            // Reconstruct Data 
             std::vector<float> reconstructed_x(groupsize * d);
             for (idx_t i = 0; i < groupsize; i++)
                 faiss::fvec_madd(d, decoded_residuals.data() + i*d, 1., subcentroids+i*d, reconstructed_x.data() + i*d);
 
-            /** Compute norms **/
+            // Compute norms 
             std::vector<float> group_norms(groupsize);
             faiss::fvec_norms_L2sqr(group_norms.data(), reconstructed_x.data(), d, groupsize);
 

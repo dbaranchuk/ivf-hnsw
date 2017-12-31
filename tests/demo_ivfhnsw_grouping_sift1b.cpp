@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     /** Initialize Index **/
     /**********************/
     IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(opt.d, opt.nc, opt.code_size, 8, opt.nsubc);
-    index->buildQuantizer(opt.path_centroids, opt.path_info, opt.path_edges, opt.M, opt.efConstruction);
+    index->build_quantizer(opt.path_centroids, opt.path_info, opt.path_edges, opt.M, opt.efConstruction);
 
     /********************/
     /** Load learn set **/

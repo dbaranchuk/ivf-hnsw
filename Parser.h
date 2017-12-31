@@ -11,22 +11,22 @@ static inline void read_int(const char *arg, int *x)
     assert(ret);
 }
 
-/****************
- * Parser Class *
- ****************/
+//==============
+// Parser Class
+//==============
 struct Parser
 {
-    const char *cmd; /// main
+    const char *cmd; // main
 
-    /*********************/
-    /** HNSW parameters **/
-    /*********************/
+    //=================
+    // HNSW parameters
+    //=================
     int M;               ///< Min number of edges per point
     int efConstruction;  ///< Max number of candidate vertices in priority queue to observe during construction
 
-    /*********************/
-    /** Data parameters **/
-    /*********************/
+    //=================
+    // Data parameters
+    //=================
     int nb;              ///< Number of base vectors
     int nt;              ///< Number of learn vectors
     int nsubt;           ///< Number of learn vectors to train (random subset of the learn set)
@@ -37,17 +37,17 @@ struct Parser
     int d;               ///< Vector dimension
     int code_size;       ///< Code size per vector in bytes
 
-    /***********************/
-    /** Search parameters **/
-    /***********************/
-    int k;               ///< Number of closest vertices to search
+    //===================
+    // Search parameters
+    //===================
+    int k;               ///< Number of the closest vertices to search
     int nprobe;          ///< Number of probes at query time
     int max_codes;       ///< Max number of codes to visit to do a query
     int efSearch;        ///< Max number of candidate vertices in priority queue to observe during searching
 
-    /***********/
-    /** Paths **/
-    /***********/
+    //=======
+    // Paths
+    //=======
     const char *path_base;
     const char *path_learn;
     const char *path_q;
@@ -81,15 +81,15 @@ struct Parser
             if (i+1 < argc)
                 break;
 
-            /*********************/
-            /** HNSW parameters **/
-            /*********************/
+            //=================
+            // HNSW parameters
+            //=================
             if (!strcmp (a, "-M")) read_int(argv[++i], &M);
             else if (!strcmp (a, "-efConstruction")) read_int(argv[++i], &efConstruction);
 
-            /*********************/
-            /** Data parameters **/
-            /*********************/
+            //=================
+            // Data parameters
+            //=================
             else if (!strcmp (a, "-nb")) read_int(argv[++i], &nb);
             else if (!strcmp (a, "-nc")) read_int(argv[++i], &nc);
             else if (!strcmp (a, "-nsubc")) read_int(argv[++i], &nsubc);
@@ -100,17 +100,17 @@ struct Parser
             else if (!strcmp (a, "-d")) read_int(argv[++i], &d);
             else if (!strcmp (a, "-code_size")) read_int(argv[++i], &code_size);
 
-            /***********************/
-            /** Search parameters **/
-            /***********************/
+            //===================
+            // Search parameters
+            //===================
             else if (!strcmp (a, "-k")) read_int(argv[++i], &k);
             else if (!strcmp (a, "-nprobe")) read_int(argv[++i], &nprobe);
             else if (!strcmp (a, "-max_codes")) read_int(argv[++i], &max_codes);
             else if (!strcmp (a, "-efSearch")) read_int(argv[++i], &efSearch);
 
-            /***********/
-            /** Paths **/
-            /***********/
+            //=======
+            // Paths
+            //=======
             else if (!strcmp (a, "-path_base")) path_base = argv[++i];
             else if (!strcmp (a, "-path_learn")) path_learn = argv[++i];
             else if (!strcmp (a, "-path_q")) path_q = argv[++i];
@@ -154,7 +154,7 @@ struct Parser
                 "####################\n"
                 "# Search Parameters #\n"
                 "#####################\n"
-                "    -k #                  Number of closest vertices to search\n"
+                "    -k #                  Number of the closest vertices to search\n"
                 "    -nprobe #             Number of probes at query time\n"
                 "    -max_codes #          Max number of codes to visit to do a query\n"
                 "    -efSearch #           Max number of candidate vertices in priority queue to observe during searching\n"

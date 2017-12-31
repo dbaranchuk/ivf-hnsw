@@ -1,9 +1,9 @@
 #include "IndexIVF_HNSW.h"
 
 namespace ivfhnsw {
-    /*****************************/
-    /** IVF_HNSW implementation **/
-    /*****************************/
+    //=========================
+    // IVF_HNSW implementation 
+    //=========================
     IndexIVF_HNSW::IndexIVF_HNSW(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx):
             d(dim), nc(ncentroids)
     {
@@ -27,7 +27,7 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW::buildQuantizer(const char *path_data, const char *path_info,
+    void IndexIVF_HNSW::build_quantizer(const char *path_data, const char *path_info,
                                        const char *path_edges, int M, int efConstruction)
     {
         if (exists_test(path_info) && exists_test(path_edges)) {
@@ -104,31 +104,31 @@ namespace ivfhnsw {
             idx = new idx_t[n];
             assign(n, x, idx, 1);
         }
-        /** Compute residuals for original vectors **/
+        // Compute residuals for original vectors 
         std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), idx);
 
-        /** Encode Residuals **/
+        // Encode residuals
         std::vector <uint8_t> xcodes(n * code_size);
         pq->compute_codes(residuals.data(), xcodes.data(), n);
 
-        /** Decode Residuals **/
+        // Decode residuals
         std::vector<float> decoded_residuals(n * d);
         pq->decode(xcodes.data(), decoded_residuals.data(), n);
 
-        /** Reconstruct original vectors **/
+        // Reconstruct original vectors 
         std::vector<float> reconstructed_x(n * d);
         reconstruct(n, reconstructed_x.data(), decoded_residuals.data(), idx);
 
-        /** Compute l2 square norms for reconstructed vectors **/
+        // Compute l2 square norms for reconstructed vectors 
         std::vector<float> norms(n);
         faiss::fvec_norms_L2sqr(norms.data(), reconstructed_x.data(), d, n);
 
-        /** Encode these norms**/
+        // Encode norms
         std::vector <uint8_t> xnorm_codes(n);
         norm_pq->compute_codes(norms.data(), xnorm_codes.data(), n);
 
-        /** Add vector indecies and PQ codes for residuals and norms to Index **/
+        // Add vector indecies and PQ codes for residuals and norms to Index 
         for (size_t i = 0; i < n; i++) {
             idx_t key = idx[i];
             idx_t id = xids[i];
@@ -140,7 +140,7 @@ namespace ivfhnsw {
             norm_codes[key].push_back(xnorm_codes[i]);
         }
         
-        /** Free memory, if it is allocated **/
+        // Free memory, if it is allocated 
         if (idx != precomputed_idx)
             delete idx;
     }
@@ -151,7 +151,7 @@ namespace ivfhnsw {
         idx_t keys[nprobe];
         float q_c[nprobe];
 
-        /** Find NN Centroids **/
+        // Find NN centroids
         auto coarse = quantizer->searchKnn(x, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
             std::tie(q_c[i], keys[i]) = coarse.top();
@@ -161,10 +161,10 @@ namespace ivfhnsw {
             coarse.pop();
         }
 
-        /** Compute Query Table **/
+        // Precompute table
         pq->compute_inner_prod_table(x, precomputed_table.data());
 
-        /** Prepare max heap with \k answers **/
+        // Prepare max heap with k answers 
         faiss::maxheap_heapify(k, distances, labels);
 
         int ncode = 0;
@@ -196,42 +196,42 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW::train_pq(size_t n, const float *x)
     {
-        /** Assign train vectors **/
+        // Assign train vectors 
         std::vector <idx_t> assigned(n);
         assign(n, x, assigned.data());
 
-        /** Compute residuals for original vectors **/
+        // Compute residuals for original vectors 
         std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), assigned.data());
 
-        /** Train Residual PQ **/
+        // Train residual PQ
         printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", pq->M, pq->ksub, n, d);
         pq->verbose = true;
         pq->train(n, residuals.data());
 
-        /** Encode Residuals **/
+        // Encode residuals
         std::vector <uint8_t> xcodes(n * code_size);
         pq->compute_codes(residuals.data(), xcodes.data(), n);
 
-        /** Decode Residuals **/
+        // Decode residuals
         std::vector<float> decoded_residuals(n * d);
         pq->decode(xcodes.data(), decoded_residuals.data(), n);
 
-        /** Reconstruct original vectors **/
+        // Reconstruct original vectors 
         std::vector<float> reconstructed_x(n * d);
         reconstruct(n, reconstructed_x.data(), decoded_residuals.data(), assigned.data());
 
-        /** Compute l2 square norms for reconstructed vectors **/
+        // Compute l2 square norms for reconstructed vectors 
         std::vector<float> norms(n);
         faiss::fvec_norms_L2sqr(norms.data(), reconstructed_x.data(), d, n);
 
-        /** Train Norm PQ **/
+        // Train norm PQ
         printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", norm_pq->M, norm_pq->ksub, n, d);
         norm_pq->verbose = true;
         norm_pq->train(n, norms.data());
     }
 
-    /** Write index **/
+    // Write index 
     void IndexIVF_HNSW::write(const char *path_index) {
         FILE *fout = fopen(path_index, "wb");
 
@@ -241,33 +241,33 @@ namespace ivfhnsw {
         fwrite(&max_codes, sizeof(size_t), 1, fout);
 
         size_t size;
-        /** Save ids **/
+        // Save vector indices
         for (size_t i = 0; i < nc; i++) {
             size = ids[i].size();
             fwrite(&size, sizeof(size_t), 1, fout);
             fwrite(ids[i].data(), sizeof(idx_t), size, fout);
         }
 
-        /** Save codes **/
+        // Save PQ codes
         for (int i = 0; i < nc; i++) {
             size = codes[i].size();
             fwrite(&size, sizeof(size_t), 1, fout);
             fwrite(codes[i].data(), sizeof(uint8_t), size, fout);
         }
 
-        /** Save norm codes **/
+        // Save norm PQ codes
         for (int i = 0; i < nc; i++) {
             size = norm_codes[i].size();
             fwrite(&size, sizeof(size_t), 1, fout);
             fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
         }
 
-        /** Save centroid norms **/
+        // Save centroid norms 
         fwrite(centroid_norms.data(), sizeof(float), nc, fout);
         fclose(fout);
     }
 
-    /** Read index **/
+    // Read index 
     void IndexIVF_HNSW::read(const char *path_index)
     {
         FILE *fin = fopen(path_index, "rb");
@@ -278,7 +278,7 @@ namespace ivfhnsw {
         fread(&max_codes, sizeof(size_t), 1, fin);
 
         size_t size;
-        /** Read ids **/
+        // Read vector indices
         ids = std::vector < std::vector < idx_t >> (nc);
         for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(size_t), 1, fin);
@@ -286,7 +286,7 @@ namespace ivfhnsw {
             fread(ids[i].data(), sizeof(idx_t), size, fin);
         }
 
-        /** Read codes **/
+        // Read PQ codes
         codes = std::vector<std::vector<uint8_t>> (nc);
         for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(size_t), 1, fin);
@@ -294,7 +294,7 @@ namespace ivfhnsw {
             fread(codes[i].data(), sizeof(uint8_t), size, fin);
         }
 
-        /** Read norm codes **/
+        // Read norm PQ codes
         norm_codes = std::vector<std::vector<uint8_t>> (nc);
         for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(size_t), 1, fin);
@@ -302,13 +302,13 @@ namespace ivfhnsw {
             fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
         }
 
-        /** Read centroid norms **/
+        // Read centroid norms 
         centroid_norms.resize(nc);
         fread(centroid_norms.data(), sizeof(float), nc, fin);
         fclose(fin);
     }
 
-    /** Private **/
+    // Private 
     void IndexIVF_HNSW::reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys)
     {
         for (idx_t i = 0; i < n; i++) {
