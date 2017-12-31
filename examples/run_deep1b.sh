@@ -72,14 +72,14 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}.index"
                                                   -nprobes ${nprobe} \
                                                   -max_codes ${max_codes} \
                                                   -efSearch ${efSearch} \
-                                                  -path_centroids ${path_centroids} \
-                                                  -path_learn ${path_learn} \
-                                                  -path_index ${path_index} \
-                                                  -path_precomputed_idx ${path_precomputed_idxs} \
-                                                  -path_pq ${path_pq} \
-                                                  -path_norm_pq ${path_norm_pq} \
                                                   -path_data ${path_base} \
+                                                  -path_learn ${path_learn} \
+                                                  -path_gt ${path_gt} \
+                                                  -path_q ${path_q} \
+                                                  -path_centroids ${path_centroids} \
+                                                  -path_precomputed_idx ${path_precomputed_idxs} \
                                                   -path_edges ${path_edges} \
                                                   -path_info ${path_info} \
-                                                  -path_gt ${path_gt} \
-                                                  -path_q ${path_q}
+                                                  -path_pq ${path_pq} \
+                                                  -path_norm_pq ${path_norm_pq} \
+                                                  -path_index ${path_index}
