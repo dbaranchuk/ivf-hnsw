@@ -23,42 +23,43 @@ nq="10000"            # Number of queries
 ngt="1000"            # Number of groundtruth neighbours per query
 
 d="128"               # Vector dimension
+code_size="16"        # Code size per vector in bytes
 
-
-baseDir="/home/dbaranchuk/"
-
-
-
-M_PQ="16"
+#####################
+# Search parameters #
+#####################
 
 k="100"
-
-nprobes="32"
-max_codes="10000"
+nprobe="32"           # Number of probes at query time
+max_codes="10000"     # Max number of codes to visit to do a query
 efSearch="80"
 
-subdir="new_models/SIFT1B/"
+#########
+# Paths #
+#########
 
-# Paths
-path_data="${baseDir}data/bigann/bigann_base.bvecs" 
-path_edges="${baseDir}${subdir}centroids${nc}_ef${efConstruction}.ivecs"
-path_info="${baseDir}${subdir}centroids${nc}_ef${efConstruction}.bin" 
+path_data="$PWD/../data/SIFT1B"
+path_model="$PWD/../models/SIFT1B"
 
-path_gt="${baseDir}data/bigann/gnd/idx_1000M.ivecs" 
-path_q="${baseDir}data/bigann/bigann_query.bvecs"
+path_base="${path_data}/bigann_base.bvecs"
+path_learn="${path_data}/bigann_learn.bvecs"
+path_gt="${path_data}/gnd/idx_1000M.ivecs"
+path_q="${path_data}/bigann_query.bvecs"
+path_centroids="${path_data}/centroids.fvecs"
 
-path_pq="${baseDir}${subdir}pq${M_PQ}_nsubc${nsubc}.pq"
-path_norm_pq="${baseDir}${subdir}norm_pq${M_PQ}_nsubc${nsubc}.pq"
-path_precomputed_idxs="${baseDir}staff-ivf-hnsw/sift1B_precomputed_idxs_${nc}.ivecs"
-path_index="${baseDir}${subdir}hybrid${nc}M_PQ${M_PQ}_nsubc${nsubc}.index"
-path_learn="${baseDir}data/bigann/bigann_learn.bvecs"
-path_centroids="${baseDir}data/sift1B_centroids${nc}M.fvecs"
- 
-path_groups="${baseDir}data/groups/sift1B_groups.dat";
-path_idxs="${baseDir}data/groups/sift1B_idxs.ivecs"
+path_precomputed_idxs="${path_data}/precomputed_idxs_${nc}.ivecs"
 
-#M_PQ="16"
-#path_edges="${baseDir}${subdir}centroids${nc}_ef${efConstruction}_nsubc${nsubc}_PQ${M_PQ}.ivecs"
-#path_info="${baseDir}${subdir}centroids${nc}_ef${efConstruction}_nsubc${nsubc}_PQ${M_PQ}.bin"
-#./main --help
-/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_grouping_sift1b -path_centroids ${path_centroids} -path_learn ${path_learn} -path_index ${path_index} -path_precomputed_idx ${path_precomputed_idxs} -path_pq ${path_pq} -path_norm_pq ${path_norm_pq} -path_data ${path_data} -path_edges ${path_edges} -path_info ${path_info} -path_gt ${path_gt} -path_q ${path_q} -path_groups ${path_groups} -path_idxs ${path_idxs} -k ${k} -n ${n} -nq ${nq} -nc ${nc} -M ${M} -M_PQ ${M_PQ} -efConstruction ${efConstruction} -efSearch ${efSearch} -d ${d} -gt_d ${gt_d} -nprobes ${nprobes} -max_codes ${max_codes} -nsubc ${nsubc} -nt ${nt} -nsubt ${nsubt}
+path_groups="${path_data}/groups/groups.dat";
+path_idxs="${path_data}/groups/idxs.ivecs"
+
+path_edges="${path_model}/hnsw_M${M}_ef${efConstruction}.ivecs"
+path_info="${path_model}/hnsw_M${M}_ef${efConstruction}.bin"
+
+path_pq="${path_model}/pq${code_size}_nsubc${nsubc}.pq"
+path_norm_pq="${path_model}/norm_pq${code_size}_nsubc${nsubc}.pq"
+path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}.index"
+
+#######
+# Run #
+#######
+/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_grouping_sift1b -path_centroids ${path_centroids} -path_learn ${path_learn} -path_index ${path_index} -path_precomputed_idx ${path_precomputed_idxs} -path_pq ${path_pq} -path_norm_pq ${path_norm_pq} -path_data ${path_base} -path_edges ${path_edges} -path_info ${path_info} -path_gt ${path_gt} -path_q ${path_q} -path_groups ${path_groups} -path_idxs ${path_idxs} -k ${k} -n ${n} -nq ${nq} -nc ${nc} -M ${M} -M_PQ ${code_size} -efConstruction ${efConstruction} -efSearch ${efSearch} -d ${d} -gt_d ${ngt} -nprobes ${nprobe} -max_codes ${max_codes} -nsubc ${nsubc} -nt ${nt} -nsubt ${nsubt}
