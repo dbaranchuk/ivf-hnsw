@@ -58,5 +58,28 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}.index"
 #######
 # Run #
 #######
-/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_deep1b -path_centroids ${path_centroids} \
-                                                  -path_learn ${path_learn} -path_index ${path_index} -path_precomputed_idx ${path_precomputed_idxs} -path_pq ${path_pq} -path_norm_pq ${path_norm_pq} -path_data ${path_base} -path_edges ${path_edges} -path_info ${path_info} -path_gt ${path_gt} -path_q ${path_q} -k ${k} -n ${n} -nq ${nq} -nc ${nc} -M ${M} -M_PQ ${code_size} -efConstruction ${efConstruction} -efSearch ${efSearch} -d ${d} -gt_d ${ngt} -nprobes ${nprobe} -max_codes ${max_codes} -nt ${nt} -nsubt ${nsubt}
+/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_deep1b -M ${M} \
+                                                  -efConstruction ${efConstruction} \
+                                                  -n ${n} \
+                                                  -nt ${nt} \
+                                                  -nsubt ${nsubt} \
+                                                  -nc ${nc} \
+                                                  -nq ${nq} \
+                                                  -gt_d ${ngt} \
+                                                  -d ${d} \
+                                                  -M_PQ ${code_size} \
+                                                  -k ${k} \
+                                                  -nprobes ${nprobe} \
+                                                  -max_codes ${max_codes} \
+                                                  -efSearch ${efSearch} \
+                                                  -path_centroids ${path_centroids} \
+                                                  -path_learn ${path_learn} \
+                                                  -path_index ${path_index} \
+                                                  -path_precomputed_idx ${path_precomputed_idxs} \
+                                                  -path_pq ${path_pq} \
+                                                  -path_norm_pq ${path_norm_pq} \
+                                                  -path_data ${path_base} \
+                                                  -path_edges ${path_edges} \
+                                                  -path_info ${path_info} \
+                                                  -path_gt ${path_gt} \
+                                                  -path_q ${path_q}
