@@ -23,7 +23,7 @@ nsubt="65536"
 
 nc="1"
 ncentroids="999973"
-efSearch="500"
+efSearch="80"
 
 subdir="new_models/DEEP1B/"
 

@@ -123,9 +123,11 @@ namespace ivfhnsw {
         void compute_centroid_norms();
 
     protected:
-        /** Query Table **/
+        /// Size pq.M * pq.ksub
         std::vector<float> precomputed_table;
-        float fstdistfunc(uint8_t *code);
+
+        /// L2 sqr distance function on PQ codes
+        float pq_L2sqr(uint8_t *code);
 
     private:
         void reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys);

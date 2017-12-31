@@ -233,7 +233,7 @@ namespace ivfhnsw{
                 norm_pq->decode(norm_code, norms.data(), groupsize);
 
                 for (int j = 0; j < groupsize; j++) {
-                    float q_r = fstdistfunc(code + j * code_size);
+                    float q_r = pq_L2sqr(code + j * code_size);
                     float dist = fst_term + snd_term - 2 * q_r + norms[j];
                     if (dist < distances[0]) {
                         faiss::maxheap_pop(k, distances, labels);

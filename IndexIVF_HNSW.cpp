@@ -80,7 +80,7 @@ namespace ivfhnsw {
     }
 
 
-    float IndexIVF_HNSW::fstdistfunc(uint8_t *code)
+    float IndexIVF_HNSW::pq_L2sqr(uint8_t *code)
     {
         float result = 0.;
         int dim = code_size >> 2;
@@ -179,7 +179,7 @@ namespace ivfhnsw {
             norm_pq->decode(norm_code.data(), norms.data(), ncodes);
 
             for (int j = 0; j < ncodes; j++) {
-                float q_r = fstdistfunc(code.data() + j * code_size);
+                float q_r = pq_L2sqr(code.data() + j * code_size);
                 float dist = term1 - 2 * q_r + norms[j];
                 idx_t label = ids[key][j];
                 if (dist < distances[0]) {
