@@ -176,6 +176,7 @@ struct Parser
                 "    -path_norm_pq filename\n"
                 "    -path_index filename\n"
         );
+        exit(0);
     }
 };
 
