@@ -4,8 +4,8 @@
 # HNSW construction parameters #
 ################################
 
-M="16"                # minimum number of edges per point
-efConstruction="500"  # maximum number of observed vertices at once during construction
+M="16"                # Min number of edges per point
+efConstruction="500"  # Max number of candidate vertices in priority queue to observe during construction
 
 ###################
 # Data parameters #
@@ -16,7 +16,7 @@ n="1000000000"        # Number of base vectors
 nt="10000000"         # Number of learn vectors
 nsubt="65536"         # Number of learn vectors to train (random subset of the learn set)
 
-nc="993127"           # Number of centroids for HNSW
+nc="993127"           # Number of centroids for HNSW quantizer
 nsubc="64"            # Number of subcentroids per group
 
 nq="10000"            # Number of queries
@@ -29,10 +29,10 @@ code_size="16"        # Code size per vector in bytes
 # Search parameters #
 #####################
 
-k="100"
+k="100"               # Number of closest vertices to search
 nprobe="32"           # Number of probes at query time
 max_codes="10000"     # Max number of codes to visit to do a query
-efSearch="80"
+efSearch="80"         # Max number of candidate vertices in priority queue to observe during seaching
 
 #########
 # Paths #

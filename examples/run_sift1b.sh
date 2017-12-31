@@ -1,45 +1,61 @@
 #!/bin/bash
 
-efConstruction="500"
-M="16"
-numMillions="1000"
-n="${numMillions}000000"
-baseDir="/home/dbaranchuk/"
+################################
+# HNSW construction parameters #
+################################
 
-k="1"
-nq="10000"
+M="16"                # Min number of edges per point
+efConstruction="500"  # Max number of candidate vertices in priority queue to observe during construction
 
-d="128"
-gt_d="1000"
+###################
+# Data parameters #
+###################
 
-M_PQ="16"
-nprobes="32" # 8M: 128 260 450 600
-max_codes="10000"
+n="1000000000"        # Number of base vectors
 
-nt="10000000"
-nsubt="65536"
+nt="10000000"         # Number of learn vectors
+nsubt="65536"         # Number of learn vectors to train (random subset of the learn set)
 
-nc="1"
-ncentroids="993127"
-efSearch="80"
+nc="993127"           # Number of centroids for HNSW quantizer
 
-subdir="new_models/SIFT1B/"
+nq="10000"            # Number of queries
+ngt="1000"            # Number of groundtruth neighbours per query
 
-#Paths
-path_data="${baseDir}data/bigann/bigann_base.bvecs" 
-path_learn="${baseDir}data/bigann/bigann_learn.bvecs"
+d="128"               # Vector dimension
+code_size="16"        # Code size per vector in bytes
 
-path_edges="${baseDir}${subdir}centroids${ncentroids}_ef${efConstruction}.ivecs"
-path_info="${baseDir}${subdir}centroids${ncentroids}_ef${efConstruction}.bin"
+#####################
+# Search parameters #
+#####################
 
-path_gt="${baseDir}data/bigann/gnd/idx_1000M.ivecs" 
-path_q="${baseDir}data/bigann/bigann_query.bvecs"
+k="100"               # Number of closest vertices to search
+nprobe="32"           # Number of probes at query time
+max_codes="10000"     # Max number of codes to visit to do a query
+efSearch="80"         # Max number of candidate vertices in priority queue to observe during searching
 
-path_pq="${baseDir}${subdir}pq${M_PQ}.pq"
-path_norm_pq="${baseDir}${subdir}norm_pq${M_PQ}.pq"
-path_precomputed_idxs="${baseDir}staff-ivf-hnsw/sift1B_precomputed_idxs_${ncentroids}.ivecs"
-path_index="${baseDir}${subdir}hybrid${nc}M_PQ${M_PQ}.index"
-path_centroids="${baseDir}data/sift1B_centroids${nc}M.fvecs"
+#########
+# Paths #
+#########
 
-#./main --help
-/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_sift1b -path_centroids ${path_centroids} -path_learn ${path_learn} -path_index ${path_index} -path_precomputed_idx ${path_precomputed_idxs} -path_pq ${path_pq} -path_norm_pq ${path_norm_pq} -path_data ${path_data} -path_edges ${path_edges} -path_info ${path_info} -path_gt ${path_gt} -path_q ${path_q} -k ${k} -n ${n} -nq ${nq} -nc ${ncentroids} -M ${M} -M_PQ ${M_PQ} -efConstruction ${efConstruction} -efSearch ${efSearch} -d ${d} -gt_d ${gt_d} -nprobes ${nprobes} -max_codes ${max_codes} -nt ${nt} -nsubt ${nsubt}
+path_data="$PWD/data/SIFT1B"
+path_model="$PWD/models/SIFT1B"
+
+path_base="${path_data}/bigann_base.bvecs"
+path_learn="${path_data}/bigann_learn.bvecs"
+path_gt="${path_data}/gnd/idx_1000M.ivecs"
+path_q="${path_data}/bigann_query.bvecs"
+path_centroids="${path_data}/centroids.fvecs"
+
+path_precomputed_idxs="${path_data}/precomputed_idxs.ivecs"
+
+path_edges="${path_model}/hnsw_M${M}_ef${efConstruction}.ivecs"
+path_info="${path_model}/hnsw_M${M}_ef${efConstruction}.bin"
+
+path_pq="${path_model}/pq${code_size}.pq"
+path_norm_pq="${path_model}/norm_pq${code_size}.pq"
+path_index="${path_model}/ivfhnsw_PQ${code_size}.index"
+
+#######
+# Run #
+#######
+/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_sift1b -path_centroids ${path_centroids} -path_learn ${path_learn} -path_index ${path_index} -path_precomputed_idx ${path_precomputed_idxs} -path_pq ${path_pq} -path_norm_pq ${path_norm_pq} -path_data ${path_data} -path_edges ${path_edges} -path_info ${path_info} -path_gt ${path_gt} -path_q ${path_q} -k ${k} -n ${n} -nq ${nq} -nc ${nc} -M ${M} -M_PQ ${code_size} -efConstruction ${efConstruction} -efSearch ${efSearch} -d ${d} -gt_d ${gt_d} -nprobes ${nprobes} -max_codes ${max_codes} -nt ${nt} -nsubt ${nsubt}

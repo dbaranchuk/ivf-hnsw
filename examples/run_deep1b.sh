@@ -1,48 +1,61 @@
 #!/bin/bash
 
-efConstruction="500"
-M="16"
-numMillions="1000"
-n="${numMillions}000000"
+################################
+# HNSW construction parameters #
+################################
 
-homeBabenko="/home/arbabenko/"
-homeBaranchuk="/home/dbaranchuk/"
+M="16"                # Min number of edges per point
+efConstruction="500"  # Max number of candidate vertices in priority queue to observe during construction
 
-k="100"
-nq="10000"
+###################
+# Data parameters #
+###################
 
-d="96"
-gt_d="1"
+n="1000000000"        # Number of base vectors
 
-M_PQ="16"
-nprobes="32" # 8M: 128 260 450 600
-max_codes="10000"
+nt="10000000"         # Number of learn vectors
+nsubt="65536"         # Number of learn vectors to train (random subset of the learn set)
 
-nt="10000000"
-nsubt="65536"
+nc="999973"           # Number of centroids for HNSW quantizer
 
-nc="1"
-ncentroids="999973"
-efSearch="80"
+nq="10000"            # Number of queries
+ngt="1"               # Number of groundtruth neighbours per query
 
-subdir="new_models/DEEP1B/"
+d="96"                # Vector dimension
+code_size="16"        # Code size per vector in bytes
 
-#Paths
-path_data="${homeBabenko}Bigann/deep1B_base.fvecs" 
-path_learn="${homeBabenko}Bigann/deep1B_learn.fvecs"
+#####################
+# Search parameters #
+#####################
 
-path_edges="${homeBaranchuk}${subdir}centroids${ncentroids}_ef${efConstruction}.ivecs" 
-path_info="${homeBaranchuk}${subdir}centroids${ncentroids}_ef${efConstruction}.bin" 
+k="100"               # Number of closest vertices to search
+nprobe="32"           # Number of probes at query time
+max_codes="10000"     # Max number of codes to visit to do a query
+efSearch="80"         # Max number of candidate vertices in priority queue to observe during searching
 
-path_gt="${homeBabenko}Bigann/deep1B_groundtruth.ivecs" 
-path_q="${homeBabenko}Bigann/deep1B_queries.fvecs"
+#########
+# Paths #
+#########
 
-path_pq="${homeBaranchuk}${subdir}pq${M_PQ}.pq"
-path_norm_pq="${homeBaranchuk}${subdir}norm_pq${M_PQ}.pq"
-path_precomputed_idxs="${homeBaranchuk}staff-ivf-hnsw/deep1B_precomputed_idxs_${ncentroids}.ivecs"
-path_index="${homeBaranchuk}${subdir}hybrid${nc}M_PQ${M_PQ}.index"
-path_centroids="${homeBaranchuk}data/centroids${nc}M.fvecs"
+path_data="$PWD/data/DEEP1B"
+path_model="$PWD/models/DEEP1B"
 
-#./main --help
-/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_deep1b -path_centroids ${path_centroids} -path_learn ${path_learn} -path_index ${path_index} -path_precomputed_idx ${path_precomputed_idxs} -path_pq ${path_pq} -path_norm_pq ${path_norm_pq} -path_data ${path_data} -path_edges ${path_edges} -path_info ${path_info} -path_gt ${path_gt} -path_q ${path_q} -k ${k} -n ${n} -nq ${nq} -nc ${ncentroids} -M ${M} -M_PQ ${M_PQ} -efConstruction ${efConstruction} -efSearch ${efSearch} -d ${d} -gt_d ${gt_d} -nprobes ${nprobes} -max_codes ${max_codes} -nt ${nt} -nsubt ${nsubt}
+path_base="/home/arbabenko/Bigann/deep1B_base.fvecs"
+path_learn="/home/arbabenko/Bigann/deep1B_learn.fvecs"
+path_gt="${path_data}/deep1B_groundtruth.ivecs"
+path_q="${path_data}/deep1B_queries.fvecs"
+path_centroids="${path_data}/centroids.fvecs"
 
+path_precomputed_idxs="${path_data}/precomputed_idxs.ivecs"
+
+path_edges="${path_model}/hnsw_M${M}_ef${efConstruction}.ivecs"
+path_info="${path_model}/hnsw_M${M}_ef${efConstruction}.bin"
+
+path_pq="${path_model}/pq${code_size}.pq"
+path_norm_pq="${path_model}/norm_pq${code_size}.pq"
+path_index="${path_model}/ivfhnsw_PQ${code_size}.index"
+
+#######
+# Run #
+#######
+/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_deep1b -path_centroids ${path_centroids} -path_learn ${path_learn} -path_index ${path_index} -path_precomputed_idx ${path_precomputed_idxs} -path_pq ${path_pq} -path_norm_pq ${path_norm_pq} -path_data ${path_base} -path_edges ${path_edges} -path_info ${path_info} -path_gt ${path_gt} -path_q ${path_q} -k ${k} -n ${n} -nq ${nq} -nc ${nc} -M ${M} -M_PQ ${code_size} -efConstruction ${efConstruction} -efSearch ${efSearch} -d ${d} -gt_d ${gt_d} -nprobes ${nprobe} -max_codes ${max_codes} -nt ${nt} -nsubt ${nsubt}

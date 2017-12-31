@@ -70,8 +70,8 @@ namespace ivfhnsw {
           * @param path_data           path to input vectors
           * @param path_info           path to parameters for HNSW
           * @param path_edges          path to edges for HNSW
-          * @param M                   minimum number of edges per point, default: 16
-          * @param efConstruction      maximum number of observed vertices at once during construction, default: 500
+          * @param M                   min number of edges per point, default: 16
+          * @param efConstruction      max number of candidate vertices in queue to observe, default: 500
         */
         void buildQuantizer(const char *path_data, const char *path_info, const char *path_edges,
                             int M=16, int efConstruction = 500);
