@@ -1,46 +1,15 @@
 #ifndef IVF_HNSW_LIB_PARSER_H
 #define IVF_HNSW_LIB_PARSER_H
 
-#include <iostream>
 #include <cstring>
 #include <cassert>
 
 /****************
  * Parser Class *
- ****************
- * @param path_centroids
- * @param path_index
- * @param path_precomputed_idxs
- * @param path_pq
- * @param path_norm_pq
- * @param path_learn
- * @param path_data
- * @param path_q
- * @param path_gt
- * @param path_info
- * @param path_edges
- * @param path_groups
- * @param path_idxs
- * @param k
- * @param nb
- * @param nq
- * @param d
- * @param gtd
- * @param efConstruction
- * @param M
- * @param M_PQ
- * @param efSearch
- * @param nprobes
- * @param max_codes
- * @param nc
- * @param nsubc
- * @param nt
- * @param nsubt
- */
-
+ ****************/
 struct Parser
 {
-    const char * cmd;
+    const char *cmd;
 
     const char *path_centroids;
     const char *path_index;
@@ -48,7 +17,7 @@ struct Parser
     const char *path_pq;
     const char *path_norm_pq;
     const char *path_learn;
-    const char *path_data;
+    const char *path_base;
     const char *path_q;
     const char *path_gt;
     const char *path_info;
@@ -60,15 +29,15 @@ struct Parser
     int nb;
     int nq;
     int d;
-    int gtd;
+    int ngt;
     int efConstruction;
     int M;
     int M_PQ;
     int efSearch;
-    int nprobes;
+    int nprobe;
     int max_codes;
     int nc, nsubc;
-    int nt=1000000, nsubt=65536; //262144;//65536
+    int nt, nsubt;
 
     Parser(int argc, char **argv)
     {
@@ -85,8 +54,8 @@ struct Parser
                 usage();
 
             /** Paths **/
-            if (!strcmp (a, "-path_data") && i+1 < argc) {
-                path_data = argv[++i];
+            if (!strcmp (a, "-path_base") && i+1 < argc) {
+                path_base = argv[++i];
             }
             else if (!strcmp (a, "-path_info") && i+1 < argc) {
                 path_info = argv[++i];
@@ -161,8 +130,8 @@ struct Parser
                 ret = sscanf (argv[++i], "%d", &efSearch);
                 assert (ret);
             }
-            else if (!strcmp (a, "-nprobes") && i+1 < argc) {
-                ret = sscanf (argv[++i], "%d", &nprobes);
+            else if (!strcmp (a, "-nprobe") && i+1 < argc) {
+                ret = sscanf (argv[++i], "%d", &nprobe);
                 assert (ret);
             }
             else if (!strcmp (a, "-max_codes") && i+1 < argc) {
@@ -197,7 +166,7 @@ struct Parser
                         "    -efConstruction #           -//-, default: 240\n"
                         "    -M #                        number of mandatory links maxM0 = 2*M, default: M=16\n"
                         "  Path parameters\n"
-                        "    -path_data filename         set of base vectors (bvecs file format)\n"
+                        "    -path_base filename         set of base vectors (bvecs file format)\n"
                         "    -path_index filename        output index structure\n"
                         "  Query Parameters\n"
                         "    -path_gt filename           groundtruth (ivecs file format)\n"

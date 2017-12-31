@@ -47,10 +47,8 @@ int main(int argc, char **argv)
     /**********************/
     /** Initialize Index **/
     /**********************/
-    IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(opt.d, opt.nc, opt.M_PQ, 8, opt.nsubc);
-    index->buildQuantizer(opt.path_centroids,
-                                opt.path_info, opt.path_edges,
-                                opt.M, opt.efConstruction);
+    IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(opt.d, opt.nc, opt.code_size, 8, opt.nsubc);
+    index->buildQuantizer(opt.path_centroids, opt.path_info, opt.path_edges, opt.M, opt.efConstruction);
 
     /********************/
     /** Load learn set **/
@@ -213,8 +211,8 @@ int main(int argc, char **argv)
     /***************************/
     /** Set search parameters **/
     /***************************/
+    index->nprobe = opt.nprobe;
     index->max_codes = opt.max_codes;
-    index->nprobe = opt.nprobes;
     index->quantizer->ef_ = opt.efSearch;
 
     /************/
