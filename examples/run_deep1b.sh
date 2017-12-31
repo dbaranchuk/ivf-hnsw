@@ -11,7 +11,7 @@ efConstruction="500"  # Max number of candidate vertices in priority queue to ob
 # Data parameters #
 ###################
 
-n="1000000000"        # Number of base vectors
+nb="1000000000"        # Number of base vectors
 
 nt="10000000"         # Number of learn vectors
 nsubt="65536"         # Number of learn vectors to train (random subset of the learn set)
@@ -60,7 +60,7 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}.index"
 #######
 nohup /home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_deep1b -M ${M} \
                                                   -efConstruction ${efConstruction} \
-                                                  -n ${n} \
+                                                  -nb ${nb} \
                                                   -nt ${nt} \
                                                   -nsubt ${nsubt} \
                                                   -nc ${nc} \
@@ -82,4 +82,4 @@ nohup /home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_deep1b -M ${M} \
                                                   -path_info ${path_info} \
                                                   -path_pq ${path_pq} \
                                                   -path_norm_pq ${path_norm_pq} \
-                                                  -path_index ${path_index} new_deep1b.out
+                                                  -path_index ${path_index} > new_deep1b.out
