@@ -38,8 +38,8 @@ efSearch="80"
 # Paths #
 #########
 
-path_data="$PWD/../data/SIFT1B"
-path_model="$PWD/../models/SIFT1B"
+path_data="$PWD/data/SIFT1B"
+path_model="$PWD/models/SIFT1B"
 
 path_base="${path_data}/bigann_base.bvecs"
 path_learn="${path_data}/bigann_learn.bvecs"
