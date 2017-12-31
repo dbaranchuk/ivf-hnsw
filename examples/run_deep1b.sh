@@ -37,8 +37,8 @@ efSearch="80"         # Max number of candidate vertices in priority queue to ob
 # Paths #
 #########
 
-path_data="$PWD/data/DEEP1B"
-path_model="$PWD/models/DEEP1B"
+path_data="${PWD}/data/DEEP1B"
+path_model="${PWD}/models/DEEP1B"
 
 path_base="/home/arbabenko/Bigann/deep1B_base.fvecs"
 path_learn="/home/arbabenko/Bigann/deep1B_learn.fvecs"
