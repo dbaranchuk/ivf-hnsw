@@ -21,6 +21,7 @@ int main(int argc, char **argv)
     /*******************/
     Parser opt = Parser(argc, argv);
 
+    std::cout << opt.ngt << " " << opt.nq << std::endl;
     /**********************/
     /** Load Groundtruth **/
     /**********************/
