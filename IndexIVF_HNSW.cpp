@@ -46,7 +46,7 @@ namespace ivfhnsw {
         quantizer->addPoint(mass);
 
         size_t report_every = 100000;
-#pragma omp parallel for 
+#pragma omp parallel for
         for (int i = 1; i < nc; i++) {
             float mass[d];
 #pragma omp critical

@@ -11,7 +11,7 @@ efConstruction="500"  # Max number of candidate vertices in priority queue to ob
 # Data parameters #
 ###################
 
-nb="1000000000"        # Number of base vectors
+nb="1000000000"       # Number of base vectors
 
 nt="10000000"         # Number of learn vectors
 nsubt="65536"         # Number of learn vectors to train (random subset of the learn set)
