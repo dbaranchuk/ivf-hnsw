@@ -6,8 +6,7 @@
 
 static inline void read_int(const char *arg, int *x)
 {
-    int ret;
-    ret = sscanf(arg, "%d", x);
+    int ret = sscanf(arg, "%d", x);
     assert(ret);
 }
 
