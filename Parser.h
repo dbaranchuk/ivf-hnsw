@@ -83,7 +83,10 @@ struct Parser
             //=================
             // HNSW parameters
             //=================
-            if (!strcmp (a, "-M")) read_int(argv[++i], &M);
+            if (!strcmp (a, "-M")){
+                int ret = sscanf(argv[++i], "%d", &M);
+                assert(ret);
+            }// read_int(argv[++i], &M);
             else if (!strcmp (a, "-efConstruction")) read_int(argv[++i], &efConstruction);
 
             //=================
