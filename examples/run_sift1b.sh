@@ -5,7 +5,7 @@
 ################################
 
 M="16"                # Min number of edges per point
-efConstruction="500"  # Max number of candidate vertices in priority queue to observe during construction
+efConstruction="240"  # Max number of candidate vertices in priority queue to observe during construction
 
 ###################
 # Data parameters #
