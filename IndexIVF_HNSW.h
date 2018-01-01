@@ -126,7 +126,7 @@ namespace ivfhnsw {
         /// Size pq.M * pq.ksub
         std::vector<float> precomputed_table;
 
-        /// L2 sqr distance function on PQ codes
+        /// L2 sqr distance function for PQ codes
         float pq_L2sqr(uint8_t *code);
 
     private:

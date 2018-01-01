@@ -9,12 +9,12 @@ namespace ivfhnsw{
     //=======================================
     struct IndexIVF_HNSW_Grouping: IndexIVF_HNSW
     {
-        size_t nsubc;         /** Number of Subcentroids **/
-        bool do_pruning;
+        size_t nsubc;         ///< Number of subcentroids per group
+        bool do_pruning;      ///< Number of subcentroids per group
 
-        std::vector<std::vector<idx_t> > nn_centroid_idxs;
-        std::vector<std::vector<idx_t> > group_sizes;
-        std::vector<float> alphas;
+        std::vector<std::vector<idx_t> > nn_centroid_idxs; ///< indices of the nsubc nearest centroids for each centroid
+        std::vector<std::vector<idx_t> > group_sizes;      ///< sizes of subgroups for each group
+        std::vector<float> alphas;    ///< Coefficients that determine the location of subcentroids
 
     public:
         IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
