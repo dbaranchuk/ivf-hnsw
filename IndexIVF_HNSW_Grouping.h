@@ -23,7 +23,7 @@ namespace ivfhnsw{
         void add_group(int centroid_num, int groupsize,
                        const float *data, const idx_t *idxs,
                        double &baseline_average, double &modified_average);
-        
+
         void search(size_t k, const float *x, float *distances, long *labels);
 
         void write(const char *path_index);
@@ -34,8 +34,8 @@ namespace ivfhnsw{
         void compute_centroid_dists();
 
     protected:
-        std::vector<float> q_s;
-        std::vector<std::vector<float> > centroid_dists; /** Distances from region centroids to their subcentroids **/
+        std::vector<float> q_s; ///< Distances between query and subcentroids. Used for distance computation between query and point
+        std::vector<std::vector<float> > centroid_dists; ///< Distances between region centroids and their subcentroids
 
     public:
         void compute_residuals(size_t n, const float *x, float *residuals,
