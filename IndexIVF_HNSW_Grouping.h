@@ -23,8 +23,7 @@ namespace ivfhnsw{
         void add_group(int centroid_num, int groupsize,
                        const float *data, const idx_t *idxs,
                        double &baseline_average, double &modified_average);
-
-
+        
         void search(size_t k, const float *x, float *distances, long *labels);
 
         void write(const char *path_index);
