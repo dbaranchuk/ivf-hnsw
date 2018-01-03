@@ -10,7 +10,8 @@ namespace ivfhnsw {
         pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
         code_size = pq->code_size;
-        norms.resize(65536);
+        norms.resize(65536); // buffer for reconstructed base points at search time supposing that
+                             // the max size of the list is less than 65536.
         precomputed_table.resize(pq->ksub * pq->M);
 
         codes.resize(ncentroids);
@@ -96,13 +97,13 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *precomputed_idx)
     {
-        idx_t *idx;
+        const idx_t *idx;
         /// Check whether idxs are precomputed. If not, assign x 
         if (precomputed_idx)
-            idx = const_cast<idx_t *>(precomputed_idx);
+            idx = precomputed_idx;
         else {
             idx = new idx_t[n];
-            assign(n, x, idx, 1);
+            assign(n, x, const_cast<idx_t *>(idx));
         }
         // Compute residuals for original vectors 
         std::vector<float> residuals(n * d);
@@ -120,7 +121,7 @@ namespace ivfhnsw {
         std::vector<float> reconstructed_x(n * d);
         reconstruct(n, reconstructed_x.data(), decoded_residuals.data(), idx);
 
-        // Compute l2 square norms for reconstructed vectors 
+        // Compute l2 square norms of reconstructed vectors
         std::vector<float> norms(n);
         faiss::fvec_norms_L2sqr(norms.data(), reconstructed_x.data(), d, n);
 
@@ -128,7 +129,7 @@ namespace ivfhnsw {
         std::vector <uint8_t> xnorm_codes(n);
         norm_pq->compute_codes(norms.data(), xnorm_codes.data(), n);
 
-        // Add vector indecies and PQ codes for residuals and norms to Index 
+        // Add vector indices and PQ codes for residuals and norms to Index
         for (size_t i = 0; i < n; i++) {
             idx_t key = idx[i];
             idx_t id = xids[i];
@@ -146,6 +147,30 @@ namespace ivfhnsw {
     }
 
 
+    /** Search procedure
+      *
+      * During IVF-HNSW-PQ search we compute
+      *
+      *     d = || x - y_C - y_R ||^2
+      *
+      * where x is the query vector, y_C the coarse centroid, y_R the
+      * refined PQ centroid. The expression can be decomposed as:
+      *
+      *    d = || x - y_C ||^2 - || y_C ||^2 + || y_C + y_R ||^2 - 2 * (x|y_R)
+      *        -----------------------------   -----------------       -------
+      *                     term 1                   term 2            term 3
+      *
+      * We use the following decomposition:
+      * - term 1 is the distance to the coarse centroid, that is computed
+      *   during the 1st stage search in the HNSW graph, minus the norm of the coarse centroid
+      * - term 2 is the L2 norm of the reconstructed base point, that is computed at construction time, quantized
+      *   using separately trained product quantizer for such norms and stored along with the residual PQ codes.
+      * - term 3 is the classical non-residual distance table.
+      *
+      * Since y_R defined by a product quantizer, it is split across
+      * subvectors and stored separately for each subvector.
+      *
+    */
     void IndexIVF_HNSW::search(size_t k, const float *x, float *distances, long *labels)
     {
         idx_t keys[nprobe];
@@ -173,14 +198,15 @@ namespace ivfhnsw {
 
             std::vector <uint8_t> code = codes[key];
             std::vector <uint8_t> norm_code = norm_codes[key];
-            float term1 = q_c[i] - centroid_norms[key];
+            float term1 = q_c[i] - centroid_norms[key]; // term 1
             int ncodes = norm_code.size();
 
+            // Decode the second terms for each vector in the list
             norm_pq->decode(norm_code.data(), norms.data(), ncodes);
 
             for (int j = 0; j < ncodes; j++) {
-                float q_r = pq_L2sqr(code.data() + j * code_size);
-                float dist = term1 - 2 * q_r + norms[j];
+                float term3 = pq_L2sqr(code.data() + j * code_size); // term 3
+                float dist = term1 + norms[j] - 2*term3;
                 idx_t label = ids[key][j];
                 if (dist < distances[0]) {
                     faiss::maxheap_pop(k, distances, labels);
@@ -221,7 +247,7 @@ namespace ivfhnsw {
         std::vector<float> reconstructed_x(n * d);
         reconstruct(n, reconstructed_x.data(), decoded_residuals.data(), assigned.data());
 
-        // Compute l2 square norms for reconstructed vectors 
+        // Compute l2 square norms of reconstructed vectors
         std::vector<float> norms(n);
         faiss::fvec_norms_L2sqr(norms.data(), reconstructed_x.data(), d, n);
 

@@ -14,7 +14,7 @@
 #include "utils.h"
 
 namespace ivfhnsw {
-    /** Index based on a inverted file (IVF)
+    /** Index based on a inverted file (IVF) with Product Quantizer encoding.
       *
       * In the inverted file, the quantizer (an HNSW instance) provides a
       * quantization index for each vector to be added. The quantization
@@ -28,8 +28,10 @@ namespace ivfhnsw {
       * (nprobe) quantization indices are selected and several inverted
       * lists are visited.
       *
-      * Supports HNSW construction, PQ training, adding vertices,
+      * Supports HNSW quantizer construction, PQ training, adding vertices,
       * serialization and searching.
+      *
+      * Each residual vector is encoded as a product quantizer code.
       *
       * Currently only asymmetric queries are supported:
       * database-to-database queries are not implemented.
