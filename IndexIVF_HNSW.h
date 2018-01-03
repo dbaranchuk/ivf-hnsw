@@ -81,9 +81,9 @@ namespace ivfhnsw {
         /** Return the indices of the k HNSW vertices closest to the query x.
           *
           * @param n           number of input vectors
-          * @param x           input vectors to search, size n * d
-          * @param labels      output labels of the NNs, size n * k
-          * @param k           number of closest HNSW vertices to the query x
+          * @param x           query vectors, size n * d
+          * @param labels      output labels of the nearest neighbours, size n * k
+          * @param k           number of the closest HNSW vertices to the query x
         */
         void assign (size_t n, const float *x, idx_t *labels, size_t k = 1);
 
@@ -92,10 +92,10 @@ namespace ivfhnsw {
          * Return at most k vectors. If there are not enough results for a
          * query, the result array is padded with -1s.
          *
-         * @param k           number of closest vertices to search
-         * @param x           input vectors to search, size n * d
+         * @param k           number of the closest vertices to search
+         * @param x           query vectors, size n * d
          * @param distances   output pairwise distances, size n * k
-         * @param labels      output labels of the NNs, size n * k
+         * @param labels      output labels of the nearest neighbours, size n * k
          */
         virtual void search(size_t k, const float *x, float *distances, long *labels);
 

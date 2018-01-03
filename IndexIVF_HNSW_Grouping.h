@@ -35,7 +35,7 @@ namespace ivfhnsw{
 
     protected:
         std::vector<float> q_s; ///< Distances between query and subcentroids. Used for distance computation between query and point
-        std::vector<std::vector<float> > centroid_dists; ///< Distances between region centroids and their subcentroids
+        std::vector<std::vector<float> > centroid_dists; ///< Distances between coarse centroids and their subcentroids
 
     public:
         void compute_residuals(size_t n, const float *x, float *residuals,

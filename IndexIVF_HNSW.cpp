@@ -70,31 +70,6 @@ namespace ivfhnsw {
             labels[i] = quantizer->searchKnn(const_cast<float *>(x + i * d), k).top().second;
     }
 
-
-    void IndexIVF_HNSW::compute_centroid_norms()
-    {
-        centroid_norms.resize(nc);
-        for (int i = 0; i < nc; i++) {
-            const float *centroid = quantizer->getDataByInternalId(i);
-            centroid_norms[i] = faiss::fvec_norm_L2sqr(centroid, d);
-        }
-    }
-
-
-    float IndexIVF_HNSW::pq_L2sqr(uint8_t *code)
-    {
-        float result = 0.;
-        int dim = code_size >> 2;
-        int m = 0;
-        for (int i = 0; i < dim; i++) {
-            result += precomputed_table[pq->ksub * m + code[m]]; m++;
-            result += precomputed_table[pq->ksub * m + code[m]]; m++;
-            result += precomputed_table[pq->ksub * m + code[m]]; m++;
-            result += precomputed_table[pq->ksub * m + code[m]]; m++;
-        }
-        return result;
-    }
-
     void IndexIVF_HNSW::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *precomputed_idx)
     {
         const idx_t *idx;
@@ -176,7 +151,7 @@ namespace ivfhnsw {
         idx_t keys[nprobe];
         float q_c[nprobe];
 
-        // Find NN centroids
+        // Find the nearest centroids
         auto coarse = quantizer->searchKnn(x, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
             std::tie(q_c[i], keys[i]) = coarse.top();
@@ -189,7 +164,7 @@ namespace ivfhnsw {
         // Precompute table
         pq->compute_inner_prod_table(x, precomputed_table.data());
 
-        // Prepare max heap with k answers 
+        // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
 
         int ncode = 0;
@@ -332,6 +307,30 @@ namespace ivfhnsw {
         centroid_norms.resize(nc);
         fread(centroid_norms.data(), sizeof(float), nc, fin);
         fclose(fin);
+    }
+
+    void IndexIVF_HNSW::compute_centroid_norms()
+    {
+        centroid_norms.resize(nc);
+        for (int i = 0; i < nc; i++) {
+            const float *centroid = quantizer->getDataByInternalId(i);
+            centroid_norms[i] = faiss::fvec_norm_L2sqr(centroid, d);
+        }
+    }
+
+
+    float IndexIVF_HNSW::pq_L2sqr(uint8_t *code)
+    {
+        float result = 0.;
+        int dim = code_size >> 2;
+        int m = 0;
+        for (int i = 0; i < dim; i++) {
+            result += precomputed_table[pq->ksub * m + code[m]]; m++;
+            result += precomputed_table[pq->ksub * m + code[m]]; m++;
+            result += precomputed_table[pq->ksub * m + code[m]]; m++;
+            result += precomputed_table[pq->ksub * m + code[m]]; m++;
+        }
+        return result;
     }
 
     // Private 
