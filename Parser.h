@@ -15,7 +15,7 @@ static inline void read_int(const char *arg, int *x)
 //==============
 struct Parser
 {
-    const char *cmd; // main
+    const char *cmd;     ///< main command - argv[0]
 
     //=================
     // HNSW parameters

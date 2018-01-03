@@ -46,7 +46,7 @@ namespace ivfhnsw{
             faiss::fvec_madd(d, neighbor_centroid, -1., centroid, centroid_vectors.data() + subc * d);
         }
 
-        // Find alphas for vectors
+        // Compute alpha for group vectors
         alphas[centroid_num] = compute_alpha(centroid_vectors.data(), data, centroid,
                                              centroid_vector_norms, groupsize);
 
