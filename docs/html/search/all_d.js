@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['train_5fpq',['train_pq',['../structivfhnsw_1_1IndexIVF__HNSW.html#a6774efa5e477a077ec9cf4a6d1f52361',1,'ivfhnsw::IndexIVF_HNSW::train_pq()'],['../structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#adebace156120602539d25e534887e570',1,'ivfhnsw::IndexIVF_HNSW_Grouping::train_pq()']]]
+  ['search',['search',['../structivfhnsw_1_1IndexIVF__HNSW.html#a276c84ab9e7117ea021a2ff4e11f4a99',1,'ivfhnsw::IndexIVF_HNSW::search()'],['../structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a399996617a43e549ee886dcd57424b45',1,'ivfhnsw::IndexIVF_HNSW_Grouping::search()']]],
+  ['stopw',['StopW',['../classivfhnsw_1_1StopW.html',1,'ivfhnsw']]]
 ];

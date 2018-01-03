@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>IVF-HNSW: ivfhnsw::IndexIVF_HNSW Struct Reference</title>
+<title>My Project: ivfhnsw::IndexIVF_HNSW Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -22,7 +22,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">IVF-HNSW
+   <div id="projectname">My Project
    </div>
   </td>
  </tr>
@@ -168,15 +168,15 @@ hnswlib::HierarchicalNSW *&#160;</td><td class="memItemRight" valign="bottom"><a
 <tr class="separator:ac31af605b0da2dd25cd0dbf51f8a4802"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaf630999dcdc300137ffe8f1e93dde21"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaf630999dcdc300137ffe8f1e93dde21"></a>
 faiss::ProductQuantizer *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aaf630999dcdc300137ffe8f1e93dde21">pq</a></td></tr>
-<tr class="memdesc:aaf630999dcdc300137ffe8f1e93dde21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the vector codes. <br/></td></tr>
+<tr class="memdesc:aaf630999dcdc300137ffe8f1e93dde21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the residual codes. <br/></td></tr>
 <tr class="separator:aaf630999dcdc300137ffe8f1e93dde21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acff5d189392af6d63db5d782df89f79b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acff5d189392af6d63db5d782df89f79b"></a>
 faiss::ProductQuantizer *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#acff5d189392af6d63db5d782df89f79b">norm_pq</a></td></tr>
-<tr class="memdesc:acff5d189392af6d63db5d782df89f79b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the norm codes. <br/></td></tr>
+<tr class="memdesc:acff5d189392af6d63db5d782df89f79b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the norm codes of reconstructed base vectors. <br/></td></tr>
 <tr class="separator:acff5d189392af6d63db5d782df89f79b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0be6e0ce24b188401271104857283d48"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0be6e0ce24b188401271104857283d48"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a0be6e0ce24b188401271104857283d48">nprobe</a> = 16</td></tr>
-<tr class="memdesc:a0be6e0ce24b188401271104857283d48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of probes at query time. <br/></td></tr>
+<tr class="memdesc:a0be6e0ce24b188401271104857283d48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of probes at search time. <br/></td></tr>
 <tr class="separator:a0be6e0ce24b188401271104857283d48"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23f33c7f1b7707580f61c1e69f1373e1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a23f33c7f1b7707580f61c1e69f1373e1"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a23f33c7f1b7707580f61c1e69f1373e1">max_codes</a> = 10000</td></tr>
@@ -189,30 +189,30 @@ std::vector&lt; std::vector&lt; <a class="el" href="structivfhnsw_1_1IndexIVF__H
 <tr class="memitem:ad2ca994b4a3bf65a3fe7d1cf863a0da1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad2ca994b4a3bf65a3fe7d1cf863a0da1"></a>
 std::vector&lt; std::vector<br class="typebreak"/>
 &lt; <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aa2ef8578874419ee182bedd2c4a47525">uint8_t</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#ad2ca994b4a3bf65a3fe7d1cf863a0da1">codes</a></td></tr>
-<tr class="memdesc:ad2ca994b4a3bf65a3fe7d1cf863a0da1"><td class="mdescLeft">&#160;</td><td class="mdescRight">PQ codes of data. <br/></td></tr>
+<tr class="memdesc:ad2ca994b4a3bf65a3fe7d1cf863a0da1"><td class="mdescLeft">&#160;</td><td class="mdescRight">PQ codes of residuals. <br/></td></tr>
 <tr class="separator:ad2ca994b4a3bf65a3fe7d1cf863a0da1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a569a6cca33552f450f253f4d667b6bc4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a569a6cca33552f450f253f4d667b6bc4"></a>
 std::vector&lt; std::vector<br class="typebreak"/>
 &lt; <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aa2ef8578874419ee182bedd2c4a47525">uint8_t</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a569a6cca33552f450f253f4d667b6bc4">norm_codes</a></td></tr>
-<tr class="memdesc:a569a6cca33552f450f253f4d667b6bc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">PQ codes of norms of reconstructed vectors. <br/></td></tr>
+<tr class="memdesc:a569a6cca33552f450f253f4d667b6bc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">PQ codes of norms of reconstructed base vectors. <br/></td></tr>
 <tr class="separator:a569a6cca33552f450f253f4d667b6bc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:a1a3b77f67605f5a691840c91b9f471ec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1a3b77f67605f5a691840c91b9f471ec"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a1a3b77f67605f5a691840c91b9f471ec">pq_L2sqr</a> (<a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aa2ef8578874419ee182bedd2c4a47525">uint8_t</a> *code)</td></tr>
-<tr class="memdesc:a1a3b77f67605f5a691840c91b9f471ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">L2 sqr distance function on PQ codes. <br/></td></tr>
+<tr class="memdesc:a1a3b77f67605f5a691840c91b9f471ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">L2 sqr distance function for PQ codes. <br/></td></tr>
 <tr class="separator:a1a3b77f67605f5a691840c91b9f471ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:a16ef4d800329fa8a3b7377e21af659f3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a16ef4d800329fa8a3b7377e21af659f3"></a>
 std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a16ef4d800329fa8a3b7377e21af659f3">norms</a></td></tr>
-<tr class="memdesc:a16ef4d800329fa8a3b7377e21af659f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reconstructed vectors L2 square norms. <br/></td></tr>
+<tr class="memdesc:a16ef4d800329fa8a3b7377e21af659f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">L2 square norms of reconstructed base vectors. <br/></td></tr>
 <tr class="separator:a16ef4d800329fa8a3b7377e21af659f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a10dd2523ee2de0500e88c256e276f01b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a10dd2523ee2de0500e88c256e276f01b"></a>
 std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a10dd2523ee2de0500e88c256e276f01b">centroid_norms</a></td></tr>
-<tr class="memdesc:a10dd2523ee2de0500e88c256e276f01b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Region centroids L2 square norms. <br/></td></tr>
+<tr class="memdesc:a10dd2523ee2de0500e88c256e276f01b"><td class="mdescLeft">&#160;</td><td class="mdescRight">L2 square norms of coarse centroids. <br/></td></tr>
 <tr class="separator:a10dd2523ee2de0500e88c256e276f01b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7143a3df1464f0af998ff7cfdf20b19c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7143a3df1464f0af998ff7cfdf20b19c"></a>
 std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a7143a3df1464f0af998ff7cfdf20b19c">precomputed_table</a></td></tr>
@@ -220,10 +220,11 @@ std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a
 <tr class="separator:a7143a3df1464f0af998ff7cfdf20b19c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Index based on a inverted file (IVF)</p>
+<div class="textblock"><p>Index based on a inverted file (IVF) with Product Quantizer encoding.</p>
 <p>In the inverted file, the quantizer (an HNSW instance) provides a quantization index for each vector to be added. The quantization index maps to a list (aka inverted list or posting list), where the id of the vector is then stored.</p>
 <p>At search time, the vector to be searched is also quantized, and only the list corresponding to the quantization index is searched. This speeds up the search by making it non-exhaustive. This can be relaxed using multi-probe search: a few (nprobe) quantization indices are selected and several inverted lists are visited.</p>
-<p>Supports HNSW construction, PQ training, adding vertices, serialization and searching.</p>
+<p>Supports HNSW quantizer construction, PQ training, adding vertices, serialization and searching.</p>
+<p>Each residual vector is encoded as a product quantizer code.</p>
 <p>Currently only asymmetric queries are supported: database-to-database queries are not implemented. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a750c9093b1fa5adf7d80a9ca6aec5de4"></a>
@@ -272,14 +273,13 @@ std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a
 <p>Add n vectors of dimension d to the index.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">n</td><td>number of input vectors </td></tr>
-    <tr><td class="paramname">x</td><td>input vectors to add, size n * d </td></tr>
+    <tr><td class="paramname">n</td><td>number of base vectors in a batch </td></tr>
+    <tr><td class="paramname">x</td><td>base vectors to add, size n * d </td></tr>
     <tr><td class="paramname">xids</td><td>ids to store for the vectors (size n) </td></tr>
     <tr><td class="paramname">precomputed_idx</td><td>if non-null, assigned idxs to store for the vectors (size n) </td></tr>
   </table>
   </dd>
 </dl>
-<p>Check whether idxs are precomputed. If not, assign x </p>
 
 </div>
 </div>
@@ -318,7 +318,7 @@ std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Return the indexes of the k HNSW vertices closest to the query x.</p>
+<p>Return the indices of the k HNSW vertices closest to the query x.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">n</td><td>number of input vectors </td></tr>
@@ -437,10 +437,24 @@ std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a
     <tr><td class="paramname">k</td><td>number of closest vertices to search </td></tr>
     <tr><td class="paramname">x</td><td>input vectors to search, size n * d </td></tr>
     <tr><td class="paramname">distances</td><td>output pairwise distances, size n * k </td></tr>
-    <tr><td class="paramname">labels</td><td>output labels of the NNs, size n * k </td></tr>
+    <tr><td class="paramname">labels</td><td>output labels of the NNs, size n * k</td></tr>
   </table>
   </dd>
 </dl>
+<p>Search procedure</p>
+<p>During IVF-HNSW-PQ search we compute </p>
+<pre class="fragment">d = || x - y_C - y_R ||^2
+</pre><p>where x is the query vector, y_C the coarse centroid, y_R the refined PQ centroid. The expression can be decomposed as:</p>
+<p>d = || x - y_C ||^2 - || y_C ||^2 + || y_C + y_R ||^2 - 2 * (x|y_R) </p>
+<hr/>
+<p> term 1 term 2 term 3</p>
+<p>We use the following decomposition:</p>
+<ul>
+<li>term 1 is the distance to the coarse centroid, that is computed during the 1st stage search in the HNSW graph, minus the norm of the coarse centroid</li>
+<li>term 2 is the L2 norm of the reconstructed base point, that is computed at construction time, quantized using separately trained product quantizer for such norms and stored along with the residual PQ codes.</li>
+<li>term 3 is the classical non-residual distance table.</li>
+</ul>
+<p>Since y_R defined by a product quantizer, it is split across subvectors and stored separately for each subvector. </p>
 
 <p>Reimplemented in <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a399996617a43e549ee886dcd57424b45">ivfhnsw::IndexIVF_HNSW_Grouping</a>.</p>
 
@@ -497,7 +511,7 @@ std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun Dec 31 2017 15:50:23 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jan 3 2018 08:40:42 for My Project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

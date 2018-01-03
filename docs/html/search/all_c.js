@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['search',['search',['../structivfhnsw_1_1IndexIVF__HNSW.html#a276c84ab9e7117ea021a2ff4e11f4a99',1,'ivfhnsw::IndexIVF_HNSW::search()'],['../structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a399996617a43e549ee886dcd57424b45',1,'ivfhnsw::IndexIVF_HNSW_Grouping::search()']]],
-  ['stopw',['StopW',['../classivfhnsw_1_1StopW.html',1,'ivfhnsw']]]
+  ['readme',['README',['../md_README.html',1,'']]],
+  ['read',['read',['../structivfhnsw_1_1IndexIVF__HNSW.html#acd6f33b0f7ca53d399f98df18c4a5cc0',1,'ivfhnsw::IndexIVF_HNSW::read()'],['../structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a8d41b41e32f6c6d93568d2accbd4e466',1,'ivfhnsw::IndexIVF_HNSW_Grouping::read()']]]
 ];

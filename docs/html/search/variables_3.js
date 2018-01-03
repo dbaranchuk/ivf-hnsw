@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['ids',['ids',['../structivfhnsw_1_1IndexIVF__HNSW.html#ad40193d01d98d4a55847638581d610bb',1,'ivfhnsw::IndexIVF_HNSW']]]
+  ['efconstruction',['efConstruction',['../structParser.html#adacdd287e85f4e83499dd8e78cf6bca0',1,'Parser']]],
+  ['efsearch',['efSearch',['../structParser.html#a36f90fdd124a4dad5a20f875911c3ea1',1,'Parser']]]
 ];

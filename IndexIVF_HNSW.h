@@ -47,19 +47,19 @@ namespace ivfhnsw {
 
         hnswlib::HierarchicalNSW *quantizer; ///< Quantizer that maps vectors to inverted lists (HNSW [Y.Malkov])
 
-        faiss::ProductQuantizer *pq;         ///< Produces the vector codes
-        faiss::ProductQuantizer *norm_pq;    ///< Produces the norm codes
+        faiss::ProductQuantizer *pq;         ///< Produces the residual codes
+        faiss::ProductQuantizer *norm_pq;    ///< Produces the norm codes of reconstructed base vectors
 
-        size_t nprobe = 16;        ///< Number of probes at query time
+        size_t nprobe = 16;        ///< Number of probes at search time
         size_t max_codes = 10000;  ///< Max number of codes to visit to do a query
 
         std::vector<std::vector<idx_t> > ids;           ///< Inverted lists for indexes
-        std::vector<std::vector<uint8_t> > codes;       ///< PQ codes of data
-        std::vector<std::vector<uint8_t> > norm_codes;  ///< PQ codes of norms of reconstructed vectors
+        std::vector<std::vector<uint8_t> > codes;       ///< PQ codes of residuals
+        std::vector<std::vector<uint8_t> > norm_codes;  ///< PQ codes of norms of reconstructed base vectors
 
     protected:
-        std::vector<float> norms;           ///< Reconstructed vectors L2 square norms
-        std::vector<float> centroid_norms;  ///< Region centroids L2 square norms
+        std::vector<float> norms;           ///< L2 square norms of reconstructed base vectors
+        std::vector<float> centroid_norms;  ///< L2 square norms of coarse centroids
 
     public:
         explicit IndexIVF_HNSW(size_t dim, size_t ncentroids,
@@ -78,7 +78,7 @@ namespace ivfhnsw {
         void build_quantizer(const char *path_data, const char *path_info, const char *path_edges,
                             int M=16, int efConstruction = 500);
 
-        /** Return the indexes of the k HNSW vertices closest to the query x.
+        /** Return the indices of the k HNSW vertices closest to the query x.
           *
           * @param n           number of input vectors
           * @param x           input vectors to search, size n * d
@@ -101,8 +101,8 @@ namespace ivfhnsw {
 
         /** Add n vectors of dimension d to the index.
           *
-          * @param n                 number of input vectors
-          * @param x                 input vectors to add, size n * d
+          * @param n                 number of base vectors in a batch
+          * @param x                 base vectors to add, size n * d
           * @param xids              ids to store for the vectors (size n)
           * @param precomputed_idx   if non-null, assigned idxs to store for the vectors (size n)
         */
