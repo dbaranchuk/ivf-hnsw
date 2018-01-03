@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>My Project: ivfhnsw::IndexIVF_HNSW Struct Reference</title>
+<title>IVF-HNSW: ivfhnsw::IndexIVF_HNSW Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -22,7 +22,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">My Project
+   <div id="projectname">IVF-HNSW
    </div>
   </td>
  </tr>
@@ -322,9 +322,9 @@ std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">n</td><td>number of input vectors </td></tr>
-    <tr><td class="paramname">x</td><td>input vectors to search, size n * d </td></tr>
-    <tr><td class="paramname">labels</td><td>output labels of the NNs, size n * k </td></tr>
-    <tr><td class="paramname">k</td><td>number of closest HNSW vertices to the query x </td></tr>
+    <tr><td class="paramname">x</td><td>query vectors, size n * d </td></tr>
+    <tr><td class="paramname">labels</td><td>output labels of the nearest neighbours, size n * k </td></tr>
+    <tr><td class="paramname">k</td><td>number of the closest HNSW vertices to the query x </td></tr>
   </table>
   </dd>
 </dl>
@@ -434,10 +434,10 @@ std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a
 <p>Return at most k vectors. If there are not enough results for a query, the result array is padded with -1s.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">k</td><td>number of closest vertices to search </td></tr>
-    <tr><td class="paramname">x</td><td>input vectors to search, size n * d </td></tr>
+    <tr><td class="paramname">k</td><td>number of the closest vertices to search </td></tr>
+    <tr><td class="paramname">x</td><td>query vectors, size n * d </td></tr>
     <tr><td class="paramname">distances</td><td>output pairwise distances, size n * k </td></tr>
-    <tr><td class="paramname">labels</td><td>output labels of the NNs, size n * k</td></tr>
+    <tr><td class="paramname">labels</td><td>output labels of the nearest neighbours, size n * k</td></tr>
   </table>
   </dd>
 </dl>
@@ -511,7 +511,7 @@ std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 3 2018 08:40:42 for My Project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jan 3 2018 08:49:36 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>
