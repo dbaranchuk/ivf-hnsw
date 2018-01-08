@@ -117,7 +117,6 @@ int main(int argc, char **argv)
     /******************************/
     /** Rearrange data to groups **/
     /******************************/
-    std::cout << "HUI" << std::endl;
     if (!exists(opt.path_groups) || !exists(opt.path_idxs))
     {
         int batch_size = 1000000;
@@ -127,8 +126,6 @@ int main(int argc, char **argv)
         std::vector<std::vector<float>> data(groups_per_iter);
         std::vector<std::vector<idx_t>> idxs(groups_per_iter);
 
-        std::ifstream base_input(opt.path_base, ios::binary);
-        std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
         std::ofstream groups_output(opt.path_groups, ios::binary);
         std::ofstream idxs_output(opt.path_idxs, ios::binary);
 
@@ -143,10 +140,14 @@ int main(int argc, char **argv)
 
             // Iterate through the dataset extracting points from groups,
             // whose ids lie in [ngroups_added, ngroups_added + groups_per_iter)
+            std::ifstream base_input(opt.path_base, ios::binary);
+            std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
+
             for (int b = 0; b < nbatches; b++) {
                 readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
                 readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
 
+                #pragma omp parallel for
                 for (int i = 0; i < batch_size; i++) {
                     if (idx_batch[i] < ngroups_added ||
                         idx_batch[i] >= ngroups_added + groups_per_iter)
@@ -160,6 +161,9 @@ int main(int argc, char **argv)
 
                 if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / nbatches, '%');
             }
+            base_input.close();
+            idx_input.close();
+
             // Save collected groups and point idxs to files
             for (int i = 0; i < groups_per_iter; i++) {
                 int group_size = idxs[i].size();
@@ -175,8 +179,7 @@ int main(int argc, char **argv)
             }
             ngroups_added += groups_per_iter;
         }
-        base_input.close();
-        idx_input.close();
+
         groups_output.close();
         idxs_output.close();
     }
