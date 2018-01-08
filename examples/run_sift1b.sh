@@ -28,7 +28,7 @@ code_size="8"        # Code size per vector in bytes
 # Search parameters #
 #####################
 
-k="1"               # Number of the closest vertices to search
+k="100"               # Number of the closest vertices to search
 nprobe="32"           # Number of probes at query time
 max_codes="10000"     # Max number of codes to visit to do a query
 efSearch="80"         # Max number of candidate vertices in priority queue to observe during searching
@@ -40,20 +40,20 @@ efSearch="80"         # Max number of candidate vertices in priority queue to ob
 path_data="$PWD/data/SIFT1B"
 path_model="$PWD/models/SIFT1B"
 
-path_base="${path_data}/bigann_base.bvecs"
-path_learn="${path_data}/bigann_learn.bvecs"
-path_gt="${path_data}/gnd/idx_1000M.ivecs"
-path_q="${path_data}/bigann_query.bvecs"
-path_centroids="${path_data}/centroids.fvecs"
+path_base="$path_data/bigann_base.bvecs"
+path_learn="$path_data/bigann_learn.bvecs"
+path_gt="$path_data/gnd/idx_1000M.ivecs"
+path_q="$path_data/bigann_query.bvecs"
+path_centroids="$path_data/centroids.fvecs"
 
-path_precomputed_idxs="${path_data}/precomputed_idxs.ivecs"
+path_precomputed_idxs="$path_data/precomputed_idxs.ivecs"
 
-path_edges="${path_model}/hnsw_M${M}_ef${efConstruction}.ivecs"
-path_info="${path_model}/hnsw_M${M}_ef${efConstruction}.bin"
+path_edges="$path_model/hnsw_M$M_ef$efConstruction.ivecs"
+path_info="$path_model/hnsw_M$M_ef$efConstruction.bin"
 
-path_pq="${path_model}/pq${code_size}.pq"
-path_norm_pq="${path_model}/norm_pq${code_size}.pq"
-path_index="${path_model}/ivfhnsw_PQ${code_size}.index"
+path_pq="$path_model/pq$code_size.pq"
+path_norm_pq="$path_model/norm_pq$code_size.pq"
+path_index="$path_model/ivfhnsw_PQ$code_size.index"
 
 #######
 # Run #
