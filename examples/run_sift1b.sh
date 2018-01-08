@@ -48,8 +48,8 @@ path_centroids="$path_data/centroids.fvecs"
 
 path_precomputed_idxs="$path_data/precomputed_idxs.ivecs"
 
-path_edges="$path_model/hnsw_M$M_ef$efConstruction.ivecs"
-path_info="$path_model/hnsw_M$M_ef$efConstruction.bin"
+path_edges="$path_model/hnsw_M${M}_ef${efConstruction}.ivecs"
+path_info="$path_model/hnsw_M${M}_ef${efConstruction}.bin"
 
 path_pq="$path_model/pq$code_size.pq"
 path_norm_pq="$path_model/norm_pq$code_size.pq"
