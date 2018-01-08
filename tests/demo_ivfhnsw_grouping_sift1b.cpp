@@ -124,7 +124,6 @@ int main(int argc, char **argv)
         int nbatches = opt.nb / batch_size;
         int groups_per_iter = 100000;
 
-        std::cout << "HUI" << std::endl;
         std::vector<std::vector<float>> data(groups_per_iter);
         std::vector<std::vector<idx_t>> idxs(groups_per_iter);
 
@@ -133,7 +132,6 @@ int main(int argc, char **argv)
         std::ofstream groups_output(opt.path_groups, ios::binary);
         std::ofstream idxs_output(opt.path_idxs, ios::binary);
 
-        std::cout << "HUI" << std::endl;
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> idx_batch(batch_size);
 
