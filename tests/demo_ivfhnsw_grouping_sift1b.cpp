@@ -147,7 +147,6 @@ int main(int argc, char **argv)
                 readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
                 readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
 
-                #pragma omp parallel for
                 for (int i = 0; i < batch_size; i++) {
                     if (idx_batch[i] < ngroups_added ||
                         idx_batch[i] >= ngroups_added + groups_per_iter)
