@@ -84,6 +84,8 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}.index"
                                                   -path_q ${path_q} \
                                                   -path_centroids ${path_centroids} \
                                                   -path_precomputed_idx ${path_precomputed_idxs} \
+                                                  -path_groups ${path_groups} \
+                                                  -path_idxs ${path_idxs} \
                                                   -path_edges ${path_edges} \
                                                   -path_info ${path_info} \
                                                   -path_pq ${path_pq} \
