@@ -25,9 +25,9 @@ int main(int argc, char **argv)
     /** Load Groundtruth **/
     /**********************/
     std::cout << "Loading groundtruth" << std::endl;
-    std::vector<idx_t> massQA(opt.nq * opt.ngt);
+    std::vector<int> massQA(opt.nq * opt.ngt);
     std::ifstream gt_input(opt.path_gt, ios::binary);
-    readXvec<idx_t>(gt_input, massQA.data(), opt.ngt, opt.nq);
+    readXvec<int>(gt_input, massQA.data(), opt.ngt, opt.nq);
     gt_input.close();
 
     /******************/
@@ -83,43 +83,102 @@ int main(int argc, char **argv)
     }
 
     /************************/
-    /** Precompute indexes **/
+    /** Precompute indices **/
     /************************/
     if (!exists(opt.path_precomputed_idxs)){
         std::cout << "Precomputing indexes" << std::endl;
         StopW stopw = StopW();
 
-        FILE *fout = fopen(opt.path_precomputed_idxs, "wb");
         std::ifstream input(opt.path_base, ios::binary);
+        std::ofstream output(path_precomputed_idxs, ios::binary);
 
-        /** TODO **/
-        //std::ofstream output(path_precomputed_idxs, ios::binary);
-        size_t batch_size = 1000000;
-        size_t nbatch = opt.nb / batch_size;
+        int batch_size = 1000000;
+        int nbatches = opt.nb / batch_size;
 
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> precomputed_idx(batch_size);
 
         index->quantizer->efSearch = 220;
-        for (int i = 0; i < nbatch; i++) {
+        for (int i = 0; i < nbatches; i++) {
             if (i % 10 == 0) {
                 std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
-                          << (100.*i) / nbatch << "%" << std::endl;
+                          << (100.*i) / nbatches << "%" << std::endl;
             }
             readXvecFvec<uint8_t>(input, batch.data(), opt.d, batch_size);
             index->assign(batch_size, batch.data(), precomputed_idx.data());
 
-            fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
-            fwrite(precomputed_idx.data(), sizeof(idx_t), batch_size, fout);
+            output.write((char *) &batch_size, sizeof(int));
+            output.write((char *) precomputed_idx.data(), batch_size * sizeof(idx_t));
         }
         input.close();
-        fclose(fout);
+        output.close();
     }
 
-    /****************************/
-    /** TODO Precompute Groups **/
-    /****************************/
-    if (!exists(opt.path_groups)){ exit(0);}
+    /******************************/
+    /** Rearrange data to groups **/
+    /******************************/
+    if (!exists(opt.path_groups) || !exists(opt.path_idxs))
+    {
+        int batch_size = 1000000;
+        int nbatches = nb / batch_size;
+        int groups_per_iter = 100000;
+
+        std::vector<std::vector<float>> data(groups_per_iter);
+        std::vector<std::vector<idx_t>> idxs(groups_per_iter);
+
+        std::ifstream base_input(path_data, ios::binary);
+        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
+        std::ofstream groups_output(path_groups, ios::binary);
+        std::ofstream idxs_output(path_idxs, ios::binary);
+
+        std::vector<float> batch(batch_size * opt.d);
+        std::vector<idx_t> idx_batch(batch_size);
+
+        int ngroups_added = 0;
+        while (ngroups_added < opt.nc) {
+            std::cout << "Groups " << ngroups_added << " / " << opt.nc << std::endl;
+            if (ncentroids-group_idxs <= groups_per_iter)
+                groups_per_iter = opt.nc - ngroups_added;
+
+            // Iterate through the dataset extracting points from groups,
+            // whose ids lie in [ngroups_added, ngroups_added + groups_per_iter)
+            for (int b = 0; b < nbatches; b++) {
+                readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
+                readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+
+                for (int i = 0; i < batch_size; i++) {
+                    if (idx_batch[i] < ngroups_added ||
+                        idx_batch[i] >= ngroups_added + groups_per_iter)
+                        continue;
+
+                    idx_t idx = idx_batch[i] % groups_per_iter;
+                    for (int j = 0; j < opt.d; j++)
+                        data[idx].push_back(batch[i * opt.d + j]);
+                    idxs[idx].push_back(b * batch_size + i);
+                }
+
+                if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / nbatches, '%');
+            }
+            // Save collected groups and point idxs to files
+            for (int i = 0; i < groups_per_iter; i++) {
+                int group_size = idxs[i].size();
+
+                groups_output.write((char *) &group_size, sizeof(int));
+                groups_output.write((char *) data[i].data(), data[i].size() * sizeof(uint8_t));
+
+                idxs_output.write((char *) &group_size, sizeof(int));
+                idxs_output.write((char *) idxs[i].data(), idxs[i].size() * sizeof(idx_t));
+
+                data[i].clear();
+                idxs[i].clear();
+            }
+            ngroups_added += groups_per_iter;
+        }
+        base_input.close();
+        idx_input.close();
+        groups_output.close();
+        idxs_output.close();
+    }
 
     /*****************************************/
     /** Construct IVF-HNSW + Grouping Index **/

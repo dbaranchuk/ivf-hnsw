@@ -49,8 +49,8 @@ path_centroids="${path_data}/centroids.fvecs"
 
 path_precomputed_idxs="${path_data}/precomputed_idxs_${nc}.ivecs"
 
-path_groups="${path_data}/groups/groups.dat";
-path_idxs="${path_data}/groups/idxs.ivecs"
+path_groups="${path_data}/groups.dat";
+path_idxs="${path_data}/idxs.ivecs"
 
 path_edges="${path_model}/hnsw_M${M}_ef${efConstruction}.ivecs"
 path_info="${path_model}/hnsw_M${M}_ef${efConstruction}.bin"
