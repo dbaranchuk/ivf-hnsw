@@ -86,7 +86,7 @@ int main(int argc, char **argv)
     /** Precompute indices **/
     /************************/
     if (!exists(opt.path_precomputed_idxs)){
-        std::cout << "Precomputing indexes" << std::endl;
+        std::cout << "Precomputing indices" << std::endl;
         StopW stopw = StopW();
 
         std::ifstream input(opt.path_base, ios::binary);
@@ -119,22 +119,27 @@ int main(int argc, char **argv)
     /******************************/
     if (!exists(opt.path_groups) || !exists(opt.path_idxs))
     {
+        std::cout << "Rearranging data to groups" << std::endl;
+        StopW stopw = StopW();
+
         int batch_size = 1000000;
         int nbatches = opt.nb / batch_size;
         int groups_per_iter = 100000;
 
-        std::vector<std::vector<float>> data(groups_per_iter);
+        std::vector<std::vector<uint8_t>> data(groups_per_iter);
         std::vector<std::vector<idx_t>> idxs(groups_per_iter);
 
         std::ofstream groups_output(opt.path_groups, ios::binary);
         std::ofstream idxs_output(opt.path_idxs, ios::binary);
 
-        std::vector<float> batch(batch_size * opt.d);
+        std::vector<uint8_t> batch(batch_size * opt.d);
         std::vector<idx_t> idx_batch(batch_size);
 
         int ngroups_added = 0;
         while (ngroups_added < opt.nc) {
-            std::cout << "Groups " << ngroups_added << " / " << opt.nc << std::endl;
+            std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
+                      << ngroups_added << " / " << opt.nc << std::endl;
+
             if (opt.nc - ngroups_added <= groups_per_iter)
                 groups_per_iter = opt.nc - ngroups_added;
 
@@ -144,7 +149,7 @@ int main(int argc, char **argv)
             std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
 
             for (int b = 0; b < nbatches; b++) {
-                readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
+                readXvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
                 readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
 
                 for (int i = 0; i < batch_size; i++) {
@@ -157,8 +162,6 @@ int main(int argc, char **argv)
                         data[idx].push_back(batch[i * opt.d + j]);
                     idxs[idx].push_back(b * batch_size + i);
                 }
-
-                if (b % 10 == 0) printf("%.1f %c \n", (100. * b) / nbatches, '%');
             }
             base_input.close();
             idx_input.close();
