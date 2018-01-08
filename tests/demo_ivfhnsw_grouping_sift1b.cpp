@@ -120,7 +120,7 @@ int main(int argc, char **argv)
     if (!exists(opt.path_groups) || !exists(opt.path_idxs))
     {
         int batch_size = 1000000;
-        int nbatches = nb / batch_size;
+        int nbatches = opt.nb / batch_size;
         int groups_per_iter = 100000;
 
         std::vector<std::vector<float>> data(groups_per_iter);
@@ -137,7 +137,7 @@ int main(int argc, char **argv)
         int ngroups_added = 0;
         while (ngroups_added < opt.nc) {
             std::cout << "Groups " << ngroups_added << " / " << opt.nc << std::endl;
-            if (ncentroids-group_idxs <= groups_per_iter)
+            if (opt.nc - ngroups_added <= groups_per_iter)
                 groups_per_iter = opt.nc - ngroups_added;
 
             // Iterate through the dataset extracting points from groups,
