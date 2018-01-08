@@ -29,11 +29,11 @@ namespace ivfhnsw {
 
 
     void IndexIVF_HNSW::build_quantizer(const char *path_data, const char *path_info,
-                                       const char *path_edges, int M, int efConstruction)
+                                        const char *path_edges, int M, int efConstruction)
     {
-        if (exists_test(path_info) && exists_test(path_edges)) {
+        if (exists(path_info) && exists(path_edges)) {
             quantizer = new hnswlib::HierarchicalNSW(path_info, path_data, path_edges);
-            quantizer->ef_ = efConstruction;
+            quantizer->efSearch = efConstruction;
             return;
         }
         quantizer = new hnswlib::HierarchicalNSW(d, nc, M, 2 * M, efConstruction);
