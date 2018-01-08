@@ -79,6 +79,11 @@ namespace ivfhnsw {
         }
     }
 
+    inline bool exists(const std::string& name) {
+        std::ifstream f(name.c_str());
+        return f.good();
+    }
+
     void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx);
 
     float fvec_L2sqr(const float *x, const float *y, size_t d);

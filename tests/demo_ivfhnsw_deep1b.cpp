@@ -60,7 +60,7 @@ int main(int argc, char **argv)
     /**************/
     /** Train PQ **/
     /**************/
-    if (exists_test(opt.path_pq) && exists_test(opt.path_norm_pq)) {
+    if (exists(opt.path_pq) && exists(opt.path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << opt.path_pq << std::endl;
         index->pq = faiss::read_ProductQuantizer(opt.path_pq);
         std::cout << index->pq->d << " " << index->pq->code_size << " " << index->pq->dsub
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
     /************************/
     /** Precompute indexes **/
     /************************/
-    if (!exists_test(opt.path_precomputed_idxs)){
+    if (!exists(opt.path_precomputed_idxs)){
         std::cout << "Precomputing indexes" << std::endl;
         StopW stopw = StopW();
 
@@ -115,7 +115,7 @@ int main(int argc, char **argv)
     /******************************/
     /** Construct IVF-HNSW Index **/
     /******************************/
-    if (exists_test(opt.path_index)){
+    if (exists(opt.path_index)){
         /** Load Index **/
         std::cout << "Loading index from " << opt.path_index << std::endl;
         index->read(opt.path_index);
@@ -183,11 +183,6 @@ int main(int argc, char **argv)
 
     StopW stopw = StopW();
     for (int i = 0; i < opt.nq; i++) {
-        for (int j = 0; j < opt.k; j++){
-            distances[j] = 0;
-            labels[j] = 0;
-        }
-
         index->search(opt.k, massQ.data() + i*opt.d, distances, labels);
 
         std::priority_queue<std::pair<float, idx_t >> gt(answers[i]);

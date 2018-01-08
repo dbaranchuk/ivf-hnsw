@@ -33,11 +33,6 @@
 
 using namespace std;
 
-inline bool exists_test(const std::string& name) {
-    std::ifstream f(name.c_str());
-    return f.good();
-}
-
 template<typename T>
 static void writeBinaryPOD(std::ostream &out, const T &podRef) {
     out.write((char *) &podRef, sizeof(T));
@@ -74,14 +69,14 @@ namespace hnswlib {
 
         size_t d_;
         size_t data_size_;
-        size_t offsetData;
+        size_t offset_data;
         size_t size_data_per_element;
         size_t M_;
         size_t maxM_;
         size_t size_links_level0;
 
         mutex global;
-        size_t ef_;
+        size_t efSearch;
 
     public:
         HierarchicalNSW(const string &infoLocation, const string &dataLocation, const string &edgeLocation);
@@ -89,18 +84,18 @@ namespace hnswlib {
         ~HierarchicalNSW();
 
         inline float *getDataByInternalId(idx_t internal_id) const {
-            return (float *) (data_level0_memory_ + internal_id * size_data_per_element + offsetData);
+            return (float *) (data_level0_memory_ + internal_id * size_data_per_element + offset_data);
         }
 
         inline uint8_t *get_linklist0(idx_t internal_id) const {
             return (uint8_t *) (data_level0_memory_ + internal_id * size_data_per_element);
         }
 
-        std::priority_queue<std::pair<float, idx_t>> searchBaseLayer(const float *datapoint, size_t ef);
+        std::priority_queue<std::pair<float, idx_t>> searchBaseLayer(const float *x, size_t ef);
 
         void getNeighborsByHeuristic(std::priority_queue<std::pair<float, idx_t>> &topResults, const int NN);
 
-        void mutuallyConnectNewElement(const float *datapoint, idx_t cur_c, std::priority_queue<std::pair<float, idx_t>> topResults);
+        void mutuallyConnectNewElement(const float *x, idx_t id, std::priority_queue<std::pair<float, idx_t>> topResults);
 
         void addPoint(const float *point);
 

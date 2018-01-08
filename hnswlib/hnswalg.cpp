@@ -22,7 +22,7 @@ namespace hnswlib {
     maxM_ = maxM;
     size_links_level0 = maxM * sizeof(idx_t) + sizeof(uint8_t);
     size_data_per_element = size_links_level0 + data_size_;
-    offsetData = size_links_level0;
+    offset_data = size_links_level0;
 
     std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
     data_level0_memory_ = (char *) malloc(maxelements_ * size_data_per_element);
@@ -197,7 +197,7 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
             for (int j = 0; j < sz_link_list_other; j++)
                 candidates.emplace(fstdistfunc(getDataByInternalId(data[j]), getDataByInternalId(rez[idx])), data[j]);
 
-            getNeighborsByHeuristic(candidates, rezMmax); // Merge
+            getNeighborsByHeuristic(candidates, rezMmax);
 
             int indx = 0;
             while (candidates.size() > 0) {
@@ -251,7 +251,7 @@ void HierarchicalNSW::addPoint(const float *point)
 
 std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(const float *query, int k)
 {
-    auto topResults = searchBaseLayer(query, ef_);
+    auto topResults = searchBaseLayer(query, efSearch);
     while (topResults.size() > k)
         topResults.pop();
 
@@ -267,7 +267,7 @@ void HierarchicalNSW::SaveInfo(const string &location)
     writeBinaryPOD(output, maxelements_);
     writeBinaryPOD(output, enterpoint_node);
     writeBinaryPOD(output, data_size_);
-    writeBinaryPOD(output, offsetData);
+    writeBinaryPOD(output, offset_data);
     writeBinaryPOD(output, size_data_per_element);
     writeBinaryPOD(output, M_);
     writeBinaryPOD(output, maxM_);
@@ -301,7 +301,7 @@ void HierarchicalNSW::LoadInfo(const string &location)
     readBinaryPOD(input, maxelements_);
     readBinaryPOD(input, enterpoint_node);
     readBinaryPOD(input, data_size_);
-    readBinaryPOD(input, offsetData);
+    readBinaryPOD(input, offset_data);
     readBinaryPOD(input, size_data_per_element);
     readBinaryPOD(input, M_);
     readBinaryPOD(input, maxM_);
