@@ -58,7 +58,7 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}.index"
 #######
 # Run #
 #######
-nohup /home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_sift1b -M ${M} \
+/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_sift1b -M ${M} \
                                                   -efConstruction ${efConstruction} \
                                                   -nb ${nb} \
                                                   -nt ${nt} \
