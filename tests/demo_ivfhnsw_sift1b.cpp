@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     /**********************/
     /** Load Groundtruth **/
     /**********************/
-    std::cout << "Loading groundtruth" << std::endl;
+    std::cout << "Loading groundtruth from " << opt.path_gt << std::endl;
     std::vector<idx_t> massQA(opt.nq * opt.ngt);
     std::ifstream gt_input(opt.path_gt, ios::binary);
     readXvec<idx_t>(gt_input, massQA.data(), opt.ngt, opt.nq);
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     /******************/
     /** Load Queries **/
     /******************/
-    std::cout << "Loading queries" << std::endl;
+    std::cout << "Loading queries from " << opt.path_q << std::endl;
     std::vector<float> massQ(opt.nq * opt.d);
     std::ifstream query_input(opt.path_q, ios::binary);
     readXvecFvec<uint8_t>(query_input, massQ.data(), opt.d, opt.nq);
@@ -161,7 +161,6 @@ int main(int argc, char **argv)
     /***********************/
     /** Parse groundtruth **/
     /***********************/
-    std::cout << "Parsing groundtruth" << std::endl;
     std::vector<std::priority_queue< std::pair<float, idx_t >>> answers;
     (std::vector<std::priority_queue< std::pair<float, idx_t >>>(opt.nq)).swap(answers);
     for (int i = 0; i < opt.nq; i++)
@@ -183,10 +182,10 @@ int main(int argc, char **argv)
 
     StopW stopw = StopW();
     for (int i = 0; i < opt.nq; i++) {
-        for (int j = 0; j < opt.k; j++){
-            distances[j] = 0;
-            labels[j] = 0;
-        }
+        //for (int j = 0; j < opt.k; j++){
+        //    distances[j] = 0;
+        //    labels[j] = 0;
+        //}
 
         index->search(opt.k, massQ.data() + i*opt.d, distances, labels);
 
