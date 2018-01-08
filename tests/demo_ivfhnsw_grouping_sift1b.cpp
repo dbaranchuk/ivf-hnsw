@@ -90,7 +90,7 @@ int main(int argc, char **argv)
         StopW stopw = StopW();
 
         std::ifstream input(opt.path_base, ios::binary);
-        std::ofstream output(path_precomputed_idxs, ios::binary);
+        std::ofstream output(opt.path_precomputed_idxs, ios::binary);
 
         int batch_size = 1000000;
         int nbatches = opt.nb / batch_size;
