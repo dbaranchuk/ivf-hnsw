@@ -99,7 +99,7 @@ int main(int argc, char **argv)
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> precomputed_idx(batch_size);
 
-        index->quantizer->ef_ = 220;
+        index->quantizer->efSearch = 220;
         for (int i = 0; i < nbatch; i++) {
             if (i % 10 == 0) {
                 std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100.*i) / nbatch << "%\n";
@@ -202,7 +202,7 @@ int main(int argc, char **argv)
     /***************************/
     index->nprobe = opt.nprobe;
     index->max_codes = opt.max_codes;
-    index->quantizer->ef_ = opt.efSearch;
+    index->quantizer->efSearch = opt.efSearch;
 
     /************/
     /** Search **/
