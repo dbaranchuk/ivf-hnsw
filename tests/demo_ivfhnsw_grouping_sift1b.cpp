@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     /**********************/
     /** Load Groundtruth **/
     /**********************/
-    std::cout << "Loading groundtruth" << std::endl;
+    std::cout << "Loading groundtruth from " << opt.path_gt << std::endl;
     std::vector<int> massQA(opt.nq * opt.ngt);
     std::ifstream gt_input(opt.path_gt, ios::binary);
     readXvec<int>(gt_input, massQA.data(), opt.ngt, opt.nq);
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     /******************/
     /** Load Queries **/
     /******************/
-    std::cout << "Loading queries" << std::endl;
+    std::cout << "Loading queries from " << opt.path_q << std::endl;
     std::vector<float> massQ(opt.nq * opt.d);
     std::ifstream query_input(opt.path_q, ios::binary);
     readXvecFvec<uint8_t>(query_input, massQ.data(), opt.d, opt.nq);
@@ -117,12 +117,14 @@ int main(int argc, char **argv)
     /******************************/
     /** Rearrange data to groups **/
     /******************************/
+    std::cout << "HUI" << std::endl;
     if (!exists(opt.path_groups) || !exists(opt.path_idxs))
     {
         int batch_size = 1000000;
         int nbatches = opt.nb / batch_size;
         int groups_per_iter = 100000;
 
+        std::cout << "HUI" << std::endl;
         std::vector<std::vector<float>> data(groups_per_iter);
         std::vector<std::vector<idx_t>> idxs(groups_per_iter);
 
@@ -131,6 +133,7 @@ int main(int argc, char **argv)
         std::ofstream groups_output(opt.path_groups, ios::binary);
         std::ofstream idxs_output(opt.path_idxs, ios::binary);
 
+        std::cout << "HUI" << std::endl;
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> idx_batch(batch_size);
 

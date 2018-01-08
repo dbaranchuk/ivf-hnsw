@@ -316,7 +316,6 @@ void HierarchicalNSW::LoadInfo(const string &location)
     visitedlistpool = new VisitedListPool(1, maxelements_);
     maxlevel_ = 0;
 
-    cout << "Predicted size=" << maxelements_ * size_data_per_element / (1000 * 1000) << "\n";
     input.close();
 }
     

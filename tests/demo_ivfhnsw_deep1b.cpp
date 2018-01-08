@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     /**********************/
     /** Load Groundtruth **/
     /**********************/
-    std::cout << "Loading groundtruth" << std::endl;
+    std::cout << "Loading groundtruth from " << opt.path_gt << std::endl;
     std::vector<idx_t> massQA(opt.nq * opt.ngt);
     std::ifstream gt_input(opt.path_gt, ios::binary);
     readXvec<idx_t>(gt_input, massQA.data(), opt.ngt, opt.nq);
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     /******************/
     /** Load Queries **/
     /******************/
-    std::cout << "Loading queries" << std::endl;
+    std::cout << "Loading queries from " << opt.path_q << std::endl;
     std::vector<float> massQ(opt.nq * opt.d);
     std::ifstream query_input(opt.path_q, ios::binary);
     readXvec<float>(query_input, massQ.data(), opt.d, opt.nq);
