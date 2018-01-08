@@ -126,10 +126,10 @@ int main(int argc, char **argv)
         std::vector<std::vector<float>> data(groups_per_iter);
         std::vector<std::vector<idx_t>> idxs(groups_per_iter);
 
-        std::ifstream base_input(path_data, ios::binary);
-        std::ifstream idx_input(path_precomputed_idxs, ios::binary);
-        std::ofstream groups_output(path_groups, ios::binary);
-        std::ofstream idxs_output(path_idxs, ios::binary);
+        std::ifstream base_input(opt.path_base, ios::binary);
+        std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
+        std::ofstream groups_output(opt.path_groups, ios::binary);
+        std::ofstream idxs_output(opt.path_idxs, ios::binary);
 
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> idx_batch(batch_size);
