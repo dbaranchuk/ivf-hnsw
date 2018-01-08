@@ -15,7 +15,7 @@ namespace hnswlib {
     data_size_ = d * sizeof(float);
 
     efConstruction_ = efConstruction;
-    ef_ = efConstruction;
+    efSearch = efConstruction;
 
     maxelements_ = maxelements;
     M_ = M;
