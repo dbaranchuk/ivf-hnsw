@@ -142,8 +142,8 @@ int main(int argc, char **argv)
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> idx_batch(batch_size);
 
-        int ngroups_added = 0;
-        while (ngroups_added < opt.nc) {
+        for (int ngroups_added = 0; ngroups_added < opt.nc; ngroups_added += groups_per_iter)
+        {
             std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
                       << ngroups_added << " / " << opt.nc << std::endl;
 
@@ -180,7 +180,7 @@ int main(int argc, char **argv)
                 {
                     if (j1 % 10000 == 0) {
                         std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
-                                  << (100. * ngroups_added+j1) / 1000000 << "%" << std::endl;
+                                  << (100. * (ngroups_added+j1)) / 1000000 << "%" << std::endl;
                     }
                     j1++;
                 }
@@ -189,22 +189,9 @@ int main(int argc, char **argv)
                 int groupsize = ids[i].size();
 
                 index->add_group(centroid_num, groupsize, data[i].data(), ids[i].data(), baseline_average, modified_average);
+                data[i].clear();
+                ids[i].clear();
             }
-
-            // Save collected groups and point idxs to files
-//            for (int i = 0; i < groups_per_iter; i++) {
-//                int group_size = ids[i].size();
-//
-//                groups_output.write((char *) &group_size, sizeof(int));
-//                groups_output.write((char *) data[i].data(), data[i].size() * sizeof(uint8_t));
-//
-//                ids_output.write((char *) &group_size, sizeof(int));
-//                ids_output.write((char *) ids[i].data(), ids[i].size() * sizeof(idx_t));
-//
-//                data[i].clear();
-//                ids[i].clear();
-//            }
-            ngroups_added += groups_per_iter;
         }
 
         std::cout << "[Baseline] Average Distance: " << baseline_average / opt.nb << std::endl;
@@ -221,9 +208,6 @@ int main(int argc, char **argv)
         std::cout << "       pq to " << opt.path_pq << std::endl;
         std::cout << "       norm pq to " << opt.path_norm_pq << std::endl;
         index->write(opt.path_index);
-
-        //groups_output.close();
-        //ids_output.close();
     }
 
     /*****************************************/
