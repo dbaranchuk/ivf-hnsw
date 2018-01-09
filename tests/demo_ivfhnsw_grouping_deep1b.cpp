@@ -11,55 +11,55 @@
 using namespace hnswlib;
 using namespace ivfhnsw;
 
-/***************************************************/
-/** Run IVF-HNSW + Grouping (+ Pruning) on DEEP1B **/
-/***************************************************/
+//===============================================
+// Run IVF-HNSW + Grouping (+ Pruning) on DEEP1B 
+//===============================================
 int main(int argc, char **argv)
 {
-    /*******************/
-    /** Parse Options **/
-    /*******************/
+    //===============
+    // Parse Options 
+    //===============
     Parser opt = Parser(argc, argv);
 
-    /**********************/
-    /** Load Groundtruth **/
-    /**********************/
+    //==================
+    // Load Groundtruth 
+    //==================
     std::cout << "Loading groundtruth from " << opt.path_gt << std::endl;
     std::vector<idx_t> massQA(opt.nq * opt.ngt);
     std::ifstream gt_input(opt.path_gt, ios::binary);
     readXvec<idx_t>(gt_input, massQA.data(), opt.ngt, opt.nq);
     gt_input.close();
 
-    /******************/
-    /** Load Queries **/
-    /******************/
+    //==============
+    // Load Queries 
+    //==============
     std::cout << "Loading queries from " << opt.path_q << std::endl;
     std::vector<float> massQ(opt.nq * opt.d);
     std::ifstream query_input(opt.path_q, ios::binary);
     readXvec<float>(query_input, massQ.data(), opt.d, opt.nq);
     query_input.close();
 
-    /**********************/
-    /** Initialize Index **/
-    /**********************/
+    //==================
+    // Initialize Index 
+    //==================
     IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(opt.d, opt.nc, opt.code_size, 8, opt.nsubc);
     index->build_quantizer(opt.path_centroids, opt.path_info, opt.path_edges, opt.M, opt.efConstruction);
 
-    /********************/
-    /** Load learn set **/
-    /********************/
+    //================
+    // Load learn set 
+    //================
     std::ifstream learn_input(opt.path_learn, ios::binary);
     std::vector<float> trainvecs(opt.nt * opt.d);
     readXvec<float>(learn_input, trainvecs.data(), opt.d, opt.nt);
     learn_input.close();
 
-    /** Set Random Subset of sub_nt trainvecs **/
+    // Set Random Subset of sub_nt trainvecs 
     std::vector<float> trainvecs_rnd_subset(opt.nsubt * opt.d);
     random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), opt.d, opt.nt, opt.nsubt);
 
-    /**************/
-    /** Train PQ **/
-    /**************/
+    //==========
+    // Train PQ 
+    //==========
     if (exists(opt.path_pq) && exists(opt.path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << opt.path_pq << std::endl;
         index->pq = faiss::read_ProductQuantizer(opt.path_pq);
@@ -82,9 +82,9 @@ int main(int argc, char **argv)
         faiss::write_ProductQuantizer(index->norm_pq, opt.path_norm_pq);
     }
 
-    /************************/
-    /** Precompute indexes **/
-    /************************/
+    //====================
+    // Precompute indexes 
+    //====================
     if (!exists(opt.path_precomputed_idxs)){
         std::cout << "Precomputing indexes" << std::endl;
         StopW stopw = StopW();
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
         FILE *fout = fopen(opt.path_precomputed_idxs, "wb");
         std::ifstream input(opt.path_base, ios::binary);
 
-        /** TODO **/
+        // TODO 
         //std::ofstream output(path_precomputed_idxs, ios::binary);
         size_t batch_size = 1000000;
         size_t nbatch = opt.nb / batch_size;
@@ -114,20 +114,15 @@ int main(int argc, char **argv)
         fclose(fout);
     }
 
-    /****************************/
-    /** TODO Precompute Groups **/
-    /****************************/
-    if (!exists(opt.path_groups)){ exit(0);}
-
-    /******************************/
-    /** Construct IVF-HNSW Index **/
-    /******************************/
+    //==========================
+    // Construct IVF-HNSW Index 
+    //==========================
     if (exists(opt.path_index)){
-        /** Load Index **/
+        // Load Index 
         std::cout << "Loading index from " << opt.path_index << std::endl;
         index->read(opt.path_index);
     } else {
-        /** Adding groups to index **/
+        // Adding groups to index 
         std::cout << "Adding groups to index" << std::endl;
         StopW stopw = StopW();
 
@@ -146,7 +141,7 @@ int main(int argc, char **argv)
             std::vector <idx_t> idxs;
 
             #pragma omp critical
-            /** Read Original vectors from Group file**/
+            // Read Original vectors from Group file
             {
                 int check_groupsize;
                 input_groups.read((char *) &groupsize, sizeof(int));
@@ -178,35 +173,37 @@ int main(int argc, char **argv)
         input_groups.close();
         input_idxs.close();
 
-        /** Save index, pq and norm_pq **/
+        // Save index, pq and norm_pq 
         std::cout << "Saving index to " << opt.path_index << std::endl;
         std::cout << "       pq to " << opt.path_pq << std::endl;
         std::cout << "       norm pq to " << opt.path_norm_pq << std::endl;
 
-        /** Computing Centroid Norms **/
+        // Computing Centroid Norms 
         std::cout << "Computing centroid norms"<< std::endl;
         index->compute_centroid_norms();
         index->compute_centroid_dists();
         index->write(opt.path_index);
     }
 
-    /** Parse groundtruth **/
+    //===================
+    // Parse groundtruth
+    //===================
     std::cout << "Parsing groundtruth" << std::endl;
     std::vector<std::priority_queue< std::pair<float, idx_t >>> answers;
     (std::vector<std::priority_queue< std::pair<float, idx_t >>>(opt.nq)).swap(answers);
     for (int i = 0; i < opt.nq; i++)
         answers[i].emplace(0.0f, massQA[opt.ngt*i]);
 
-    /***************************/
-    /** Set search parameters **/
-    /***************************/
+    //=======================
+    // Set search parameters 
+    //=======================
     index->nprobe = opt.nprobe;
     index->max_codes = opt.max_codes;
     index->quantizer->efSearch = opt.efSearch;
 
-    /************/
-    /** Search **/
-    /************/
+    //========
+    // Search 
+    //========
     int correct = 0;
     float distances[opt.k];
     long labels[opt.k];
@@ -229,9 +226,9 @@ int main(int argc, char **argv)
                 break;
             }
     }
-    /***********************/
-    /** Represent results **/
-    /***********************/
+    //===================
+    // Represent results 
+    //===================
     float time_us_per_query = stopw.getElapsedTimeMicro() / opt.nq;
     std::cout << "Recall@" << opt.k << ": " << 1.0f * correct / opt.nq << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;

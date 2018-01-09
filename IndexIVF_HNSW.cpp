@@ -142,6 +142,10 @@ namespace ivfhnsw {
       *   using separately trained product quantizer for such norms and stored along with the residual PQ codes.
       * - term 3 is the classical non-residual distance table.
       *
+      * Norms of centroids are precomputed and saved without compression, as their memory consumption is negligible.
+      * If it is necessary, the norms can be added to the term 3 and compressed to byte together. We do not think that
+      * it will lead to considerable decrease in accuracy.
+      *
       * Since y_R defined by a product quantizer, it is split across
       * subvectors and stored separately for each subvector.
       *

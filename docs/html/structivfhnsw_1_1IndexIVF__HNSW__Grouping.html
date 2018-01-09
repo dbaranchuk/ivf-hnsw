@@ -110,9 +110,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a6fb0707ecef8bfc40a1ea2e6367bf481"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6fb0707ecef8bfc40a1ea2e6367bf481"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>IndexIVF_HNSW_Grouping</b> (size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx, size_t nsubcentroids)</td></tr>
 <tr class="separator:a6fb0707ecef8bfc40a1ea2e6367bf481"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29092b738dc901a1b0756a626eeb0212"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a29092b738dc901a1b0756a626eeb0212"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>add_group</b> (int centroid_num, int groupsize, const float *data, const <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a> *idxs, double &amp;baseline_average, double &amp;modified_average)</td></tr>
-<tr class="separator:a29092b738dc901a1b0756a626eeb0212"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8bb4ccf71219823d10113f13ad607b85"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a8bb4ccf71219823d10113f13ad607b85">add_group</a> (int group_idx, int group_size, const float *x, const <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a> *<a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#ad40193d01d98d4a55847638581d610bb">ids</a>, double &amp;baseline_average, double &amp;modified_average)</td></tr>
+<tr class="separator:a8bb4ccf71219823d10113f13ad607b85"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a399996617a43e549ee886dcd57424b45"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a399996617a43e549ee886dcd57424b45">search</a> (size_t k, const float *x, float *distances, long *labels)</td></tr>
 <tr class="separator:a399996617a43e549ee886dcd57424b45"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a48a6813044ff0012b125297e272544ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a48a6813044ff0012b125297e272544ba"></a>
@@ -126,20 +125,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stru
 <tr class="memitem:adebace156120602539d25e534887e570"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#adebace156120602539d25e534887e570">train_pq</a> (size_t n, const float *x)</td></tr>
 <tr class="separator:adebace156120602539d25e534887e570"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a00a98dc507795c74e6d1faec339e2fd6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a00a98dc507795c74e6d1faec339e2fd6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>compute_centroid_dists</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a00a98dc507795c74e6d1faec339e2fd6">compute_centroid_dists</a> ()</td></tr>
+<tr class="memdesc:a00a98dc507795c74e6d1faec339e2fd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute distances between the group centroid and its subc nearest neighbors in the HNSW graph. <br/></td></tr>
 <tr class="separator:a00a98dc507795c74e6d1faec339e2fd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b3d90ba6d7a0610592143c1ab7f0c10"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5b3d90ba6d7a0610592143c1ab7f0c10"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>compute_residuals</b> (size_t n, const float *x, float *residuals, const float *subcentroids, const <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a> *keys)</td></tr>
-<tr class="separator:a5b3d90ba6d7a0610592143c1ab7f0c10"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a67ae77ed409108f4425af857f16d84ad"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a67ae77ed409108f4425af857f16d84ad"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>reconstruct</b> (size_t n, float *x, const float *decoded_residuals, const float *subcentroids, const <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a> *keys)</td></tr>
-<tr class="separator:a67ae77ed409108f4425af857f16d84ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af20ad5e501286283539bb036c5dd141a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af20ad5e501286283539bb036c5dd141a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>compute_subcentroid_idxs</b> (<a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a> *subcentroid_idxs, const float *subcentroids, const float *points, const int groupsize)</td></tr>
-<tr class="separator:af20ad5e501286283539bb036c5dd141a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9c0ded99492ad582aefbd008e6258151"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9c0ded99492ad582aefbd008e6258151"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>compute_alpha</b> (const float *centroid_vectors, const float *points, const float *centroid, const float *centroid_vector_norms_L2sqr, const int groupsize)</td></tr>
-<tr class="separator:a9c0ded99492ad582aefbd008e6258151"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structivfhnsw_1_1IndexIVF__HNSW')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html">ivfhnsw::IndexIVF_HNSW</a></td></tr>
 <tr class="memitem:ae2ed5c24f208a3971e86eff84c2d95ba inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae2ed5c24f208a3971e86eff84c2d95ba"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>IndexIVF_HNSW</b> (size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx)</td></tr>
@@ -159,23 +147,23 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stru
 Public Attributes</h2></td></tr>
 <tr class="memitem:ad44707e8f2a79907872e152c7c7bedc0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad44707e8f2a79907872e152c7c7bedc0"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#ad44707e8f2a79907872e152c7c7bedc0">nsubc</a></td></tr>
-<tr class="memdesc:ad44707e8f2a79907872e152c7c7bedc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of subcentroids per group. <br/></td></tr>
+<tr class="memdesc:ad44707e8f2a79907872e152c7c7bedc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of sub-centroids per group. <br/></td></tr>
 <tr class="separator:ad44707e8f2a79907872e152c7c7bedc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a5ca7b0618e58131bf1bebd76bc0547"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1a5ca7b0618e58131bf1bebd76bc0547"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a1a5ca7b0618e58131bf1bebd76bc0547">do_pruning</a></td></tr>
-<tr class="memdesc:a1a5ca7b0618e58131bf1bebd76bc0547"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of subcentroids per group. <br/></td></tr>
+<tr class="memdesc:a1a5ca7b0618e58131bf1bebd76bc0547"><td class="mdescLeft">&#160;</td><td class="mdescRight">Turn on / off pruning. <br/></td></tr>
 <tr class="separator:a1a5ca7b0618e58131bf1bebd76bc0547"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b0be75945927e8c187b4fda4b3abd12"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3b0be75945927e8c187b4fda4b3abd12"></a>
 std::vector&lt; std::vector&lt; <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a3b0be75945927e8c187b4fda4b3abd12">nn_centroid_idxs</a></td></tr>
-<tr class="memdesc:a3b0be75945927e8c187b4fda4b3abd12"><td class="mdescLeft">&#160;</td><td class="mdescRight">indices of the nsubc nearest centroids for each centroid <br/></td></tr>
+<tr class="memdesc:a3b0be75945927e8c187b4fda4b3abd12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indices of the &lt;nsubc&gt; nearest centroids for each centroid. <br/></td></tr>
 <tr class="separator:a3b0be75945927e8c187b4fda4b3abd12"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a273732ea6c637138fd26ac20a7371b78"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a273732ea6c637138fd26ac20a7371b78"></a>
 std::vector&lt; std::vector&lt; <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a273732ea6c637138fd26ac20a7371b78">group_sizes</a></td></tr>
-<tr class="memdesc:a273732ea6c637138fd26ac20a7371b78"><td class="mdescLeft">&#160;</td><td class="mdescRight">sizes of subgroups for each group <br/></td></tr>
+<tr class="memdesc:a273732ea6c637138fd26ac20a7371b78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sizes of sub-groups for each group. <br/></td></tr>
 <tr class="separator:a273732ea6c637138fd26ac20a7371b78"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a54c5fa227e3c10eaec992e3af39b6e06"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a54c5fa227e3c10eaec992e3af39b6e06"></a>
 std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a54c5fa227e3c10eaec992e3af39b6e06">alphas</a></td></tr>
-<tr class="memdesc:a54c5fa227e3c10eaec992e3af39b6e06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coefficients that determine the location of subcentroids. <br/></td></tr>
+<tr class="memdesc:a54c5fa227e3c10eaec992e3af39b6e06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coefficients that determine the location of sub-centroids. <br/></td></tr>
 <tr class="separator:a54c5fa227e3c10eaec992e3af39b6e06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_structivfhnsw_1_1IndexIVF__HNSW')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html">ivfhnsw::IndexIVF_HNSW</a></td></tr>
 <tr class="memitem:a609cc185fcb377f9d8bb5a4e5e7d2c4f inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a609cc185fcb377f9d8bb5a4e5e7d2c4f"></a>
@@ -229,11 +217,11 @@ std::vector&lt; std::vector<br class="typebreak"/>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:a9c9b6b27184560ddff57d320bd842993"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9c9b6b27184560ddff57d320bd842993"></a>
 std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a9c9b6b27184560ddff57d320bd842993">q_s</a></td></tr>
-<tr class="memdesc:a9c9b6b27184560ddff57d320bd842993"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distances between query and subcentroids. Used for distance computation between query and point. <br/></td></tr>
+<tr class="memdesc:a9c9b6b27184560ddff57d320bd842993"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distances between a query and sub-centroids. Used for distance computation between a query and base points. <br/></td></tr>
 <tr class="separator:a9c9b6b27184560ddff57d320bd842993"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1fce2522840648d0c01793491c5ea4b0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1fce2522840648d0c01793491c5ea4b0"></a>
 std::vector&lt; std::vector&lt; float &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a1fce2522840648d0c01793491c5ea4b0">centroid_dists</a></td></tr>
-<tr class="memdesc:a1fce2522840648d0c01793491c5ea4b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distances between coarse centroids and their subcentroids. <br/></td></tr>
+<tr class="memdesc:a1fce2522840648d0c01793491c5ea4b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distances between coarse centroids and their sub-centroids. <br/></td></tr>
 <tr class="separator:a1fce2522840648d0c01793491c5ea4b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_structivfhnsw_1_1IndexIVF__HNSW')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html">ivfhnsw::IndexIVF_HNSW</a></td></tr>
 <tr class="memitem:a16ef4d800329fa8a3b7377e21af659f3 inherit pro_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a16ef4d800329fa8a3b7377e21af659f3"></a>
@@ -267,6 +255,66 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="str
 <tr class="separator:a1a3b77f67605f5a691840c91b9f471ec inherit pro_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a8bb4ccf71219823d10113f13ad607b85"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ivfhnsw::IndexIVF_HNSW_Grouping::add_group </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>group_idx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>group_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float *&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a> *&#160;</td>
+          <td class="paramname"><em>ids</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double &amp;&#160;</td>
+          <td class="paramname"><em>baseline_average</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double &amp;&#160;</td>
+          <td class="paramname"><em>modified_average</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Add &lt;group_size&gt; vectors of dimension &lt;d&gt; from the &lt;group_idx&gt;-th group to the index.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">group_idx</td><td>index of the group </td></tr>
+    <tr><td class="paramname">group_size</td><td>number of base vectors in the group </td></tr>
+    <tr><td class="paramname">x</td><td>base vectors to add (size: group_size * d) </td></tr>
+    <tr><td class="paramname">ids</td><td>ids to store for the vectors (size: groups_size) TODO: remove last two parameters </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="a399996617a43e549ee886dcd57424b45"></a>
 <div class="memitem">
 <div class="memproto">
@@ -310,31 +358,22 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="str
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Query n vectors of dimension d to the index.</p>
-<p>Return at most k vectors. If there are not enough results for a query, the result array is padded with -1s.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">k</td><td>number of the closest vertices to search </td></tr>
-    <tr><td class="paramname">x</td><td>query vectors, size n * d </td></tr>
-    <tr><td class="paramname">distances</td><td>output pairwise distances, size n * k </td></tr>
-    <tr><td class="paramname">labels</td><td>output labels of the nearest neighbours, size n * k</td></tr>
-  </table>
-  </dd>
-</dl>
 <p>Search procedure</p>
-<p>During IVF-HNSW-PQ search we compute </p>
-<pre class="fragment">d = || x - y_C - y_R ||^2
-</pre><p>where x is the query vector, y_C the coarse centroid, y_R the refined PQ centroid. The expression can be decomposed as:</p>
-<p>d = || x - y_C ||^2 - || y_C ||^2 + || y_C + y_R ||^2 - 2 * (x|y_R) </p>
+<p>During the IVF-HNSW-PQ + Grouping search we compute</p>
+<p>d = || x - y_S - y_R ||^2</p>
+<p>where x is the query vector, y_S the coarse sub-centroid, y_R the refined PQ centroid. The expression can be decomposed as:</p>
+<p>d = (1 - α) * (|| x - y_C ||^2 - || y_C ||^2) + α * (|| x - y_N ||^2 - || y_N ||^2) + || y_S + y_R ||^2 - 2 * (x|y_R) </p>
 <hr/>
-<p> term 1 term 2 term 3</p>
+<p> term 1 term 2 term 3 term 4</p>
 <p>We use the following decomposition:</p>
 <ul>
-<li>term 1 is the distance to the coarse centroid, that is computed during the 1st stage search in the HNSW graph, minus the norm of the coarse centroid</li>
-<li>term 2 is the L2 norm of the reconstructed base point, that is computed at construction time, quantized using separately trained product quantizer for such norms and stored along with the residual PQ codes.</li>
-<li>term 3 is the classical non-residual distance table.</li>
+<li>term 1 is the distance to the coarse centroid, that is computed during the 1st stage search in the HNSW graph, minus the norm of the coarse centroid.</li>
+<li>term 2 is the distance to the one of the &lt;subc&gt; nearest centroids, that is used for the sub-centroid computation, minus the norm of this centroid.</li>
+<li>term 3 is the L2 norm of the reconstructed base point, that is computed at construction time, quantized using separately trained product quantizer for such norms and stored along with the residual PQ codes.</li>
+<li>term 4 is the classical non-residual distance table.</li>
 </ul>
-<p>Since y_R defined by a product quantizer, it is split across subvectors and stored separately for each subvector. </p>
+<p>Norms of centroids are precomputed and saved without compression, as their memory consumption is negligible. If it is necessary, the norms can be added to the term 3 and compressed to byte together. We do not think that it will lead to considerable decrease in accuracy.</p>
+<p>Since y_R defined by a product quantizer, it is split across sub-vectors and stored separately for each sub-vector. </p>
 
 <p>Reimplemented from <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a276c84ab9e7117ea021a2ff4e11f4a99">ivfhnsw::IndexIVF_HNSW</a>.</p>
 
@@ -391,7 +430,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="str
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 3 2018 08:49:36 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jan 9 2018 19:50:11 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

@@ -100,7 +100,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="comment">//==============</span></div>
 <div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="structParser.html">   16</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structParser.html">Parser</a></div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;{</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">char</span> *cmd; <span class="comment">// main</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="structParser.html#ad01d81b83b033c40a40a3ed3fb7bb9a8">   18</a></span>&#160;    <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="structParser.html#ad01d81b83b033c40a40a3ed3fb7bb9a8">cmd</a>;     </div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <span class="comment">//=================</span></div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="comment">// HNSW parameters</span></div>
@@ -153,7 +153,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <a class="code" href="structParser.html">Parser</a>(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv)</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    {</div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        <span class="keywordtype">int</span> ret;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        cmd = argv[0];</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        <a class="code" href="structParser.html#ad01d81b83b033c40a40a3ed3fb7bb9a8">cmd</a> = argv[0];</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        <span class="keywordflow">if</span> (argc == 1)</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;            usage();</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
@@ -217,7 +217,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;</div>
 <div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    <span class="keywordtype">void</span> usage()</div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    {</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;        printf (<span class="stringliteral">&quot;Usage: %s [options]\n&quot;</span>, cmd);</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;        printf (<span class="stringliteral">&quot;Usage: %s [options]\n&quot;</span>, <a class="code" href="structParser.html#ad01d81b83b033c40a40a3ed3fb7bb9a8">cmd</a>);</div>
 <div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;        printf (<span class="stringliteral">&quot;###################\n&quot;</span></div>
 <div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;                <span class="stringliteral">&quot;# HNSW Parameters #\n&quot;</span></div>
 <div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;                <span class="stringliteral">&quot;###################\n&quot;</span></div>
@@ -280,11 +280,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="structParser_html_a51c1441183f4d6a3aa985736b330a074"><div class="ttname"><a href="structParser.html#a51c1441183f4d6a3aa985736b330a074">Parser::d</a></div><div class="ttdeci">int d</div><div class="ttdoc">Vector dimension. </div><div class="ttdef"><b>Definition:</b> Parser.h:36</div></div>
 <div class="ttc" id="structParser_html_a479ebd7341ce68aab0da40201fd54201"><div class="ttname"><a href="structParser.html#a479ebd7341ce68aab0da40201fd54201">Parser::nt</a></div><div class="ttdeci">int nt</div><div class="ttdoc">Number of learn vectors. </div><div class="ttdef"><b>Definition:</b> Parser.h:30</div></div>
 <div class="ttc" id="structParser_html_a896e04c97693a616e99ed8cb403e4ea7"><div class="ttname"><a href="structParser.html#a896e04c97693a616e99ed8cb403e4ea7">Parser::nsubc</a></div><div class="ttdeci">int nsubc</div><div class="ttdoc">Number of subcentroids per group. </div><div class="ttdef"><b>Definition:</b> Parser.h:33</div></div>
+<div class="ttc" id="structParser_html_ad01d81b83b033c40a40a3ed3fb7bb9a8"><div class="ttname"><a href="structParser.html#ad01d81b83b033c40a40a3ed3fb7bb9a8">Parser::cmd</a></div><div class="ttdeci">const char * cmd</div><div class="ttdoc">main command - argv[0] </div><div class="ttdef"><b>Definition:</b> Parser.h:18</div></div>
 <div class="ttc" id="structParser_html_a65e6c92464a763b5dbae9c4ab72cd204"><div class="ttname"><a href="structParser.html#a65e6c92464a763b5dbae9c4ab72cd204">Parser::nb</a></div><div class="ttdeci">int nb</div><div class="ttdoc">Number of base vectors. </div><div class="ttdef"><b>Definition:</b> Parser.h:29</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 3 2018 08:49:36 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jan 9 2018 19:50:11 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

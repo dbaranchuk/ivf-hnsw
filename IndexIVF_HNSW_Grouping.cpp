@@ -119,6 +119,36 @@ namespace ivfhnsw{
         }
     }
 
+    /** Search procedure
+      *
+      * During the IVF-HNSW-PQ + Grouping search we compute
+      *
+      *  d = || x - y_S - y_R ||^2
+      *
+      * where x is the query vector, y_S the coarse sub-centroid, y_R the
+      * refined PQ centroid. The expression can be decomposed as:
+      *
+      *  d = (1 - α) * (|| x - y_C ||^2 - || y_C ||^2) + α * (|| x - y_N ||^2 - || y_N ||^2) + || y_S + y_R ||^2 - 2 * (x|y_R)
+      *      -----------------------------------------   -----------------------------------   -----------------   -----------
+      *                         term 1                                 term 2                        term 3          term 4
+      *
+      * We use the following decomposition:
+      * - term 1 is the distance to the coarse centroid, that is computed
+      *   during the 1st stage search in the HNSW graph, minus the norm of the coarse centroid.
+      * - term 2 is the distance to the one of the <subc> nearest centroids,
+      *   that is used for the sub-centroid computation, minus the norm of this centroid.
+      * - term 3 is the L2 norm of the reconstructed base point, that is computed at construction time, quantized
+      *   using separately trained product quantizer for such norms and stored along with the residual PQ codes.
+      * - term 4 is the classical non-residual distance table.
+      *
+      * Norms of centroids are precomputed and saved without compression, as their memory consumption is negligible.
+      * If it is necessary, the norms can be added to the term 3 and compressed to byte together. We do not think that
+      * it will lead to considerable decrease in accuracy.
+      *
+      * Since y_R defined by a product quantizer, it is split across
+      * sub-vectors and stored separately for each sub-vector.
+      *
+    */
     void IndexIVF_HNSW_Grouping::search(size_t k, const float *x, float *distances, long *labels)
     {
         std::vector<float> r;

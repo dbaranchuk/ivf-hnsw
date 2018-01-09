@@ -9,35 +9,46 @@ namespace ivfhnsw{
     //=======================================
     struct IndexIVF_HNSW_Grouping: IndexIVF_HNSW
     {
-        size_t nsubc;         ///< Number of subcentroids per group
-        bool do_pruning;      ///< Number of subcentroids per group
+        size_t nsubc;         ///< Number of sub-centroids per group
+        bool do_pruning;      ///< Turn on / off pruning
 
-        std::vector<std::vector<idx_t> > nn_centroid_idxs; ///< indices of the nsubc nearest centroids for each centroid
-        std::vector<std::vector<idx_t> > group_sizes;      ///< sizes of subgroups for each group
-        std::vector<float> alphas;    ///< Coefficients that determine the location of subcentroids
+        std::vector<std::vector<idx_t> > nn_centroid_idxs; ///< Indices of the <nsubc> nearest centroids for each centroid
+        std::vector<std::vector<idx_t> > group_sizes;      ///< Sizes of sub-groups for each group
+        std::vector<float> alphas;    ///< Coefficients that determine the location of sub-centroids
 
     public:
         IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
                                size_t nbits_per_idx, size_t nsubcentroids);
 
-        void add_group(int centroid_num, int groupsize,
-                       const float *data, const idx_t *idxs,
+        /** Add <group_size> vectors of dimension <d> from the <group_idx>-th group to the index.
+          *
+          * @param group_idx         index of the group
+          * @param group_size        number of base vectors in the group
+          * @param x                 base vectors to add (size: group_size * d)
+          * @param ids               ids to store for the vectors (size: groups_size)
+          * TODO: remove last two parameters
+        */
+        void add_group(int group_idx, int group_size,
+                       const float *x, const idx_t *ids,
                        double &baseline_average, double &modified_average);
 
         void search(size_t k, const float *x, float *distances, long *labels);
 
         void write(const char *path_index);
         void read(const char *path_index);
-
         void train_pq(size_t n, const float *x);
 
+        /// Compute distances between the group centroid and its subc nearest neighbors in the HNSW graph
         void compute_centroid_dists();
 
     protected:
-        std::vector<float> q_s; ///< Distances between query and subcentroids. Used for distance computation between query and point
-        std::vector<std::vector<float> > centroid_dists; ///< Distances between coarse centroids and their subcentroids
+        /// Distances between a query and sub-centroids. Used for distance computation between a query and base points
+        std::vector<float> q_s;
 
-    public:
+        /// Distances between coarse centroids and their sub-centroids
+        std::vector<std::vector<float> > centroid_dists;
+
+    private:
         void compute_residuals(size_t n, const float *x, float *residuals,
                                const float *subcentroids, const idx_t *keys);
 

@@ -454,6 +454,7 @@ std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a
 <li>term 2 is the L2 norm of the reconstructed base point, that is computed at construction time, quantized using separately trained product quantizer for such norms and stored along with the residual PQ codes.</li>
 <li>term 3 is the classical non-residual distance table.</li>
 </ul>
+<p>Norms of centroids are precomputed and saved without compression, as their memory consumption is negligible. If it is necessary, the norms can be added to the term 3 and compressed to byte together. We do not think that it will lead to considerable decrease in accuracy.</p>
 <p>Since y_R defined by a product quantizer, it is split across subvectors and stored separately for each subvector. </p>
 
 <p>Reimplemented in <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a399996617a43e549ee886dcd57424b45">ivfhnsw::IndexIVF_HNSW_Grouping</a>.</p>
@@ -511,7 +512,7 @@ std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 3 2018 08:49:36 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jan 9 2018 19:50:11 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

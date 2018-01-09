@@ -11,55 +11,55 @@
 using namespace hnswlib;
 using namespace ivfhnsw;
 
-/****************************/
-/** Run IVF-HNSW on SIFT1B **/
-/****************************/
+//========================
+// Run IVF-HNSW on SIFT1B
+//========================
 int main(int argc, char **argv)
 {
-    /*******************/
-    /** Parse Options **/
-    /*******************/
+    //===============
+    // Parse Options
+    //===============
     Parser opt = Parser(argc, argv);
 
-    /**********************/
-    /** Load Groundtruth **/
-    /**********************/
+    //==================
+    // Load Groundtruth
+    //==================
     std::cout << "Loading groundtruth from " << opt.path_gt << std::endl;
     std::vector<idx_t> massQA(opt.nq * opt.ngt);
     std::ifstream gt_input(opt.path_gt, ios::binary);
     readXvec<idx_t>(gt_input, massQA.data(), opt.ngt, opt.nq);
     gt_input.close();
 
-    /******************/
-    /** Load Queries **/
-    /******************/
+    //==============
+    // Load Queries
+    //==============
     std::cout << "Loading queries from " << opt.path_q << std::endl;
     std::vector<float> massQ(opt.nq * opt.d);
     std::ifstream query_input(opt.path_q, ios::binary);
     readXvecFvec<uint8_t>(query_input, massQ.data(), opt.d, opt.nq);
     query_input.close();
 
-    /**********************/
-    /** Initialize Index **/
-    /**********************/
+    //==================
+    // Initialize Index
+    //==================
     IndexIVF_HNSW *index = new IndexIVF_HNSW(opt.d, opt.nc, opt.code_size, 8);
     index->build_quantizer(opt.path_centroids, opt.path_info, opt.path_edges, opt.M, opt.efConstruction);
 
-    /********************/
-    /** Load learn set **/
-    /********************/
+    //================
+    // Load learn set
+    //================
     std::ifstream learn_input(opt.path_learn, ios::binary);
     std::vector<float> trainvecs(opt.nt * opt.d);
     readXvecFvec<uint8_t>(learn_input, trainvecs.data(), opt.d, opt.nt);
     learn_input.close();
 
-    /** Set Random Subset of sub_nt trainvecs **/
+    // Set Random Subset of sub_nt trainvecs
     std::vector<float> trainvecs_rnd_subset(opt.nsubt * opt.d);
     random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), opt.d, opt.nt, opt.nsubt);
 
-    /**************/
-    /** Train PQ **/
-    /**************/
+    //==========
+    // Train PQ
+    //==========
     if (exists(opt.path_pq) && exists(opt.path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << opt.path_pq << std::endl;
         index->pq = faiss::read_ProductQuantizer(opt.path_pq);
@@ -116,11 +116,11 @@ int main(int argc, char **argv)
     /** Construct IVF-HNSW Index **/
     /******************************/
     if (exists(opt.path_index)){
-        /** Load Index **/
+        // Load Index
         std::cout << "Loading index from " << opt.path_index << std::endl;
         index->read(opt.path_index);
     } else {
-        /** Add elements **/
+        // Add elements
         StopW stopw = StopW();
 
         std::ifstream base_input(opt.path_base, ios::binary);
@@ -147,35 +147,35 @@ int main(int argc, char **argv)
         idx_input.close();
         base_input.close();
 
-        /** Save index, pq and norm_pq **/
+        // Save index, pq and norm_pq
         std::cout << "Saving index to " << opt.path_index << std::endl;
         std::cout << "       pq to " << opt.path_pq << std::endl;
         std::cout << "       norm pq to " << opt.path_norm_pq << std::endl;
 
-        /** Computing Centroid Norms **/
+        // Computing Centroid Norms
         std::cout << "Computing centroid norms"<< std::endl;
         index->compute_centroid_norms();
         index->write(opt.path_index);
     }
 
-    /***********************/
-    /** Parse groundtruth **/
-    /***********************/
+    //===================
+    // Parse groundtruth
+    //===================
     std::vector<std::priority_queue< std::pair<float, idx_t >>> answers;
     (std::vector<std::priority_queue< std::pair<float, idx_t >>>(opt.nq)).swap(answers);
     for (int i = 0; i < opt.nq; i++)
         answers[i].emplace(0.0f, massQA[opt.ngt*i]);
 
-    /***************************/
-    /** Set search parameters **/
-    /***************************/
+    //=======================
+    // Set search parameters
+    //=======================
     index->nprobe = opt.nprobe;
     index->max_codes = opt.max_codes;
     index->quantizer->efSearch = opt.efSearch;
 
-    /************/
-    /** Search **/
-    /************/
+    //========
+    // Search
+    //========
     int correct = 0;
     float distances[opt.k];
     long labels[opt.k];
@@ -198,9 +198,9 @@ int main(int argc, char **argv)
                 break;
             }
     }
-    /***********************/
-    /** Represent results **/
-    /***********************/
+    //===================
+    // Represent results
+    //===================
     float time_us_per_query = stopw.getElapsedTimeMicro() / opt.nq;
     std::cout << "Recall@" << opt.k << ": " << 1.0f * correct / opt.nq << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
