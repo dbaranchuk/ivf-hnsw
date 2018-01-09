@@ -7,7 +7,7 @@ option(BUILD_TEST "Build tests" ON)
 
 include_directories("${PROJECT_BINARY_DIR}")
 
-#add_subdirectory(faiss)
+add_subdirectory(faiss)
 add_subdirectory(hnswlib)
 
 # specify output bin_path and lib_path
