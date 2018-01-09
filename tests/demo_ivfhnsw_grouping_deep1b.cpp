@@ -146,7 +146,7 @@ int main(int argc, char **argv)
             std::vector<std::vector<idx_t>> ids(groups_per_iter);
 
             // Iterate through the dataset extracting points from groups,
-            // whose ids lie in [ngroups_added, ngroups_added + groups_per_iter)
+            // whose idxs lie in [ngroups_added, ngroups_added + groups_per_iter)
             std::ifstream base_input(opt.path_base, ios::binary);
             std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
 
@@ -168,7 +168,7 @@ int main(int argc, char **argv)
             base_input.close();
             idx_input.close();
 
-            // If opt.nc does not multiple of groups_per_iter, change groups_per_iter on the last iteration
+            // If <opt.nc> is not a multiple of groups_per_iter, change <groups_per_iter> on the last iteration
             if (opt.nc - ngroups_added <= groups_per_iter)
                 groups_per_iter = opt.nc - ngroups_added;
 
@@ -183,11 +183,9 @@ int main(int argc, char **argv)
                     }
                     j1++;
                 }
+                int group_size = ids[i].size();
 
-                idx_t centroid_num = ngroups_added + i;
-                int groupsize = ids[i].size();
-
-                index->add_group(centroid_num, groupsize, data[i].data(), ids[i].data(), baseline_average, modified_average);
+                index->add_group(ngroups_added + i, group_size, data[i].data(), ids[i].data(), baseline_average, modified_average);
             }
         }
 
