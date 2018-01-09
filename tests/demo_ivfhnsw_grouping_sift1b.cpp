@@ -142,7 +142,6 @@ int main(int argc, char **argv)
         std::ifstream input_groups(opt.path_groups, ios::binary);
         std::ifstream input_idxs(opt.path_idxs, ios::binary);
 
-        std::cout << opt.path_groups << " " << opt.path_idxs << std::endl;
         for (int ngroups_added = 0; ngroups_added < opt.nc; ngroups_added += groups_per_iter)
         {
             std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
@@ -179,9 +178,10 @@ int main(int argc, char **argv)
 //            idx_input.close();
 
             std::cout << ngroups_added << " " << ngroups_added + groups_per_iter << std::endl;
-            for (int i = 0; i < groups_per_iter; i++) {
-                int groupsize;
-                int check_groupsize;
+            for (int i = 0; i < groups_per_iter; i++)
+            {
+                int groupsize, check_groupsize;
+                std::cout << i << std::endl;
                 input_groups.read((char *) &groupsize, sizeof(int));
                 input_idxs.read((char *) &check_groupsize, sizeof(int));
                 if (check_groupsize != groupsize) {
@@ -194,11 +194,11 @@ int main(int argc, char **argv)
                 pdata[i].resize(groupsize * opt.d);
                 ids[i].resize(groupsize);
 
-                input_groups.read((char *) pdata.data(), groupsize * opt.d * sizeof(uint8_t));
+                input_groups.read((char *) pdata[i].data(), groupsize * opt.d * sizeof(uint8_t));
                 for (int j = 0; j < groupsize * opt.d; j++)
                     data[i][j] = (1.0) * pdata[i][j];
 
-                input_idxs.read((char *) ids.data(), groupsize * sizeof(idx_t));
+                input_idxs.read((char *) ids[i].data(), groupsize * sizeof(idx_t));
             }
 
             int j1 = 0;
