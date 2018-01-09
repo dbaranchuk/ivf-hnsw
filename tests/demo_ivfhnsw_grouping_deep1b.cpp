@@ -191,9 +191,6 @@ int main(int argc, char **argv)
             }
         }
 
-        input_groups.close();
-        input_idxs.close();
-
         std::cout << "[Baseline] Average Distance: " << baseline_average / opt.nb << std::endl;
         std::cout << "[Modified] Average Distance: " << modified_average / opt.nb << std::endl;
 
