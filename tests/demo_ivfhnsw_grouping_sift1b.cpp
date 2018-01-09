@@ -133,9 +133,6 @@ int main(int argc, char **argv)
         int nbatches = opt.nb / batch_size;
         int groups_per_iter = 100000;
 
-        std::vector<std::vector<float>> data(groups_per_iter);
-        std::vector<std::vector<idx_t>> ids(groups_per_iter);
-
         std::ofstream groups_output(opt.path_groups, ios::binary);
         std::ofstream ids_output(opt.path_idxs, ios::binary);
 
@@ -150,6 +147,9 @@ int main(int argc, char **argv)
             if (opt.nc - ngroups_added <= groups_per_iter)
                 groups_per_iter = opt.nc - ngroups_added;
 
+            std::vector<std::vector<float>> data(groups_per_iter);
+            std::vector<std::vector<idx_t>> ids(groups_per_iter);
+            
             // Iterate through the dataset extracting points from groups,
             // whose ids lie in [ngroups_added, ngroups_added + groups_per_iter)
             std::ifstream base_input(opt.path_base, ios::binary);
@@ -189,8 +189,6 @@ int main(int argc, char **argv)
                 int groupsize = ids[i].size();
 
                 index->add_group(centroid_num, groupsize, data[i].data(), ids[i].data(), baseline_average, modified_average);
-                data[i].clear();
-                ids[i].clear();
             }
         }
 
