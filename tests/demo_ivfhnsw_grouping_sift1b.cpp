@@ -181,7 +181,6 @@ int main(int argc, char **argv)
             for (int i = 0; i < groups_per_iter; i++)
             {
                 int groupsize, check_groupsize;
-                std::cout << i << std::endl;
                 input_groups.read((char *) &groupsize, sizeof(int));
                 input_idxs.read((char *) &check_groupsize, sizeof(int));
                 if (check_groupsize != groupsize) {

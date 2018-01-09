@@ -114,36 +114,72 @@ int main(int argc, char **argv)
         fclose(fout);
     }
 
-    //==========================
-    // Construct IVF-HNSW Index 
-    //==========================
+    //=====================================
+    // Construct IVF-HNSW + Grouping Index
+    //=====================================
     if (exists(opt.path_index)){
-        // Load Index 
+        // Load Index
         std::cout << "Loading index from " << opt.path_index << std::endl;
         index->read(opt.path_index);
     } else {
-        // Adding groups to index 
+        // Adding groups to index
         std::cout << "Adding groups to index" << std::endl;
         StopW stopw = StopW();
 
         double baseline_average = 0.0;
         double modified_average = 0.0;
 
+        int batch_size = 1000000;
+        int nbatches = opt.nb / batch_size;
+        int groups_per_iter = 100000;
+
+        std::ofstream groups_output(opt.path_groups, ios::binary);
+        std::ofstream ids_output(opt.path_idxs, ios::binary);
+
+        std::vector<float> batch(batch_size * opt.d);
+        std::vector<idx_t> idx_batch(batch_size);
+
         std::ifstream input_groups(opt.path_groups, ios::binary);
         std::ifstream input_idxs(opt.path_idxs, ios::binary);
 
-        int j1 = 0;
-        #pragma omp parallel for reduction(+:baseline_average, modified_average)
-        for (int c = 0; c < opt.nc; c++) {
-            idx_t centroid_num;
-            int groupsize;
-            std::vector<float> data;
-            std::vector <idx_t> idxs;
+        for (int ngroups_added = 0; ngroups_added < opt.nc; ngroups_added += groups_per_iter)
+        {
+            std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
+                      << ngroups_added << " / " << opt.nc << std::endl;
 
-            #pragma omp critical
-            // Read Original vectors from Group file
+            if (opt.nc - ngroups_added <= groups_per_iter)
+                groups_per_iter = opt.nc - ngroups_added;
+
+            std::vector<std::vector<float>> data(groups_per_iter);
+            std::vector<std::vector<idx_t>> ids(groups_per_iter);
+
+            // Iterate through the dataset extracting points from groups,
+            // whose ids lie in [ngroups_added, ngroups_added + groups_per_iter)
+//            std::ifstream base_input(opt.path_base, ios::binary);
+//            std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
+//
+//            for (int b = 0; b < nbatches; b++) {
+//                readXvec<float>(base_input, batch.data(), opt.d, batch_size);
+//                readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+//
+//                for (int i = 0; i < batch_size; i++) {
+//                    if (idx_batch[i] < ngroups_added ||
+//                        idx_batch[i] >= ngroups_added + groups_per_iter)
+//                        continue;
+//
+//                    idx_t idx = idx_batch[i] % groups_per_iter;
+//                    for (int j = 0; j < opt.d; j++)
+//                        data[idx].push_back(batch[i * opt.d + j]);
+//                    ids[idx].push_back(b * batch_size + i);
+//                }
+//            }
+//            base_input.close();
+//            idx_input.close();
+
+            std::cout << ngroups_added << " " << ngroups_added + groups_per_iter << std::endl;
+            for (int i = 0; i < groups_per_iter; i++)
             {
-                int check_groupsize;
+                int groupsize, check_groupsize;
                 input_groups.read((char *) &groupsize, sizeof(int));
                 input_idxs.read((char *) &check_groupsize, sizeof(int));
                 if (check_groupsize != groupsize) {
@@ -152,38 +188,121 @@ int main(int argc, char **argv)
                     exit(1);
                 }
 
-                data.resize(groupsize * opt.d);
-                idxs.resize(groupsize);
+                data[i].resize(groupsize * opt.d);
+                ids[i].resize(groupsize);
 
-                input_groups.read((char *) data.data(), groupsize * opt.d * sizeof(float));
-                input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
-
-                if (j1 % 10000 == 0) {
-                    std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
-                              << (100. * j1) / 1000000 << "%" << std::endl;
-                }
-                centroid_num = j1++;
+                input_groups.read((char *) data[i].data(), groupsize * opt.d * sizeof(float));
+                input_idxs.read((char *) ids[i].data(), groupsize * sizeof(idx_t));
             }
-            index->add_group(centroid_num, groupsize, data.data(), idxs.data(), baseline_average, modified_average);
-        }
 
-        std::cout << "[Baseline] Average Distance: " << baseline_average / opt.nb << std::endl;
-        std::cout << "[Modified] Average Distance: " << modified_average / opt.nb << std::endl;
+            int j1 = 0;
+#pragma omp parallel for reduction(+:baseline_average, modified_average)
+            for (int i = 0; i < groups_per_iter; i++) {
+#pragma omp critical
+                {
+                    if (j1 % 10000 == 0) {
+                        std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
+                                  << (100. * (ngroups_added+j1)) / 1000000 << "%" << std::endl;
+                    }
+                    j1++;
+                }
+
+                idx_t centroid_num = ngroups_added + i;
+                int groupsize = ids[i].size();
+
+                index->add_group(centroid_num, groupsize, data[i].data(), ids[i].data(), baseline_average, modified_average);
+            }
+        }
 
         input_groups.close();
         input_idxs.close();
 
-        // Save index, pq and norm_pq 
+        std::cout << "[Baseline] Average Distance: " << baseline_average / opt.nb << std::endl;
+        std::cout << "[Modified] Average Distance: " << modified_average / opt.nb << std::endl;
+
+        // Computing Centroid Norms
+        std::cout << "Computing centroid norms"<< std::endl;
+        index->compute_centroid_norms();
+        std::cout << "Computing centroid dists"<< std::endl;
+        index->compute_centroid_dists();
+
+        // Save index, pq and norm_pq
         std::cout << "Saving index to " << opt.path_index << std::endl;
         std::cout << "       pq to " << opt.path_pq << std::endl;
         std::cout << "       norm pq to " << opt.path_norm_pq << std::endl;
-
-        // Computing Centroid Norms 
-        std::cout << "Computing centroid norms"<< std::endl;
-        index->compute_centroid_norms();
-        index->compute_centroid_dists();
         index->write(opt.path_index);
     }
+
+    //==========================
+    // Construct IVF-HNSW Index 
+    //==========================
+//    if (exists(opt.path_index)){
+//        // Load Index
+//        std::cout << "Loading index from " << opt.path_index << std::endl;
+//        index->read(opt.path_index);
+//    } else {
+//        // Adding groups to index
+//        std::cout << "Adding groups to index" << std::endl;
+//        StopW stopw = StopW();
+//
+//        double baseline_average = 0.0;
+//        double modified_average = 0.0;
+//
+//        std::ifstream input_groups(opt.path_groups, ios::binary);
+//        std::ifstream input_idxs(opt.path_idxs, ios::binary);
+//
+//        int j1 = 0;
+//        #pragma omp parallel for reduction(+:baseline_average, modified_average)
+//        for (int c = 0; c < opt.nc; c++) {
+//            idx_t centroid_num;
+//            int groupsize;
+//            std::vector<float> data;
+//            std::vector <idx_t> idxs;
+//
+//            #pragma omp critical
+//            // Read Original vectors from Group file
+//            {
+//                int check_groupsize;
+//                input_groups.read((char *) &groupsize, sizeof(int));
+//                input_idxs.read((char *) &check_groupsize, sizeof(int));
+//                if (check_groupsize != groupsize) {
+//                    std::cout << "Wrong groupsizes: " << groupsize << " vs "
+//                              << check_groupsize << std::endl;
+//                    exit(1);
+//                }
+//
+//                data.resize(groupsize * opt.d);
+//                idxs.resize(groupsize);
+//
+//                input_groups.read((char *) data.data(), groupsize * opt.d * sizeof(float));
+//                input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
+//
+//                if (j1 % 10000 == 0) {
+//                    std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
+//                              << (100. * j1) / 1000000 << "%" << std::endl;
+//                }
+//                centroid_num = j1++;
+//            }
+//            index->add_group(centroid_num, groupsize, data.data(), idxs.data(), baseline_average, modified_average);
+//        }
+//
+//        std::cout << "[Baseline] Average Distance: " << baseline_average / opt.nb << std::endl;
+//        std::cout << "[Modified] Average Distance: " << modified_average / opt.nb << std::endl;
+//
+//        input_groups.close();
+//        input_idxs.close();
+//
+//        // Save index, pq and norm_pq
+//        std::cout << "Saving index to " << opt.path_index << std::endl;
+//        std::cout << "       pq to " << opt.path_pq << std::endl;
+//        std::cout << "       norm pq to " << opt.path_norm_pq << std::endl;
+//
+//        // Computing Centroid Norms
+//        std::cout << "Computing centroid norms"<< std::endl;
+//        index->compute_centroid_norms();
+//        index->compute_centroid_dists();
+//        index->write(opt.path_index);
+//    }
 
     //===================
     // Parse groundtruth

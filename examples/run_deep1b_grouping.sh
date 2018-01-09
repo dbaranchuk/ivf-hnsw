@@ -47,7 +47,7 @@ path_gt="${path_data}/deep1B_groundtruth.ivecs"
 path_q="${path_data}/deep1B_queries.fvecs"
 path_centroids="${path_data}/centroids.fvecs""
 
-path_precomputed_idxs="${path_data}/precomputed_idxs_${nc}.ivecs"
+path_precomputed_idxs="${path_data}/precomputed_idxs.ivecs"
 
 path_groups="${path_data}/groups/groups.dat";
 path_idxs="${path_data}/groups/idxs.ivecs"
