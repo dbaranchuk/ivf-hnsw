@@ -188,7 +188,7 @@ int main(int argc, char **argv)
                 idx_t centroid_num = ngroups_added + i;
                 int groupsize = ids[i].size();
 
-                index->add_group(centroid_num, groupsize, data[i].data(), idxs[i].data(), baseline_average, modified_average);
+                index->add_group(centroid_num, groupsize, data[i].data(), ids[i].data(), baseline_average, modified_average);
             }
 
             // Save collected groups and point idxs to files
