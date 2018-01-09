@@ -36,6 +36,7 @@ namespace ivfhnsw{
 
         void write(const char *path_index);
         void read(const char *path_index);
+
         void train_pq(size_t n, const float *x);
 
         /// Compute distances between the group centroid and its subc nearest neighbors in the HNSW graph
