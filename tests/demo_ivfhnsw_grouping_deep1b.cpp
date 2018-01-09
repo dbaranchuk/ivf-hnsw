@@ -133,71 +133,44 @@ int main(int argc, char **argv)
         int nbatches = opt.nb / batch_size;
         int groups_per_iter = 100000;
 
-        std::ofstream groups_output(opt.path_groups, ios::binary);
-        std::ofstream ids_output(opt.path_idxs, ios::binary);
-
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> idx_batch(batch_size);
 
-        std::ifstream input_groups(opt.path_groups, ios::binary);
-        std::ifstream input_idxs(opt.path_idxs, ios::binary);
 
         for (int ngroups_added = 0; ngroups_added < opt.nc; ngroups_added += groups_per_iter)
         {
             std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
                       << ngroups_added << " / " << opt.nc << std::endl;
 
-            if (opt.nc - ngroups_added <= groups_per_iter)
-                groups_per_iter = opt.nc - ngroups_added;
-
             std::vector<std::vector<float>> data(groups_per_iter);
             std::vector<std::vector<idx_t>> ids(groups_per_iter);
 
             // Iterate through the dataset extracting points from groups,
             // whose ids lie in [ngroups_added, ngroups_added + groups_per_iter)
-//            std::ifstream base_input(opt.path_base, ios::binary);
-//            std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
-//
-//            for (int b = 0; b < nbatches; b++) {
-//                readXvec<float>(base_input, batch.data(), opt.d, batch_size);
-//                readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-//
-//                for (int i = 0; i < batch_size; i++) {
-//                    if (idx_batch[i] < ngroups_added ||
-//                        idx_batch[i] >= ngroups_added + groups_per_iter)
-//                        continue;
-//
-//                    idx_t idx = idx_batch[i] % groups_per_iter;
-//                    for (int j = 0; j < opt.d; j++)
-//                        data[idx].push_back(batch[i * opt.d + j]);
-//                    ids[idx].push_back(b * batch_size + i);
-//                }
-//            }
-//            base_input.close();
-//            idx_input.close();
+            std::ifstream base_input(opt.path_base, ios::binary);
+            std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
 
-            std::cout << ngroups_added << " " << ngroups_added + groups_per_iter << std::endl;
-            for (int i = 0; i < groups_per_iter; i++)
-            {
-                std::cout << "HUI0\n";
-                int groupsize, check_groupsize;
-                input_groups.read((char *) &groupsize, sizeof(int));
-                input_idxs.read((char *) &check_groupsize, sizeof(int));
-                if (check_groupsize != groupsize) {
-                    std::cout << "Wrong groupsizes: " << groupsize << " vs "
-                              << check_groupsize << std::endl;
-                    exit(1);
+            for (int b = 0; b < nbatches; b++) {
+                readXvec<float>(base_input, batch.data(), opt.d, batch_size);
+                readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+
+                for (int i = 0; i < batch_size; i++) {
+                    if (idx_batch[i] < ngroups_added ||
+                        idx_batch[i] >= ngroups_added + groups_per_iter)
+                        continue;
+
+                    idx_t idx = idx_batch[i] % groups_per_iter;
+                    for (int j = 0; j < opt.d; j++)
+                        data[idx].push_back(batch[i * opt.d + j]);
+                    ids[idx].push_back(b * batch_size + i);
                 }
-
-                std::cout << "HUI2\n";
-                data[i].resize(groupsize * opt.d);
-                ids[i].resize(groupsize);
-
-                std::cout << "HUI3\n";
-                input_groups.read((char *) data[i].data(), groupsize * opt.d * sizeof(float));
-                input_idxs.read((char *) ids[i].data(), groupsize * sizeof(idx_t));
             }
-            std::cout << "HUI\n";
+            base_input.close();
+            idx_input.close();
+
+            // If opt.nc does not multiple of groups_per_iter, change groups_per_iter on the last iteration
+            if (opt.nc - ngroups_added <= groups_per_iter)
+                groups_per_iter = opt.nc - ngroups_added;
 
             int j1 = 0;
 #pragma omp parallel for reduction(+:baseline_average, modified_average)
