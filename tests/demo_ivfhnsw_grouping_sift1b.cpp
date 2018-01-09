@@ -142,6 +142,7 @@ int main(int argc, char **argv)
         std::ifstream input_groups(opt.path_groups, ios::binary);
         std::ifstream input_idxs(opt.path_idxs, ios::binary);
 
+        std::cout << opt.path_groups << " " << opt.path_idxs << std::endl;
         for (int ngroups_added = 0; ngroups_added < opt.nc; ngroups_added += groups_per_iter)
         {
             std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
