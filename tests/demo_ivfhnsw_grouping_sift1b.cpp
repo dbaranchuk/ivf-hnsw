@@ -179,6 +179,7 @@ int main(int argc, char **argv)
 
             std::cout << ngroups_added << " " << ngroups_added + groups_per_iter << std::endl;
             for (int i = 0; i < groups_per_iter; i++) {
+                int groupsize;
                 int check_groupsize;
                 input_groups.read((char *) &groupsize, sizeof(int));
                 input_idxs.read((char *) &check_groupsize, sizeof(int));
@@ -196,7 +197,7 @@ int main(int argc, char **argv)
                 for (int j = 0; j < groupsize * opt.d; j++)
                     data[i][j] = (1.0) * pdata[i][j];
 
-                input_idxs.read((char *) idxs.data(), groupsize * sizeof(idx_t));
+                input_idxs.read((char *) ids.data(), groupsize * sizeof(idx_t));
             }
 
             int j1 = 0;
