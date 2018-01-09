@@ -179,6 +179,7 @@ int main(int argc, char **argv)
             std::cout << ngroups_added << " " << ngroups_added + groups_per_iter << std::endl;
             for (int i = 0; i < groups_per_iter; i++)
             {
+                std::cout << "HUI0\n";
                 int groupsize, check_groupsize;
                 input_groups.read((char *) &groupsize, sizeof(int));
                 input_idxs.read((char *) &check_groupsize, sizeof(int));
@@ -188,12 +189,15 @@ int main(int argc, char **argv)
                     exit(1);
                 }
 
+                std::cout << "HUI2\n";
                 data[i].resize(groupsize * opt.d);
                 ids[i].resize(groupsize);
 
+                std::cout << "HUI3\n";
                 input_groups.read((char *) data[i].data(), groupsize * opt.d * sizeof(float));
                 input_idxs.read((char *) ids[i].data(), groupsize * sizeof(idx_t));
             }
+            std::cout << "HUI\n";
 
             int j1 = 0;
 #pragma omp parallel for reduction(+:baseline_average, modified_average)
