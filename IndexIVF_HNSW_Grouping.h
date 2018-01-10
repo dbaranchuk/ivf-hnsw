@@ -44,7 +44,7 @@ namespace ivfhnsw{
 
     protected:
         /// Distances to the coarse centroids. Used for distance computation between a query and base points
-        std::unordered_map<idx_t, float> q_s;
+        //std::unordered_map<idx_t, float> q_s;
 
         /// Distances between coarse centroids and their sub-centroids
         std::vector<std::vector<float>> inter_centroid_dists;

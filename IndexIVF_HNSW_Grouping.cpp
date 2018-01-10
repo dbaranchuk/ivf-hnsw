@@ -155,13 +155,13 @@ namespace ivfhnsw{
         // Indices of coarse centroids, which distances to the query are computed during the search time
         //std::vector<idx_t> used_centroid_idxs;
         //used_centroid_idxs.reserve(nsubc * nprobe);
-
+        std::unordered_map<idx_t, float> q_s;
 
         idx_t keys[nprobe]; // Indices of the nearest coarse centroids
         // Find the nearest coarse centroids to the query
         auto coarse = quantizer->searchKnn(x, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
-            idx_t key = coarse.top().second;;
+            idx_t key = coarse.top().second;
             q_s[key] = coarse.top().first;
             keys[i] = key;
             //used_centroid_idxs.push_back(key);
