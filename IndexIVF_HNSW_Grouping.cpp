@@ -153,9 +153,10 @@ namespace ivfhnsw{
     {
         std::vector<float> r;
         // Indices of coarse centroids, which distances to the query are computed during the search time
-        std::vector<idx_t> used_centroid_idxs;
-        used_centroid_idxs.reserve(nsubc * nprobe);
-        
+        //std::vector<idx_t> used_centroid_idxs;
+        //used_centroid_idxs.reserve(nsubc * nprobe);
+
+
         idx_t keys[nprobe]; // Indices of the nearest coarse centroids
         // Find the nearest coarse centroids to the query
         auto coarse = quantizer->searchKnn(x, nprobe);
@@ -163,7 +164,7 @@ namespace ivfhnsw{
             idx_t key = coarse.top().second;;
             q_s[key] = coarse.top().first;
             keys[i] = key;
-            used_centroid_idxs.push_back(key);
+            //used_centroid_idxs.push_back(key);
             coarse.pop();
         }
 
@@ -192,7 +193,7 @@ namespace ivfhnsw{
                     if (q_s[nn_centroid_idx] < EPS) {
                         const float *nn_centroid = quantizer->getDataByInternalId(nn_centroid_idx);
                         q_s[nn_centroid_idx] = fvec_L2sqr(x, nn_centroid, d);
-                        used_centroid_idxs.push_back(nn_centroid_idx);
+                        //used_centroid_idxs.push_back(nn_centroid_idx);
                     }
 
                     subr[subc] = (1 - alpha)*(q_s[centroid_idx] - alpha * inter_centroid_dists[centroid_idx][subc])
@@ -238,7 +239,7 @@ namespace ivfhnsw{
                     if (q_s[nn_centroid_idx] < EPS) {
                         const float *nn_centroid = quantizer->getDataByInternalId(nn_centroid_idx);
                         q_s[nn_centroid_idx] = fvec_L2sqr(x, nn_centroid, d);
-                        used_centroid_idxs.push_back(nn_centroid_idx);
+                        //used_centroid_idxs.push_back(nn_centroid_idx);
                     }
 
                     float term2 = alpha * (q_s[nn_centroid_idx] - centroid_norms[nn_centroid_idx]);
@@ -265,8 +266,8 @@ namespace ivfhnsw{
         }
 
         // Zero subcentroids
-        for (idx_t used_centroid_idx : used_centroid_idxs)
-            q_s[used_centroid_idx] = 0;
+        //for (idx_t used_centroid_idx : used_centroid_idxs)
+        //    q_s[used_centroid_idx] = 0;
     }
 
     void IndexIVF_HNSW_Grouping::write(const char *path_index)

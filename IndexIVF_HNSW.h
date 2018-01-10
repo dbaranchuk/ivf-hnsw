@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdio>
+#include <unordered_map>
 
 #include <faiss/index_io.h>
 #include <faiss/Heap.h>
