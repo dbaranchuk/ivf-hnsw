@@ -323,7 +323,7 @@ namespace ivfhnsw {
     }
 
 
-    float IndexIVF_HNSW::pq_L2sqr(uint8_t *code)
+    float IndexIVF_HNSW::pq_L2sqr(const uint8_t *code)
     {
         float result = 0.;
         int dim = code_size >> 2;

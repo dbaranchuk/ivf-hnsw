@@ -10,7 +10,7 @@ namespace ivfhnsw{
     {
         alphas.resize(nc);
         nn_centroid_idxs.resize(nc);
-        group_sizes.resize(nc);
+        subgroup_sizes.resize(nc);
 
         q_s.resize(nc);
         std::fill(q_s.begin(), q_s.end(), 0);
@@ -107,8 +107,8 @@ namespace ivfhnsw{
         }
         // Add codes to the index
         for (int subc = 0; subc < nsubc; subc++) {
-            idx_t subcsize = construction_norm_codes[subc].size();
-            group_sizes[centroid_idx].push_back(subcsize);
+            idx_t subgroup_size = construction_norm_codes[subc].size();
+            subgroup_sizes[centroid_idx].push_back(subgroup_size);
 
             for (int i = 0; i < subcsize; i++) {
                 ids[centroid_idx].push_back(construction_ids[subc][i]);
@@ -304,9 +304,9 @@ namespace ivfhnsw{
         }
         // Write group sizes
         for (int i = 0; i < nc; i++) {
-            size = group_sizes[i].size();
+            size = subgroup_sizes[i].size();
             fwrite(&size, sizeof(idx_t), 1, fout);
-            fwrite(group_sizes[i].data(), sizeof(idx_t), size, fout);
+            fwrite(subgroup_sizes[i].data(), sizeof(idx_t), size, fout);
         }
         // Save alphas
         fwrite(alphas.data(), sizeof(float), nc, fout);
@@ -335,7 +335,7 @@ namespace ivfhnsw{
         codes.resize(nc);
         norm_codes.resize(nc);
         nn_centroid_idxs.resize(nc);
-        group_sizes.resize(nc);
+        subgroup_sizes.resize(nc);
 
         idx_t size;
         // Read indices
@@ -365,8 +365,8 @@ namespace ivfhnsw{
         // Read group sizes
         for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(idx_t), 1, fin);
-            group_sizes[i].resize(size);
-            fread(group_sizes[i].data(), sizeof(idx_t), size, fin);
+            subgroup_sizes[i].resize(size);
+            fread(subgroup_sizes[i].data(), sizeof(idx_t), size, fin);
         }
 
         // Read alphas
