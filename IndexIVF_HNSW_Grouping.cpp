@@ -18,7 +18,7 @@ namespace ivfhnsw{
         do_pruning = false;
     }
 
-    void IndexIVF_HNSW_Grouping::add_group(int centroid_num, int groupsize,
+    void IndexIVF_HNSW_Grouping::add_group(int centroid_num, int group_size,
                                            const float *data, const idx_t *idxs,
                                            double &baseline_average, double &modified_average)
     {
@@ -33,7 +33,7 @@ namespace ivfhnsw{
             nn_centroid_idxs[centroid_num][nn_centroids_raw.size() - 2] = nn_centroids_raw.top().second;
             nn_centroids_raw.pop();
         }
-        if (groupsize == 0)
+        if (group_size == 0)
             return;
 
         const float *centroid_vector_norms = centroid_vector_norms_L2sqr.data();
@@ -48,7 +48,7 @@ namespace ivfhnsw{
 
         // Compute alpha for group vectors
         alphas[centroid_num] = compute_alpha(centroid_vectors.data(), data, centroid,
-                                             centroid_vector_norms, groupsize);
+                                             centroid_vector_norms, group_size);
 
         // Compute final subcentroids
         std::vector<float> subcentroids(nsubc * d);
@@ -59,39 +59,39 @@ namespace ivfhnsw{
         }
 
         // Find subcentroid idx
-        std::vector<idx_t> subcentroid_idxs(groupsize);
-        compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data, groupsize);
+        std::vector<idx_t> subcentroid_idxs(group_size);
+        compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data, group_size);
 
         // Compute residuals
-        std::vector<float> residuals(groupsize * d);
-        compute_residuals(groupsize, data, residuals.data(), subcentroids.data(), subcentroid_idxs.data());
+        std::vector<float> residuals(group_size * d);
+        compute_residuals(group_size, data, residuals.data(), subcentroids.data(), subcentroid_idxs.data());
 
         // Compute codes
-        std::vector<uint8_t> xcodes(groupsize * code_size);
-        pq->compute_codes(residuals.data(), xcodes.data(), groupsize);
+        std::vector<uint8_t> xcodes(group_size * code_size);
+        pq->compute_codes(residuals.data(), xcodes.data(), group_size);
 
         // Decode codes
-        std::vector<float> decoded_residuals(groupsize * d);
-        pq->decode(xcodes.data(), decoded_residuals.data(), groupsize);
+        std::vector<float> decoded_residuals(group_size * d);
+        pq->decode(xcodes.data(), decoded_residuals.data(), group_size);
 
         // Reconstruct data
-        std::vector<float> reconstructed_x(groupsize * d);
-        reconstruct(groupsize, reconstructed_x.data(), decoded_residuals.data(),
+        std::vector<float> reconstructed_x(group_size * d);
+        reconstruct(group_size, reconstructed_x.data(), decoded_residuals.data(),
                     subcentroids.data(), subcentroid_idxs.data());
 
         // Compute norms 
-        std::vector<float> norms(groupsize);
-        faiss::fvec_norms_L2sqr(norms.data(), reconstructed_x.data(), d, groupsize);
+        std::vector<float> norms(group_size);
+        faiss::fvec_norms_L2sqr(norms.data(), reconstructed_x.data(), d, group_size);
 
         // Compute norm codes
-        std::vector<uint8_t> xnorm_codes(groupsize);
-        norm_pq->compute_codes(norms.data(), xnorm_codes.data(), groupsize);
+        std::vector<uint8_t> xnorm_codes(group_size);
+        norm_pq->compute_codes(norms.data(), xnorm_codes.data(), group_size);
 
         // Distribute codes
         std::vector<std::vector<idx_t> > construction_ids(nsubc);
         std::vector<std::vector<uint8_t> > construction_codes(nsubc);
         std::vector<std::vector<uint8_t> > construction_norm_codes(nsubc);
-        for (int i = 0; i < groupsize; i++) {
+        for (int i = 0; i < group_size; i++) {
             const idx_t idx = idxs[i];
             const idx_t subcentroid_idx = subcentroid_idxs[i];
 
@@ -187,12 +187,12 @@ namespace ivfhnsw{
                 ncode += regionsize;
 
                 float *subr = r.data() + i*nsubc;
-                const idx_t *groupsizes = group_sizes[centroid_num].data();
+                const idx_t *group_sizes = group_sizes[centroid_num].data();
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
                 float alpha = alphas[centroid_num];
 
                 for (int subc = 0; subc < nsubc; subc++) {
-                    if (groupsizes[subc] == 0)
+                    if (group_sizes[subc] == 0)
                         continue;
 
                     idx_t subcentroid_num = nn_centroids[subc];
@@ -226,7 +226,7 @@ namespace ivfhnsw{
             if (regionsize == 0)
                 continue;
 
-            const idx_t *groupsizes = group_sizes[centroid_num].data();
+            const idx_t *group_sizes = group_sizes[centroid_num].data();
             const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
             float alpha = alphas[centroid_num];
             float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
@@ -236,14 +236,14 @@ namespace ivfhnsw{
             const idx_t *id = ids[centroid_num].data();
 
             for (int subc = 0; subc < nsubc; subc++) {
-                idx_t groupsize = groupsizes[subc];
-                if (groupsize == 0)
+                idx_t group_size = group_sizes[subc];
+                if (group_size == 0)
                     continue;
 
                 if (do_pruning && r[i * nsubc + subc] > threshold) {
-                    code += groupsize * code_size;
-                    norm_code += groupsize;
-                    id += groupsize;
+                    code += group_size * code_size;
+                    norm_code += group_size;
+                    id += group_size;
                     continue;
                 }
 
@@ -255,9 +255,9 @@ namespace ivfhnsw{
                 }
 
                 float snd_term = alpha * (q_s[subcentroid_num] - centroid_norms[subcentroid_num]);
-                norm_pq->decode(norm_code, norms.data(), groupsize);
+                norm_pq->decode(norm_code, norms.data(), group_size);
 
-                for (int j = 0; j < groupsize; j++) {
+                for (int j = 0; j < group_size; j++) {
                     float q_r = pq_L2sqr(code + j * code_size);
                     float dist = fst_term + snd_term - 2 * q_r + norms[j];
                     if (dist < distances[0]) {
@@ -266,10 +266,10 @@ namespace ivfhnsw{
                     }
                 }
                 // Shift to the next group
-                code += groupsize * code_size;
-                norm_code += groupsize;
-                id += groupsize;
-                ncode += groupsize;
+                code += group_size * code_size;
+                norm_code += group_size;
+                id += group_size;
+                ncode += group_size;
             }
             if (ncode >= max_codes)
                 break;
@@ -424,7 +424,7 @@ namespace ivfhnsw{
             const idx_t centroid_num = p.first;
             const float *centroid = quantizer->getDataByInternalId(centroid_num);
             const vector<float> data = p.second;
-            const int groupsize = data.size() / d;
+            const int group_size = data.size() / d;
 
             std::vector<idx_t> nn_centroids(nsubc);
             std::vector<float> centroid_vector_norms(nsubc);
@@ -444,7 +444,7 @@ namespace ivfhnsw{
             }
 
             // Find alphas for vectors
-            float alpha = compute_alpha(centroid_vectors.data(), data.data(), centroid, centroid_vector_norms.data(), groupsize);
+            float alpha = compute_alpha(centroid_vectors.data(), data.data(), centroid, centroid_vector_norms.data(), group_size);
 
             // Compute final subcentroids 
             std::vector<float> subcentroids(nsubc * d);
@@ -452,14 +452,14 @@ namespace ivfhnsw{
                 faiss::fvec_madd(d, centroid, alpha, centroid_vectors.data() + subc*d, subcentroids.data() + subc*d);
 
             // Find subcentroid idx
-            std::vector<idx_t> subcentroid_idxs(groupsize);
-            compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data.data(), groupsize);
+            std::vector<idx_t> subcentroid_idxs(group_size);
+            compute_subcentroid_idxs(subcentroid_idxs.data(), subcentroids.data(), data.data(), group_size);
 
             // Compute Residuals
-            std::vector<float> residuals(groupsize * d);
-            compute_residuals(groupsize, data.data(), residuals.data(), subcentroids.data(), subcentroid_idxs.data());
+            std::vector<float> residuals(group_size * d);
+            compute_residuals(group_size, data.data(), residuals.data(), subcentroids.data(), subcentroid_idxs.data());
 
-            for (int i = 0; i < groupsize; i++) {
+            for (int i = 0; i < group_size; i++) {
                 int subcentroid_idx = subcentroid_idxs[i];
                 for (int j = 0; j < d; j++) {
                     train_subcentroids.push_back(subcentroids[subcentroid_idx*d + j]);
@@ -479,30 +479,30 @@ namespace ivfhnsw{
 
         for (auto p : group_map) {
             const vector<float> data = p.second;
-            const int groupsize = data.size() / d;
+            int group_size = data.size() / d;
 
             // Compute Codes 
-            std::vector<uint8_t> xcodes(groupsize * code_size);
-            pq->compute_codes(residuals, xcodes.data(), groupsize);
+            std::vector<uint8_t> xcodes(group_size * code_size);
+            pq->compute_codes(residuals, xcodes.data(), group_size);
 
             // Decode Codes 
-            std::vector<float> decoded_residuals(groupsize * d);
-            pq->decode(xcodes.data(), decoded_residuals.data(), groupsize);
+            std::vector<float> decoded_residuals(group_size * d);
+            pq->decode(xcodes.data(), decoded_residuals.data(), group_size);
 
             // Reconstruct Data 
-            std::vector<float> reconstructed_x(groupsize * d);
-            for (idx_t i = 0; i < groupsize; i++)
+            std::vector<float> reconstructed_x(group_size * d);
+            for (idx_t i = 0; i < group_size; i++)
                 faiss::fvec_madd(d, decoded_residuals.data() + i*d, 1., subcentroids+i*d, reconstructed_x.data() + i*d);
 
             // Compute norms 
-            std::vector<float> group_norms(groupsize);
-            faiss::fvec_norms_L2sqr(group_norms.data(), reconstructed_x.data(), d, groupsize);
+            std::vector<float> group_norms(group_size);
+            faiss::fvec_norms_L2sqr(group_norms.data(), reconstructed_x.data(), d, group_size);
 
-            for (int i = 0; i < groupsize; i++)
+            for (int i = 0; i < group_size; i++)
                 train_norms.push_back(group_norms[i]);
 
-            residuals += groupsize * d;
-            subcentroids += groupsize * d;
+            residuals += group_size * d;
+            subcentroids += group_size * d;
         }
         printf("Training %zdx%zd PQ on %ld vectors in 1D\n", norm_pq->M, norm_pq->ksub, train_norms.size());
         norm_pq->verbose = true;
@@ -542,9 +542,9 @@ namespace ivfhnsw{
     }
 
     void IndexIVF_HNSW_Grouping::compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
-                                                          const float *x, const int groupsize)
+                                                          const float *x, const int group_size)
     {
-        for (int i = 0; i < groupsize; i++) {
+        for (int i = 0; i < group_size; i++) {
             float min_dist = 0.0;
             idx_t min_idx = -1;
             for (int subc = 0; subc < nsubc; subc++) {
@@ -561,7 +561,7 @@ namespace ivfhnsw{
 
     float IndexIVF_HNSW_Grouping::compute_alpha(const float *centroid_vectors, const float *points,
                                                 const float *centroid, const float *centroid_vector_norms_L2sqr,
-                                                const int groupsize)
+                                                const int group_size)
     {
         int counter_positive = 0;
         int counter_negative = 0;
@@ -575,11 +575,11 @@ namespace ivfhnsw{
         float positive_alpha = 0.0;
         float negative_alpha = 0.0;
 
-        std::vector<float> point_vectors(groupsize * d);
-        for (int i = 0; i < groupsize; i++)
+        std::vector<float> point_vectors(group_size * d);
+        for (int i = 0; i < group_size; i++)
             faiss::fvec_madd(d, points + i*d , -1., centroid, point_vectors.data() + i*d);
 
-        for (int i = 0; i < groupsize; i++) {
+        for (int i = 0; i < group_size; i++) {
             const float *point_vector = point_vectors.data() + i * d;
             const float *point = points + i * d;
 
@@ -605,16 +605,12 @@ namespace ivfhnsw{
                 counter_negative++;
                 negative_numerator += optim_numerator;
                 negative_denominator += optim_denominator;
-                //negative_alpha += optim_numerator / optim_denominator;
             } else {
                 counter_positive++;
                 positive_numerator += optim_numerator;
                 positive_denominator += optim_denominator;
-                //positive_alpha += optim_numerator / optim_denominator;
             }
         }
-        //positive_alpha /= groupsize;
-        //negative_alpha /= groupsize;
         positive_alpha = positive_numerator / positive_denominator;
         negative_alpha = negative_numerator / negative_denominator;
         return (counter_positive > counter_negative) ? positive_alpha : negative_alpha;
