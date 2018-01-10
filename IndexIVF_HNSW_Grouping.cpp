@@ -15,7 +15,7 @@ namespace ivfhnsw{
         q_s.resize(nc);
         std::fill(q_s.begin(), q_s.end(), 0);
 
-        do_pruning = true;//false;
+        do_pruning = false;
     }
 
     void IndexIVF_HNSW_Grouping::add_group(int centroid_idx, int group_size,
