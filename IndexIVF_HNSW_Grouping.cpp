@@ -190,7 +190,7 @@ namespace ivfhnsw{
 
                     idx_t nn_centroid_idx = nn_centroid_idxs[centroid_idx][subc];
                     // Compute the distance to the coarse centroid if it is not computed,
-                    if (q_s[nn_centroid_idx] < EPS) {
+                    if (q_s.count(nn_centroid_idx) == 0) {
                         const float *nn_centroid = quantizer->getDataByInternalId(nn_centroid_idx);
                         q_s[nn_centroid_idx] = fvec_L2sqr(x, nn_centroid, d);
                         //used_centroid_idxs.push_back(nn_centroid_idx);
@@ -236,7 +236,7 @@ namespace ivfhnsw{
                 // Check pruning condition
                 if (!do_pruning || r[i * nsubc + subc] < threshold) {
                     idx_t nn_centroid_idx = nn_centroid_idxs[centroid_idx][subc];
-                    if (q_s[nn_centroid_idx] < EPS) {
+                    if (q_s.count(nn_centroid_idx) == 0) {
                         const float *nn_centroid = quantizer->getDataByInternalId(nn_centroid_idx);
                         q_s[nn_centroid_idx] = fvec_L2sqr(x, nn_centroid, d);
                         //used_centroid_idxs.push_back(nn_centroid_idx);
