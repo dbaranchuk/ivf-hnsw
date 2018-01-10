@@ -12,8 +12,8 @@ namespace ivfhnsw{
         nn_centroid_idxs.resize(nc);
         subgroup_sizes.resize(nc);
 
-        q_s.resize(nc);
-        std::fill(q_s.begin(), q_s.end(), 0);
+        //q_s.resize(nc);
+        //std::fill(q_s.begin(), q_s.end(), 0);
 
         do_pruning = true;//false;
     }
