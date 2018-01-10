@@ -185,7 +185,7 @@ int main(int argc, char **argv)
         index->search(opt.k, massQ.data() + i*opt.d, distances, labels);
 
         std::priority_queue<std::pair<float, idx_t >> gt(answers[i]);
-        unordered_set<idx_t> g;
+        std::unordered_set<idx_t> g;
 
         while (gt.size()) {
             g.insert(gt.top().second);

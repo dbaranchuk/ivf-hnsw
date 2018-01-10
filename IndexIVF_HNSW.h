@@ -129,7 +129,7 @@ namespace ivfhnsw {
         std::vector<float> precomputed_table;
 
         /// L2 sqr distance function for PQ codes
-        float pq_L2sqr(uint8_t *code);
+        float pq_L2sqr(const uint8_t *code);
 
     private:
         void reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys);

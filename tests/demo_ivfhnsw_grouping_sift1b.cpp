@@ -191,11 +191,11 @@ int main(int argc, char **argv)
         std::cout << "[Baseline] Average Distance: " << baseline_average / opt.nb << std::endl;
         std::cout << "[Modified] Average Distance: " << modified_average / opt.nb << std::endl;
 
-        // Computing Centroid Norms 
+        // Computing centroid norms and inter-centroid distances
         std::cout << "Computing centroid norms"<< std::endl;
         index->compute_centroid_norms();
         std::cout << "Computing centroid dists"<< std::endl;
-        index->compute_centroid_dists();
+        index->compute_inter_centroid_dists();
 
         // Save index, pq and norm_pq 
         std::cout << "Saving index to " << opt.path_index << std::endl;
@@ -232,7 +232,7 @@ int main(int argc, char **argv)
         index->search(opt.k, massQ.data() + i*opt.d, distances, labels);
 
         std::priority_queue<std::pair<float, idx_t >> gt(answers[i]);
-        unordered_set<idx_t> g;
+        std::unordered_set<idx_t> g;
 
         while (gt.size()) {
             g.insert(gt.top().second);

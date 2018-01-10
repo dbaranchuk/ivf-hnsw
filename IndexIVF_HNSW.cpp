@@ -121,7 +121,6 @@ namespace ivfhnsw {
             delete idx;
     }
 
-
     /** Search procedure
       *
       * During IVF-HNSW-PQ search we compute
@@ -132,8 +131,8 @@ namespace ivfhnsw {
       * refined PQ centroid. The expression can be decomposed as:
       *
       *    d = || x - y_C ||^2 - || y_C ||^2 + || y_C + y_R ||^2 - 2 * (x|y_R)
-      *        -----------------------------   -----------------       -------
-      *                     term 1                   term 2            term 3
+      *        -----------------------------   -----------------   -----------
+      *                     term 1                   term 2           term 3
       *
       * We use the following decomposition:
       * - term 1 is the distance to the coarse centroid, that is computed
@@ -177,15 +176,16 @@ namespace ivfhnsw {
 
             std::vector <uint8_t> code = codes[key];
             std::vector <uint8_t> norm_code = norm_codes[key];
-            float term1 = q_c[i] - centroid_norms[key]; // term 1
+            float term1 = q_c[i] - centroid_norms[key];
             int ncodes = norm_code.size();
 
-            // Decode the second terms for each vector in the list
+            // Decode the norms of each vector in the list
             norm_pq->decode(norm_code.data(), norms.data(), ncodes);
 
             for (int j = 0; j < ncodes; j++) {
-                float term3 = pq_L2sqr(code.data() + j * code_size); // term 3
-                float dist = term1 + norms[j] - 2*term3;
+                float term2 = norms[j];
+                float term3 = 2 * pq_L2sqr(code.data() + j * code_size);
+                float dist = term1 + term2 - term3;
                 idx_t label = ids[key][j];
                 if (dist < distances[0]) {
                     faiss::maxheap_pop(k, distances, labels);

@@ -10,10 +10,10 @@ namespace ivfhnsw{
     struct IndexIVF_HNSW_Grouping: IndexIVF_HNSW
     {
         size_t nsubc;         ///< Number of sub-centroids per group
-        bool do_pruning;      ///< Turn on / off pruning
+        bool do_pruning;      ///< Turn on/off pruning
 
-        std::vector<std::vector<idx_t> > nn_centroid_idxs; ///< Indices of the <nsubc> nearest centroids for each centroid
-        std::vector<std::vector<idx_t> > group_sizes;      ///< Sizes of sub-groups for each group
+        std::vector<std::vector<idx_t> > nn_centroid_idxs;    ///< Indices of the <nsubc> nearest centroids for each centroid
+        std::vector<std::vector<idx_t> > subgroup_sizes;      ///< Sizes of sub-groups for each group
         std::vector<float> alphas;    ///< Coefficients that determine the location of sub-centroids
 
     public:
@@ -39,15 +39,15 @@ namespace ivfhnsw{
 
         void train_pq(size_t n, const float *x);
 
-        /// Compute distances between the group centroid and its subc nearest neighbors in the HNSW graph
-        void compute_centroid_dists();
+        /// Compute distances between the group centroid and its <subc> nearest neighbors in the HNSW graph
+        void compute_inter_centroid_dists();
 
     protected:
-        /// Distances between a query and sub-centroids. Used for distance computation between a query and base points
+        /// Distances to the coarse centroids. Used for distance computation between a query and base points
         std::vector<float> q_s;
 
         /// Distances between coarse centroids and their sub-centroids
-        std::vector<std::vector<float> > centroid_dists;
+        std::vector<std::vector<float>> inter_centroid_dists;
 
     private:
         void compute_residuals(size_t n, const float *x, float *residuals,
