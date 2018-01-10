@@ -55,9 +55,6 @@ struct Parser
 
     const char *path_precomputed_idxs;
 
-    const char *path_groups;
-    const char *path_idxs;
-
     const char *path_info;
     const char *path_edges;
 
@@ -117,9 +114,6 @@ struct Parser
             else if (!strcmp (a, "-path_centroids")) path_centroids = argv[++i];
 
             else if (!strcmp (a, "-path_precomputed_idx")) path_precomputed_idxs = argv[++i];
-
-            else if (!strcmp (a, "-path_groups")) path_groups = argv[++i];
-            else if (!strcmp (a, "-path_idxs")) path_idxs = argv[++i];
 
             else if (!strcmp (a, "-path_info")) path_info = argv[++i];
             else if (!strcmp (a, "-path_edges")) path_edges = argv[++i];

@@ -105,7 +105,7 @@ namespace ivfhnsw{
             baseline_average += fvec_L2sqr(centroid, point, d);
             modified_average += fvec_L2sqr(subcentroid, point, d);
         }
-        // Add codes
+        // Add codes to the index
         for (int subc = 0; subc < nsubc; subc++) {
             idx_t subcsize = construction_norm_codes[subc].size();
             group_sizes[centroid_num].push_back(subcsize);
