@@ -110,7 +110,7 @@ namespace ivfhnsw{
             idx_t subgroup_size = construction_norm_codes[subc].size();
             subgroup_sizes[centroid_idx].push_back(subgroup_size);
 
-            for (int i = 0; i < subcsize; i++) {
+            for (int i = 0; i < subgroup_size; i++) {
                 ids[centroid_idx].push_back(construction_ids[subc][i]);
                 for (int j = 0; j < code_size; j++)
                     codes[centroid_idx].push_back(construction_codes[subc][i * code_size + j]);
