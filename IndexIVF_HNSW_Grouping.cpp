@@ -181,18 +181,18 @@ namespace ivfhnsw{
             r.resize(nsubc * nprobe);
             for (int i = 0; i < nprobe; i++) {
                 idx_t centroid_num = keys[i];
-                size_t regionsize = norm_codes[centroid_num].size();
+                size_t group_size = norm_codes[centroid_num].size();
                 if (regionsize == 0)
                     continue;
-                ncode += regionsize;
+                ncode += group_size;
 
                 float *subr = r.data() + i*nsubc;
-                const idx_t *group_sizes = group_sizes[centroid_num].data();
+                const idx_t *groupsizes = group_sizes[centroid_num].data();
                 const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
                 float alpha = alphas[centroid_num];
 
                 for (int subc = 0; subc < nsubc; subc++) {
-                    if (group_sizes[subc] == 0)
+                    if (groupsizes[subc] == 0)
                         continue;
 
                     idx_t subcentroid_num = nn_centroids[subc];
@@ -222,11 +222,11 @@ namespace ivfhnsw{
         int ncode = 0;
         for (int i = 0; i < nprobe; i++) {
             idx_t centroid_num = keys[i];
-            size_t regionsize = norm_codes[centroid_num].size();
-            if (regionsize == 0)
+            size_t group_size = norm_codes[centroid_num].size();
+            if (group_size == 0)
                 continue;
 
-            const idx_t *group_sizes = group_sizes[centroid_num].data();
+            const idx_t *groupsizes = group_sizes[centroid_num].data();
             const idx_t *nn_centroids = nn_centroid_idxs[centroid_num].data();
             float alpha = alphas[centroid_num];
             float fst_term = (1 - alpha) * (q_c[i] - centroid_norms[centroid_num]);
@@ -236,7 +236,7 @@ namespace ivfhnsw{
             const idx_t *id = ids[centroid_num].data();
 
             for (int subc = 0; subc < nsubc; subc++) {
-                idx_t group_size = group_sizes[subc];
+                idx_t group_size = groupsizes[subc];
                 if (group_size == 0)
                     continue;
 
