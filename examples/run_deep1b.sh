@@ -28,10 +28,18 @@ code_size="96"        # Code size per vector in bytes
 # Search parameters #
 #####################
 
-k="10"               # Number of the closest vertices to search
-nprobe="32"           # Number of probes at query time
-max_codes="10000"     # Max number of codes to visit to do a query
-efSearch="80"         # Max number of candidate vertices in priority queue to observe during searching
+#######################################
+#        Paper configurations         #
+# (<nprobe>, <max_codes>, <efSearch>) #
+# (   32,       10000,        80    ) #
+# (   64,       30000,       100    ) #
+# (  128,       50000,       140    ) #
+#######################################
+
+k="100"               # Number of the closest vertices to search
+nprobe="64"           # Number of probes at query time
+max_codes="30000"     # Max number of codes to visit to do a query
+efSearch="100"         # Max number of candidate vertices in priority queue to observe during searching
 
 #########
 # Paths #
