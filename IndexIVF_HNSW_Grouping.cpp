@@ -170,6 +170,7 @@ namespace ivfhnsw{
         double threshold = 0.0;
         if (do_pruning) {
             int ncode = 0;
+            int nsubgroups = 0;
 
             r.resize(nsubc * nprobe);
             for (int i = 0; i < nprobe; i++) {
@@ -196,12 +197,13 @@ namespace ivfhnsw{
                     subr[subc] = (1 - alpha) * (query_centroid_dists[centroid_idx] - alpha * inter_centroid_dists[centroid_idx][subc])
                                  + alpha * query_centroid_dists[nn_centroid_idx];
                     threshold += subr[subc];
+                    nsubgroups++;
                 }
                 ncode += group_size;
                 if (ncode >= 2 * max_codes)
                     break;
             }
-            threshold /= ncode;
+            threshold /= nsubgroups;
         }
 
         // Precompute table
