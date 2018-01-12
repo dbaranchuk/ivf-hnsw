@@ -178,7 +178,7 @@ namespace ivfhnsw {
             const uint8_t *code = codes[centroid_idx].data();
             const uint8_t *norm_code = norm_codes[centroid_idx].data();
             const idx_t *id = ids[centroid_idx].data();
-            float term1 = query_centroid_dists[i] - centroid_norms[key];
+            float term1 = query_centroid_dists[i] - centroid_norms[centroid_idx];
 
             // Decode the norms of each vector in the list
             norm_pq->decode(norm_code, norms.data(), group_size);
