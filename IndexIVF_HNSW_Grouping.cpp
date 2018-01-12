@@ -156,13 +156,13 @@ namespace ivfhnsw{
         std::vector<idx_t> used_centroid_idxs;
         used_centroid_idxs.reserve(nsubc * nprobe);
 
-        idx_t keys[nprobe]; // Indices of the nearest coarse centroids
+        idx_t centroid_idxs[nprobe]; // Indices of the nearest coarse centroids
         // Find the nearest coarse centroids to the query
         auto coarse = quantizer->searchKnn(x, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
-            idx_t centroid_idx = coarse.top().second;
             query_centroid_dists[centroid_idx] = coarse.top().first;
-            keys[i] = centroid_idx;
+            idx_t centroid_idx = coarse.top().second;
+            centroid_idxs[i] = centroid_idx;
             used_centroid_idxs.push_back(centroid_idx);
             coarse.pop();
         }
@@ -175,7 +175,7 @@ namespace ivfhnsw{
 
             r.resize(nsubc * nprobe);
             for (int i = 0; i < nprobe; i++) {
-                idx_t centroid_idx = keys[i];
+                idx_t centroid_idx = centroid_idxs[i];
                 int group_size = norm_codes[centroid_idx].size();
                 if (group_size == 0)
                     continue;
@@ -215,7 +215,7 @@ namespace ivfhnsw{
 
         int ncode = 0;
         for (int i = 0; i < nprobe; i++) {
-            idx_t centroid_idx = keys[i];
+            idx_t centroid_idx = centroid_idxs[i];
             size_t group_size = norm_codes[centroid_idx].size();
             if (group_size == 0)
                 continue;

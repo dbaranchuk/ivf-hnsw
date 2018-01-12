@@ -157,9 +157,8 @@ namespace ivfhnsw {
         // Find the nearest coarse centroids to the query
         auto coarse = quantizer->searchKnn(x, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
-            auto elem = coarse.top();
-            query_centroid_dists[i] = elem.first;
-            centroid_idxs[i] = elem.second;
+            query_centroid_dists[i] = coarse.top().first;
+            centroid_idxs[i] = coarse.top().second;
             coarse.pop();
         }
 
