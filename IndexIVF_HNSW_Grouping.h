@@ -13,7 +13,7 @@ namespace ivfhnsw{
         bool do_pruning;      ///< Turn on/off pruning
 
         std::vector<std::vector<idx_t> > nn_centroid_idxs;    ///< Indices of the <nsubc> nearest centroids for each centroid
-        std::vector<std::vector<idx_t> > subgroup_sizes;      ///< Sizes of sub-groups for each group
+        std::vector<std::vector<int> > subgroup_sizes;        ///< Sizes of sub-groups for each group
         std::vector<float> alphas;    ///< Coefficients that determine the location of sub-centroids
 
     public:
@@ -44,7 +44,7 @@ namespace ivfhnsw{
 
     protected:
         /// Distances to the coarse centroids. Used for distance computation between a query and base points
-        std::vector<float> q_s;
+        std::vector<float> query_centroid_dists;
 
         /// Distances between coarse centroids and their sub-centroids
         std::vector<std::vector<float>> inter_centroid_dists;
@@ -57,11 +57,10 @@ namespace ivfhnsw{
                          const float *subcentroids, const idx_t *keys);
 
         void compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
-                                      const float *points, const int groupsize);
+                                      const float *points, int group_size);
 
         float compute_alpha(const float *centroid_vectors, const float *points,
-                            const float *centroid, const float *centroid_vector_norms_L2sqr,
-                            const int groupsize);
+                            const float *centroid, const float *centroid_vector_norms_L2sqr, int group_size);
     };
 }
 #endif //IVF_HNSW_LIB_INDEXIVF_HNSW_GROUPING_H

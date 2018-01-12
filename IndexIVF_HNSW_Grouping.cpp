@@ -12,8 +12,8 @@ namespace ivfhnsw{
         nn_centroid_idxs.resize(nc);
         subgroup_sizes.resize(nc);
 
-        q_s.resize(nc);
-        std::fill(q_s.begin(), q_s.end(), 0);
+        query_centroid_dists.resize(nc);
+        std::fill(query_centroid_dists.begin(), query_centroid_dists.end(), 0);
 
         do_pruning = false;
     }
@@ -92,8 +92,8 @@ namespace ivfhnsw{
         std::vector<std::vector<uint8_t> > construction_codes(nsubc);
         std::vector<std::vector<uint8_t> > construction_norm_codes(nsubc);
         for (int i = 0; i < group_size; i++) {
-            const idx_t idx = idxs[i];
-            const idx_t subcentroid_idx = subcentroid_idxs[i];
+            idx_t idx = idxs[i];
+            idx_t subcentroid_idx = subcentroid_idxs[i];
 
             construction_ids[subcentroid_idx].push_back(idx);
             construction_norm_codes[subcentroid_idx].push_back(xnorm_codes[i]);
@@ -135,7 +135,7 @@ namespace ivfhnsw{
       * We use the following decomposition:
       * - term 1 is the distance to the coarse centroid, that is computed
       *   during the 1st stage search in the HNSW graph, minus the norm of the coarse centroid.
-      * - term 2 is the distance to the one of the <subc> nearest centroids,
+      * - term 2 is the distance to y_N one of the <subc> nearest centroids,
       *   that is used for the sub-centroid computation, minus the norm of this centroid.
       * - term 3 is the L2 norm of the reconstructed base point, that is computed at construction time, quantized
       *   using separately trained product quantizer for such norms and stored along with the residual PQ codes.
@@ -161,7 +161,7 @@ namespace ivfhnsw{
         auto coarse = quantizer->searchKnn(x, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
             idx_t key = coarse.top().second;
-            q_s[key] = coarse.top().first;
+            query_centroid_dists[key] = coarse.top().first;
             keys[i] = key;
             used_centroid_idxs.push_back(key);
             coarse.pop();
@@ -188,15 +188,15 @@ namespace ivfhnsw{
                         continue;
 
                     idx_t nn_centroid_idx = nn_centroid_idxs[centroid_idx][subc];
-                    // Compute the distance to the coarse centroid if it is not computed,
-                    if (q_s[nn_centroid_idx] < EPS) {
+                    // Compute the distance to the coarse centroid if it is not computed
+                    if (query_centroid_dists[nn_centroid_idx] < EPS) {
                         const float *nn_centroid = quantizer->getDataByInternalId(nn_centroid_idx);
-                        q_s[nn_centroid_idx] = fvec_L2sqr(x, nn_centroid, d);
+                        query_centroid_dists[nn_centroid_idx] = fvec_L2sqr(x, nn_centroid, d);
                         used_centroid_idxs.push_back(nn_centroid_idx);
                     }
-
-                    subr[subc] = (1 - alpha)*(q_s[centroid_idx] - alpha * inter_centroid_dists[centroid_idx][subc])
-                                 + alpha*q_s[nn_centroid_idx];
+                    // TODO: сделать красиво
+                    subr[subc] = (1 - alpha) * (query_centroid_dists[centroid_idx] - alpha * inter_centroid_dists[centroid_idx][subc])
+                                 + alpha * query_centroid_dists[nn_centroid_idx];
                     threshold += subr[subc];
                     normalize++;
                 }
@@ -221,7 +221,7 @@ namespace ivfhnsw{
                 continue;
 
             float alpha = alphas[centroid_idx];
-            float term1 = (1 - alpha) * (q_s[centroid_idx] - centroid_norms[centroid_idx]);
+            float term1 = (1 - alpha) * (query_centroid_dists[centroid_idx] - centroid_norms[centroid_idx]);
 
             const uint8_t *norm_code = norm_codes[centroid_idx].data();
             const uint8_t *code = codes[centroid_idx].data();
@@ -235,19 +235,21 @@ namespace ivfhnsw{
                 // Check pruning condition
                 if (!do_pruning || r[i * nsubc + subc] < threshold) {
                     idx_t nn_centroid_idx = nn_centroid_idxs[centroid_idx][subc];
-                    if (q_s[nn_centroid_idx] < EPS) {
+
+                    // Compute the distance to the coarse centroid if it is not compute
+                    if (query_centroid_dists[nn_centroid_idx] < EPS) {
                         const float *nn_centroid = quantizer->getDataByInternalId(nn_centroid_idx);
-                        q_s[nn_centroid_idx] = fvec_L2sqr(x, nn_centroid, d);
+                        query_centroid_dists[nn_centroid_idx] = fvec_L2sqr(x, nn_centroid, d);
                         used_centroid_idxs.push_back(nn_centroid_idx);
                     }
 
-                    float term2 = alpha * (q_s[nn_centroid_idx] - centroid_norms[nn_centroid_idx]);
+                    float term2 = alpha * (query_centroid_dists[nn_centroid_idx] - centroid_norms[nn_centroid_idx]);
                     norm_pq->decode(norm_code, norms.data(), subgroup_size);
 
                     for (int j = 0; j < subgroup_size; j++) {
-                        float term3 = norms[j];
+                        //term3 = norms[j];
                         float term4 = 2 * pq_L2sqr(code + j * code_size);
-                        float dist = term1 + term2 + term3 - term4;
+                        float dist = term1 + term2 + norms[j] - term4;
                         if (dist < distances[0]) {
                             faiss::maxheap_pop(k, distances, labels);
                             faiss::maxheap_push(k, distances, labels, dist, id[j]);
@@ -264,9 +266,9 @@ namespace ivfhnsw{
                 break;
         }
 
-        // Zero subcentroids
+        // Zero computed dists for later queries
         for (idx_t used_centroid_idx : used_centroid_idxs)
-            q_s[used_centroid_idx] = 0;
+            query_centroid_dists[used_centroid_idx] = 0;
     }
 
     void IndexIVF_HNSW_Grouping::write(const char *path_index)
@@ -277,36 +279,36 @@ namespace ivfhnsw{
         fwrite(&nc, sizeof(size_t), 1, fout);
         fwrite(&nsubc, sizeof(size_t), 1, fout);
 
-        idx_t size;
+        int size;
         // Save vector indices
         for (size_t i = 0; i < nc; i++) {
             size = ids[i].size();
-            fwrite(&size, sizeof(idx_t), 1, fout);
+            fwrite(&size, sizeof(int), 1, fout);
             fwrite(ids[i].data(), sizeof(idx_t), size, fout);
         }
         // Save PQ codes
         for (int i = 0; i < nc; i++) {
             size = codes[i].size();
-            fwrite(&size, sizeof(idx_t), 1, fout);
+            fwrite(&size, sizeof(int), 1, fout);
             fwrite(codes[i].data(), sizeof(uint8_t), size, fout);
         }
         // Save norm PQ codes
         for (int i = 0; i < nc; i++) {
             size = norm_codes[i].size();
-            fwrite(&size, sizeof(idx_t), 1, fout);
+            fwrite(&size, sizeof(int), 1, fout);
             fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
         }
         // Save NN centroid indices
         for (int i = 0; i < nc; i++) {
             size = nn_centroid_idxs[i].size();
-            fwrite(&size, sizeof(idx_t), 1, fout);
+            fwrite(&size, sizeof(int), 1, fout);
             fwrite(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fout);
         }
         // Write group sizes
         for (int i = 0; i < nc; i++) {
             size = subgroup_sizes[i].size();
-            fwrite(&size, sizeof(idx_t), 1, fout);
-            fwrite(subgroup_sizes[i].data(), sizeof(idx_t), size, fout);
+            fwrite(&size, sizeof(int), 1, fout);
+            fwrite(subgroup_sizes[i].data(), sizeof(int), size, fout);
         }
         // Save alphas
         fwrite(alphas.data(), sizeof(float), nc, fout);
@@ -337,36 +339,36 @@ namespace ivfhnsw{
         nn_centroid_idxs.resize(nc);
         subgroup_sizes.resize(nc);
 
-        idx_t size;
+        int size;
         // Read indices
         for (size_t i = 0; i < nc; i++) {
-            fread(&size, sizeof(idx_t), 1, fin);
+            fread(&size, sizeof(int), 1, fin);
             ids[i].resize(size);
             fread(ids[i].data(), sizeof(idx_t), size, fin);
         }
         // Read PQ codes
         for (size_t i = 0; i < nc; i++) {
-            fread(&size, sizeof(idx_t), 1, fin);
+            fread(&size, sizeof(int), 1, fin);
             codes[i].resize(size);
             fread(codes[i].data(), sizeof(uint8_t), size, fin);
         }
         // Read norm PQ codes
         for (size_t i = 0; i < nc; i++) {
-            fread(&size, sizeof(idx_t), 1, fin);
+            fread(&size, sizeof(int), 1, fin);
             norm_codes[i].resize(size);
             fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
         }
         // Read NN centroid indices
         for (size_t i = 0; i < nc; i++) {
-            fread(&size, sizeof(idx_t), 1, fin);
+            fread(&size, sizeof(int), 1, fin);
             nn_centroid_idxs[i].resize(size);
             fread(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fin);
         }
         // Read group sizes
         for (size_t i = 0; i < nc; i++) {
-            fread(&size, sizeof(idx_t), 1, fin);
+            fread(&size, sizeof(int), 1, fin);
             subgroup_sizes[i].resize(size);
-            fread(subgroup_sizes[i].data(), sizeof(idx_t), size, fin);
+            fread(subgroup_sizes[i].data(), sizeof(int), size, fin);
         }
 
         // Read alphas
@@ -410,10 +412,10 @@ namespace ivfhnsw{
         // Train Residual PQ
         std::cout << "Training Residual PQ codebook " << std::endl;
         for (auto p : group_map) {
-            const idx_t centroid_idx = p.first;
+            idx_t centroid_idx = p.first;
             const float *centroid = quantizer->getDataByInternalId(centroid_idx);
             const vector<float> data = p.second;
-            const int group_size = data.size() / d;
+            int group_size = data.size() / d;
 
             std::vector<idx_t> nn_centroid_idxs(nsubc);
             std::vector<float> centroid_vector_norms(nsubc);
@@ -531,7 +533,7 @@ namespace ivfhnsw{
     }
 
     void IndexIVF_HNSW_Grouping::compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
-                                                          const float *x, const int group_size)
+                                                          const float *x, int group_size)
     {
         for (int i = 0; i < group_size; i++) {
             float min_dist = 0.0;
@@ -550,7 +552,7 @@ namespace ivfhnsw{
 
     float IndexIVF_HNSW_Grouping::compute_alpha(const float *centroid_vectors, const float *points,
                                                 const float *centroid, const float *centroid_vector_norms_L2sqr,
-                                                const int group_size)
+                                                int group_size)
     {
         int counter_positive = 0;
         int counter_negative = 0;

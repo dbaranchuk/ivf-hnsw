@@ -146,20 +146,19 @@ namespace ivfhnsw {
       * it will lead to considerable decrease in accuracy.
       *
       * Since y_R defined by a product quantizer, it is split across
-      * subvectors and stored separately for each subvector.
+      * sub-vectors and stored separately for each subvector.
       *
     */
     void IndexIVF_HNSW::search(size_t k, const float *x, float *distances, long *labels)
     {
-        idx_t keys[nprobe];
-        float q_c[nprobe];
+        float query_centroid_dists[nprobe]; // Distances to the coarse centroids.
+        idx_t keys[nprobe];                 // Indices of the nearest coarse centroids
 
-        // Find the nearest centroids
+        // Find the nearest coarse centroids to the query
         auto coarse = quantizer->searchKnn(x, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
-            std::tie(q_c[i], keys[i]) = coarse.top();
             auto elem = coarse.top();
-            q_c[i] = elem.first;
+            query_centroid_dists[i] = elem.first;
             keys[i] = elem.second;
             coarse.pop();
         }
@@ -172,27 +171,29 @@ namespace ivfhnsw {
 
         int ncode = 0;
         for (int i = 0; i < nprobe; i++) {
-            idx_t key = keys[i];
+            int group_size = norm_code.size();
+            if (group_size == 0)
+                continue;
 
+            idx_t key = keys[i];
             std::vector <uint8_t> code = codes[key];
             std::vector <uint8_t> norm_code = norm_codes[key];
-            float term1 = q_c[i] - centroid_norms[key];
-            int ncodes = norm_code.size();
+            float term1 = query_centroid_dists[i] - centroid_norms[key];
 
             // Decode the norms of each vector in the list
-            norm_pq->decode(norm_code.data(), norms.data(), ncodes);
+            norm_pq->decode(norm_code.data(), norms.data(), group_size);
 
-            for (int j = 0; j < ncodes; j++) {
-                float term2 = norms[j];
+            for (int j = 0; j < group_size; j++) {
+                //term2 = norms[j];
                 float term3 = 2 * pq_L2sqr(code.data() + j * code_size);
-                float dist = term1 + term2 - term3;
+                float dist = term1 + norms[j] - term3;
                 idx_t label = ids[key][j];
                 if (dist < distances[0]) {
                     faiss::maxheap_pop(k, distances, labels);
                     faiss::maxheap_push(k, distances, labels, dist, label);
                 }
             }
-            ncode += ncodes;
+            ncode += group_size;
             if (ncode >= max_codes)
                 break;
         }

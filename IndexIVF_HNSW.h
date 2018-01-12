@@ -51,8 +51,8 @@ namespace ivfhnsw {
         faiss::ProductQuantizer *pq;         ///< Produces the residual codes
         faiss::ProductQuantizer *norm_pq;    ///< Produces the norm codes of reconstructed base vectors
 
-        size_t nprobe = 16;        ///< Number of probes at search time
-        size_t max_codes = 10000;  ///< Max number of codes to visit to do a query
+        size_t nprobe;        ///< Number of probes at search time
+        size_t max_codes;     ///< Max number of codes to visit to do a query
 
         std::vector<std::vector<idx_t> > ids;           ///< Inverted lists for indexes
         std::vector<std::vector<uint8_t> > codes;       ///< PQ codes of residuals

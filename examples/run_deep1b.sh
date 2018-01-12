@@ -11,7 +11,7 @@ efConstruction="500"  # Max number of candidate vertices in priority queue to ob
 # Data parameters #
 ###################
 
-nb="1000000000"        # Number of base vectors
+nb="1000000000"       # Number of base vectors
 
 nt="10000000"         # Number of learn vectors
 nsubt="65536"         # Number of learn vectors to train (random subset of the learn set)
@@ -37,9 +37,9 @@ code_size="96"        # Code size per vector in bytes
 #######################################
 
 k="100"               # Number of the closest vertices to search
-nprobe="256"           # Number of probes at query time
-max_codes="100000"     # Max number of codes to visit to do a query
-efSearch="280"         # Max number of candidate vertices in priority queue to observe during searching
+nprobe="32"           # Number of probes at query time
+max_codes="10000"     # Max number of codes to visit to do a query
+efSearch="80"         # Max number of candidate vertices in priority queue to observe during searching
 
 #########
 # Paths #
