@@ -160,10 +160,10 @@ namespace ivfhnsw{
         // Find the nearest coarse centroids to the query
         auto coarse = quantizer->searchKnn(x, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
-            idx_t key = coarse.top().second;
-            query_centroid_dists[key] = coarse.top().first;
-            keys[i] = key;
-            used_centroid_idxs.push_back(key);
+            idx_t centroid_idx = coarse.top().second;
+            query_centroid_dists[centroid_idx] = coarse.top().first;
+            keys[i] = centroid_idx;
+            used_centroid_idxs.push_back(centroid_idx);
             coarse.pop();
         }
 
@@ -223,8 +223,8 @@ namespace ivfhnsw{
             float alpha = alphas[centroid_idx];
             float term1 = (1 - alpha) * (query_centroid_dists[centroid_idx] - centroid_norms[centroid_idx]);
 
-            const uint8_t *norm_code = norm_codes[centroid_idx].data();
             const uint8_t *code = codes[centroid_idx].data();
+            const uint8_t *norm_code = norm_codes[centroid_idx].data();
             const idx_t *id = ids[centroid_idx].data();
 
             for (int subc = 0; subc < nsubc; subc++) {
@@ -247,9 +247,8 @@ namespace ivfhnsw{
                     norm_pq->decode(norm_code, norms.data(), subgroup_size);
 
                     for (int j = 0; j < subgroup_size; j++) {
-                        //term3 = norms[j];
                         float term4 = 2 * pq_L2sqr(code + j * code_size);
-                        float dist = term1 + term2 + norms[j] - term4;
+                        float dist = term1 + term2 + norms[j] - term4; //term3 = norms[j]
                         if (dist < distances[0]) {
                             faiss::maxheap_pop(k, distances, labels);
                             faiss::maxheap_push(k, distances, labels, dist, id[j]);
