@@ -155,8 +155,8 @@ namespace ivfhnsw{
         // Indices of coarse centroids, which distances to the query are computed during the search time
         std::vector<idx_t> used_centroid_idxs;
         used_centroid_idxs.reserve(nsubc * nprobe);
-
         idx_t centroid_idxs[nprobe]; // Indices of the nearest coarse centroids
+
         // Find the nearest coarse centroids to the query
         auto coarse = quantizer->searchKnn(x, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
@@ -170,7 +170,6 @@ namespace ivfhnsw{
         double threshold = 0.0;
         if (do_pruning) {
             int ncode = 0;
-            int normalize = 0;
 
             r.resize(nsubc * nprobe);
             for (int i = 0; i < nprobe; i++) {
@@ -197,13 +196,12 @@ namespace ivfhnsw{
                     subr[subc] = (1 - alpha) * (query_centroid_dists[centroid_idx] - alpha * inter_centroid_dists[centroid_idx][subc])
                                  + alpha * query_centroid_dists[nn_centroid_idx];
                     threshold += subr[subc];
-                    normalize++;
                 }
                 ncode += group_size;
                 if (ncode >= 2 * max_codes)
                     break;
             }
-            threshold /= normalize;
+            threshold /= ncode;
         }
 
         // Precompute table
