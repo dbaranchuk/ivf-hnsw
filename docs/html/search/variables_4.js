@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['group_5fsizes',['group_sizes',['../structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a273732ea6c637138fd26ac20a7371b78',1,'ivfhnsw::IndexIVF_HNSW_Grouping']]]
+  ['ids',['ids',['../structivfhnsw_1_1IndexIVF__HNSW.html#ad40193d01d98d4a55847638581d610bb',1,'ivfhnsw::IndexIVF_HNSW']]],
+  ['inter_5fcentroid_5fdists',['inter_centroid_dists',['../structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#ad5484dcaf72dcbaf324ac428b06327b0',1,'ivfhnsw::IndexIVF_HNSW_Grouping']]]
 ];

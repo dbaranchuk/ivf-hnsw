@@ -175,11 +175,11 @@ faiss::ProductQuantizer *&#160;</td><td class="memItemRight" valign="bottom"><a 
 <tr class="memdesc:acff5d189392af6d63db5d782df89f79b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the norm codes of reconstructed base vectors. <br/></td></tr>
 <tr class="separator:acff5d189392af6d63db5d782df89f79b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0be6e0ce24b188401271104857283d48"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0be6e0ce24b188401271104857283d48"></a>
-size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a0be6e0ce24b188401271104857283d48">nprobe</a> = 16</td></tr>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a0be6e0ce24b188401271104857283d48">nprobe</a></td></tr>
 <tr class="memdesc:a0be6e0ce24b188401271104857283d48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of probes at search time. <br/></td></tr>
 <tr class="separator:a0be6e0ce24b188401271104857283d48"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23f33c7f1b7707580f61c1e69f1373e1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a23f33c7f1b7707580f61c1e69f1373e1"></a>
-size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a23f33c7f1b7707580f61c1e69f1373e1">max_codes</a> = 10000</td></tr>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a23f33c7f1b7707580f61c1e69f1373e1">max_codes</a></td></tr>
 <tr class="memdesc:a23f33c7f1b7707580f61c1e69f1373e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Max number of codes to visit to do a query. <br/></td></tr>
 <tr class="separator:a23f33c7f1b7707580f61c1e69f1373e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad40193d01d98d4a55847638581d610bb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad40193d01d98d4a55847638581d610bb"></a>
@@ -199,10 +199,10 @@ std::vector&lt; std::vector<br class="typebreak"/>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:a1a3b77f67605f5a691840c91b9f471ec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1a3b77f67605f5a691840c91b9f471ec"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a1a3b77f67605f5a691840c91b9f471ec">pq_L2sqr</a> (<a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aa2ef8578874419ee182bedd2c4a47525">uint8_t</a> *code)</td></tr>
-<tr class="memdesc:a1a3b77f67605f5a691840c91b9f471ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">L2 sqr distance function for PQ codes. <br/></td></tr>
-<tr class="separator:a1a3b77f67605f5a691840c91b9f471ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd20f0d5f3a516996267961a578cd584"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abd20f0d5f3a516996267961a578cd584"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#abd20f0d5f3a516996267961a578cd584">pq_L2sqr</a> (const <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aa2ef8578874419ee182bedd2c4a47525">uint8_t</a> *code)</td></tr>
+<tr class="memdesc:abd20f0d5f3a516996267961a578cd584"><td class="mdescLeft">&#160;</td><td class="mdescRight">L2 sqr distance function for PQ codes. <br/></td></tr>
+<tr class="separator:abd20f0d5f3a516996267961a578cd584"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
@@ -455,7 +455,7 @@ std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a
 <li>term 3 is the classical non-residual distance table.</li>
 </ul>
 <p>Norms of centroids are precomputed and saved without compression, as their memory consumption is negligible. If it is necessary, the norms can be added to the term 3 and compressed to byte together. We do not think that it will lead to considerable decrease in accuracy.</p>
-<p>Since y_R defined by a product quantizer, it is split across subvectors and stored separately for each subvector. </p>
+<p>Since y_R defined by a product quantizer, it is split across sub-vectors and stored separately for each subvector. </p>
 
 <p>Reimplemented in <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a399996617a43e549ee886dcd57424b45">ivfhnsw::IndexIVF_HNSW_Grouping</a>.</p>
 
@@ -512,7 +512,7 @@ std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 9 2018 19:50:11 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jan 13 2018 23:54:13 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

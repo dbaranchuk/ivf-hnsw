@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['uint8_5ft',['uint8_t',['../structivfhnsw_1_1IndexIVF__HNSW.html#aa2ef8578874419ee182bedd2c4a47525',1,'ivfhnsw::IndexIVF_HNSW']]]
+  ['write',['write',['../structivfhnsw_1_1IndexIVF__HNSW.html#ab8deedf4590b4ac38b1c83d4f7d44aca',1,'ivfhnsw::IndexIVF_HNSW::write()'],['../structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a48a6813044ff0012b125297e272544ba',1,'ivfhnsw::IndexIVF_HNSW_Grouping::write()']]]
 ];

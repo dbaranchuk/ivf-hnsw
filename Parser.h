@@ -47,20 +47,20 @@ struct Parser
     //=======
     // Paths
     //=======
-    const char *path_base;
-    const char *path_learn;
-    const char *path_q;
-    const char *path_gt;
-    const char *path_centroids;
+    const char *path_base;             ///< Path to the base set
+    const char *path_learn;            ///< Path to the learn set
+    const char *path_q;                ///< Path to queries
+    const char *path_gt;               ///< Path to groundtruth answers
+    const char *path_centroids;        ///< Path to coarse centroids
 
-    const char *path_precomputed_idxs;
+    const char *path_precomputed_idxs; ///< Path to coarse centroid indices for base points
 
-    const char *path_info;
-    const char *path_edges;
+    const char *path_info;             ///< Path to parameters of the HNSW graph
+    const char *path_edges;            ///< Path to edges of the HNSW graph
 
-    const char *path_pq;
-    const char *path_norm_pq;
-    const char *path_index;
+    const char *path_pq;               ///< Path to the product quantizer for residuals
+    const char *path_norm_pq;          ///< Path to the product quantizer norms of reconstructed base points
+    const char *path_index;            ///< Path to the constructed index
 
     Parser(int argc, char **argv)
     {
