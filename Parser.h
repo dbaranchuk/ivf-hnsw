@@ -47,19 +47,19 @@ struct Parser
     //=======
     // Paths
     //=======
-    const char *path_base;             ///< Path to the base set
-    const char *path_learn;            ///< Path to the learn set
+    const char *path_base;             ///< Path to a base set
+    const char *path_learn;            ///< Path to a learn set
     const char *path_q;                ///< Path to queries
-    const char *path_gt;               ///< Path to groundtruth answers
+    const char *path_gt;               ///< Path to groundtruth
     const char *path_centroids;        ///< Path to coarse centroids
 
     const char *path_precomputed_idxs; ///< Path to coarse centroid indices for base points
 
-    const char *path_info;             ///< Path to parameters of the HNSW graph
-    const char *path_edges;            ///< Path to edges of the HNSW graph
+    const char *path_info;             ///< Path to parameters of HNSW graph
+    const char *path_edges;            ///< Path to edges of HNSW graph
 
     const char *path_pq;               ///< Path to the product quantizer for residuals
-    const char *path_norm_pq;          ///< Path to the product quantizer norms of reconstructed base points
+    const char *path_norm_pq;          ///< Path to the product quantizer for norms of reconstructed base points
     const char *path_index;            ///< Path to the constructed index
 
     Parser(int argc, char **argv)
@@ -154,20 +154,20 @@ struct Parser
                 "#########\n"
                 "# Paths #\n"
                 "#########\n"
-                "    -path_base filename\n"
-                "    -path_learn filename\n"
-                "    -path_q filename\n"
-                "    -path_gt filename\n"
-                "    -path_centroids filename\n"
+                "    -path_base filename               Path to a base set\n"
+                "    -path_learn filename              Path to a learn set\n"
+                "    -path_q filename                  Path to queries\n"
+                "    -path_gt filename                 Path to groundtruth\n"
+                "    -path_centroids filename          Path to coarse centroids\n"
                 "                            \n"
-                "    -path_precomputed_idxs filename\n"
+                "    -path_precomputed_idxs filename   Path to coarse centroid indices for base points\n"
                 "                       \n"
-                "    -path_info filename\n"
-                "    -path_edges filename\n"
+                "    -path_info filename               Path to parameters of HNSW graph\n"
+                "    -path_edges filename              Path to edges of HNSW graph\n"
                 "                        \n"
-                "    -path_pq filename\n"
-                "    -path_norm_pq filename\n"
-                "    -path_index filename\n"
+                "    -path_pq filename                 Path to the product quantizer for residuals\n"
+                "    -path_norm_pq filename            Path to the product quantizer for norms of reconstructed base points\n"
+                "    -path_index filename              Path to the constructed index\n"
         );
         exit(0);
     }
