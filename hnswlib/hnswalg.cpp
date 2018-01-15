@@ -29,12 +29,10 @@ namespace hnswlib {
     std::cout << (data_level0_memory_ ? 1 : 0) << std::endl;
 
     std::cout << "Size Mb: " << (maxelements_ * size_data_per_element) / (1000 * 1000) << std::endl;
-    cur_element_count = 0;
 
     visitedlistpool = new VisitedListPool(1, maxelements_);
     //initializations for special treatment of the first node
     enterpoint_node = -1;
-    maxlevel_ = -1;
 }
 
 HierarchicalNSW::~HierarchicalNSW()
@@ -213,43 +211,45 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
 
 void HierarchicalNSW::addPoint(const float *point, int label)
 {
-    idx_t cur_c = 0;
-    {
-        unique_lock <mutex> lock(cur_element_count_guard_);
-        if (cur_element_count >= maxelements_) {
-            cout << "The number of elements exceeds the specified limit\n";
-            throw runtime_error("The number of elements exceeds the specified limit");
-        };
-        cur_c = cur_element_count;
-        cur_element_count++;
+    //idx_t cur_c = 0;
+    //{
+    //    unique_lock <mutex> lock(cur_element_count_guard_);
+    //    if (cur_element_count >= maxelements_) {
+    //        cout << "The number of elements exceeds the specified limit\n";
+    //        throw runtime_error("The number of elements exceeds the specified limit");
+    //    }
+    //    cur_c = cur_element_count;
+    //    cur_element_count++;
+    //}
+    //int curlevel = 0;
+
+    //unique_lock <mutex> templock(global);
+    //int maxlevelcopy = maxlevel_;
+    //if (curlevel <= maxlevelcopy)
+    //    templock.unlock();
+
+    //if (cur_c != label)
+    //    std::cout << cur_c << " " << label << std::endl;
+
+    if (label >= maxelements_) {
+        cout << "The number of elements exceeds the specified limit\n";
+        throw runtime_error("The number of elements exceeds the specified limit");
     }
-    int curlevel = 0;
-
-    unique_lock <mutex> templock(global);
-    int maxlevelcopy = maxlevel_;
-    if (curlevel <= maxlevelcopy)
-        templock.unlock();
-
-    if (cur_c != label)
-        std::cout << cur_c << " " << label << std::endl;
-
-    memset((char *) get_linklist0(cur_c), 0, size_data_per_element);
-    memcpy(getDataByInternalId(cur_c), point, data_size_);
+    memset((char *) get_linklist0(label), 0, size_data_per_element);
+    memcpy(getDataByInternalId(label), point, data_size_);
 
     if (enterpoint_node != -1) {
         std::priority_queue<std::pair<float, idx_t>> topResults = searchBaseLayer(point, efConstruction_);
-        mutuallyConnectNewElement(point, cur_c, topResults);
+        mutuallyConnectNewElement(point, label, topResults);
     } else {
         // Do nothing for the first element
         enterpoint_node = 0;
-        maxlevel_ = curlevel;
-
     }
     //Releasing lock for the maximum level
-    if (curlevel > maxlevelcopy) {
-        enterpoint_node = cur_c;
-        maxlevel_ = curlevel;
-    }
+    //if (curlevel > maxlevelcopy) {
+    //    enterpoint_node = cur_c;
+    //    maxlevel_ = curlevel;
+    //}
 };
 
 std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(const float *query, int k)
@@ -314,15 +314,15 @@ void HierarchicalNSW::LoadInfo(const string &location)
     data_level0_memory_ = (char *) malloc(maxelements_ * size_data_per_element);
 
     efConstruction_ = 0;
-    cur_element_count = maxelements_;
+    //cur_element_count = maxelements_;
 
     visitedlistpool = new VisitedListPool(1, maxelements_);
-    maxlevel_ = 0;
+    //maxlevel_ = 0;
 
     input.close();
 }
     
-    /** TODO float -> vtype **/ 
+    // TODO float -> vtype
 void HierarchicalNSW::LoadData(const string &location)
 {
     cout << "Loading data from " << location << endl;

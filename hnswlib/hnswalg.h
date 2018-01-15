@@ -51,15 +51,15 @@ namespace hnswlib {
     {
         // Fields
         size_t maxelements_;
-        size_t cur_element_count;
+        //size_t cur_element_count;
 
         size_t efConstruction_;
-        int maxlevel_;
+        //int maxlevel_;
 
         VisitedListPool *visitedlistpool;
 
-        std::mutex cur_element_count_guard_;
-        std::mutex MaxLevelGuard_;
+        //std::mutex cur_element_count_guard_;
+        //std::mutex MaxLevelGuard_;
 
         idx_t enterpoint_node;
 
