@@ -22,7 +22,7 @@ nq="10000"            # Number of queries
 ngt="1"               # Number of groundtruth neighbours per query
 
 d="96"                # Vector dimension
-code_size="96"        # Code size per vector in bytes
+code_size="16"        # Code size per vector in bytes
 
 #####################
 # Search parameters #
@@ -56,8 +56,8 @@ path_centroids="/home/dbaranchuk/data/centroids2M.fvecs"
 
 path_precomputed_idxs="/home/dbaranchuk/data/deep2m_precomputed_idxs_${nc}.ivecs"
 
-path_edges="/home/dbaranchuk/data/deep2m_ef${efConstruction}_clusters_${nc}.ivecs"
-path_info="/home/dbaranchuk/data/deep2m_ef${efConstruction}_clusters_${nc}.bin"
+path_edges="/home/dbaranchuk/data/deep2m_ef${efConstruction}_${nc}.ivecs"
+path_info="/home/dbaranchuk/data/deep2m_ef${efConstruction}_${nc}.bin"
 
 path_pq="${path_model}/pq${code_size}.pq"
 path_norm_pq="${path_model}/norm_pq${code_size}.pq"
