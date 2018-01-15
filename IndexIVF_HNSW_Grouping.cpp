@@ -14,8 +14,6 @@ namespace ivfhnsw{
 
         query_centroid_dists.resize(nc);
         std::fill(query_centroid_dists.begin(), query_centroid_dists.end(), 0);
-
-        do_pruning = false;
     }
 
     void IndexIVF_HNSW_Grouping::add_group(int centroid_idx, int group_size,
