@@ -41,7 +41,7 @@ k="100"               # Number of the closest vertices to search
 nprobe="32"           # Number of probes at query time
 max_codes="10000"     # Max number of codes to visit to do a query
 efSearch="80"         # Max number of candidate vertices in priority queue to observe during seaching
-pruning="pruning"     # Turn on/off pruning. Options: "pruning", ""
+pruning=""     # Turn on/off pruning. Options: "pruning", ""
 
 #########
 # Paths #
