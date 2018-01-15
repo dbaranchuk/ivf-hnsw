@@ -76,6 +76,9 @@ struct Parser
             if (!strcmp (a, "-h") || !strcmp (a, "--help"))
                 usage();
 
+            if (i == argc-1)
+                break;
+
             //=================
             // HNSW parameters
             //=================
@@ -102,7 +105,7 @@ struct Parser
             else if (!strcmp (a, "-nprobe")) read_int(argv[++i], &nprobe);
             else if (!strcmp (a, "-max_codes")) read_int(argv[++i], &max_codes);
             else if (!strcmp (a, "-efSearch")) read_int(argv[++i], &efSearch);
-            else if (!strcmp (a, "-pruning")) do_pruning = strcmp(argv[++i], "on") ? true : false;
+            else if (!strcmp (a, "-pruning")) do_pruning = !strcmp(argv[++i], "on") ? true : false;
 
             //=======
             // Paths
