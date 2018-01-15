@@ -63,13 +63,9 @@ int main(int argc, char **argv)
     if (exists(opt.path_pq) && exists(opt.path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << opt.path_pq << std::endl;
         index->pq = faiss::read_ProductQuantizer(opt.path_pq);
-        std::cout << index->pq->d << " " << index->pq->code_size << " " << index->pq->dsub
-                  << " " << index->pq->ksub << " " << index->pq->centroids[0] << std::endl;
 
         std::cout << "Loading Norm PQ codebook from " << opt.path_norm_pq << std::endl;
         index->norm_pq = faiss::read_ProductQuantizer(opt.path_norm_pq);
-        std::cout << index->norm_pq->d << " " << index->norm_pq->code_size << " " << index->norm_pq->dsub
-                  << " " << index->norm_pq->ksub << " " << index->norm_pq->centroids[0] << std::endl;
     }
     else {
         std::cout << "Training PQ codebooks" << std::endl;

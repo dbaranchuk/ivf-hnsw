@@ -63,13 +63,9 @@ int main(int argc, char **argv)
     if (exists(opt.path_pq) && exists(opt.path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << opt.path_pq << std::endl;
         index->pq = faiss::read_ProductQuantizer(opt.path_pq);
-        std::cout << index->pq->d << " " << index->pq->code_size << " " << index->pq->dsub
-                  << " " << index->pq->ksub << " " << index->pq->centroids[0] << std::endl;
 
         std::cout << "Loading Norm PQ codebook from " << opt.path_norm_pq << std::endl;
         index->norm_pq = faiss::read_ProductQuantizer(opt.path_norm_pq);
-        std::cout << index->norm_pq->d << " " << index->norm_pq->code_size << " " << index->norm_pq->dsub
-                  << " " << index->norm_pq->ksub << " " << index->norm_pq->centroids[0] << std::endl;
     }
     else {
         std::cout << "Training PQ codebooks" << std::endl;
@@ -86,32 +82,32 @@ int main(int argc, char **argv)
     // Precompute indexes 
     //====================
     if (!exists(opt.path_precomputed_idxs)){
-        std::cout << "Precomputing indexes" << std::endl;
+        std::cout << "Precomputing indices" << std::endl;
         StopW stopw = StopW();
 
-        FILE *fout = fopen(opt.path_precomputed_idxs, "wb");
         std::ifstream input(opt.path_base, ios::binary);
+        std::ofstream output(opt.path_precomputed_idxs, ios::binary);
 
-        // TODO 
-        //std::ofstream output(path_precomputed_idxs, ios::binary);
-        size_t batch_size = 1000000;
-        size_t nbatch = opt.nb / batch_size;
+        int batch_size = 1000000;
+        int nbatches = opt.nb / batch_size;
+
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> precomputed_idx(batch_size);
 
         index->quantizer->efSearch = 220;
-        for (int i = 0; i < nbatch; i++) {
+        for (int i = 0; i < nbatches; i++) {
             if (i % 10 == 0) {
-                std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100.*i) / nbatch << "%\n";
+                std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
+                          << (100.*i) / nbatches << "%" << std::endl;
             }
-            readXvecFvec<float>(input, batch.data(), opt.d, batch_size);
+            readXvec<float>(input, batch.data(), opt.d, batch_size);
             index->assign(batch_size, batch.data(), precomputed_idx.data());
 
-            fwrite((idx_t *) &batch_size, sizeof(idx_t), 1, fout);
-            fwrite(precomputed_idx.data(), sizeof(idx_t), batch_size, fout);
+            output.write((char *) &batch_size, sizeof(int));
+            output.write((char *) precomputed_idx.data(), batch_size * sizeof(idx_t));
         }
         input.close();
-        fclose(fout);
+        output.close();
     }
 
     //=====================================
