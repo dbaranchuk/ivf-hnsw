@@ -95,4 +95,4 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}.index"
                                                   -path_pq ${path_pq} \
                                                   -path_norm_pq ${path_norm_pq} \
                                                   -path_index ${path_index} \
-                                                  -${pruning}
+                                                  -pruning
