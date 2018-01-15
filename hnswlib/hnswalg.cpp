@@ -211,7 +211,7 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
     }
 }
 
-void HierarchicalNSW::addPoint(const float *point)
+void HierarchicalNSW::addPoint(const float *point, int label)
 {
     idx_t cur_c = 0;
     {
@@ -229,6 +229,9 @@ void HierarchicalNSW::addPoint(const float *point)
     int maxlevelcopy = maxlevel_;
     if (curlevel <= maxlevelcopy)
         templock.unlock();
+
+    if (cur_c != label)
+        std::cout << cur_c << " " << label << std::endl;
 
     memset((char *) get_linklist0(cur_c), 0, size_data_per_element);
     memcpy(getDataByInternalId(cur_c), point, data_size_);
