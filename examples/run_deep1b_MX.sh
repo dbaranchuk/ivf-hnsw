@@ -61,7 +61,7 @@ path_info="/home/dbaranchuk/data/deep2m_ef${efConstruction}_${nc}_new.bin"
 
 path_pq="${path_model}/pq${code_size}.pq"
 path_norm_pq="${path_model}/norm_pq${code_size}.pq"
-path_index="${path_model}/ivfhnsw_PQ${code_size}.index"
+path_index="${path_model}/ivfhnsw_PQ${code_size}_2M_new.index"
 
 #######
 # Run #
