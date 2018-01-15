@@ -43,7 +43,7 @@ struct Parser
     int nprobe;             ///< Number of probes at query time
     int max_codes;          ///< Max number of codes to visit to do a query
     int efSearch;           ///< Max number of candidate vertices in priority queue to observe during searching
-    bool do_pruning=true;  ///< Turn on/off pruning in the grouping scheme
+    bool do_pruning=false;   ///< Turn on/off pruning in the grouping scheme
 
     //=======
     // Paths
@@ -75,8 +75,6 @@ struct Parser
 
             if (!strcmp (a, "-h") || !strcmp (a, "--help"))
                 usage();
-            if (i+1 == argc)
-                break;
 
             //=================
             // HNSW parameters
