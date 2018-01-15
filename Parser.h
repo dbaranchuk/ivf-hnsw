@@ -103,7 +103,7 @@ struct Parser
             else if (!strcmp (a, "-nprobe")) read_int(argv[++i], &nprobe);
             else if (!strcmp (a, "-max_codes")) read_int(argv[++i], &max_codes);
             else if (!strcmp (a, "-efSearch")) read_int(argv[++i], &efSearch);
-            else if (!strcmp (a, "-pruning")) pruning = true;
+            else if (!strcmp (a, "-pruning")) do_pruning = true;
             //=======
             // Paths
             //=======
