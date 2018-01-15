@@ -39,11 +39,11 @@ struct Parser
     //===================
     // Search parameters
     //===================
-    int k;               ///< Number of the closest vertices to search
-    int nprobe;          ///< Number of probes at query time
-    int max_codes;       ///< Max number of codes to visit to do a query
-    int efSearch;        ///< Max number of candidate vertices in priority queue to observe during searching
-
+    int k;                  ///< Number of the closest vertices to search
+    int nprobe;             ///< Number of probes at query time
+    int max_codes;          ///< Max number of codes to visit to do a query
+    int efSearch;           ///< Max number of candidate vertices in priority queue to observe during searching
+    bool do_pruning=false;  ///< Turn on/off pruning in the grouping scheme
     //=======
     // Paths
     //=======
@@ -103,7 +103,7 @@ struct Parser
             else if (!strcmp (a, "-nprobe")) read_int(argv[++i], &nprobe);
             else if (!strcmp (a, "-max_codes")) read_int(argv[++i], &max_codes);
             else if (!strcmp (a, "-efSearch")) read_int(argv[++i], &efSearch);
-
+            else if (!strcmp (a, "-pruning")) pruning = true;
             //=======
             // Paths
             //=======
@@ -151,6 +151,7 @@ struct Parser
                 "    -nprobe #             Number of probes at query time\n"
                 "    -max_codes #          Max number of codes to visit to do a query\n"
                 "    -efSearch #           Max number of candidate vertices in priority queue to observe during searching\n"
+                "    -pruning              Turn on pruning in the grouping scheme\n"
                 "#########\n"
                 "# Paths #\n"
                 "#########\n"

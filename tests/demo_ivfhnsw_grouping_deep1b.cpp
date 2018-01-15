@@ -216,6 +216,7 @@ int main(int argc, char **argv)
     index->nprobe = opt.nprobe;
     index->max_codes = opt.max_codes;
     index->quantizer->efSearch = opt.efSearch;
+    index->do_pruning = opt.do_pruning;
 
     //========
     // Search 
