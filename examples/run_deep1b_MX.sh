@@ -66,7 +66,7 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}.index"
 #######
 # Run #
 #######
-/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_deep1b -M ${M} \
+nohup /home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_deep1b -M ${M} \
                                                   -efConstruction ${efConstruction} \
                                                   -nb ${nb} \
                                                   -nt ${nt} \
@@ -90,4 +90,4 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}.index"
                                                   -path_info ${path_info} \
                                                   -path_pq ${path_pq} \
                                                   -path_norm_pq ${path_norm_pq} \
-                                                  -path_index ${path_index}
+                                                  -path_index ${path_index} > 2M.out
