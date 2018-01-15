@@ -44,6 +44,7 @@ struct Parser
     int max_codes;          ///< Max number of codes to visit to do a query
     int efSearch;           ///< Max number of candidate vertices in priority queue to observe during searching
     bool do_pruning=false;  ///< Turn on/off pruning in the grouping scheme
+
     //=======
     // Paths
     //=======

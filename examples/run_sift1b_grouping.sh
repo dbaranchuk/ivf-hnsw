@@ -41,6 +41,7 @@ k="100"               # Number of the closest vertices to search
 nprobe="32"           # Number of probes at query time
 max_codes="10000"     # Max number of codes to visit to do a query
 efSearch="80"         # Max number of candidate vertices in priority queue to observe during seaching
+pruning="-pruning"    # Turn on/off pruning. Options: "-pruning", ""
 
 #########
 # Paths #
@@ -93,4 +94,5 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}.index"
                                                   -path_info ${path_info} \
                                                   -path_pq ${path_pq} \
                                                   -path_norm_pq ${path_norm_pq} \
-                                                  -path_index ${path_index}
+                                                  -path_index ${path_index} \
+                                                  ${pruning}
