@@ -115,8 +115,8 @@ void HierarchicalNSW::getNeighborsByHeuristic(std::priority_queue<std::pair<floa
         return;
 
     std::priority_queue<std::pair<float, idx_t>> resultSet;
-    std::priority_queue<std::pair<float, idx_t>> templist;
     std::vector<std::pair<float, idx_t>> returnlist;
+
     while (topResults.size() > 0) {
         resultSet.emplace(-topResults.top().first, topResults.top().second);
         topResults.pop();
@@ -139,8 +139,8 @@ void HierarchicalNSW::getNeighborsByHeuristic(std::priority_queue<std::pair<floa
         }
         if (good) returnlist.push_back(curen);
     }
-    for (std::pair<float, idx_t> curen2 : returnlist)
-        topResults.emplace(-curen2.first, curen2.second);
+    for (std::pair<float, idx_t> elem : returnlist)
+        topResults.emplace(-elem.first, elem.second);
 }
 
 void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
@@ -291,8 +291,7 @@ void HierarchicalNSW::LoadInfo(const string &location)
     visitedlistpool = new VisitedListPool(1, maxelements_);
     input.close();
 }
-    
-    // TODO float -> vtype
+
 void HierarchicalNSW::LoadData(const string &location)
 {
     cout << "Loading data from " << location << endl;
@@ -305,7 +304,6 @@ void HierarchicalNSW::LoadData(const string &location)
             cerr << "Wront data dim" << endl;
 
         fread(mass, sizeof(float), dim, fin);
-        memset((char *) get_linklist0(i), 0, size_data_per_element);
         memcpy(getDataByInternalId(i), mass, data_size_);
     }
 }

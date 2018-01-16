@@ -1,6 +1,7 @@
 #include "IndexIVF_HNSW_Grouping.h"
 
-namespace ivfhnsw{
+namespace ivfhnsw
+{
     //================================================
     // IVF_HNSW + grouping( + pruning) implementation
     //================================================
