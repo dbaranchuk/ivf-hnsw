@@ -148,10 +148,10 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
 {
     getNeighborsByHeuristic(topResults, M_);
 
-    std::vector<idx_t> rez;
-    rez.reserve(M_);
+    std::vector<idx_t> res;
+    res.reserve(M_);
     while (topResults.size() > 0) {
-        rez.push_back(topResults.top().second);
+        res.push_back(topResults.top().second);
         topResults.pop();
     }
     {
@@ -161,42 +161,42 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
             std::cout << cur_c << std::endl;
             throw runtime_error("Should be blank");
         }
-        *ll_cur = rez.size();
+        *ll_cur = res.size();
 
         idx_t *data = (idx_t *)(ll_cur + 1);
-        for (int idx = 0; idx < rez.size(); idx++) {
+        for (int idx = 0; idx < res.size(); idx++) {
             if (data[idx])
                 throw runtime_error("Should be blank");
-            data[idx] = rez[idx];
+            data[idx] = res[idx];
         }
     }
-    for (int idx = 0; idx < rez.size(); idx++) {
-        if (rez[idx] == cur_c)
+    for (int idx = 0; idx < res.size(); idx++) {
+        if (res[idx] == cur_c)
             throw runtime_error("Connection to the same element");
 
-        size_t rezMmax = maxM_;
-        uint8_t *ll_other = get_linklist0(rez[idx]);
+        size_t resMmax = maxM_;
+        uint8_t *ll_other = get_linklist0(res[idx]);
         uint8_t sz_link_list_other = *ll_other;
 
-        if (sz_link_list_other > rezMmax || sz_link_list_other < 0)
+        if (sz_link_list_other > resMmax || sz_link_list_other < 0)
             throw runtime_error("Bad sz_link_list_other");
 
-        if (sz_link_list_other < rezMmax) {
+        if (sz_link_list_other < resMmax) {
             idx_t *data = (idx_t *) (ll_other + 1);
             data[sz_link_list_other] = cur_c;
             *ll_other = sz_link_list_other + 1;
         } else {
             // finding the "weakest" element to replace it with the new one
             idx_t *data = (idx_t *) (ll_other + 1);
-            float d_max = fstdistfunc(getDataByInternalId(cur_c), getDataByInternalId(rez[idx]));
+            float d_max = fstdistfunc(getDataByInternalId(cur_c), getDataByInternalId(res[idx]));
             // Heuristic:
             std::priority_queue<std::pair<float, idx_t>> candidates;
             candidates.emplace(d_max, cur_c);
 
             for (int j = 0; j < sz_link_list_other; j++)
-                candidates.emplace(fstdistfunc(getDataByInternalId(data[j]), getDataByInternalId(rez[idx])), data[j]);
+                candidates.emplace(fstdistfunc(getDataByInternalId(data[j]), getDataByInternalId(res[idx])), data[j]);
 
-            getNeighborsByHeuristic(candidates, rezMmax);
+            getNeighborsByHeuristic(candidates, resMmax);
 
             int indx = 0;
             while (candidates.size() > 0) {
