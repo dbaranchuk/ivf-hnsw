@@ -65,7 +65,7 @@ namespace ivfhnsw {
             labels[i] = quantizer->searchKnn(const_cast<float *>(x + i * d), k).top().second;
     }
 
-    void IndexIVF_HNSW::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *precomputed_idx, double &av_dist)
+    void IndexIVF_HNSW::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *precomputed_idx)
     {
         const idx_t *idx;
         // Check whether idxs are precomputed. If not, assign x
