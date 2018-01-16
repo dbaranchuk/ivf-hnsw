@@ -202,7 +202,7 @@ namespace ivfhnsw {
         std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), assigned.data());
 
-
+        double av_dist = 0.0;
         float dists[n];
         faiss::fvec_norms_L2sqr(dists, residuals.data(), d, n);
         for (int i = 0; i < n; i++) {
