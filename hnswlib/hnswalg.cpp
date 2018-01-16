@@ -33,6 +33,7 @@ namespace hnswlib {
     visitedlistpool = new VisitedListPool(1, maxelements_);
     //initializations for special treatment of the first node
     enterpoint_node = -1;
+    maxlevel_ = -1;
 
     cur_element_count = 0;
 }
@@ -224,20 +225,16 @@ void HierarchicalNSW::addPoint(const float *point, int label)
         cur_c = cur_element_count;
         cur_element_count++;
     }
-    //int curlevel = 0;
+    int curlevel = 0;
 
-    //unique_lock <mutex> templock(global);
-    //int maxlevelcopy = maxlevel_;
-    //if (curlevel <= maxlevelcopy)
-    //    templock.unlock();
+    unique_lock <mutex> templock(global);
+    int maxlevelcopy = maxlevel_;
+    if (curlevel <= maxlevelcopy)
+        templock.unlock();
 
-    //if (cur_c != label)
-    //    std::cout << cur_c << " " << label << std::endl;
+    if (cur_c != label)
+        std::cout << cur_c << " " << label << std::endl;
 
-//    if (label >= maxelements_) {
-//        cout << "The number of elements exceeds the specified limit\n";
-//        throw runtime_error("The number of elements exceeds the specified limit");
-//    }
     memset((char *) get_linklist0(cur_c), 0, size_data_per_element);
     memcpy(getDataByInternalId(cur_c), point, data_size_);
 
@@ -249,10 +246,10 @@ void HierarchicalNSW::addPoint(const float *point, int label)
         enterpoint_node = 0;
     }
     //Releasing lock for the maximum level
-    //if (curlevel > maxlevelcopy) {
-    //    enterpoint_node = cur_c;
-    //    maxlevel_ = curlevel;
-    //}
+    if (curlevel > maxlevelcopy) {
+        enterpoint_node = cur_c;
+        maxlevel_ = curlevel;
+    }
 };
 
 std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(const float *query, int k)
