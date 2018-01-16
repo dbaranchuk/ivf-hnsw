@@ -39,24 +39,15 @@ namespace ivfhnsw {
         quantizer = new hnswlib::HierarchicalNSW(d, nc, M, 2 * M, efConstruction);
 
         std::cout << "Constructing quantizer\n";
-        int label = 0;
         std::ifstream input(path_data, ios::binary);
 
-        float mass[d];
-        readXvec<float>(input, mass, d);
-        quantizer->addPoint(mass, label);
-
         size_t report_every = 100000;
-#pragma omp parallel for
-        for (int i = 1; i < nc; i++) {
+        for (int i = 0; i < nc; i++) {
             float mass[d];
-#pragma omp critical
-            {
-                readXvec<float>(input, mass, d);
-                if (++label % report_every == 0)
-                    std::cout << label / (0.01 * nc) << " %\n";
-            }
-            quantizer->addPoint(mass, label);
+            readXvec<float>(input, mass, d);
+            if (i % report_every == 0)
+                std::cout << i / (0.01 * nc) << " %\n";
+            quantizer->addPoint(mass);
         }
         input.close();
         quantizer->SaveInfo(path_info);

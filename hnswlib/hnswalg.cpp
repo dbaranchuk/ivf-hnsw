@@ -211,23 +211,8 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
     }
 }
 
-void HierarchicalNSW::addPoint(const float *point, int id)
+void HierarchicalNSW::addPoint(const float *point)
 {
-//    {
-//        std::unique_lock <std::mutex> lock(cur_element_count_guard_);
-//        if (id >= maxelements_) {
-//            cout << "The number of elements exceeds the specified limit\n";
-//            throw runtime_error("The number of elements exceeds the specified limit");
-//        }
-//        cur_c = cur_element_count;
-//        cur_element_count++;
-//    }
-//    int curlevel = 0;
-//    unique_lock <mutex> templock(global);
-//    int maxlevelcopy = maxlevel_;
-//    if (curlevel <= maxlevelcopy)
-//        templock.unlock();
-
     if (cur_element_count >= maxelements_) {
         std::cout << "The number of elements exceeds the specified limit\n";
         throw std::runtime_error("The number of elements exceeds the specified limit");
@@ -243,11 +228,6 @@ void HierarchicalNSW::addPoint(const float *point, int id)
         // Do nothing for the first element
         enterpoint_node = 0;
     }
-    //Releasing lock for the maximum level
-//    if (curlevel > maxlevelcopy) {
-//        enterpoint_node = cur_c;
-//        maxlevel_ = curlevel;
-//    }
 };
 
 std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(const float *query, int k)
