@@ -130,7 +130,6 @@ int main(int argc, char **argv)
         std::vector <idx_t> idx_batch(batch_size);
         std::vector <idx_t> ids_batch(batch_size);
 
-        double av_dist = 0.0;
         for (int b = 0; b < nbatch; b++) {
             if (b % 10 == 0) {
                 std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100. * b) / nbatch << "%\n";
@@ -141,9 +140,8 @@ int main(int argc, char **argv)
             for (size_t i = 0; i < batch_size; i++)
                 ids_batch[i] = batch_size * b + i;
 
-            index->add_batch(batch_size, batch.data(), ids_batch.data(), idx_batch.data(), av_dist);
+            index->add_batch(batch_size, batch.data(), ids_batch.data(), idx_batch.data());
         }
-        std::cout << av_dist/opt.nb << std::endl;
 
         idx_input.close();
         base_input.close();

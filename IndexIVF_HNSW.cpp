@@ -31,6 +31,7 @@ namespace ivfhnsw {
      * There has been removed parallel HNSW construction in order to make internal centroid ids equal to external ones.
      * Construction time is still acceptable: ~5 minutes for 1 million 96-d vectors on Intel Xeon E5-2650 V2 2.60GHz.
      */
+    // TODO: paralyze in the right way
     void IndexIVF_HNSW::build_quantizer(const char *path_data, const char *path_info,
                                         const char *path_edges, int M, int efConstruction)
     {
@@ -78,12 +79,6 @@ namespace ivfhnsw {
         std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), idx);
 
-        float dists[n];
-        faiss::fvec_norms_L2sqr(dists, residuals.data(), d, n);
-        for (int i = 0; i < n; i++) {
-            av_dist += dists[i];
-        }
-        return;
         // Encode residuals
         std::vector <uint8_t> xcodes(n * code_size);
         pq->compute_codes(residuals.data(), xcodes.data(), n);

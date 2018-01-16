@@ -107,7 +107,7 @@ namespace ivfhnsw {
           * @param xids              ids to store for the vectors (size n)
           * @param precomputed_idx   if non-null, assigned idxs to store for the vectors (size n)
         */
-        virtual void add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *precomputed_idx, double &av_dist);
+        virtual void add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *precomputed_idx = nullptr);
 
         /** Train product quantizers
           *
