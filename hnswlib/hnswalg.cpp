@@ -214,7 +214,7 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
 
 void HierarchicalNSW::addPoint(const float *point, int label)
 {
-    //idx_t cur_c = 0;
+    idx_t cur_c = 0;
     {
         std::unique_lock <std::mutex> lock(cur_element_count_guard_);
         if (label >= maxelements_) {
