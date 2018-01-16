@@ -37,9 +37,9 @@ code_size="16"        # Code size per vector in bytes
 #######################################
 
 k="1"               # Number of the closest vertices to search
-nprobe="128"           # Number of probes at query time
-max_codes="50000"     # Max number of codes to visit to do a query
-efSearch="140"         # Max number of candidate vertices in priority queue to observe during searching
+nprobe="32"           # Number of probes at query time
+max_codes="10000"     # Max number of codes to visit to do a query
+efSearch="80"         # Max number of candidate vertices in priority queue to observe during searching
 
 #########
 # Paths #
