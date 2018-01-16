@@ -221,8 +221,9 @@ void HierarchicalNSW::addPoint(const float *point)
 
     // Do nothing for the first element
     if (cur_c != 0) {
-        std::priority_queue<std::pair<float, idx_t>> topResults = searchBaseLayer(point, efConstruction_);
+        std::priority_queue <std::pair<float, idx_t>> topResults = searchBaseLayer(point, efConstruction_);
         mutuallyConnectNewElement(point, cur_c, topResults);
+    }
 };
 
 std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(const float *query, int k)
