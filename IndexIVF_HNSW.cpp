@@ -78,6 +78,14 @@ namespace ivfhnsw {
         std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), idx);
 
+        double av_dist = 0.0;
+        float dists[n];
+        faiss::fvec_norms_L2sqr(dists, residuals.data(), d, n);
+        for (int i = 0; i < n; i++) {
+            av_dist += dists[i];
+        }
+        std::cout << av_dist/n << std::endl;
+        
         // Encode residuals
         std::vector <uint8_t> xcodes(n * code_size);
         pq->compute_codes(residuals.data(), xcodes.data(), n);
