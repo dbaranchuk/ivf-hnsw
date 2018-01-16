@@ -202,6 +202,14 @@ namespace ivfhnsw {
         std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), assigned.data());
 
+
+        float dists[n];
+        faiss::fvec_norms_L2sqr(dists, residuals.data(), d, n);
+        for (int i = 0; i < n; i++) {
+            av_dist += dists[i];
+        }
+        std::cout << av_dist/n << std::endl;
+        
         // Train residual PQ
         printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", pq->M, pq->ksub, n, d);
         pq->verbose = true;
