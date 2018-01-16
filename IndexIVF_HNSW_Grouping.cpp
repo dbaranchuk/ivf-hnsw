@@ -465,6 +465,7 @@ namespace ivfhnsw
                 }
             }
         }
+        std::cout << "Training Residual PQ codebook " << std::endl;
         std::cout << av_dist << std::endl;
 
         printf("Training %zdx%zd PQ on %ld vectors in %dD\n", pq->M, pq->ksub, train_residuals.size() / d, d);
