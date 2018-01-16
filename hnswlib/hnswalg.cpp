@@ -225,12 +225,11 @@ void HierarchicalNSW::addPoint(const float *point, int label)
         cur_c = cur_element_count;
         cur_element_count++;
     }
-    int curlevel = 0;
-
-    unique_lock <mutex> templock(global);
-    int maxlevelcopy = maxlevel_;
-    if (curlevel <= maxlevelcopy)
-        templock.unlock();
+//    int curlevel = 0;
+//    unique_lock <mutex> templock(global);
+//    int maxlevelcopy = maxlevel_;
+//    if (curlevel <= maxlevelcopy)
+//        templock.unlock();
 
     if (cur_c != label)
         std::cout << cur_c << " " << label << std::endl;
@@ -240,16 +239,16 @@ void HierarchicalNSW::addPoint(const float *point, int label)
 
     if (enterpoint_node != -1) {
         std::priority_queue<std::pair<float, idx_t>> topResults = searchBaseLayer(point, efConstruction_);
-        mutuallyConnectNewElement(point, label, topResults);
+        mutuallyConnectNewElement(point, cur_c, topResults);
     } else {
         // Do nothing for the first element
         enterpoint_node = 0;
     }
     //Releasing lock for the maximum level
-    if (curlevel > maxlevelcopy) {
-        enterpoint_node = cur_c;
-        maxlevel_ = curlevel;
-    }
+//    if (curlevel > maxlevelcopy) {
+//        enterpoint_node = cur_c;
+//        maxlevel_ = curlevel;
+//    }
 };
 
 std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(const float *query, int k)
