@@ -157,7 +157,8 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
     {
         uint8_t *ll_cur = get_linklist0(cur_c);
         if (*ll_cur) {
-            std::cout << *ll_cur << std::endl;
+            std::cout << (int)*ll_cur << std::endl;
+            std::cout << cur_c << std::endl;
             throw runtime_error("Should be blank");
         }
         *ll_cur = rez.size();
