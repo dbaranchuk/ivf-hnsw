@@ -17,8 +17,8 @@ nt="10000000"         # Number of learn vectors
 nsubt="65536"         # Number of learn vectors to train (random subset of the learn set)
 
 
-nc="3993883"
-#nc="1999473"          # Number of centroids for HNSW quantizer
+#nc="3993883"
+nc="1999473"          # Number of centroids for HNSW quantizer
 
 nq="10000"            # Number of queries
 ngt="1"               # Number of groundtruth neighbours per query
