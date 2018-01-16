@@ -447,8 +447,17 @@ namespace ivfhnsw
             std::vector<float> residuals(group_size * d);
             compute_residuals(group_size, data.data(), residuals.data(), subcentroids.data(), subcentroid_idxs.data());
 
+            //////////////////////
+            float dists[group_size];
+            faiss::fvec_norms_L2sqr(dists, residuals.data(), d, group_size);
+            double av_dist = 0.0;
             for (int i = 0; i < group_size; i++) {
-                int subcentroid_idx = subcentroid_idxs[i];
+                av_dist += dists[i];
+            }
+            std::cout << group_size <<  " " << av_dist << std::endl;
+
+            for (int i = 0; i < group_size; i++) {
+                idx_t subcentroid_idx = subcentroid_idxs[i];
                 for (int j = 0; j < d; j++) {
                     train_subcentroids.push_back(subcentroids[subcentroid_idx*d + j]);
                     train_residuals.push_back(residuals[i*d + j]);
