@@ -143,7 +143,7 @@ int main(int argc, char **argv)
 
             index->add_batch(batch_size, batch.data(), ids_batch.data(), idx_batch.data(), av_dist);
         }
-        std::cout << av_dist/nb << std::endl;
+        std::cout << av_dist/opt.nb << std::endl;
 
         idx_input.close();
         base_input.close();
