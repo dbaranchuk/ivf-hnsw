@@ -70,7 +70,7 @@ namespace ivfhnsw {
                 std::cout << "file error\n";
                 exit(1);
             }
-            in.read((char *) (data + i * d), in * sizeof(T));
+            in.read((char *) (data + i * d), d * sizeof(T));
         }
     }
 
@@ -85,17 +85,17 @@ namespace ivfhnsw {
 
 
     template<typename T>
-    void readXvecFvec(std::ifstream &input, float *data, const int d, const int n = 1) {
+    void readXvecFvec(std::ifstream &in, float *data, const int d, const int n = 1) {
         int D = 0;
         T mass[d];
 
         for (int i = 0; i < n; i++) {
-            input.read((char *) &in, sizeof(int));
+            in.read((char *) &D, sizeof(int));
             if (D != d) {
                 std::cout << "file error\n";
                 exit(1);
             }
-            input.read((char *) mass, d * sizeof(T));
+            in.read((char *) mass, d * sizeof(T));
             for (int j = 0; j < d; j++)
                 data[i * d + j] = (1.0) * mass[j];
         }
