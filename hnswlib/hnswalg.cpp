@@ -214,15 +214,17 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
 
 void HierarchicalNSW::addPoint(const float *point, int label)
 {
-    idx_t cur_c = 0;
+    //idx_t cur_c = 0;
     {
-        unique_lock <mutex> lock(cur_element_count_guard_);
-        if (cur_element_count >= maxelements_) {
+        std::unique_lock <std::mutex> lock(cur_element_count_guard_);
+        if (label >= maxelements_) {
             cout << "The number of elements exceeds the specified limit\n";
             throw runtime_error("The number of elements exceeds the specified limit");
         }
-        cur_c = cur_element_count;
-        cur_element_count++;
+        memset((char *) get_linklist0(label), 0, size_data_per_element);
+        memcpy(getDataByInternalId(label), point, data_size_);
+        //cur_c = cur_element_count;
+        //cur_element_count++;
     }
     //int curlevel = 0;
 
@@ -234,16 +236,16 @@ void HierarchicalNSW::addPoint(const float *point, int label)
     //if (cur_c != label)
     //    std::cout << cur_c << " " << label << std::endl;
 
-    if (label >= maxelements_) {
-        cout << "The number of elements exceeds the specified limit\n";
-        throw runtime_error("The number of elements exceeds the specified limit");
-    }
-    memset((char *) get_linklist0(cur_c), 0, size_data_per_element);
-    memcpy(getDataByInternalId(cur_c), point, data_size_);
+//    if (label >= maxelements_) {
+//        cout << "The number of elements exceeds the specified limit\n";
+//        throw runtime_error("The number of elements exceeds the specified limit");
+//    }
+//    memset((char *) get_linklist0(cur_c), 0, size_data_per_element);
+//    memcpy(getDataByInternalId(cur_c), point, data_size_);
 
     if (enterpoint_node != -1) {
         std::priority_queue<std::pair<float, idx_t>> topResults = searchBaseLayer(point, efConstruction_);
-        mutuallyConnectNewElement(point, cur_c, topResults);
+        mutuallyConnectNewElement(point, label, topResults);
     } else {
         // Do nothing for the first element
         enterpoint_node = 0;
