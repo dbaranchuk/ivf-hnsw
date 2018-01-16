@@ -221,10 +221,8 @@ void HierarchicalNSW::addPoint(const float *point, int label)
             cout << "The number of elements exceeds the specified limit\n";
             throw runtime_error("The number of elements exceeds the specified limit");
         }
-        memset((char *) get_linklist0(label), 0, size_data_per_element);
-        memcpy(getDataByInternalId(label), point, data_size_);
-        //cur_c = cur_element_count;
-        //cur_element_count++;
+        cur_c = cur_element_count;
+        cur_element_count++;
     }
     //int curlevel = 0;
 
@@ -240,8 +238,8 @@ void HierarchicalNSW::addPoint(const float *point, int label)
 //        cout << "The number of elements exceeds the specified limit\n";
 //        throw runtime_error("The number of elements exceeds the specified limit");
 //    }
-//    memset((char *) get_linklist0(cur_c), 0, size_data_per_element);
-//    memcpy(getDataByInternalId(cur_c), point, data_size_);
+    memset((char *) get_linklist0(cur_c), 0, size_data_per_element);
+    memcpy(getDataByInternalId(cur_c), point, data_size_);
 
     if (enterpoint_node != -1) {
         std::priority_queue<std::pair<float, idx_t>> topResults = searchBaseLayer(point, efConstruction_);
