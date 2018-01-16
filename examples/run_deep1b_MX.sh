@@ -59,7 +59,7 @@ path_centroids="/home/dbaranchuk/data/centroids4M.fvecs"
 path_precomputed_idxs="/home/dbaranchuk/data/deep1B_precomputed_idxs_${nc}.ivecs"
 
 path_edges="/home/dbaranchuk/data/deep4m_ef${efConstruction}_${nc}.ivecs"
-path_info="/home/dbaranchuk/data/deep2m_ef${efConstruction}_${nc}.bin"
+path_info="/home/dbaranchuk/data/deep4m_ef${efConstruction}_${nc}.bin"
 
 path_pq="${path_model}/pq${code_size}_4M.pq"
 path_norm_pq="${path_model}/norm_pq${code_size}_4M.pq"
