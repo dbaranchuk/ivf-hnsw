@@ -85,7 +85,7 @@ namespace ivfhnsw {
             av_dist += dists[i];
         }
         std::cout << av_dist/n << std::endl;
-        
+
         // Encode residuals
         std::vector <uint8_t> xcodes(n * code_size);
         pq->compute_codes(residuals.data(), xcodes.data(), n);
