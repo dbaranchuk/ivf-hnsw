@@ -234,7 +234,10 @@ void HierarchicalNSW::addPoint(const float *point, int id)
 
     if (enterpoint_node != -1) {
         std::priority_queue<std::pair<float, idx_t>> topResults = searchBaseLayer(point, efConstruction_);
-        mutuallyConnectNewElement(point, cur_c, topResults);
+        {
+            std::unique_lock <std::mutex> templock(global);
+            mutuallyConnectNewElement(point, cur_c, topResults);
+        }
     } else {
         // Do nothing for the first element
         enterpoint_node = 0;
