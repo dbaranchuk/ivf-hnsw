@@ -2,7 +2,9 @@
 
 namespace hnswlib {
 
-    HierarchicalNSW::HierarchicalNSW(const string &infoLocation, const string &dataLocation, const string &edgeLocation)
+    HierarchicalNSW::HierarchicalNSW(const std::string &infoLocation,
+                                     const std::string &dataLocation,
+                                     const std::string &edgeLocation)
     {
         LoadInfo(infoLocation);
         LoadData(dataLocation);
@@ -31,8 +33,8 @@ namespace hnswlib {
     std::cout << "Size Mb: " << (maxelements_ * size_data_per_element) / (1000 * 1000) << std::endl;
 
     visitedlistpool = new VisitedListPool(1, maxelements_);
-    //initializations for special treatment of the first node
-    enterpoint_node = -1;
+
+    enterpoint_node = 0;
     cur_element_count = 0;
 }
 
@@ -146,9 +148,6 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
 {
     getNeighborsByHeuristic(topResults, M_);
 
-    while (topResults.size() > M_)
-        throw exception();
-
     std::vector<idx_t> rez;
     rez.reserve(M_);
     while (topResults.size() > 0) {
@@ -205,7 +204,6 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
                 candidates.pop();
                 indx++;
             }
-
             *ll_other = indx;
         }
     }
@@ -221,13 +219,10 @@ void HierarchicalNSW::addPoint(const float *point)
     memset((char *) get_linklist0(cur_c), 0, size_data_per_element);
     memcpy(getDataByInternalId(cur_c), point, data_size_);
 
-    if (enterpoint_node != -1) {
+    // Do nothing for the first element
+    if (cur_c != 0) {
         std::priority_queue<std::pair<float, idx_t>> topResults = searchBaseLayer(point, efConstruction_);
         mutuallyConnectNewElement(point, cur_c, topResults);
-    } else {
-        // Do nothing for the first element
-        enterpoint_node = 0;
-    }
 };
 
 std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(const float *query, int k)
@@ -241,9 +236,8 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(const fl
 
 void HierarchicalNSW::SaveInfo(const string &location)
 {
-    cout << "Saving info to " << location << endl;
+    std::cout << "Saving info to " << location << std::endl;
     std::ofstream output(location, std::ios::binary);
-    streampos position;
 
     writeBinaryPOD(output, maxelements_);
     writeBinaryPOD(output, enterpoint_node);
@@ -260,7 +254,7 @@ void HierarchicalNSW::SaveInfo(const string &location)
 
 void HierarchicalNSW::SaveEdges(const string &location)
 {
-    cout << "Saving edges to " << location << endl;
+    std::cout << "Saving edges to " << location << std::endl;
     FILE *fout = fopen(location.c_str(), "wb");
 
     for (idx_t i = 0; i < maxelements_; i++) {
@@ -275,9 +269,8 @@ void HierarchicalNSW::SaveEdges(const string &location)
 
 void HierarchicalNSW::LoadInfo(const string &location)
 {
-    cout << "Loading info from " << location << endl;
+    std::cout << "Loading info from " << location << std::endl;
     std::ifstream input(location, std::ios::binary);
-    streampos position;
 
     readBinaryPOD(input, maxelements_);
     readBinaryPOD(input, enterpoint_node);
@@ -292,11 +285,9 @@ void HierarchicalNSW::LoadInfo(const string &location)
     data_level0_memory_ = (char *) malloc(maxelements_ * size_data_per_element);
 
     efConstruction_ = 0;
-    //cur_element_count = maxelements_;
+    cur_element_count = maxelements_;
 
     visitedlistpool = new VisitedListPool(1, maxelements_);
-    //maxlevel_ = 0;
-
     input.close();
 }
     
