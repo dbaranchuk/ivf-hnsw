@@ -33,8 +33,6 @@ namespace hnswlib {
     visitedlistpool = new VisitedListPool(1, maxelements_);
     //initializations for special treatment of the first node
     enterpoint_node = -1;
-    maxlevel_ = -1;
-
     cur_element_count = 0;
 }
 
@@ -213,26 +211,23 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
     }
 }
 
-void HierarchicalNSW::addPoint(const float *point, int label)
+void HierarchicalNSW::addPoint(const float *point, int id)
 {
-    idx_t cur_c = 0;
-    {
-        std::unique_lock <std::mutex> lock(cur_element_count_guard_);
-        if (label >= maxelements_) {
-            cout << "The number of elements exceeds the specified limit\n";
-            throw runtime_error("The number of elements exceeds the specified limit");
-        }
-        cur_c = cur_element_count;
-        cur_element_count++;
-    }
+    idx_t cur_c = id;
+//    {
+//        std::unique_lock <std::mutex> lock(cur_element_count_guard_);
+//        if (id >= maxelements_) {
+//            cout << "The number of elements exceeds the specified limit\n";
+//            throw runtime_error("The number of elements exceeds the specified limit");
+//        }
+//        cur_c = cur_element_count;
+//        cur_element_count++;
+//    }
 //    int curlevel = 0;
 //    unique_lock <mutex> templock(global);
 //    int maxlevelcopy = maxlevel_;
 //    if (curlevel <= maxlevelcopy)
 //        templock.unlock();
-
-    if (cur_c != label)
-        std::cout << cur_c << " " << label << std::endl;
 
     memset((char *) get_linklist0(cur_c), 0, size_data_per_element);
     memcpy(getDataByInternalId(cur_c), point, data_size_);
