@@ -64,7 +64,7 @@ namespace ivfhnsw {
             labels[i] = quantizer->searchKnn(const_cast<float *>(x + i * d), k).top().second;
     }
 
-    void IndexIVF_HNSW::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *precomputed_idx)
+    void IndexIVF_HNSW::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *precomputed_idx, double &av_dist)
     {
         const idx_t *idx;
         // Check whether idxs are precomputed. If not, assign x
@@ -78,14 +78,12 @@ namespace ivfhnsw {
         std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), idx);
 
-        double av_dist = 0.0;
         float dists[n];
         faiss::fvec_norms_L2sqr(dists, residuals.data(), d, n);
         for (int i = 0; i < n; i++) {
             av_dist += dists[i];
         }
-        std::cout << av_dist/n << std::endl;
-
+        return;
         // Encode residuals
         std::vector <uint8_t> xcodes(n * code_size);
         pq->compute_codes(residuals.data(), xcodes.data(), n);
