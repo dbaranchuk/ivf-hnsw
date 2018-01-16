@@ -16,8 +16,9 @@ nb="1000000000"       # Number of base vectors
 nt="10000000"         # Number of learn vectors
 nsubt="65536"         # Number of learn vectors to train (random subset of the learn set)
 
-nc="3993883"
-#"1999473"          # Number of centroids for HNSW quantizer
+
+#nc="3993883"
+nc="1999473"          # Number of centroids for HNSW quantizer
 
 nq="10000"            # Number of queries
 ngt="1"               # Number of groundtruth neighbours per query
@@ -53,16 +54,16 @@ path_base="/home/arbabenko/Bigann/deep1B_base.fvecs"
 path_learn="/home/arbabenko/Bigann/deep1B_learn.fvecs"
 path_gt="$path_data/deep1B_groundtruth.ivecs"
 path_q="$path_data/deep1B_queries.fvecs"
-path_centroids="/home/dbaranchuk/data/centroids4M.fvecs"
+path_centroids="/home/dbaranchuk/data/centroids2M.fvecs"
 
 path_precomputed_idxs="/home/dbaranchuk/data/deep1B_precomputed_idxs_${nc}.ivecs"
 
-path_edges="/home/dbaranchuk/data/deep4m_ef${efConstruction}_${nc}.ivecs"
-path_info="/home/dbaranchuk/data/deep4m_ef${efConstruction}_${nc}.bin"
+path_edges="/home/dbaranchuk/data/deep2m_ef${efConstruction}_${nc}.ivecs"
+path_info="/home/dbaranchuk/data/deep2m_ef${efConstruction}_${nc}.bin"
 
-path_pq="${path_model}/pq${code_size}_4M.pq"
-path_norm_pq="${path_model}/norm_pq${code_size}_4M.pq"
-path_index="${path_model}/ivfhnsw_PQ${code_size}_4M.index"
+path_pq="${path_model}/pq${code_size}_2M.pq"
+path_norm_pq="${path_model}/norm_pq${code_size}_2M.pq"
+path_index="${path_model}/ivfhnsw_PQ${code_size}_2M.index"
 
 #######
 # Run #
