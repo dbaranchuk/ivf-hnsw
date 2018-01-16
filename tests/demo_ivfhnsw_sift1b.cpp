@@ -140,7 +140,7 @@ int main(int argc, char **argv)
             for (size_t i = 0; i < batch_size; i++)
                 ids_batch[i] = batch_size * b + i;
 
-            index->add_batch(batch_size, batch.data(), ids_batch.data(), idx_batch.data());
+            //index->add_batch(batch_size, batch.data(), ids_batch.data(), idx_batch.data());
         }
         idx_input.close();
         base_input.close();
