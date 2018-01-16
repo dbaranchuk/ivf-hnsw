@@ -23,7 +23,7 @@ nq="10000"            # Number of queries
 ngt="1"               # Number of groundtruth neighbours per query
 
 d="96"                # Vector dimension
-code_size="16"        # Code size per vector in bytes
+code_size="32"        # Code size per vector in bytes
 
 #####################
 # Search parameters #

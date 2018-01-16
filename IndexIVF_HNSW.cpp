@@ -209,7 +209,7 @@ namespace ivfhnsw {
             av_dist += dists[i];
         }
         std::cout << av_dist/n << std::endl;
-        
+
         // Train residual PQ
         printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", pq->M, pq->ksub, n, d);
         pq->verbose = true;
