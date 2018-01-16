@@ -16,9 +16,6 @@ nb="1000000000"       # Number of base vectors
 nt="10000000"         # Number of learn vectors
 nsubt="65536"         # Number of learn vectors to train (random subset of the learn set)
 
-#nt="10000000"         # Number of learn vectors
-#nsubt="65536"         # Number of learn vectors to train (random subset of the learn set)
-
 nc="999973"           # Number of centroids for HNSW quantizer
 nsubc="64"            # Number of subcentroids per group
 
@@ -26,7 +23,7 @@ nq="10000"            # Number of queries
 ngt="1"               # Number of groundtruth neighbours per query
 
 d="96"                # Vector dimension
-code_size="8"        # Code size per vector in bytes
+code_size="16"        # Code size per vector in bytes
 
 #####################
 # Search parameters #
