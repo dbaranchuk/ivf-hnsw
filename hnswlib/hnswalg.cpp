@@ -213,7 +213,6 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
 
 void HierarchicalNSW::addPoint(const float *point, int id)
 {
-    idx_t cur_c = id;
 //    {
 //        std::unique_lock <std::mutex> lock(cur_element_count_guard_);
 //        if (id >= maxelements_) {
@@ -229,15 +228,17 @@ void HierarchicalNSW::addPoint(const float *point, int id)
 //    if (curlevel <= maxlevelcopy)
 //        templock.unlock();
 
+    if (cur_element_count >= maxelements_) {
+        std::cout << "The number of elements exceeds the specified limit\n";
+        throw std::runtime_error("The number of elements exceeds the specified limit");
+    }
+    idx_t cur_c = cur_element_count++;
     memset((char *) get_linklist0(cur_c), 0, size_data_per_element);
     memcpy(getDataByInternalId(cur_c), point, data_size_);
 
     if (enterpoint_node != -1) {
         std::priority_queue<std::pair<float, idx_t>> topResults = searchBaseLayer(point, efConstruction_);
-        {
-            std::unique_lock <std::mutex> templock(global);
-            mutuallyConnectNewElement(point, cur_c, topResults);
-        }
+        mutuallyConnectNewElement(point, cur_c, topResults);
     } else {
         // Do nothing for the first element
         enterpoint_node = 0;
