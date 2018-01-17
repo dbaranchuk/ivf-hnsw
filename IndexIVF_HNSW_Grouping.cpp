@@ -268,6 +268,7 @@ namespace ivfhnsw
             query_centroid_dists[used_centroid_idx] = 0;
     }
 
+    // TODO: rewrite with writeXvec
     void IndexIVF_HNSW_Grouping::write(const char *path_index)
     {
         FILE *fout = fopen(path_index, "wb");
@@ -322,6 +323,7 @@ namespace ivfhnsw
         fclose(fout);
     }
 
+    // TODO: rewrite with readXvec
     void IndexIVF_HNSW_Grouping::read(const char *path_index)
     {
         FILE *fin = fopen(path_index, "rb");
