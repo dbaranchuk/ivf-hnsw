@@ -18,8 +18,7 @@ namespace ivfhnsw {
         norm_codes.resize(ncentroids);
         ids.resize(ncentroids);
     }
-
-
+    
     IndexIVF_HNSW::~IndexIVF_HNSW()
     {
         if (quantizer) delete quantizer;
