@@ -17,7 +17,7 @@ nt="10000000"         # Number of learn vectors
 nsubt="65536"         # Number of learn vectors to train (random subset of the learn set)
 
 nc="999973"           # Number of centroids for HNSW quantizer
-nsubc="64"            # Number of subcentroids per group
+nsubc="128"            # Number of subcentroids per group
 
 nq="10000"            # Number of queries
 ngt="1"               # Number of groundtruth neighbours per query
@@ -68,7 +68,7 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}.index"
 #######
 # Run #
 #######
-/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_grouping_deep1b \
+Nohup /home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_grouping_deep1b \
                                                   -M ${M} \
                                                   -efConstruction ${efConstruction} \
                                                   -nb ${nb} \
@@ -95,4 +95,4 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}.index"
                                                   -path_pq ${path_pq} \
                                                   -path_norm_pq ${path_norm_pq} \
                                                   -path_index ${path_index} \
-                                                  -pruning ${pruning}
+                                                  -pruning ${pruning} > nsubc128.out

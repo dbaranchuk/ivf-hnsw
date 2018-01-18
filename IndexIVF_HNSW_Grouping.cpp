@@ -154,8 +154,6 @@ namespace ivfhnsw
         // Indices of coarse centroids, which distances to the query are computed during the search time
         std::vector<idx_t> used_centroid_idxs;
         used_centroid_idxs.reserve(nsubc * nprobe);
-
-
         idx_t centroid_idxs[nprobe]; // Indices of the nearest coarse centroids
 
         // Find the nearest coarse centroids to the query
@@ -228,7 +226,7 @@ namespace ivfhnsw
             const uint8_t *code = codes[centroid_idx].data();
             const uint8_t *norm_code = norm_codes[centroid_idx].data();
             const idx_t *id = ids[centroid_idx].data();
-
+            
             for (int subc = 0; subc < nsubc; subc++) {
                 int subgroup_size = subgroup_sizes[centroid_idx][subc];
                 if (subgroup_size == 0)
