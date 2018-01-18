@@ -621,7 +621,7 @@ namespace ivfhnsw
                 maxheap.pop();
             }
             group_numerator += optim_numerator;
-            group_denominator += optim_numerator;
+            group_denominator += optim_denominator;
 //            if (optim_numerator < 0) {
 //                counter_negative++;
 //                negative_numerator += optim_numerator;
@@ -632,7 +632,7 @@ namespace ivfhnsw
 //                positive_denominator += optim_denominator;
 //            }
         }
-        return group_numerator / group_denominator;
+        return (group_denominator > 0) ? group_numerator / group_denominator : 0.0;
         //positive_alpha = positive_numerator / positive_denominator;
         //negative_alpha = negative_numerator / negative_denominator;
         //return (counter_positive > counter_negative) ? positive_alpha : negative_alpha;
