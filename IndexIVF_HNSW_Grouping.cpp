@@ -16,7 +16,7 @@ namespace ivfhnsw
         query_centroid_dists.resize(nc);
         std::fill(query_centroid_dists.begin(), query_centroid_dists.end(), 0);
     }
-    
+
     void IndexIVF_HNSW_Grouping::add_group(int centroid_idx, int group_size,
                                            const float *data, const idx_t *idxs,
                                            double &baseline_average, double &modified_average)
@@ -579,8 +579,8 @@ namespace ivfhnsw
         //float positive_alpha = 0.0;
         //float negative_alpha = 0.0;
 
-        float optim_numerator = 0.0;
-        float optim_denominator = 0.0;
+        float group_numerator = 0.0;
+        float group_denominator = 0.0;
 
         std::vector<float> point_vectors(group_size * d);
         for (int i = 0; i < group_size; i++)
@@ -606,8 +606,22 @@ namespace ivfhnsw
                 float dist = fvec_L2sqr(point, subcentroid.data(), d);
                 maxheap.emplace(-dist, std::make_pair(numerator, denominator));
             }
-            optim_numerator += maxheap.top().second.first;
-            optim_denominator += maxheap.top().second.second;
+            float optim_numerator = 0.0;
+            float optim_denominator = 0.0;
+
+            while (maxheap.size() > 0){
+                float numerator, denominator;
+                std::tie(numerator, denominator) = maxheap.top().second;
+
+                if (numerator > 0) {
+                    optim_numerator = numerator;
+                    optim_denominator = denominator;
+                    break;
+                }
+                maxheap.pop();
+            }
+            group_numerator += optim_numerator;
+            group_denominator += optim_numerator;
 //            if (optim_numerator < 0) {
 //                counter_negative++;
 //                negative_numerator += optim_numerator;
@@ -618,7 +632,7 @@ namespace ivfhnsw
 //                positive_denominator += optim_denominator;
 //            }
         }
-        return optim_numerator / optim_denominator;
+        return group_numerator / group_denominator;
         //positive_alpha = positive_numerator / positive_denominator;
         //negative_alpha = negative_numerator / negative_denominator;
         //return (counter_positive > counter_negative) ? positive_alpha : negative_alpha;
