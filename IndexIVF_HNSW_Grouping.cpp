@@ -374,6 +374,11 @@ namespace ivfhnsw
         alphas.resize(nc);
         fread(alphas.data(), sizeof(float), nc, fin);
 
+        // FOR REVIEW
+        FILE *falphas = fopen("alphas.dat","wb");
+        fwrite((float *) alphas.data(), sizeof(float), nc, falphas);
+        fclose(falphas);
+
         // Read centroid norms
         centroid_norms.resize(nc);
         fread(centroid_norms.data(), sizeof(float), nc, fin);
