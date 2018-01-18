@@ -154,14 +154,17 @@ namespace ivfhnsw
         // Indices of coarse centroids, which distances to the query are computed during the search time
         std::vector<idx_t> used_centroid_idxs;
         used_centroid_idxs.reserve(nsubc * nprobe);
+
+
         idx_t centroid_idxs[nprobe]; // Indices of the nearest coarse centroids
 
         // Find the nearest coarse centroids to the query
         auto coarse = quantizer->searchKnn(x, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
-            centroid_idxs[i] = coarse.top().second;
-            query_centroid_dists[centroid_idxs[i]] = coarse.top().first;
-            used_centroid_idxs.push_back(centroid_idxs[i]);
+            idx_t centroid_idx = coarse.top().second;
+            centroid_idxs[i] = centroid_idx;
+            query_centroid_dists[centroid_idx] = coarse.top().first;
+            used_centroid_idxs.push_back(centroid_idx);
             coarse.pop();
         }
 
@@ -180,6 +183,7 @@ namespace ivfhnsw
 
                 float *subr = r.data() + i*nsubc;
                 float alpha = alphas[centroid_idx];
+                float q_c = query_centroid_dists[centroid_idx];
 
                 for (int subc = 0; subc < nsubc; subc++) {
                     if (subgroup_sizes[centroid_idx][subc] == 0)
@@ -193,7 +197,7 @@ namespace ivfhnsw
                         used_centroid_idxs.push_back(nn_centroid_idx);
                     }
                     // TODO: сделать красиво
-                    subr[subc] = (1 - alpha) * (query_centroid_dists[centroid_idx] - alpha * inter_centroid_dists[centroid_idx][subc])
+                    subr[subc] = (1 - alpha) * (q_c - alpha * inter_centroid_dists[centroid_idx][subc])
                                  + alpha * query_centroid_dists[nn_centroid_idx];
                     threshold += subr[subc];
                     nsubgroups++;
@@ -373,11 +377,6 @@ namespace ivfhnsw
         // Read alphas
         alphas.resize(nc);
         fread(alphas.data(), sizeof(float), nc, fin);
-
-        // FOR REVIEW
-        FILE *falphas = fopen("alphas.dat","wb");
-        fwrite((float *) alphas.data(), sizeof(float), nc, falphas);
-        fclose(falphas);
 
         // Read centroid norms
         centroid_norms.resize(nc);
