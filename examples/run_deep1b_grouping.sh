@@ -68,7 +68,7 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}_new_alpha.index"
 #######
 # Run #
 #######
-Nohup /home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_grouping_deep1b \
+/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_grouping_deep1b \
                                                   -M ${M} \
                                                   -efConstruction ${efConstruction} \
                                                   -nb ${nb} \
@@ -95,4 +95,4 @@ Nohup /home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_grouping_deep1b \
                                                   -path_pq ${path_pq} \
                                                   -path_norm_pq ${path_norm_pq} \
                                                   -path_index ${path_index} \
-                                                  -pruning ${pruning} > nsubc128.out
+                                                  -pruning ${pruning}
