@@ -218,9 +218,6 @@ int main(int argc, char **argv)
     index->quantizer->efSearch = opt.efSearch;
     index->do_pruning = opt.do_pruning;
 
-    //REVIEW
-    float global_alpha = index->global_numerator / index->global_denominator;
-    std::cout << global_alpha << std::endl;
     //========
     // Search 
     //========
