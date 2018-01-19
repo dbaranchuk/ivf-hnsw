@@ -569,20 +569,20 @@ namespace ivfhnsw
                                                 const float *centroid, const float *centroid_vector_norms_L2sqr,
                                                 int group_size)
     {
-        //int counter_positive = 0;
-        //int counter_negative = 0;
+        int counter_positive = 0;
+        int counter_negative = 0;
 
-        //float positive_numerator = 0.;
-        //float positive_denominator = 0.;
+        float positive_numerator = 0.;
+        float positive_denominator = 0.;
 
-        //float negative_numerator = 0.;
-        //float negative_denominator = 0.;
+        float negative_numerator = 0.;
+        float negative_denominator = 0.;
 
-        //float positive_alpha = 0.0;
-        //float negative_alpha = 0.0;
+        float positive_alpha = 0.0;
+        float negative_alpha = 0.0;
 
-        float group_numerator = 0.0;
-        float group_denominator = 0.0;
+        //float group_numerator = 0.0;
+        //float group_denominator = 0.0;
 
         std::vector<float> point_vectors(group_size * d);
         for (int i = 0; i < group_size; i++)
@@ -610,35 +610,35 @@ namespace ivfhnsw
             }
             float optim_numerator = 0.0;
             float optim_denominator = 0.0;
+            std::tie(optim_numerator, optim_denominator) = maxheap.top().second;
+            //while (maxheap.size() > 0){
+            //    float numerator, denominator;
+            //    std::tie(numerator, denominator) = maxheap.top().second;
 
-            while (maxheap.size() > 0){
-                float numerator, denominator;
-                std::tie(numerator, denominator) = maxheap.top().second;
-
-                if (numerator > 0) {
-                    optim_numerator = numerator;
-                    optim_denominator = denominator;
-                    break;
-                }
-                maxheap.pop();
+            //    if (numerator > 0) {
+            //        optim_numerator = numerator;
+            //        optim_denominator = denominator;
+            //        break;
+            //    }
+            //    maxheap.pop();
+            //}
+            //group_numerator += optim_numerator;
+            //group_denominator += optim_denominator;
+            if (optim_numerator < 0) {
+                counter_negative++;
+                negative_numerator += optim_numerator;
+                negative_denominator += optim_denominator;
+            } else {
+                counter_positive++;
+                positive_numerator += optim_numerator;
+                positive_denominator += optim_denominator;
             }
-            group_numerator += optim_numerator;
-            group_denominator += optim_denominator;
-//            if (optim_numerator < 0) {
-//                counter_negative++;
-//                negative_numerator += optim_numerator;
-//                negative_denominator += optim_denominator;
-//            } else {
-//                counter_positive++;
-//                positive_numerator += optim_numerator;
-//                positive_denominator += optim_denominator;
-//            }
         }
         //global_numerator += group_numerator;
         //global_denominator += group_denominator;
-        return (group_denominator > 0) ? group_numerator / group_denominator : 0.0;
-        //positive_alpha = positive_numerator / positive_denominator;
-        //negative_alpha = negative_numerator / negative_denominator;
-        //return (counter_positive > counter_negative) ? positive_alpha : negative_alpha;
+        //return (group_denominator > 0) ? group_numerator / group_denominator : 0.0;
+        positive_alpha = positive_numerator / positive_denominator;
+        negative_alpha = negative_numerator / negative_denominator;
+        return (counter_positive > counter_negative) ? positive_alpha : negative_alpha;
     }
 }
