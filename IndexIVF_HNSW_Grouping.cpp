@@ -632,6 +632,8 @@ namespace ivfhnsw
 //                positive_denominator += optim_denominator;
 //            }
         }
+        global_numerator += group_numerator;
+        global_denominator += group_denominator;
         return (group_denominator > 0) ? group_numerator / group_denominator : 0.0;
         //positive_alpha = positive_numerator / positive_denominator;
         //negative_alpha = negative_numerator / negative_denominator;

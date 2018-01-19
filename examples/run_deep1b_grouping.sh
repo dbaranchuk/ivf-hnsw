@@ -17,7 +17,7 @@ nt="10000000"         # Number of learn vectors
 nsubt="65536"         # Number of learn vectors to train (random subset of the learn set)
 
 nc="999973"           # Number of centroids for HNSW quantizer
-nsubc="128"            # Number of subcentroids per group
+nsubc="64"            # Number of subcentroids per group
 
 nq="10000"            # Number of queries
 ngt="1"               # Number of groundtruth neighbours per query
@@ -63,7 +63,7 @@ path_info="${path_model}/hnsw_M${M}_ef${efConstruction}.bin"
 
 path_pq="${path_model}/pq${code_size}_nsubc${nsubc}.pq"
 path_norm_pq="${path_model}/norm_pq${code_size}_nsubc${nsubc}.pq"
-path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}.index"
+path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}_new_alpha.index"
 
 #######
 # Run #
