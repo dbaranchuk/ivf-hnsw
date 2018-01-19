@@ -37,7 +37,7 @@ code_size="16"        # Code size per vector in bytes
 # (  128,       50000,       140    ) #
 #######################################
 
-k="100"               # Number of the closest vertices to search
+k="1"               # Number of the closest vertices to search
 nprobe="32"           # Number of probes at query time
 max_codes="10000"     # Max number of codes to visit to do a query
 efSearch="80"         # Max number of candidate vertices in priority queue to observe during seaching
@@ -68,7 +68,7 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}.index"
 #######
 # Run #
 #######
-/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_grouping_sift1b \
+nohup /home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_grouping_sift1b \
                                                   -M ${M} \
                                                   -efConstruction ${efConstruction} \
                                                   -nb ${nb} \
@@ -95,4 +95,4 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}.index"
                                                   -path_pq ${path_pq} \
                                                   -path_norm_pq ${path_norm_pq} \
                                                   -path_index ${path_index} \
-                                                  -pruning ${pruning}
+                                                  -pruning ${pruning} > sift1b_pq16_nsubc64.out
