@@ -46,8 +46,10 @@ namespace ivfhnsw
         }
 
         // Compute alpha for group vectors
-        alphas[centroid_idx] = compute_alpha(centroid_vectors.data(), data, centroid,
-                                             centroid_vector_norms, group_size);
+        //alphas[centroid_idx] = compute_alpha(centroid_vectors.data(), data, centroid,
+        //                                     centroid_vector_norms, group_size);
+
+        alphas[centroid_idx] =
 
         // Compute final subcentroids
         std::vector<float> subcentroids(nsubc * d);
@@ -632,8 +634,8 @@ namespace ivfhnsw
 //                positive_denominator += optim_denominator;
 //            }
         }
-        global_numerator += group_numerator;
-        global_denominator += group_denominator;
+        //global_numerator += group_numerator;
+        //global_denominator += group_denominator;
         return (group_denominator > 0) ? group_numerator / group_denominator : 0.0;
         //positive_alpha = positive_numerator / positive_denominator;
         //negative_alpha = negative_numerator / negative_denominator;
