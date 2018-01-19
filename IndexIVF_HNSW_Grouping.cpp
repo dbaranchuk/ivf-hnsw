@@ -49,7 +49,7 @@ namespace ivfhnsw
         //alphas[centroid_idx] = compute_alpha(centroid_vectors.data(), data, centroid,
         //                                     centroid_vector_norms, group_size);
 
-        alphas[centroid_idx] =
+        alphas[centroid_idx] = 0.383882;
 
         // Compute final subcentroids
         std::vector<float> subcentroids(nsubc * d);
