@@ -219,7 +219,7 @@ int main(int argc, char **argv)
 
     float alpha = index->global_numerator / index->global_denominator;
     std::cout << alpha << std::endl;
-    
+
     //========
     // Search 
     //========
