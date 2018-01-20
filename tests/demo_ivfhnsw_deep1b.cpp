@@ -45,18 +45,6 @@ int main(int argc, char **argv)
     IndexIVF_HNSW *index = new IndexIVF_HNSW(opt.d, opt.nc, opt.code_size, 8);
     index->build_quantizer(opt.path_centroids, opt.path_info, opt.path_edges, opt.M, opt.efConstruction);
 
-    //================
-    // Load learn set 
-    //================
-    std::ifstream learn_input(opt.path_learn, ios::binary);
-    std::vector<float> trainvecs(opt.nt * opt.d);
-    readXvec<float>(learn_input, trainvecs.data(), opt.d, opt.nt);
-    learn_input.close();
-
-    // Set Random Subset of sub_nt trainvecs 
-    std::vector<float> trainvecs_rnd_subset(opt.nsubt * opt.d);
-    random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), opt.d, opt.nt, opt.nsubt);
-
     //==========
     // Train PQ 
     //==========
@@ -68,6 +56,16 @@ int main(int argc, char **argv)
         index->norm_pq = faiss::read_ProductQuantizer(opt.path_norm_pq);
     }
     else {
+        // Load learn set
+        std::ifstream learn_input(opt.path_learn, ios::binary);
+        std::vector<float> trainvecs(opt.nt * opt.d);
+        readXvec<float>(learn_input, trainvecs.data(), opt.d, opt.nt);
+        learn_input.close();
+
+        // Set Random Subset of sub_nt trainvecs
+        std::vector<float> trainvecs_rnd_subset(opt.nsubt * opt.d);
+        random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), opt.d, opt.nt, opt.nsubt);
+
         std::cout << "Training PQ codebooks" << std::endl;
         index->train_pq(opt.nsubt, trainvecs_rnd_subset.data());
 

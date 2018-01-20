@@ -49,6 +49,9 @@ namespace ivfhnsw
         alphas[centroid_idx] = compute_alpha(centroid_vectors.data(), data, centroid,
                                              centroid_vector_norms, group_size);
 
+        if (alphas[centroid_idx])
+            std::cout << alphas[centroid_idx] << std::endl;
+
         //alphas[centroid_idx] = 0.39817;// DEEP: 0.383882;
 
         // Compute final subcentroids
@@ -579,10 +582,11 @@ namespace ivfhnsw
 
             for (int subc = 0; subc < nsubc; subc++) {
                 const float *centroid_vector = centroid_vectors + subc * d;
-                const float centroid_vector_norm_L2sqr = centroid_vector_norms_L2sqr[subc];
 
                 float numerator = faiss::fvec_inner_product(centroid_vector, point_vector, d);
-                float denominator = centroid_vector_norm_L2sqr;
+                numerator = (numerator > 0) ? numerator : 0.0;
+
+                float denominator = centroid_vector_norms_L2sqr[subc];
                 float alpha = numerator / denominator;
 
                 std::vector<float> subcentroid(d);
@@ -591,22 +595,9 @@ namespace ivfhnsw
                 float dist = fvec_L2sqr(point, subcentroid.data(), d);
                 maxheap.emplace(-dist, std::make_pair(numerator, denominator));
             }
-            float optim_numerator = 0.0;
-            float optim_denominator = 0.0;
-            //std::tie(optim_numerator, optim_denominator) = maxheap.top().second;
+            float optim_numerator = maxheap.top().second.first;
+            float optim_denominator = maxheap.top().second.second;
 
-            //REBUTTAL
-            while (maxheap.size() > 0){
-                float numerator, denominator;
-                std::tie(numerator, denominator) = maxheap.top().second;
-
-                if (numerator > 0) {
-                    optim_numerator = numerator;
-                    optim_denominator = denominator;
-                    break;
-                }
-                maxheap.pop();
-            }
             group_numerator += optim_numerator;
             group_denominator += optim_denominator;
 
@@ -620,6 +611,7 @@ namespace ivfhnsw
 //                positive_denominator += optim_denominator;
 //            }
         }
+
         global_numerator += group_numerator;
         global_denominator += group_denominator;
         return (group_denominator > 0) ? group_numerator / group_denominator : 0.0;
