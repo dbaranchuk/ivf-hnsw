@@ -336,6 +336,12 @@ namespace ivfhnsw
         fread(&nc, sizeof(size_t), 1, fin);
         fread(&nsubc, sizeof(size_t), 1, fin);
 
+        ids.resize(nc);
+        codes.resize(nc);
+        norm_codes.resize(nc);
+        nn_centroid_idxs.resize(nc);
+        subgroup_sizes.resize(nc);
+
         int size;
         // Read indices
         for (size_t i = 0; i < nc; i++) {
