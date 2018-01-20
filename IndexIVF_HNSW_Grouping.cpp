@@ -377,12 +377,7 @@ namespace ivfhnsw
         // Read alphas
         alphas.resize(nc);
         fread(alphas.data(), sizeof(float), nc, fin);
-
-        //REBUTTLE
-        FILE *fout = fopen("deep1b_positive_alphas.dat", "wb");
-        fwrite(alphas.data(), sizeof(float), nc, fout);
-        fclose(fout);
-
+        
         // Read centroid norms
         centroid_norms.resize(nc);
         fread(centroid_norms.data(), sizeof(float), nc, fin);
