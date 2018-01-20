@@ -38,9 +38,9 @@ code_size="8"        # Code size per vector in bytes
 #######################################
 
 k="1"               # Number of the closest vertices to search
-nprobe="64"           # Number of probes at query time
-max_codes="30000"     # Max number of codes to visit to do a query
-efSearch="100"         # Max number of candidate vertices in priority queue to observe during seaching
+nprobe="256"           # Number of probes at query time
+max_codes="100000"     # Max number of codes to visit to do a query
+efSearch="260"         # Max number of candidate vertices in priority queue to observe during seaching
 pruning="on"          # Turn on/off pruning
 
 #########
@@ -63,7 +63,7 @@ path_info="${path_model}/hnsw_M${M}_ef${efConstruction}.bin"
 
 path_pq="${path_model}/pq${code_size}_nsubc${nsubc}.pq"
 path_norm_pq="${path_model}/norm_pq${code_size}_nsubc${nsubc}.pq"
-path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}_general_alpha.index"
+path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}.index"
 
 #######
 # Run #
