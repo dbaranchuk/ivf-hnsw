@@ -46,10 +46,10 @@ namespace ivfhnsw
         }
 
         // Compute alpha for group vectors
-        //alphas[centroid_idx] = compute_alpha(centroid_vectors.data(), data, centroid,
-        //                                     centroid_vector_norms, group_size);
+        alphas[centroid_idx] = compute_alpha(centroid_vectors.data(), data, centroid,
+                                             centroid_vector_norms, group_size);
 
-        alphas[centroid_idx] = 0.39817;// DEEP: 0.383882;
+        //alphas[centroid_idx] = 0.39817;// DEEP: 0.383882;
 
         // Compute final subcentroids
         std::vector<float> subcentroids(nsubc * d);
@@ -377,7 +377,7 @@ namespace ivfhnsw
         // Read alphas
         alphas.resize(nc);
         fread(alphas.data(), sizeof(float), nc, fin);
-        
+
         // Read centroid norms
         centroid_norms.resize(nc);
         fread(centroid_norms.data(), sizeof(float), nc, fin);
