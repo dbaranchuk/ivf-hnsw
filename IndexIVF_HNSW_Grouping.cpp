@@ -49,8 +49,8 @@ namespace ivfhnsw
         alphas[centroid_idx] = compute_alpha(centroid_vectors.data(), data, centroid,
                                              centroid_vector_norms, group_size);
 
-        if (alphas[centroid_idx])
-            std::cout << alphas[centroid_idx] << std::endl;
+        if (alphas[centroid_idx] == 0)
+            std::cout << centroid_idx << std::endl;
 
         //alphas[centroid_idx] = 0.39817;// DEEP: 0.383882;
 
