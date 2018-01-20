@@ -63,7 +63,7 @@ path_info="${path_model}/hnsw_M${M}_ef${efConstruction}.bin"
 
 path_pq="${path_model}/pq${code_size}_nsubc${nsubc}.pq"
 path_norm_pq="${path_model}/norm_pq${code_size}_nsubc${nsubc}.pq"
-path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}_positive_alpha.index"
+path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}_general_alpha.index"
 
 #######
 # Run #
