@@ -379,7 +379,7 @@ namespace ivfhnsw
         fread(alphas.data(), sizeof(float), nc, fin);
 
         //REBUTTLE
-        FILE *fout = fopen("sift1b_positive_alphas.dat", "wb");
+        FILE *fout = fopen("deep1b_positive_alphas.dat", "wb");
         fwrite(alphas.data(), sizeof(float), nc, fout);
         fclose(fout);
 
