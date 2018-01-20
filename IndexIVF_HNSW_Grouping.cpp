@@ -336,12 +336,6 @@ namespace ivfhnsw
         fread(&nc, sizeof(size_t), 1, fin);
         fread(&nsubc, sizeof(size_t), 1, fin);
 
-        ids.resize(nc);
-        codes.resize(nc);
-        norm_codes.resize(nc);
-        nn_centroid_idxs.resize(nc);
-        subgroup_sizes.resize(nc);
-
         int size;
         // Read indices
         for (size_t i = 0; i < nc; i++) {
@@ -412,8 +406,6 @@ namespace ivfhnsw
                 group_map[key].push_back(x[i*d + j]);
         }
 
-        double av_dist = 0.0;
-
         // Train Residual PQ
         std::cout << "Training Residual PQ codebook " << std::endl;
         for (auto p : group_map) {
@@ -455,14 +447,6 @@ namespace ivfhnsw
             std::vector<float> residuals(group_size * d);
             compute_residuals(group_size, data.data(), residuals.data(), subcentroids.data(), subcentroid_idxs.data());
 
-            //////////////////////
-            float dists[group_size];
-            faiss::fvec_norms_L2sqr(dists, residuals.data(), d, group_size);
-            for (int i = 0; i < group_size; i++) {
-                av_dist += dists[i];
-            }
-            //std::cout << group_size <<  " " << av_dist << std::endl;
-
             for (int i = 0; i < group_size; i++) {
                 idx_t subcentroid_idx = subcentroid_idxs[i];
                 for (int j = 0; j < d; j++) {
@@ -471,7 +455,6 @@ namespace ivfhnsw
                 }
             }
         }
-        std::cout << n << " " << av_dist/n << std::endl;
 
         printf("Training %zdx%zd PQ on %ld vectors in %dD\n", pq->M, pq->ksub, train_residuals.size() / d, d);
         pq->verbose = true;
