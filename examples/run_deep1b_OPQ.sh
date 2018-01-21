@@ -23,7 +23,7 @@ ngt="1"               # Number of groundtruth neighbours per query
 
 d="96"                # Vector dimension
 code_size="16"        # Code size per vector in bytes
-opq="off"             # Turn on/off opq encoding
+opq="on"              # Turn on/off opq encoding
 
 #####################
 # Search parameters #
@@ -60,10 +60,11 @@ path_precomputed_idxs="${path_data}/precomputed_idxs.ivecs"
 path_edges="${path_model}/hnsw_M${M}_ef${efConstruction}.ivecs"
 path_info="${path_model}/hnsw_M${M}_ef${efConstruction}.bin"
 
-path_pq="${path_model}/pq${code_size}.pq"
-path_norm_pq="${path_model}/norm_pq${code_size}.pq"
+path_pq="${path_model}/pq${code_size}.opq"
+path_norm_pq="${path_model}/norm_pq${code_size}.opq"
+path_opq_matrix="${path_model}/matrix_opq${code_size}.opq"
 
-path_index="${path_model}/ivfhnsw_PQ${code_size}.index"
+path_index="${path_model}/ivfhnsw_OPQ${code_size}.index"
 
 #######
 # Run #
@@ -92,4 +93,5 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}.index"
                                                   -path_info ${path_info} \
                                                   -path_pq ${path_pq} \
                                                   -path_norm_pq ${path_norm_pq} \
+                                                  -path_opq_matrix ${path_opq_matrix} \
                                                   -path_index ${path_index}
