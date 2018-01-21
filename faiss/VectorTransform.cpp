@@ -547,9 +547,7 @@ void OPQMatrix::train (Index::idx_t n, const float *x)
     const float * x_in = x;
     x = fvecs_maybe_subsample (d_in, (size_t*)&n,
                                max_train_points, x, verbose);
-    printf("%d %d %d\n", (int)M, (int)n, (int)d_in);
     ScopeDeleter<float> del_x (x != x_in ? x : nullptr);
-    printf("%d %d %d\n", M, (int)n, (int)d_in);
 
     // To support d_out > d_in, we pad input vectors with 0s to d_out
     size_t d = d_out <= d_in ? d_in : d_out;
@@ -571,7 +569,6 @@ void OPQMatrix::train (Index::idx_t n, const float *x)
     }
 #endif
 
-    printf("%d %d %d\n", M, (int)n, (int)d);
     if (verbose) {
         printf ("OPQMatrix::train: training an OPQ rotation matrix "
                 "for M=%d from %ld vectors in %dD -> %dD\n",

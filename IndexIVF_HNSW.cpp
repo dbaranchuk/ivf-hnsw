@@ -9,8 +9,6 @@ namespace ivfhnsw {
     {
         pq = new faiss::ProductQuantizer(d, bytes_per_code, nbits_per_idx);
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
-        if (do_opq)
-            opq_matrix = new faiss::OPQMatrix(d, bytes_per_code);
 
         code_size = pq->code_size;
         norms.resize(65536); // buffer for reconstructed base points at search time supposing that
@@ -219,10 +217,10 @@ namespace ivfhnsw {
 
         // Train OPQ rotation matrix and rotate residuals
         if (do_opq){
-            std::cout << n <<  " " << residuals.size() << std::endl;
+            opq_matrix = new faiss::OPQMatrix(d, pq->M);
             opq_matrix->verbose = true;
             opq_matrix->train(n, residuals.data());
-            printf("HUI\n");
+
             std::vector<float> copy_residuals(n * d);
             memcpy(copy_residuals.data(), residuals.data(), n * d * sizeof(float));
             opq_matrix->apply_noalloc(n, copy_residuals.data(), residuals.data());
