@@ -10,7 +10,7 @@
 #include <faiss/Heap.h>
 #include <faiss/ProductQuantizer.h>
 #include <faiss/VectorTransform.h>
-#include <faiss/FaissException.h>
+#include <faiss/FaissAssert.h>
 #include <faiss/utils.h>
 
 #include <hnswlib/hnswalg.h>
