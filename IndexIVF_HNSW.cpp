@@ -213,16 +213,14 @@ namespace ivfhnsw {
         std::vector <idx_t> assigned(n);
         assign(n, x, assigned.data());
 
-        printf("HUI\n");
         // Compute residuals for original vectors
         std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), assigned.data());
 
-        printf("HUI\n");
         // Train OPQ rotation matrix and rotate residuals
         if (do_opq){
-            printf("HUI\n");
-            opq_matrix->verbose = true;
+
+            //opq_matrix->verbose = true;
             printf("HUI\n");
             opq_matrix->train(n, residuals.data());
             std::vector<float> copy_residuals(n * d);
