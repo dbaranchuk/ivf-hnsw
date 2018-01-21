@@ -86,7 +86,7 @@ namespace ivfhnsw
         if (do_opq){
             std::vector<float> copy_decoded_residuals(group_size * d);
             memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), group_size * d * sizeof(float));
-            opq_matrix->reverse_transform(group_size, copy_decoded_residuals.data(), decoded_residuals.data());
+            dynamic_cast<faiss::OPQMatrix *>(opq_matrix)->reverse_transform(group_size, copy_decoded_residuals.data(), decoded_residuals.data());
         }
 
         // Reconstruct data
@@ -480,7 +480,7 @@ namespace ivfhnsw
             opq_matrix = new faiss::OPQMatrix(d, pq->M);
 
             std::cout << "Train OPQ Matrix" << std::endl;
-            opq_matrix->train(n, train_residuals.data());
+            dynamic_cast<faiss::OPQMatrix *>(opq_matrix)->train(n, train_residuals.data());
 
             std::vector<float> copy_residuals(n * d);
             memcpy(copy_residuals.data(), train_residuals.data(), n * d * sizeof(float));
@@ -513,7 +513,7 @@ namespace ivfhnsw
             if (do_opq){
                 std::vector<float> copy_decoded_residuals(group_size * d);
                 memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), group_size * d * sizeof(float));
-                opq_matrix->reverse_transform(group_size, copy_decoded_residuals.data(), decoded_residuals.data());
+                dynamic_cast<faiss::OPQMatrix *>(opq_matrix)->reverse_transform(group_size, copy_decoded_residuals.data(), decoded_residuals.data());
             }
 
             // Reconstruct Data 
