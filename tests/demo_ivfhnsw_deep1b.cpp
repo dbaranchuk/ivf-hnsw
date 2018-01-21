@@ -56,7 +56,7 @@ int main(int argc, char **argv)
             std::cout << "Loading OPQ rotation matrix from " << opt.path_opq_matrix << std::endl;
             faiss::VectorTransform *vt = faiss::read_VectorTransform(opt.path_opq_matrix);
             faiss::LinearTransform *lt = dynamic_cast<faiss::LinearTransform *>(vt);
-            index->opq_matrix = dynamic_cast<faiss::OPQMatrix *>(lt);
+            index->opq_matrix = dynamic_cast<OPQMatrix *>(lt);
             std::cout << vt << " " << lt << " " << index->opq_matrix << std::endl;
         }
         std::cout << "Loading Norm PQ codebook from " << opt.path_norm_pq << std::endl;
