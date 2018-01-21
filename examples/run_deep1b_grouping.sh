@@ -81,7 +81,7 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}_positive_alpha.in
                                                   -ngt ${ngt} \
                                                   -d ${d} \
                                                   -code_size ${code_size} \
-                                                  -opq ${opq}
+                                                  -opq ${opq} \
                                                   -k ${k} \
                                                   -nprobe ${nprobe} \
                                                   -max_codes ${max_codes} \
