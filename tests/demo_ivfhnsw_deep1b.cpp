@@ -160,10 +160,12 @@ int main(int argc, char **argv)
         std::cout << "Saving index to " << opt.path_index << std::endl;
         index->write(opt.path_index);
     }
+    std::cout << "HUI\n";
     // For correct search using OPQ encoding rotate points in the coarse quantizer
     if (opt.do_opq)
         index->rotate_quantizer();
 
+    std::cout << "HUI\n";
     //===================
     // Parse groundtruth
     //===================
