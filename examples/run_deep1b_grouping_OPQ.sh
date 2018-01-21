@@ -64,7 +64,7 @@ path_info="${path_model}/hnsw_M${M}_ef${efConstruction}.bin"
 
 path_pq="${path_model}/pq${code_size}_nsubc${nsubc}.opq"
 path_norm_pq="${path_model}/norm_pq${code_size}_nsubc${nsubc}.opq"
-path_matrix_pq="${path_model}/matrix_pq${code_size}_nsubc${nsubc}.opq"
+path_opq_matrix="${path_model}/matrix_pq${code_size}_nsubc${nsubc}.opq"
 
 path_index="${path_model}/ivfhnsw_OPQ${code_size}_nsubc${nsubc}.index"
 

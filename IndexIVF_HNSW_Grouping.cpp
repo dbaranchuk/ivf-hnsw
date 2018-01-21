@@ -49,9 +49,6 @@ namespace ivfhnsw
         alphas[centroid_idx] = compute_alpha(centroid_vectors.data(), data, centroid,
                                              centroid_vector_norms, group_size);
 
-        if (alphas[centroid_idx] < EPS)
-            std::cout << centroid_idx << std::endl;
-
         //alphas[centroid_idx] = 0.39817;// DEEP: 0.383882;
 
         // Compute final subcentroids
@@ -70,6 +67,13 @@ namespace ivfhnsw
         std::vector<float> residuals(group_size * d);
         compute_residuals(group_size, data, residuals.data(), subcentroids.data(), subcentroid_idxs.data());
 
+        // Rotate residuals
+        if (do_opq){
+            std::vector<float> copy_residuals(group_size * d);
+            memcpy(copy_residuals.data(), residuals.data(), group_size * d * sizeof(float));
+            opq_matrix->apply_noalloc(group_size, copy_residuals.data(), residuals.data());
+        }
+
         // Compute codes
         std::vector<uint8_t> xcodes(group_size * code_size);
         pq->compute_codes(residuals.data(), xcodes.data(), group_size);
@@ -77,6 +81,13 @@ namespace ivfhnsw
         // Decode codes
         std::vector<float> decoded_residuals(group_size * d);
         pq->decode(xcodes.data(), decoded_residuals.data(), group_size);
+
+        // Reverse rotation
+        if (do_opq){
+            std::vector<float> copy_decoded_residuals(group_size * d);
+            memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), group_size * d * sizeof(float));
+            opq_matrix->reverse_transform(group_size, copy_decoded_residuals.data(), decoded_residuals.data());
+        }
 
         // Reconstruct data
         std::vector<float> reconstructed_x(group_size * d);
