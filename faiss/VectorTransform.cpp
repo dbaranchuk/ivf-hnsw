@@ -541,20 +541,19 @@ OPQMatrix::OPQMatrix (int d, int M, int d2):
 }
 
 
-
 void OPQMatrix::train (Index::idx_t n, const float *x)
 {
 
     const float * x_in = x;
     x = fvecs_maybe_subsample (d_in, (size_t*)&n,
                                max_train_points, x, verbose);
-    std::cout << "HUI\n";
+    printf("HUI\n");
     ScopeDeleter<float> del_x (x != x_in ? x : nullptr);
 
     // To support d_out > d_in, we pad input vectors with 0s to d_out
     size_t d = d_out <= d_in ? d_in : d_out;
     size_t d2 = d_out;
-    std::cout << "HUI\n";
+    printf("HUI\n");
 #if 0
     // what this test shows: the only way of getting bit-exact
     // reproducible results with sgeqrf and sgesvd seems to be forcing
@@ -572,13 +571,12 @@ void OPQMatrix::train (Index::idx_t n, const float *x)
     }
 #endif
 
-    std::cout << "HUI\n";
+    printf("HUI\n");
     if (verbose) {
         printf ("OPQMatrix::train: training an OPQ rotation matrix "
                 "for M=%d from %ld vectors in %dD -> %dD\n",
                 M, n, d_in, d_out);
     }
-    std::cout << "HUI\n";
     std::vector<float> xtrain (n * d);
     // center x
     {
@@ -597,10 +595,9 @@ void OPQMatrix::train (Index::idx_t n, const float *x)
             yi += d - d_in;
         }
     }
-    std::cout << "HUI\n";
+    printf("HUI\n");
     float *rotation;
 
-    std::cout << "HUI\n";
     if (A.size () == 0) {
         A.resize (d * d);
         rotation = A.data();
@@ -616,7 +613,7 @@ void OPQMatrix::train (Index::idx_t n, const float *x)
         rotation = A.data();
     }
 
-    std::cout << "HUI\n";
+    printf("HUI\n");
     std::vector<float>
         xproj (d2 * n), pq_recons (d2 * n), xxr (d * n),
         tmp(d * d * 4);
