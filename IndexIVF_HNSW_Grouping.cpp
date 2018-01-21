@@ -233,8 +233,9 @@ namespace ivfhnsw
 
             const uint8_t *code = codes[centroid_idx].data();
             const idx_t *id = ids[centroid_idx].data();
+            const uint8_t *norm_code = norm_codes[centroid_idx].data();
+            const float *subr = r.data() + i*nsubc;
 
-            // Decode the norms of each vector in the list
             //norm_pq->decode(norm_codes[centroid_idx].data(), norms.data(), group_size);
             //const float *norm = norms.data();
 
@@ -244,7 +245,7 @@ namespace ivfhnsw
                     continue;
 
                 // Check pruning condition
-                if (!do_pruning || r[i * nsubc + subc] < threshold) {
+                if (!do_pruning || subr[subc] < threshold) {
                     idx_t nn_centroid_idx = nn_centroid_idxs[centroid_idx][subc];
 
                     // Compute the distance to the coarse centroid if it is not compute
@@ -253,8 +254,8 @@ namespace ivfhnsw
                         query_centroid_dists[nn_centroid_idx] = fvec_L2sqr(query, nn_centroid, d);
                         used_centroid_idxs.push_back(nn_centroid_idx);
                     }
-
                     float term2 = alpha * (query_centroid_dists[nn_centroid_idx] - centroid_norms[nn_centroid_idx]);
+                    // Decode the norms of each vector in the list
                     norm_pq->decode(norm_code, norms.data(), subgroup_size);
 
                     for (int j = 0; j < subgroup_size; j++) {
