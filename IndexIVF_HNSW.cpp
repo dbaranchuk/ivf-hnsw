@@ -364,7 +364,6 @@ namespace ivfhnsw {
         for (int i = 0; i < nc; i++){
             float *centroid = quantizer->getDataByInternalId(i);
             memcpy(copy_centroid.data(), centroid, d * sizeof(float));
-            std::cout << (int)(opq_matrix == nullptr)  << std::endl;
             opq_matrix->apply_noalloc(1, copy_centroid.data(), centroid);
         }
     }
