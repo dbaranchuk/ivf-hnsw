@@ -52,7 +52,7 @@ namespace ivfhnsw {
 
         faiss::ProductQuantizer *pq;         ///< Produces the residual codes
         faiss::ProductQuantizer *norm_pq;    ///< Produces the norm codes of reconstructed base vectors
-        faiss::OPQMatrix *opq_matrix;        ///< Rotation matrix for OPQ encoding
+        faiss::LinearTransform *opq_matrix;  ///< Rotation matrix for OPQ encoding
         bool do_opq;                         ///< Turn on/off OPQ encoding
 
         size_t nprobe;        ///< Number of probes at search time

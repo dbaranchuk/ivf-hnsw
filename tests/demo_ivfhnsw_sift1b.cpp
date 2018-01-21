@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     //==================
     // Initialize Index
     //==================
-    IndexIVF_HNSW *index = new IndexIVF_HNSW(opt.d, opt.nc, opt.code_size, 8, opt.do_opq);
+    IndexIVF_HNSW *index = new IndexIVF_HNSW(opt.d, opt.nc, opt.code_size, 8);
     index->build_quantizer(opt.path_centroids, opt.path_info, opt.path_edges, opt.M, opt.efConstruction);
 
     //==========

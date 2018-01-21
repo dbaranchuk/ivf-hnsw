@@ -42,9 +42,9 @@ int main(int argc, char **argv)
     //==================
     // Initialize Index 
     //==================
-    IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(opt.d, opt.nc, opt.code_size, 8,
-                                                               opt.nsubc, opt.do_opq);
+    IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(opt.d, opt.nc, opt.code_size, 8, opt.nsubc);
     index->build_quantizer(opt.path_centroids, opt.path_info, opt.path_edges, opt.M, opt.efConstruction);
+    index->do_opq = opt.do_opq;
 
     //==========
     // Train PQ 
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
 
         if (opt.do_opq){
             std::cout << "Loading Residual OPQ rotation matrix from " << opt.path_opq_matrix << std::endl;
-            index->opq_matrix = dynamic_cast<faiss::OPQMatrix *>(faiss::read_VectorTransform(opt.path_opq_matrix));
+            index->opq_matrix = dynamic_cast<faiss::LinearTransform *>(faiss::read_VectorTransform(opt.path_opq_matrix));
         }
         std::cout << "Loading Norm PQ codebook from " << opt.path_norm_pq << std::endl;
         index->norm_pq = faiss::read_ProductQuantizer(opt.path_norm_pq);
