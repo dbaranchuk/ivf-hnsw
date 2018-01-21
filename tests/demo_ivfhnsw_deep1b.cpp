@@ -57,7 +57,7 @@ int main(int argc, char **argv)
             faiss::VectorTransform *vt = faiss::read_VectorTransform(opt.path_opq_matrix);
             faiss::LinearTransform *lt = dynamic_cast<faiss::LinearTransform *>(vt);
             index->opq_matrix = dynamic_cast<faiss::OPQMatrix *>(lt);
-            std::cout << vt << " " << "lt" << " " << index->opq_matrix << std::endl;
+            std::cout << vt << " " << lt << " " << index->opq_matrix << std::endl;
         }
         std::cout << "Loading Norm PQ codebook from " << opt.path_norm_pq << std::endl;
         index->norm_pq = faiss::read_ProductQuantizer(opt.path_norm_pq);
