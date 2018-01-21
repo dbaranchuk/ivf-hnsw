@@ -221,8 +221,8 @@ namespace ivfhnsw {
         if (do_opq){
 
             //opq_matrix->verbose = true;
-            printf("HUI\n");
             opq_matrix->train(n, residuals.data());
+            printf("HUI\n");
             std::vector<float> copy_residuals(n * d);
             memcpy(copy_residuals.data(), residuals.data(), n * d * sizeof(float));
             opq_matrix->apply_noalloc(n, copy_residuals.data(), residuals.data());
