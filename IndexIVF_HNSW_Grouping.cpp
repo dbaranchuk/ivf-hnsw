@@ -244,7 +244,7 @@ namespace ivfhnsw
                 if (!do_pruning || r[i * nsubc + subc] < threshold) {
                     idx_t nn_centroid_idx = nn_centroid_idxs[centroid_idx][subc];
 
-                    // Compute the distance to the coarse centroid if it is not compute
+                    // Compute the distance to the coarse centroid if it is not computed
                     if (query_centroid_dists[nn_centroid_idx] < EPS) {
                         const float *nn_centroid = quantizer->getDataByInternalId(nn_centroid_idx);
                         query_centroid_dists[nn_centroid_idx] = fvec_L2sqr(query, nn_centroid, d);
