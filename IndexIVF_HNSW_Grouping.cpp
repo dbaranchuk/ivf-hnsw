@@ -189,7 +189,7 @@ namespace ivfhnsw
 
                 float *subr = r.data() + i*nsubc;
                 float alpha = alphas[centroid_idx];
-                float q_c = query_centroid_dists[centroid_idx];
+                float q_c = (1 - alpha) * query_centroid_dists[centroid_idx];
 
                 for (int subc = 0; subc < nsubc; subc++) {
                     if (subgroup_sizes[centroid_idx][subc] == 0)
@@ -203,7 +203,7 @@ namespace ivfhnsw
                         used_centroid_idxs.push_back(nn_centroid_idx);
                     }
                     // TODO: сделать красиво
-                    subr[subc] = (1 - alpha) * (q_c - alpha * inter_centroid_dists[centroid_idx][subc])
+                    subr[subc] = term1 - (1 - alpha) * alpha * inter_centroid_dists[centroid_idx][subc]
                                  + alpha * query_centroid_dists[nn_centroid_idx];
                     threshold += subr[subc];
                     nsubgroups++;
