@@ -235,8 +235,8 @@ namespace ivfhnsw
             const idx_t *id = ids[centroid_idx].data();
 
             // Decode the norms of each vector in the list
-            norm_pq->decode(norm_codes[centroid_idx].data(), norms.data(), group_size);
-            const float *norm = norms.data();
+            //norm_pq->decode(norm_codes[centroid_idx].data(), norms.data(), group_size);
+            //const float *norm = norms.data();
 
             for (int subc = 0; subc < nsubc; subc++) {
                 int subgroup_size = subgroup_sizes[centroid_idx][subc];
@@ -255,11 +255,11 @@ namespace ivfhnsw
                     }
 
                     float term2 = alpha * (query_centroid_dists[nn_centroid_idx] - centroid_norms[nn_centroid_idx]);
-                    //norm_pq->decode(norm_code, norms.data(), subgroup_size);
+                    norm_pq->decode(norm_code, norms.data(), subgroup_size);
 
                     for (int j = 0; j < subgroup_size; j++) {
                         float term4 = 2 * pq_L2sqr(code + j * code_size);
-                        float dist = term1 + term2 + norm[j] - term4; //term3 = norms[j]
+                        float dist = term1 + term2 + norms[j] - term4; //term3 = norms[j]
                         if (dist < distances[0]) {
                             faiss::maxheap_pop(k, distances, labels);
                             faiss::maxheap_push(k, distances, labels, dist, id[j]);
@@ -269,7 +269,7 @@ namespace ivfhnsw
                 }
                 // Shift to the next group
                 code += subgroup_size * code_size;
-                norm += subgroup_size;
+                //norm += subgroup_size;
                 id += subgroup_size;
             }
             if (ncode >= max_codes)
