@@ -78,6 +78,7 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}.index"
                                                   -ngt ${ngt} \
                                                   -d ${d} \
                                                   -code_size ${code_size} \
+                                                  -opq ${opq} \
                                                   -k ${k} \
                                                   -nprobe ${nprobe} \
                                                   -max_codes ${max_codes} \
