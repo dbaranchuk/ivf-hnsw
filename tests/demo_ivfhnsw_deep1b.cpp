@@ -156,7 +156,7 @@ int main(int argc, char **argv)
         // Computing Centroid Norms
         std::cout << "Computing centroid norms"<< std::endl;
         index->compute_centroid_norms();
-        
+
         // Save index, pq and norm_pq 
         std::cout << "Saving index to " << opt.path_index << std::endl;
         index->write(opt.path_index);
