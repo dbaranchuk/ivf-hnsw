@@ -125,7 +125,7 @@ struct Parser
             else if (!strcmp (a, "-path_edges")) path_edges = argv[++i];
 
             else if (!strcmp (a, "-path_pq")) path_pq = argv[++i];
-            else if (!strcmp (a, "-path_opq_matrix")) path_opt_matrix = argv[++i];
+            else if (!strcmp (a, "-path_opq_matrix")) path_opq_matrix = argv[++i];
             else if (!strcmp (a, "-path_norm_pq")) path_norm_pq = argv[++i];
             else if (!strcmp (a, "-path_index")) path_index = argv[++i];
         }
