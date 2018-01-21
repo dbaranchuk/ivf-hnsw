@@ -164,6 +164,9 @@ int main(int argc, char **argv)
         index->compute_centroid_norms();
         index->write(opt.path_index);
     }
+    // For correct search using OPQ encoding rotate points in the coarse quantizer
+    if (opt.do_opq)
+        index->rotate_quantizer();
 
     //===================
     // Parse groundtruth

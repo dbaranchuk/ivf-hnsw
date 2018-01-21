@@ -158,8 +158,11 @@ namespace ivfhnsw {
         float query_centroid_dists[nprobe]; // Distances to the coarse centroids.
         idx_t centroid_idxs[nprobe];        // Indices of the nearest coarse centroids
 
+        // For correct search using OPQ rotate a query
+        const float *query = (do_opq) ? opq_matrix->apply(1, x) : x;
+
         // Find the nearest coarse centroids to the query
-        auto coarse = quantizer->searchKnn(x, nprobe);
+        auto coarse = quantizer->searchKnn(query, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
             query_centroid_dists[i] = coarse.top().first;
             centroid_idxs[i] = coarse.top().second;
@@ -167,7 +170,7 @@ namespace ivfhnsw {
         }
 
         // Precompute table
-        pq->compute_inner_prod_table(x, precomputed_table.data());
+        pq->compute_inner_prod_table(query, precomputed_table.data());
 
         // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
@@ -199,6 +202,8 @@ namespace ivfhnsw {
             if (ncode >= max_codes)
                 break;
         }
+        if (do_opq)
+            delete const_cast<float *>(query);
     }
 
 
