@@ -23,6 +23,7 @@ ngt="1000"            # Number of groundtruth neighbours per query
 
 d="128"               # Vector dimension
 code_size="16"        # Code size per vector in bytes
+opq="off"             # Turn on/off opq encoding
 
 #####################
 # Search parameters #
@@ -33,7 +34,7 @@ code_size="16"        # Code size per vector in bytes
 # (<nprobe>, <max_codes>, <efSearch>) #
 # (   32,       10000,        80    ) #
 # (   64,       30000,       100    ) #
-# (  128,       50000,       140    ) #
+# (  128,       50000,       130    ) #
 #######################################
 
 k="100"               # Number of the closest vertices to search
@@ -76,6 +77,7 @@ path_index="$path_model/ivfhnsw_PQ$code_size.index"
                                                   -ngt ${ngt} \
                                                   -d ${d} \
                                                   -code_size ${code_size} \
+                                                  -opq ${opq} \
                                                   -k ${k} \
                                                   -nprobe ${nprobe} \
                                                   -max_codes ${max_codes} \

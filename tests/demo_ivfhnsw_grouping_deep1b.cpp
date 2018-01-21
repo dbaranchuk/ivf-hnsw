@@ -44,6 +44,7 @@ int main(int argc, char **argv)
     //==================
     IndexIVF_HNSW_Grouping *index = new IndexIVF_HNSW_Grouping(opt.d, opt.nc, opt.code_size, 8, opt.nsubc);
     index->build_quantizer(opt.path_centroids, opt.path_info, opt.path_edges, opt.M, opt.efConstruction);
+    index->do_opq = opt.do_opq;
 
     //==========
     // Train PQ 
@@ -52,6 +53,10 @@ int main(int argc, char **argv)
         std::cout << "Loading Residual PQ codebook from " << opt.path_pq << std::endl;
         index->pq = faiss::read_ProductQuantizer(opt.path_pq);
 
+        if (opt.do_opq){
+            std::cout << "Loading Residual OPQ rotation matrix from " << opt.path_opq_matrix << std::endl;
+            index->opq_matrix = dynamic_cast<faiss::OPQMatrix *>(faiss::read_VectorTransform(opt.path_opq_matrix));
+        }
         std::cout << "Loading Norm PQ codebook from " << opt.path_norm_pq << std::endl;
         index->norm_pq = faiss::read_ProductQuantizer(opt.path_norm_pq);
     }
@@ -65,10 +70,12 @@ int main(int argc, char **argv)
         // Set Random Subset of sub_nt trainvecs
         std::vector<float> trainvecs_rnd_subset(opt.nsubt * opt.d);
         random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), opt.d, opt.nt, opt.nsubt);
-
-        std::cout << "Training PQ codebooks" << std::endl;
         index->train_pq(opt.nsubt, trainvecs_rnd_subset.data());
 
+        if (opt.do_opq){
+            std::cout << "Saving Residual OPQ rotation matrix to " << opt.path_opq_matrix << std::endl;
+            faiss::write_VectorTransform(index->opq_matrix, opt.path_opq_matrix);
+        }
         std::cout << "Saving Residual PQ codebook to " << opt.path_pq << std::endl;
         faiss::write_ProductQuantizer(index->pq, opt.path_pq);
 
@@ -182,7 +189,6 @@ int main(int argc, char **argv)
                 index->add_group(ngroups_added + i, group_size, data[i].data(), ids[i].data(), baseline_average, modified_average);
             }
         }
-
         std::cout << "[Baseline] Average Distance: " << baseline_average / opt.nb << std::endl;
         std::cout << "[Modified] Average Distance: " << modified_average / opt.nb << std::endl;
 
@@ -194,10 +200,11 @@ int main(int argc, char **argv)
 
         // Save index, pq and norm_pq
         std::cout << "Saving index to " << opt.path_index << std::endl;
-        std::cout << "       pq to " << opt.path_pq << std::endl;
-        std::cout << "       norm pq to " << opt.path_norm_pq << std::endl;
         index->write(opt.path_index);
     }
+    // For correct search using OPQ encoding rotate points in the coarse quantizer
+    if (opt.do_opq)
+        index->rotate_quantizer();
 
     //===================
     // Parse groundtruth

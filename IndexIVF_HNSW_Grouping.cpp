@@ -161,8 +161,11 @@ namespace ivfhnsw
         used_centroid_idxs.reserve(nsubc * nprobe);
         idx_t centroid_idxs[nprobe]; // Indices of the nearest coarse centroids
 
+        // For correct search using OPQ rotate a query
+        const float *query = (do_opq) ? opq_matrix->apply(1, x) : x;
+
         // Find the nearest coarse centroids to the query
-        auto coarse = quantizer->searchKnn(x, nprobe);
+        auto coarse = quantizer->searchKnn(query, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
             idx_t centroid_idx = coarse.top().second;
             centroid_idxs[i] = centroid_idx;
@@ -196,7 +199,7 @@ namespace ivfhnsw
                     // Compute the distance to the coarse centroid if it is not computed
                     if (query_centroid_dists[nn_centroid_idx] < EPS) {
                         const float *nn_centroid = quantizer->getDataByInternalId(nn_centroid_idx);
-                        query_centroid_dists[nn_centroid_idx] = fvec_L2sqr(x, nn_centroid, d);
+                        query_centroid_dists[nn_centroid_idx] = fvec_L2sqr(query, nn_centroid, d);
                         used_centroid_idxs.push_back(nn_centroid_idx);
                     }
                     // TODO: сделать красиво
@@ -213,7 +216,7 @@ namespace ivfhnsw
         }
 
         // Precompute table
-        pq->compute_inner_prod_table(x, precomputed_table.data());
+        pq->compute_inner_prod_table(query, precomputed_table.data());
 
         // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
@@ -244,7 +247,7 @@ namespace ivfhnsw
                     // Compute the distance to the coarse centroid if it is not compute
                     if (query_centroid_dists[nn_centroid_idx] < EPS) {
                         const float *nn_centroid = quantizer->getDataByInternalId(nn_centroid_idx);
-                        query_centroid_dists[nn_centroid_idx] = fvec_L2sqr(x, nn_centroid, d);
+                        query_centroid_dists[nn_centroid_idx] = fvec_L2sqr(query, nn_centroid, d);
                         used_centroid_idxs.push_back(nn_centroid_idx);
                     }
 
@@ -273,6 +276,9 @@ namespace ivfhnsw
         // Zero computed dists for later queries
         for (idx_t used_centroid_idx : used_centroid_idxs)
             query_centroid_dists[used_centroid_idx] = 0;
+
+        if (do_opq)
+            delete const_cast<float *>(query);
     }
 
     // TODO: rewrite with writeXvec
@@ -458,6 +464,17 @@ namespace ivfhnsw
                 }
             }
         }
+        // Train OPQ rotation matrix and rotate residuals
+        if (do_opq){
+            opq_matrix = new faiss::OPQMatrix(d, pq->M);
+
+            std::cout << "Train OPQ Matrix" << std::endl;
+            opq_matrix->train(n, train_residuals.data());
+
+            std::vector<float> copy_residuals(n * d);
+            memcpy(copy_residuals.data(), train_residuals.data(), n * d * sizeof(float));
+            opq_matrix->apply_noalloc(n, copy_residuals.data(), train_residuals.data());
+        }
 
         printf("Training %zdx%zd PQ on %ld vectors in %dD\n", pq->M, pq->ksub, train_residuals.size() / d, d);
         pq->verbose = true;
@@ -480,6 +497,13 @@ namespace ivfhnsw
             // Decode Codes 
             std::vector<float> decoded_residuals(group_size * d);
             pq->decode(xcodes.data(), decoded_residuals.data(), group_size);
+
+            // Reverse rotation
+            if (do_opq){
+                std::vector<float> copy_decoded_residuals(group_size * d);
+                memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), group_size * d * sizeof(float));
+                opq_matrix->reverse_transform(group_size, copy_decoded_residuals.data(), decoded_residuals.data());
+            }
 
             // Reconstruct Data 
             std::vector<float> reconstructed_x(group_size * d);

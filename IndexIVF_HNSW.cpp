@@ -80,6 +80,7 @@ namespace ivfhnsw {
         std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), idx);
 
+        // If do_opq, rotate residuals
         if (do_opq){
             std::vector<float> copy_residuals(n * d);
             memcpy(copy_residuals.data(), residuals.data(), n * d * sizeof(float));
@@ -93,6 +94,13 @@ namespace ivfhnsw {
         // Decode residuals
         std::vector<float> decoded_residuals(n * d);
         pq->decode(xcodes.data(), decoded_residuals.data(), n);
+
+        // Reverse rotation
+        if (do_opq){
+            std::vector<float> copy_decoded_residuals(n * d);
+            memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), n * d * sizeof(float));
+            opq_matrix->reverse_transform(n, copy_decoded_residuals.data(), decoded_residuals.data());
+        }
 
         // Reconstruct original vectors 
         std::vector<float> reconstructed_x(n * d);
@@ -244,7 +252,7 @@ namespace ivfhnsw {
         if (do_opq){
             std::vector<float> copy_decoded_residuals(n * d);
             memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), n * d * sizeof(float));
-            opq_matrix->apply_noalloc(n, copy_decoded_residuals.data(), decoded_residuals.data());
+            opq_matrix->reverse_transform(n, copy_decoded_residuals.data(), decoded_residuals.data());
         }
 
         // Reconstruct original vectors 

@@ -33,7 +33,7 @@ code_size="96"        # Code size per vector in bytes
 # (<nprobe>, <max_codes>, <efSearch>) #
 # (   32,       10000,        80    ) #
 # (   64,       30000,       100    ) #
-# (  128,       50000,       140    ) #
+# (  128,       50000,       130    ) #
 #######################################
 
 k="100"               # Number of the closest vertices to search

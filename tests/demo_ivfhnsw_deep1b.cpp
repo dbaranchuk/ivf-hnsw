@@ -153,14 +153,12 @@ int main(int argc, char **argv)
         idx_input.close();
         base_input.close();
 
-        // Save index, pq and norm_pq 
-        std::cout << "Saving index to " << opt.path_index << std::endl;
-        std::cout << "       pq to " << opt.path_pq << std::endl;
-        std::cout << "       norm pq to " << opt.path_norm_pq << std::endl;
-
-        // Computing Centroid Norms 
+        // Computing Centroid Norms
         std::cout << "Computing centroid norms"<< std::endl;
         index->compute_centroid_norms();
+        
+        // Save index, pq and norm_pq 
+        std::cout << "Saving index to " << opt.path_index << std::endl;
         index->write(opt.path_index);
     }
     // For correct search using OPQ encoding rotate points in the coarse quantizer

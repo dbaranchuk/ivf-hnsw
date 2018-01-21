@@ -34,7 +34,7 @@ code_size="16"        # Code size per vector in bytes
 # (<nprobe>, <max_codes>, <efSearch>) #
 # (   32,       10000,        80    ) #
 # (   64,       30000,       100    ) #
-# (  128,       50000,       140    ) #
+# (  128,       50000,       130    ) #
 #######################################
 
 k="1"               # Number of the closest vertices to search
@@ -42,6 +42,7 @@ nprobe="32"           # Number of probes at query time
 max_codes="10000"     # Max number of codes to visit to do a query
 efSearch="80"         # Max number of candidate vertices in priority queue to observe during seaching
 pruning="on"          # Turn on/off pruning
+opq="off"             # Turn on/off opq encoding
 
 #########
 # Paths #
@@ -80,6 +81,7 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}_positive_alpha.in
                                                   -ngt ${ngt} \
                                                   -d ${d} \
                                                   -code_size ${code_size} \
+                                                  -opq ${opq} \
                                                   -k ${k} \
                                                   -nprobe ${nprobe} \
                                                   -max_codes ${max_codes} \
