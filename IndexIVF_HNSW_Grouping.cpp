@@ -263,14 +263,14 @@ namespace ivfhnsw
                         }
                     }
                     ncode += subgroup_size;
-                    if (ncode >= max_codes)
-                        break;
                 }
                 // Shift to the next group
                 code += subgroup_size * code_size;
                 norm_code += subgroup_size;
                 id += subgroup_size;
             }
+            if (ncode >= max_codes)
+                break;
         }
 
         // Zero computed dists for later queries
