@@ -71,7 +71,6 @@ int main(int argc, char **argv)
         std::vector<float> trainvecs_rnd_subset(opt.nsubt * opt.d);
         random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), opt.d, opt.nt, opt.nsubt);
 
-        std::cout << "Training PQ codebooks" << std::endl;
         index->train_pq(opt.nsubt, trainvecs_rnd_subset.data());
 
         std::cout << "Saving Residual PQ codebook to " << opt.path_pq << std::endl;

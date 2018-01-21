@@ -610,7 +610,7 @@ void OPQMatrix::train (Index::idx_t n, const float *x)
         FAISS_THROW_IF_NOT (A.size() == d * d2);
         rotation = A.data();
     }
-    
+
     std::vector<float>
         xproj (d2 * n), pq_recons (d2 * n), xxr (d * n),
         tmp(d * d * 4);
