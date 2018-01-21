@@ -613,9 +613,6 @@ namespace ivfhnsw
             group_numerator += optim_numerator;
             group_denominator += optim_denominator;
         }
-
-        global_numerator += group_numerator;
-        global_denominator += group_denominator;
         return (group_denominator > 0) ? group_numerator / group_denominator : 0.0;
     }
 }
