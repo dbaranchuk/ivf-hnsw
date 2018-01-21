@@ -547,7 +547,6 @@ void OPQMatrix::train (Index::idx_t n, const float *x)
     const float * x_in = x;
     x = fvecs_maybe_subsample (d_in, (size_t*)&n,
                                max_train_points, x, verbose);
-    //printf("HUI\n");
     ScopeDeleter<float> del_x (x != x_in ? x : nullptr);
 
     // To support d_out > d_in, we pad input vectors with 0s to d_out
@@ -558,15 +557,15 @@ void OPQMatrix::train (Index::idx_t n, const float *x)
     // reproducible results with sgeqrf and sgesvd seems to be forcing
     // single-threading.
     { // test repro
-        std::vector<float> r (d * d);
-        float * rotation = r.data();
-        float_randn (rotation, d * d, 1234);
-        printf("CS0: %016lx\n",
-               ivec_checksum (128*128, (int*)rotation));
-        matrix_qr (d, d, rotation);
-        printf("CS1: %016lx\n",
-               ivec_checksum (128*128, (int*)rotation));
-        return;
+//        std::vector<float> r (d * d);
+//        float * rotation = r.data();
+//        float_randn (rotation, d * d, 1234);
+//        printf("CS0: %016lx\n",
+//               ivec_checksum (128*128, (int*)rotation));
+//        matrix_qr (d, d, rotation);
+//        printf("CS1: %016lx\n",
+//               ivec_checksum (128*128, (int*)rotation));
+//        return;
     }
 #endif
 
