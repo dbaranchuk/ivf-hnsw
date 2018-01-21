@@ -208,7 +208,6 @@ namespace ivfhnsw {
             if (ncode >= max_codes)
                 break;
         }
-        std::cout << do_opq << " HUI\n";
         if (do_opq)
             delete const_cast<float *>(query);
     }
