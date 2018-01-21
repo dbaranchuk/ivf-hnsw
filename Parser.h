@@ -35,6 +35,7 @@ struct Parser
     int ngt;             ///< Number of groundtruth neighbours per query
     int d;               ///< Vector dimension
     int code_size;       ///< Code size per vector in bytes
+    bool do_opq;         ///< Turn on/off OPQ fine encoding
 
     //===================
     // Search parameters
@@ -60,6 +61,7 @@ struct Parser
     const char *path_edges;            ///< Path to edges of HNSW graph
 
     const char *path_pq;               ///< Path to the product quantizer for residuals
+    const char *path_opq_matrix;       ///< Path to OPQ rotation matrix for OPQ fine encoding
     const char *path_norm_pq;          ///< Path to the product quantizer for norms of reconstructed base points
     const char *path_index;            ///< Path to the constructed index
 
@@ -97,6 +99,7 @@ struct Parser
             else if (!strcmp (a, "-ngt")) read_int(argv[++i], &ngt);
             else if (!strcmp (a, "-d")) read_int(argv[++i], &d);
             else if (!strcmp (a, "-code_size")) read_int(argv[++i], &code_size);
+            else if (!strcmp (a, "-opq")) do_opq = !strcmp(argv[++i], "on");
 
             //===================
             // Search parameters
@@ -122,6 +125,7 @@ struct Parser
             else if (!strcmp (a, "-path_edges")) path_edges = argv[++i];
 
             else if (!strcmp (a, "-path_pq")) path_pq = argv[++i];
+            else if (!strcmp (a, "-path_opq_matrix")) path_opt_matrix = argv[++i];
             else if (!strcmp (a, "-path_norm_pq")) path_norm_pq = argv[++i];
             else if (!strcmp (a, "-path_index")) path_index = argv[++i];
         }

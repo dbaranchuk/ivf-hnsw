@@ -44,6 +44,7 @@ int main(int argc, char **argv)
     //==================
     IndexIVF_HNSW *index = new IndexIVF_HNSW(opt.d, opt.nc, opt.code_size, 8);
     index->build_quantizer(opt.path_centroids, opt.path_info, opt.path_edges, opt.M, opt.efConstruction);
+    index->do_opq = opt.do_opq;
 
     //==========
     // Train PQ 
@@ -52,6 +53,10 @@ int main(int argc, char **argv)
         std::cout << "Loading Residual PQ codebook from " << opt.path_pq << std::endl;
         index->pq = faiss::read_ProductQuantizer(opt.path_pq);
 
+        if (opt.do_opq){
+            std::cout << "Loading Residual OPQ rotation matrix from " << opt.path_opq_matrix << std::endl;
+            index->opq_matrix = dynamic_cast<faiss::OPQMatrix>(faiss::read_VectorTransform(opt.path_opq_matrix));
+        }
         std::cout << "Loading Norm PQ codebook from " << opt.path_norm_pq << std::endl;
         index->norm_pq = faiss::read_ProductQuantizer(opt.path_norm_pq);
     }
@@ -71,6 +76,11 @@ int main(int argc, char **argv)
 
         std::cout << "Saving Residual PQ codebook to " << opt.path_pq << std::endl;
         faiss::write_ProductQuantizer(index->pq, opt.path_pq);
+
+        if (opt.do_opq){
+            std::cout << "Saving Residual OPQ rotation matrix to " << opt.path_opq_matrix << std::endl;
+            faiss::write_VectorTransform(index->opq_matrix, opt.path_opq_matrix);
+        }
 
         std::cout << "Saving Norm PQ codebook to " << opt.path_norm_pq << std::endl;
         faiss::write_ProductQuantizer(index->norm_pq, opt.path_norm_pq);

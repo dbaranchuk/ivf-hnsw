@@ -50,6 +50,8 @@ namespace ivfhnsw {
 
         faiss::ProductQuantizer *pq;         ///< Produces the residual codes
         faiss::ProductQuantizer *norm_pq;    ///< Produces the norm codes of reconstructed base vectors
+        faiss::OPQMatrix *opq_matrix;        ///< Rotation matrix for OPQ encoding
+        bool do_opq;                         ///< Turn on/off OPQ encoding
 
         size_t nprobe;        ///< Number of probes at search time
         size_t max_codes;     ///< Max number of codes to visit to do a query
@@ -124,6 +126,9 @@ namespace ivfhnsw {
 
         /// Compute norms of the HNSW vertices
         void compute_centroid_norms();
+
+        /// For correct search using OPQ encoding rotate points in the coarse quantizer
+        void rotate_quantizer();
 
     protected:
         /// Size pq.M * pq.ksub

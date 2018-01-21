@@ -7,16 +7,19 @@ namespace ivfhnsw {
     IndexIVF_HNSW::IndexIVF_HNSW(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx):
             d(dim), nc(ncentroids)
     {
-        pq = new faiss::ProductQuantizer(dim, bytes_per_code, nbits_per_idx);
+        pq = new faiss::ProductQuantizer(d, bytes_per_code, nbits_per_idx);
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
+        if (do_opq)
+            opq_matrix = new faiss::OPQMatrix(d, bytes_per_code);
+
         code_size = pq->code_size;
         norms.resize(65536); // buffer for reconstructed base points at search time supposing that
                              // the max size of the list is less than 65536.
         precomputed_table.resize(pq->ksub * pq->M);
 
-        codes.resize(ncentroids);
-        norm_codes.resize(ncentroids);
-        ids.resize(ncentroids);
+        codes.resize(nc);
+        norm_codes.resize(nc);
+        ids.resize(nc);
     }
 
     IndexIVF_HNSW::~IndexIVF_HNSW()
@@ -24,6 +27,7 @@ namespace ivfhnsw {
         if (quantizer) delete quantizer;
         if (pq) delete pq;
         if (norm_pq) delete norm_pq;
+        if (opq_matrix) delete opq_matrix;
     }
 
     /**
@@ -77,6 +81,12 @@ namespace ivfhnsw {
         // Compute residuals for original vectors 
         std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), idx);
+
+        if (do_opq){
+            std::vector<float> copy_residuals(n * d);
+            memcpy(copy_residuals.data(), residuals.data(), n * d * sizeof(float));
+            opq_matrix->apply_noalloc(n, copy_residuals, residuals);
+        }
 
         // Encode residuals
         std::vector <uint8_t> xcodes(n * code_size);
@@ -198,9 +208,18 @@ namespace ivfhnsw {
         std::vector <idx_t> assigned(n);
         assign(n, x, assigned.data());
 
-        // Compute residuals for original vectors 
+        // Compute residuals for original vectors
         std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), assigned.data());
+
+        // Train OPQ rotation matrix and rotate residuals
+        if (do_opq){
+            opq_matrix->train(n, residuals.data());
+
+            std::vector<float> copy_residuals(n * d);
+            memcpy(copy_residuals.data(), residuals.data(), n * d * sizeof(float));
+            opq_matrix->apply_noalloc(n, copy_residuals, residuals);
+        }
 
         // Train residual PQ
         printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", pq->M, pq->ksub, n, d);
@@ -214,6 +233,15 @@ namespace ivfhnsw {
         // Decode residuals
         std::vector<float> decoded_residuals(n * d);
         pq->decode(xcodes.data(), decoded_residuals.data(), n);
+
+        // Reverse rotation
+        if (do_opq){
+            std::vector<float> rotated_decoded_residuals(n * d);
+            opq_matrix->reverse_transform(n, decoded_residuals.data(), rotated_decoded_residuals.data());
+
+            for (int i = 0; i < decode_residuals.size(); i++)
+                decoded_residuals[i] = rotated_decoded_residuals[i];
+        }
 
         // Reconstruct original vectors 
         std::vector<float> reconstructed_x(n * d);
@@ -315,6 +343,17 @@ namespace ivfhnsw {
         }
     }
 
+    void IndexIVF_HNSW::rotate_quantizer()
+    {
+        faiss::FAISS_THROW_IF_NOT_MSG(do_opq, "OPQ encoding is turned off");
+
+        std::vector<float> copy_centroid(d);
+        for (int i = 0; i < nc; i++){
+            float *centroid = quantizer->getDataByInternalId(i);
+            memcpy(copy_centroid.data(), centroid, d * sizeof(float));
+            opq_matrix->apply_noalloc(1, copy_centroid.data(), centroid);
+        }
+    }
 
     float IndexIVF_HNSW::pq_L2sqr(const uint8_t *code)
     {
