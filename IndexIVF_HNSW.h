@@ -68,7 +68,7 @@ namespace ivfhnsw {
 
     public:
         explicit IndexIVF_HNSW(size_t dim, size_t ncentroids,
-                               size_t bytes_per_code, size_t nbits_per_idx);
+                               size_t bytes_per_code, size_t nbits_per_idx, bool opq=false);
         virtual ~IndexIVF_HNSW();
 
         /** Construct from stretch or load the existing quantizer (HNSW) instance
