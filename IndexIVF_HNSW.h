@@ -67,8 +67,7 @@ namespace ivfhnsw {
         std::vector<float> centroid_norms;  ///< L2 square norms of coarse centroids
 
     public:
-        explicit IndexIVF_HNSW(size_t dim, size_t ncentroids,
-                               size_t bytes_per_code, size_t nbits_per_idx, bool opq=false);
+        explicit IndexIVF_HNSW(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx);
         virtual ~IndexIVF_HNSW();
 
         /** Construct from stretch or load the existing quantizer (HNSW) instance
