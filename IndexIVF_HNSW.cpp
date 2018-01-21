@@ -238,7 +238,7 @@ namespace ivfhnsw {
         if (do_opq){
             std::vector<float> copy_decoded_residuals(n * d);
             memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), n * d * sizeof(float));
-            opq_matrix->apply_noalloc(n, copy_decoded_residuals, decoded_residuals.data());
+            opq_matrix->apply_noalloc(n, copy_decoded_residuals.data(), decoded_residuals.data());
         }
 
         // Reconstruct original vectors 
