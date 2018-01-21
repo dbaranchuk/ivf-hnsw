@@ -6,8 +6,8 @@ namespace ivfhnsw
     // IVF_HNSW + grouping( + pruning) implementation
     //================================================
     IndexIVF_HNSW_Grouping::IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
-                                                   size_t nbits_per_idx, size_t nsubcentroids = 64):
-           IndexIVF_HNSW(dim, ncentroids, bytes_per_code, nbits_per_idx), nsubc(nsubcentroids)
+                                                   size_t nbits_per_idx, size_t nsubcentroids, bool opq):
+           IndexIVF_HNSW(dim, ncentroids, bytes_per_code, nbits_per_idx, opq), nsubc(nsubcentroids)
     {
         alphas.resize(nc);
         nn_centroid_idxs.resize(nc);
@@ -477,8 +477,6 @@ namespace ivfhnsw
         }
         // Train OPQ rotation matrix and rotate residuals
         if (do_opq){
-            opq_matrix = new faiss::OPQMatrix(d, pq->M);
-
             std::cout << "Train OPQ Matrix" << std::endl;
             opq_matrix->train(n, train_residuals.data());
 

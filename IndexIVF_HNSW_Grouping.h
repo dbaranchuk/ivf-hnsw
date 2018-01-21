@@ -18,7 +18,7 @@ namespace ivfhnsw{
 
     public:
         IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
-                               size_t nbits_per_idx, size_t nsubcentroids);
+                               size_t nbits_per_idx, size_t nsubcentroids, bool opq=false);
 
         /** Add <group_size> vectors of dimension <d> from the <group_idx>-th group to the index.
           *
