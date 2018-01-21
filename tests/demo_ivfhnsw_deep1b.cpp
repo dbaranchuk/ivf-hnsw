@@ -53,8 +53,9 @@ int main(int argc, char **argv)
         index->pq = faiss::read_ProductQuantizer(opt.path_pq);
 
         if (opt.do_opq){
-            std::cout << "Loading Residual OPQ rotation matrix from " << opt.path_opq_matrix << std::endl;
+            std::cout << "Loading OPQ rotation matrix from " << opt.path_opq_matrix << std::endl;
             index->opq_matrix = dynamic_cast<faiss::OPQMatrix *>(faiss::read_VectorTransform(opt.path_opq_matrix));
+            std::cout << index->opq_matrix << std::endl;
         }
         std::cout << "Loading Norm PQ codebook from " << opt.path_norm_pq << std::endl;
         index->norm_pq = faiss::read_ProductQuantizer(opt.path_norm_pq);
