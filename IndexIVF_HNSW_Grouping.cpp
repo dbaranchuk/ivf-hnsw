@@ -477,7 +477,14 @@ namespace ivfhnsw
         }
         // Train OPQ rotation matrix and rotate residuals
         if (do_opq){
-            opq_matrix = new faiss::OPQMatrix(d, pq->M);
+            faiss::OPQMatrix *matrix = new faiss::OPQMatrix(d, pq->M);
+
+            std::cout << "Training OPQ Matrix" << std::endl;
+            matrix->verbose = true;
+            matrix->max_train_points = n;
+            matrix->niter = 70;
+            matrix->train(n, train_residuals.data());
+            opq_matrix = matrix;
 
             std::cout << "Training OPQ Matrix" << std::endl;
             dynamic_cast<faiss::OPQMatrix *>(opq_matrix)->train(n, train_residuals.data());

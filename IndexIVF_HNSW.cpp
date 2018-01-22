@@ -82,9 +82,9 @@ namespace ivfhnsw {
 
         // If do_opq, rotate residuals
         if (do_opq){
-            std::vector<float> copy_residuals(n * d);
-            memcpy(copy_residuals.data(), residuals.data(), n * d * sizeof(float));
-            opq_matrix->apply_noalloc(n, copy_residuals.data(), residuals.data());
+            //std::vector<float> copy_residuals(n * d);
+            //memcpy(copy_residuals.data(), residuals.data(), n * d * sizeof(float));
+            opq_matrix->apply_noalloc(n, residuals.data(), residuals.data());
         }
 
         // Encode residuals
@@ -97,9 +97,9 @@ namespace ivfhnsw {
 
         // Reverse rotation
         if (do_opq){
-            std::vector<float> copy_decoded_residuals(n * d);
-            memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), n * d * sizeof(float));
-            dynamic_cast<faiss::OPQMatrix *>(opq_matrix)->reverse_transform(n, copy_decoded_residuals.data(), decoded_residuals.data());
+            //std::vector<float> copy_decoded_residuals(n * d);
+            //memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), n * d * sizeof(float));
+            dynamic_cast<faiss::OPQMatrix *>(opq_matrix)->reverse_transform(n, decoded_residuals.data(), decoded_residuals.data());
         }
 
         // Reconstruct original vectors 
@@ -230,7 +230,7 @@ namespace ivfhnsw {
             std::cout << "Training OPQ Matrix" << std::endl;
             matrix->verbose = true;
             matrix->max_train_points = n;
-            matrix->niter = 75;
+            matrix->niter = 70;
             matrix->train(n, residuals.data());
             opq_matrix = matrix;
 
