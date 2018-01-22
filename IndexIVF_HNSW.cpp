@@ -233,10 +233,7 @@ namespace ivfhnsw {
             matrix->niter = 70;
             matrix->train(n, residuals.data());
             opq_matrix = matrix;
-
-            std::vector<float> copy_residuals(n * d);
-            memcpy(copy_residuals.data(), residuals.data(), n * d * sizeof(float));
-            opq_matrix->apply_noalloc(n, copy_residuals.data(), residuals.data());
+            opq_matrix->apply_noalloc(n, residuals.data(), residuals.data());
         }
 
         // Train residual PQ
@@ -253,11 +250,8 @@ namespace ivfhnsw {
         pq->decode(xcodes.data(), decoded_residuals.data(), n);
 
         // Reverse rotation
-        if (do_opq){
-            std::vector<float> copy_decoded_residuals(n * d);
-            memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), n * d * sizeof(float));
-            dynamic_cast<faiss::OPQMatrix *>(opq_matrix)->reverse_transform(n, copy_decoded_residuals.data(), decoded_residuals.data());
-        }
+        if (do_opq)
+            opq_matrix->transform_transpose(n, decoded_residuals.data(), decoded_residuals.data());
 
         // Reconstruct original vectors 
         std::vector<float> reconstructed_x(n * d);
@@ -364,11 +358,9 @@ namespace ivfhnsw {
             printf("OPQ encoding is turned off");
             abort();
         }
-        std::vector<float> copy_centroid(d);
         for (int i = 0; i < nc; i++){
             float *centroid = quantizer->getDataByInternalId(i);
-            memcpy(copy_centroid.data(), centroid, d * sizeof(float));
-            opq_matrix->apply_noalloc(1, copy_centroid.data(), centroid);
+            opq_matrix->apply_noalloc(1, centroid, centroid);
         }
     }
 
