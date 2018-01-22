@@ -76,15 +76,15 @@ namespace ivfhnsw {
             idx = new idx_t[n];
             assign(n, x, const_cast<idx_t *>(idx));
         }
-        // Compute residuals for original vectors 
-        std::vector<float> residuals(n * d);
-        compute_residuals(n, x, residuals.data(), idx);
-
+        // Compute residuals for original vectors
+        float *residuals = new float[n * d];
+        compute_residuals(n, x, residuals, idx);
         // If do_opq, rotate residuals
         if (do_opq){
-            //std::vector<float> copy_residuals(n * d);
-            //memcpy(copy_residuals.data(), residuals.data(), n * d * sizeof(float));
-            opq_matrix->apply_noalloc(n, residuals.data(), residuals.data());
+            float *rotated_residuals = new float [n * d];
+            opq_matrix->apply_noalloc(n, residuals, rotated_residuals);
+            delete residuals;
+            residuals = rotated_residuals;
         }
 
         // Encode residuals
@@ -92,14 +92,15 @@ namespace ivfhnsw {
         pq->compute_codes(residuals.data(), xcodes.data(), n);
 
         // Decode residuals
-        std::vector<float> decoded_residuals(n * d);
+        float *decoded_residuals = new float[n * d];
         pq->decode(xcodes.data(), decoded_residuals.data(), n);
 
         // Reverse rotation
         if (do_opq){
-            //std::vector<float> copy_decoded_residuals(n * d);
-            //memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), n * d * sizeof(float));
-            dynamic_cast<faiss::OPQMatrix *>(opq_matrix)->reverse_transform(n, decoded_residuals.data(), decoded_residuals.data());
+            float *rotated_decoded_residuals = new float [n * d];
+            dynamic_cast<faiss::OPQMatrix *>(opq_matrix)->reverse_transform(n, decoded_residuals, rotated_decoded_residuals);
+            delete  decoded_residuals;
+            decoded_residuals = rotated_decoded_residuals;
         }
 
         // Reconstruct original vectors 
@@ -129,6 +130,8 @@ namespace ivfhnsw {
         // Free memory, if it is allocated 
         if (idx != precomputed_idx)
             delete idx;
+        delete residuals;
+        delete decoded_residuals;
     }
 
     /** Search procedure
