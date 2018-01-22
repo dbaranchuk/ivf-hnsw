@@ -479,7 +479,7 @@ namespace ivfhnsw
         if (do_opq){
             opq_matrix = new faiss::OPQMatrix(d, pq->M);
 
-            std::cout << "Train OPQ Matrix" << std::endl;
+            std::cout << "Training OPQ Matrix" << std::endl;
             dynamic_cast<faiss::OPQMatrix *>(opq_matrix)->train(n, train_residuals.data());
 
             std::vector<float> copy_residuals(n * d);

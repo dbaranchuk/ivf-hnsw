@@ -203,9 +203,10 @@ int main(int argc, char **argv)
         index->write(opt.path_index);
     }
     // For correct search using OPQ encoding rotate points in the coarse quantizer
-    if (opt.do_opq)
+    if (opt.do_opq) {
+        std::cout << "Rotating centroids"<< std::endl;
         index->rotate_quantizer();
-
+    }
     //===================
     // Parse groundtruth
     //===================

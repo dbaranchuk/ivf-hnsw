@@ -225,10 +225,12 @@ namespace ivfhnsw {
 
         // Train OPQ rotation matrix and rotate residuals
         if (do_opq){
-            opq_matrix = new faiss::OPQMatrix(d, pq->M);
+            faiss::OPQMatrix *matrix = new faiss::OPQMatrix(d, pq->M);
 
-            std::cout << "Train OPQ Matrix" << std::endl;
-            opq_matrix->train(n, residuals.data());
+            std::cout << "Training OPQ Matrix" << std::endl;
+            matrix->max_train_points = n;
+            matrix->train(n, residuals.data());
+            opq_matrix = matrix;
 
             std::vector<float> copy_residuals(n * d);
             memcpy(copy_residuals.data(), residuals.data(), n * d * sizeof(float));
