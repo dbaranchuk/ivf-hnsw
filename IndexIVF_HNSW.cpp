@@ -89,7 +89,7 @@ namespace ivfhnsw {
 
         // Encode residuals
         std::vector <uint8_t> xcodes(n * code_size);
-        pq->compute_codes(residuals.data(), xcodes.data(), n);
+        pq->compute_codes(residuals, xcodes.data(), n);
 
         // Decode residuals
         float *decoded_residuals = new float[n * d];
