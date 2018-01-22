@@ -99,7 +99,7 @@ namespace ivfhnsw {
         if (do_opq){
             std::vector<float> copy_decoded_residuals(n * d);
             memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), n * d * sizeof(float));
-            dynamic_cast<faiss::OPQMatrix *>(opq_matrix)->reverse_transform(n, copy_decoded_residuals.data(), decoded_residuals.data());
+            opq_matrix->transform_transpose (n, copy_decoded_residuals.data(), decoded_residuals.data());
         }
 
         // Reconstruct original vectors 
