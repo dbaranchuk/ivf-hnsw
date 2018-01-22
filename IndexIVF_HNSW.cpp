@@ -93,7 +93,7 @@ namespace ivfhnsw {
 
         // Decode residuals
         float *decoded_residuals = new float[n * d];
-        pq->decode(xcodes.data(), decoded_residuals.data(), n);
+        pq->decode(xcodes.data(), decoded_residuals, n);
 
         // Reverse rotation
         if (do_opq){
@@ -105,7 +105,7 @@ namespace ivfhnsw {
 
         // Reconstruct original vectors 
         std::vector<float> reconstructed_x(n * d);
-        reconstruct(n, reconstructed_x.data(), decoded_residuals.data(), idx);
+        reconstruct(n, reconstructed_x.data(), decoded_residuals, idx);
 
         // Compute l2 square norms of reconstructed vectors
         std::vector<float> norms(n);
