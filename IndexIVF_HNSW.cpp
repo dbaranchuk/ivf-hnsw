@@ -230,6 +230,7 @@ namespace ivfhnsw {
             std::cout << "Training OPQ Matrix" << std::endl;
             matrix->verbose = true;
             matrix->max_train_points = n;
+            matrix->niter = 75;
             matrix->train(n, residuals.data());
             opq_matrix = matrix;
 
