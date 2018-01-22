@@ -228,6 +228,7 @@ namespace ivfhnsw {
             faiss::OPQMatrix *matrix = new faiss::OPQMatrix(d, pq->M);
 
             std::cout << "Training OPQ Matrix" << std::endl;
+            matrix->verbose = true;
             matrix->max_train_points = n;
             matrix->train(n, residuals.data());
             opq_matrix = matrix;
