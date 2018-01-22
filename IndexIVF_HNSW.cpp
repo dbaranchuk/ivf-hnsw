@@ -358,9 +358,11 @@ namespace ivfhnsw {
             printf("OPQ encoding is turned off");
             abort();
         }
+        std::vector<float> copy_centroid(d);
         for (int i = 0; i < nc; i++){
             float *centroid = quantizer->getDataByInternalId(i);
-            opq_matrix->apply_noalloc(1, centroid, centroid);
+            memcpy(copy_centroid.data(), centroid, d * sizeof(float));
+            opq_matrix->apply_noalloc(1, copy_centroid.data(), centroid);
         }
     }
 
