@@ -77,35 +77,34 @@ namespace ivfhnsw {
             assign(n, x, const_cast<idx_t *>(idx));
         }
         // Compute residuals for original vectors
-        float *residuals = new float[n * d];
-        compute_residuals(n, x, residuals, idx);
+        std::vector<float> residuals(n * d);
+        compute_residuals(n, x, residuals.data(), idx);
+
         // If do_opq, rotate residuals
         if (do_opq){
-            float *rotated_residuals = new float [n * d];
-            opq_matrix->apply_noalloc(n, residuals, rotated_residuals);
-            delete residuals;
-            residuals = rotated_residuals;
+            std::vector<float> copy_residuals(n * d);
+            memcpy(copy_residuals.data(), residuals.data(), n * d * sizeof(float));
+            opq_matrix->apply_noalloc(n, copy_residuals.data(), residuals.data());
         }
 
         // Encode residuals
         std::vector <uint8_t> xcodes(n * code_size);
-        pq->compute_codes(residuals, xcodes.data(), n);
+        pq->compute_codes(residuals.data(), xcodes.data(), n);
 
         // Decode residuals
-        float *decoded_residuals = new float[n * d];
-        pq->decode(xcodes.data(), decoded_residuals, n);
+        std::vector<float> decoded_residuals(n * d);
+        pq->decode(xcodes.data(), decoded_residuals.data(), n);
 
         // Reverse rotation
         if (do_opq){
-            float *rotated_decoded_residuals = new float [n * d];
-            dynamic_cast<faiss::OPQMatrix *>(opq_matrix)->reverse_transform(n, decoded_residuals, rotated_decoded_residuals);
-            delete  decoded_residuals;
-            decoded_residuals = rotated_decoded_residuals;
+            std::vector<float> copy_decoded_residuals(n * d);
+            memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), n * d * sizeof(float));
+            dynamic_cast<faiss::OPQMatrix *>(opq_matrix)->reverse_transform(n, copy_decoded_residuals.data(), decoded_residuals.data());
         }
 
         // Reconstruct original vectors 
         std::vector<float> reconstructed_x(n * d);
-        reconstruct(n, reconstructed_x.data(), decoded_residuals, idx);
+        reconstruct(n, reconstructed_x.data(), decoded_residuals.data(), idx);
 
         // Compute l2 square norms of reconstructed vectors
         std::vector<float> norms(n);
@@ -130,8 +129,6 @@ namespace ivfhnsw {
         // Free memory, if it is allocated 
         if (idx != precomputed_idx)
             delete idx;
-        delete residuals;
-        delete decoded_residuals;
     }
 
     /** Search procedure
