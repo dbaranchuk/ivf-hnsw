@@ -332,6 +332,7 @@ namespace ivfhnsw {
         pq->verbose = true;
         pq->train(n, expanded_residuals.data());
 
+        std::cout << d << " " << new_d << std::endl;
         // Encode residuals
         std::vector <uint8_t> xcodes(n * code_size);
         pq->compute_codes(residuals.data(), xcodes.data(), n);
@@ -339,11 +340,11 @@ namespace ivfhnsw {
         // Decode residuals
         std::vector<float> decoded_residuals(n * d);
         //pq->decode(xcodes.data(), decoded_residuals.data(), n);
-
+        std::cout << d << " " << new_d << std::endl;
         std::vector<float> expanded_decoded_residuals(n * new_d);
         pq->decode(xcodes.data(), expanded_decoded_residuals.data(), n);
         shrink_vecs(n, expanded_decoded_residuals.data(), decoded_residuals.data());
-
+        std::cout << d << " " << new_d << std::endl;
         // Reverse rotation
         if (do_opq){
             std::vector<float> copy_decoded_residuals(n * d);
