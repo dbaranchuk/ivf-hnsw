@@ -482,7 +482,7 @@ namespace ivfhnsw
             std::cout << "Training OPQ Matrix" << std::endl;
             matrix->verbose = true;
             matrix->max_train_points = n;
-            matrix->niter = 70;
+            matrix->niter = 100;
             matrix->train(n, train_residuals.data());
             opq_matrix = matrix;
 
