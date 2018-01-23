@@ -257,7 +257,7 @@ namespace ivfhnsw {
         }
 
         std::vector<float> expanded_query(d);
-        expand_vecs(1, expanded_query.data(), query, new_d, d);
+        expand_vecs(1, expanded_query.data(), query);
 
         // Precompute table
         pq->compute_inner_prod_table(expanded_query.data(), precomputed_table.data());
