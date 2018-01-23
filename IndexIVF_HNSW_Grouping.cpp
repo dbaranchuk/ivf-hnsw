@@ -86,7 +86,7 @@ namespace ivfhnsw
         if (do_opq){
             std::vector<float> copy_decoded_residuals(group_size * d);
             memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), group_size * d * sizeof(float));
-            dynamic_cast<faiss::OPQMatrix *>(opq_matrix)->reverse_transform(group_size, copy_decoded_residuals.data(), decoded_residuals.data());
+            opq_matrix->transform_transpose(group_size, copy_decoded_residuals.data(), decoded_residuals.data());
         }
 
         // Reconstruct data
@@ -485,7 +485,10 @@ namespace ivfhnsw
             matrix->niter = 70;
             matrix->train(n, train_residuals.data());
             opq_matrix = matrix;
-            opq_matrix->apply_noalloc(n, train_residuals.data(), train_residuals.data());
+
+            std::vector<float> copy_train_residuals(n * d);
+            memcpy(copy_train_residuals.data(), train_residuals.data(), n * d * sizeof(float));
+            opq_matrix->apply_noalloc(n, copy_train_residuals.data(), train_residuals.data());
         }
 
         printf("Training %zdx%zd PQ on %ld vectors in %dD\n", pq->M, pq->ksub, train_residuals.size() / d, d);
@@ -511,8 +514,11 @@ namespace ivfhnsw
             pq->decode(xcodes.data(), decoded_residuals.data(), group_size);
 
             // Reverse rotation
-            if (do_opq)
-                opq_matrix->transform_transpose(group_size, decoded_residuals.data(), decoded_residuals.data());
+            if (do_opq){
+                std::vector<float> copy_decoded_residuals(group_size * d);
+                memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), group_size * d * sizeof(float));
+                opq_matrix->transform_transpose(group_size, copy_decoded_residuals.data(), decoded_residuals.data());
+            }
 
             // Reconstruct Data 
             std::vector<float> reconstructed_x(group_size * d);
