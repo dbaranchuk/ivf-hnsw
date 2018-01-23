@@ -70,7 +70,6 @@ int main(int argc, char **argv)
         // Set Random Subset of sub_nt trainvecs
         std::vector<float> trainvecs_rnd_subset(opt.nsubt * opt.d);
         random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), opt.d, opt.nt, opt.nsubt);
-
         index->train_pq(opt.nsubt, trainvecs_rnd_subset.data());
 
         std::cout << "Saving Residual PQ codebook to " << opt.path_pq << std::endl;
@@ -191,7 +190,7 @@ int main(int argc, char **argv)
 
     StopW stopw = StopW();
     for (int i = 0; i < opt.nq; i++) {
-        index->search(opt.k, massQ.data() + i*opt.d, distances, labels);
+        index->rebuttle_search(opt.k, massQ.data() + i*opt.d, distances, labels);
 
         std::priority_queue<std::pair<float, idx_t >> gt(answers[i]);
         std::unordered_set<idx_t> g;

@@ -16,6 +16,29 @@
 #include <hnswlib/hnswalg.h>
 #include "utils.h"
 
+void expand_vecs(int n, float *new_vs, const float *vs, int new_d, int d)
+{
+    for (int i = 0; i < n; i++){
+        float *new_v = new_vs + i * new_d;
+        const float *v = vs + i * d;
+        for (int j = 0; j < new_d-d; j++)
+            new_v[j] = 0;
+        for (int j=new_d-d; j < new_d; j++)
+            new_v[j] = v[j+d-new_d];
+    }
+}
+
+void shrink_vecs(int n, const float *new_vs, float *vs, int new_d, int d)
+{
+    for (int i = 0; i < n; i++){
+        const float *new_v = new_vs + i * new_d;
+        float *v = vs + i * d;
+
+        for (int j=new_d-d; j < new_d; j++)
+            v[j+d-new_d] = new_v[j];
+    }
+}
+
 namespace ivfhnsw {
     /** Index based on a inverted file (IVF) with Product Quantizer encoding.
       *
@@ -44,7 +67,7 @@ namespace ivfhnsw {
         typedef unsigned char uint8_t;  ///< all codes are this type
         typedef unsigned int idx_t;     ///< all indices are this type
 
-        size_t d;             ///< Vector dimension 
+        size_t d, new_d;             ///< Vector dimension
         size_t nc;            ///< Number of centroids
         size_t code_size;     ///< Code size per vector in bytes
 
@@ -102,6 +125,7 @@ namespace ivfhnsw {
          * @param labels      output labels of the nearest neighbours, size n * k
          */
         virtual void search(size_t k, const float *x, float *distances, long *labels);
+        void rebuttle_search(size_t k, const float *x, float *distances, long *labels);
 
         /** Add n vectors of dimension d to the index.
           *
