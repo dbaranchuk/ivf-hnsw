@@ -1,6 +1,29 @@
 #include "IndexIVF_HNSW.h"
 
 namespace ivfhnsw {
+    void IndexIVF_HNSW::expand_vecs(int n, float *new_vs, const float *vs)
+    {
+        for (int i = 0; i < n; i++){
+            float *new_v = new_vs + i * new_d;
+            const float *v = vs + i * d;
+            for (int j = 0; j < new_d-d; j++)
+                new_v[j] = 0;
+            for (int j=new_d-d; j < new_d; j++)
+                new_v[j] = v[j+d-new_d];
+        }
+    }
+
+    void IndexIVF_HNSW::shrink_vecs(int n, const float *new_vs, float *vs)
+    {
+        for (int i = 0; i < n; i++){
+            const float *new_v = new_vs + i * new_d;
+            float *v = vs + i * d;
+
+            for (int j=new_d-d; j < new_d; j++)
+                v[j+d-new_d] = new_v[j];
+        }
+    }
+
     //=========================
     // IVF_HNSW implementation 
     //=========================

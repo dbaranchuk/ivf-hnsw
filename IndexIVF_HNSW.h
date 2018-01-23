@@ -16,29 +16,6 @@
 #include <hnswlib/hnswalg.h>
 #include "utils.h"
 
-void expand_vecs(int n, float *new_vs, const float *vs, int new_d, int d)
-{
-    for (int i = 0; i < n; i++){
-        float *new_v = new_vs + i * new_d;
-        const float *v = vs + i * d;
-        for (int j = 0; j < new_d-d; j++)
-            new_v[j] = 0;
-        for (int j=new_d-d; j < new_d; j++)
-            new_v[j] = v[j+d-new_d];
-    }
-}
-
-void shrink_vecs(int n, const float *new_vs, float *vs, int new_d, int d)
-{
-    for (int i = 0; i < n; i++){
-        const float *new_v = new_vs + i * new_d;
-        float *v = vs + i * d;
-
-        for (int j=new_d-d; j < new_d; j++)
-            v[j+d-new_d] = new_v[j];
-    }
-}
-
 namespace ivfhnsw {
     /** Index based on a inverted file (IVF) with Product Quantizer encoding.
       *
@@ -155,6 +132,9 @@ namespace ivfhnsw {
         /// For correct search using OPQ encoding rotate points in the coarse quantizer
         void rotate_quantizer();
 
+        void expand_vecs(int n, float *new_vs, const float *vs);
+        void shrink_vecs(int n, const float *new_vs, float *vs);
+        
     protected:
         /// Size pq.M * pq.ksub
         std::vector<float> precomputed_table;
