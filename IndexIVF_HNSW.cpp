@@ -197,7 +197,7 @@ namespace ivfhnsw {
             const idx_t *id = ids[centroid_idx].data();
 
             // Precompute distance table
-            pq->compute_distance_table (x, precomputed_table.data());
+            pq->compute_distance_table (residuals.data()+i*d, precomputed_table.data());
 
             for (int j = 0; j < group_size; j++) {
                 float dist = pq_L2sqr(code + j * code_size);
