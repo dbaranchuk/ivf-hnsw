@@ -179,8 +179,10 @@ namespace ivfhnsw {
 
         // Compute residuals
         std::vector<float> residuals(nprobe * d);
-        compute_residuals(nprobe, x, residuals.data(), centroid_idxs);
-
+        for (idx_t i = 0; i < nprobe; i++) {
+            float *centroid = quantizer->getDataByInternalId(centroid_idxs[i]);
+            faiss::fvec_madd(d, x, -1., centroid, residuals.data() + i*d);
+        }
         // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
 

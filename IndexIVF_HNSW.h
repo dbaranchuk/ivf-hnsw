@@ -134,7 +134,7 @@ namespace ivfhnsw {
 
         void expand_vecs(int n, float *new_vs, const float *vs);
         void shrink_vecs(int n, const float *new_vs, float *vs);
-        
+
     protected:
         /// Size pq.M * pq.ksub
         std::vector<float> precomputed_table;
