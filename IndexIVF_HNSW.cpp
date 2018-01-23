@@ -164,7 +164,7 @@ namespace ivfhnsw {
             delete idx;
     }
 
-    void IndexIVF_HNSW::rebuttle_search(size_t k, const float *x, float *distances, long *labels)
+    int IndexIVF_HNSW::rebuttle_search(size_t k, const float *x, float *distances, long *labels)
     {
         float query_centroid_dists[nprobe]; // Distances to the coarse centroids.
         idx_t centroid_idxs[nprobe];        // Indices of the nearest coarse centroids
@@ -187,6 +187,7 @@ namespace ivfhnsw {
         faiss::maxheap_heapify(k, distances, labels);
 
         int ncode = 0;
+        int maxlist = 0;
         for (int i = 0; i < nprobe; i++) {
             idx_t centroid_idx = centroid_idxs[i];
             int group_size = ids[centroid_idx].size();
@@ -207,9 +208,11 @@ namespace ivfhnsw {
                 }
             }
             ncode += group_size;
+            maxlist++;
             if (ncode >= max_codes)
                 break;
         }
+        return maxlist;
     }
 
     /** Search procedure
