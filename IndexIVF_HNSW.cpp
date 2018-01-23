@@ -31,8 +31,8 @@ namespace ivfhnsw {
             d(dim), nc(ncentroids)
     {
         new_d = 105;
-        //pq = new faiss::ProductQuantizer(new_d, bytes_per_code, nbits_per_idx);
-        pq = new faiss::ProductQuantizer(d, bytes_per_code, nbits_per_idx);
+        pq = new faiss::ProductQuantizer(new_d, bytes_per_code, nbits_per_idx);
+        //pq = new faiss::ProductQuantizer(d, bytes_per_code, nbits_per_idx);
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
 
         code_size = pq->code_size;
