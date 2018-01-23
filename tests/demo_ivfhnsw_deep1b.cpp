@@ -207,7 +207,7 @@ int main(int argc, char **argv)
                 break;
             }
     }
-    std::cout << av_nlist / nq << std::endl;
+    std::cout << av_nlist / opt.nq << std::endl;
     //===================
     // Represent results 
     //===================
