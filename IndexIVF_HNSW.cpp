@@ -113,20 +113,20 @@ namespace ivfhnsw {
             opq_matrix->apply_noalloc(n, copy_residuals.data(), residuals.data());
         }
 
-        //std::vector<float> expanded_residuals(n * new_d);
-        //expand_vecs(n, expanded_residuals.data(), residuals.data(), new_d, d);
+        std::vector<float> expanded_residuals(n * new_d);
+        expand_vecs(n, expanded_residuals.data(), residuals.data());
 
         // Encode residuals
         std::vector <uint8_t> xcodes(n * code_size);
-        pq->compute_codes(residuals.data(), xcodes.data(), n);
+        pq->compute_codes(expanded_residuals.data(), xcodes.data(), n);
 
         // Decode residuals
         std::vector<float> decoded_residuals(n * d);
-        pq->decode(xcodes.data(), decoded_residuals.data(), n);
+        //pq->decode(xcodes.data(), decoded_residuals.data(), n);
 
-        //std::vector<float> expanded_decoded_residuals(n * new_d);
-        //pq->decode(xcodes.data(), expanded_decoded_residuals.data(), n);
-        //shrink_vecs(n, expanded_decoded_residuals.data(), decoded_residuals.data(), new_d, d);
+        std::vector<float> expanded_decoded_residuals(n * new_d);
+        pq->decode(xcodes.data(), expanded_decoded_residuals.data(), n);
+        shrink_vecs(n, expanded_decoded_residuals.data(), decoded_residuals.data());
 
         // Reverse rotation
         if (do_opq){
@@ -164,7 +164,7 @@ namespace ivfhnsw {
             delete idx;
     }
 
-    int IndexIVF_HNSW::rebuttle_search(size_t k, const float *x, float *distances, long *labels)
+    void IndexIVF_HNSW::rebuttal_search(size_t k, const float *x, float *distances, long *labels)
     {
         float query_centroid_dists[nprobe]; // Distances to the coarse centroids.
         idx_t centroid_idxs[nprobe];        // Indices of the nearest coarse centroids
@@ -187,7 +187,6 @@ namespace ivfhnsw {
         faiss::maxheap_heapify(k, distances, labels);
 
         int ncode = 0;
-        int maxlist = 0;
         for (int i = 0; i < nprobe; i++) {
             idx_t centroid_idx = centroid_idxs[i];
             int group_size = ids[centroid_idx].size();
@@ -208,11 +207,9 @@ namespace ivfhnsw {
                 }
             }
             ncode += group_size;
-            maxlist++;
             if (ncode >= max_codes)
                 break;
         }
-        return maxlist;
     }
 
     /** Search procedure
@@ -259,12 +256,12 @@ namespace ivfhnsw {
             coarse.pop();
         }
 
-        //std::vector<float> expanded_query(d);
-        //expand_vecs(1, expanded_query.data(), query, new_d, d);
+        std::vector<float> expanded_query(d);
+        expand_vecs(1, expanded_query.data(), query, new_d, d);
 
         // Precompute table
-        //pq->compute_inner_prod_table(expanded_query.data(), precomputed_table.data());
-        pq->compute_inner_prod_table(query, precomputed_table.data());
+        pq->compute_inner_prod_table(expanded_query.data(), precomputed_table.data());
+        //pq->compute_inner_prod_table(query, precomputed_table.data());
 
         // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
@@ -327,13 +324,13 @@ namespace ivfhnsw {
             opq_matrix->apply_noalloc(n, copy_residuals.data(), residuals.data());
         }
 
+        std::vector<float> expanded_residuals(n * new_d);
+        expand_vecs(n, expanded_residuals.data(), residuals.data());
+
         // Train residual PQ
         printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", pq->M, pq->ksub, n, d);
         pq->verbose = true;
-        pq->train(n, residuals.data());
-
-        //std::vector<float> expanded_residuals(n * new_d);
-        //expand_vecs(n, expanded_residuals.data(), residuals.data(), new_d, d);
+        pq->train(n, expanded_residuals.data());
 
         // Encode residuals
         std::vector <uint8_t> xcodes(n * code_size);
@@ -341,11 +338,11 @@ namespace ivfhnsw {
 
         // Decode residuals
         std::vector<float> decoded_residuals(n * d);
-        pq->decode(xcodes.data(), decoded_residuals.data(), n);
+        //pq->decode(xcodes.data(), decoded_residuals.data(), n);
 
-        //std::vector<float> expanded_decoded_residuals(n * new_d);
-        //pq->decode(xcodes.data(), expanded_decoded_residuals.data(), n);
-        //shrink_vecs(n, expanded_decoded_residuals.data(), decoded_residuals.data(), new_d, d);
+        std::vector<float> expanded_decoded_residuals(n * new_d);
+        pq->decode(xcodes.data(), expanded_decoded_residuals.data(), n);
+        shrink_vecs(n, expanded_decoded_residuals.data(), decoded_residuals.data());
 
         // Reverse rotation
         if (do_opq){

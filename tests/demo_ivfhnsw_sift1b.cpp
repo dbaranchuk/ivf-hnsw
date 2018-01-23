@@ -178,9 +178,8 @@ int main(int argc, char **argv)
     long labels[opt.k];
 
     StopW stopw = StopW();
-    double av_nlist = 0;
     for (int i = 0; i < opt.nq; i++) {
-        av_nlist += index->rebuttle_search(opt.k, massQ.data() + i*opt.d, distances, labels);
+        index->search(opt.k, massQ.data() + i*opt.d, distances, labels);
 
         std::priority_queue<std::pair<float, idx_t >> gt(answers[i]);
         std::unordered_set<idx_t> g;
@@ -196,7 +195,6 @@ int main(int argc, char **argv)
                 break;
             }
     }
-    std::cout << av_nlist / opt.nq << std::endl;
     //===================
     // Represent results
     //===================
