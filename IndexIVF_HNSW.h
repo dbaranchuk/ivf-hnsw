@@ -44,7 +44,7 @@ namespace ivfhnsw {
         typedef unsigned char uint8_t;  ///< all codes are this type
         typedef unsigned int idx_t;     ///< all indices are this type
 
-        size_t d, new_d;             ///< Vector dimension
+        size_t d;             ///< Vector dimension
         size_t nc;            ///< Number of centroids
         size_t code_size;     ///< Code size per vector in bytes
 
@@ -131,9 +131,6 @@ namespace ivfhnsw {
 
         /// For correct search using OPQ encoding rotate points in the coarse quantizer
         void rotate_quantizer();
-
-        void expand_vecs(int n, float *new_vs, const float *vs);
-        void shrink_vecs(int n, const float *new_vs, float *vs);
 
     protected:
         /// Size pq.M * pq.ksub
