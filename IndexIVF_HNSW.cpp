@@ -255,7 +255,7 @@ namespace ivfhnsw {
             centroid_idxs[i] = coarse.top().second;
             coarse.pop();
         }
-        
+
         std::vector<float> expanded_query(new_d);
         expand_vecs(1, expanded_query.data(), query);
 
@@ -263,6 +263,12 @@ namespace ivfhnsw {
         pq->compute_inner_prod_table(expanded_query.data(), precomputed_table.data());
         //pq->compute_inner_prod_table(query, precomputed_table.data());
 
+        const float *c = pq->get_centroids (0, 128);
+        for (int i = 0; i < pq->dsub; i++){
+            std::cout << c[i] << " ";
+        }
+        std::cout << std::endl;
+        
         // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
 
