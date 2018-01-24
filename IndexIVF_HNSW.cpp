@@ -30,9 +30,9 @@ namespace ivfhnsw {
     IndexIVF_HNSW::IndexIVF_HNSW(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx):
             d(dim), nc(ncentroids)
     {
-        //new_d = 105;
-        //pq = new faiss::ProductQuantizer(new_d, bytes_per_code, nbits_per_idx);
-        pq = new faiss::ProductQuantizer(d, bytes_per_code, nbits_per_idx);
+        new_d = 105;
+        pq = new faiss::ProductQuantizer(new_d, bytes_per_code, nbits_per_idx);
+        //pq = new faiss::ProductQuantizer(d, bytes_per_code, nbits_per_idx);
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
 
         code_size = pq->code_size;
