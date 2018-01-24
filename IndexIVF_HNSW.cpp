@@ -263,7 +263,7 @@ namespace ivfhnsw {
         pq->compute_inner_prod_table(expanded_query.data(), precomputed_table.data());
         //pq->compute_inner_prod_table(query, precomputed_table.data());
 
-        const float *c = pq->get_centroids (0, 32);
+        const float *c = pq->get_centroids (1, 32);
         for (int i = 0; i < pq->dsub; i++){
             std::cout << c[i] << " ";
         }
