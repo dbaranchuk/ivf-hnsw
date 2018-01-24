@@ -255,8 +255,8 @@ namespace ivfhnsw {
             centroid_idxs[i] = coarse.top().second;
             coarse.pop();
         }
-
-        std::vector<float> expanded_query(d);
+        
+        std::vector<float> expanded_query(new_d);
         expand_vecs(1, expanded_query.data(), query);
 
         // Precompute table
