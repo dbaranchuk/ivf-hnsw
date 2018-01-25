@@ -137,7 +137,7 @@ namespace ivfhnsw {
             delete idx;
     }
 
-    void IndexIVF_HNSW::rebuttal_search(size_t k, const float *x, float *distances, long *labels)
+    void IndexIVF_HNSW_LPQ::rebuttal_search(size_t k, const float *x, float *distances, long *labels)
     {
         float query_centroid_dists[nprobe]; // Distances to the coarse centroids.
         idx_t centroid_idxs[nprobe];        // Indices of the nearest coarse centroids
