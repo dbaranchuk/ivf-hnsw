@@ -124,7 +124,7 @@ int main(int argc, char **argv)
         avdists[i] = 0.;
     }
 
-    FILE *fout = fopen("group_dists.fvecs", "wb");
+    FILE *fout = fopen("av_dists.fvecs", "wb");
     for (int i = 0; i < opt.nc; i++){
         int d = 1;
         fwrite(&d, sizeof(int), 1, fout);
