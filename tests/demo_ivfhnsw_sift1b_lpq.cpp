@@ -52,9 +52,7 @@ int main(int argc, char **argv)
             avdists[i] = 0.0;
             groupsizes[i] = 0;
         }
-
-        StopW stopw = StopW();
-
+        
         int batch_size = 1000000;
         int nbatches = opt.nb / batch_size;
 
@@ -77,7 +75,6 @@ int main(int argc, char **argv)
         }
         base_input.close();
         idx_input.close();
-
 
         for (int i = 0; i < opt.nc; i++) {
                 if (groupsizes[i] == 0)
