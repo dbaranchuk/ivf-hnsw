@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 
         int batch_size = 1000000;
         int nbatches = opt.nb / batch_size;
-        int groups_per_iter = 200000;
+        int groups_per_iter = 250000;
 
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> idx_batch(batch_size);
