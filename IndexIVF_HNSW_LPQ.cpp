@@ -206,8 +206,6 @@ namespace ivfhnsw {
             if (ncode >= max_codes)
                 break;
         }
-        if (do_opq)
-            delete const_cast<float *>(query);
     }
 
 
@@ -340,10 +338,10 @@ namespace ivfhnsw {
         int dim = code_size >> 2;
         int m = 0;
         for (int i = 0; i < dim; i++) {
-            result += precomputed_table[pq->ksub * m + code[m]]; m++;
-            result += precomputed_table[pq->ksub * m + code[m]]; m++;
-            result += precomputed_table[pq->ksub * m + code[m]]; m++;
-            result += precomputed_table[pq->ksub * m + code[m]]; m++;
+            result += precomputed_table[pqs[0]->ksub * m + code[m]]; m++;
+            result += precomputed_table[pqs[0]->ksub * m + code[m]]; m++;
+            result += precomputed_table[pqs[0]->ksub * m + code[m]]; m++;
+            result += precomputed_table[pqs[0]->ksub * m + code[m]]; m++;
         }
         return result;
     }

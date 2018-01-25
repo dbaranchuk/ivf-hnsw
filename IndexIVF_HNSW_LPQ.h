@@ -50,7 +50,6 @@ namespace ivfhnsw {
 
         hnswlib::HierarchicalNSW *quantizer; ///< Quantizer that maps vectors to inverted lists (HNSW [Y.Malkov])
 
-        //
         std::vector<idx_t> pq_idxs;
         std::vector<faiss::ProductQuantizer *> pqs;
         size_t npq;

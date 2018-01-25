@@ -49,9 +49,6 @@ namespace ivfhnsw {
         if (pq) delete pq;
         if (norm_pq) delete norm_pq;
         if (opq_matrix) delete opq_matrix;
-
-        for (int i = 0; i < npq; i++)
-            if (pqs[i]) delete pqs[i];
     }
 
     /**
