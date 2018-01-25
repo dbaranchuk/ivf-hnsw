@@ -139,24 +139,11 @@ int main(int argc, char **argv)
     //==========
     // Train PQ 
     //==========
-    std::string path_lpq("/home/dbaranchuk/ivf-hnsw/models/DEEP1B/lpqs/lpq");
-    path_lpq += std::to_string(opt.code_size) + std::string("_") + std::to_string(i) + std::string(".pq");
+    std::vector <std::vector<float>> trainvecs(4096);
+    for (int i = 0; i < 4096; i++)
+        trainvecs.reserve(opt.nt*opt.d);
 
-    std::string path_norm_lpq("/home/dbaranchuk/ivf-hnsw/models/DEEP1B/lpqs/norm_lpq");
-    path_norm_lpq += std::to_string(opt.code_size) + std::string("_") + std::to_string(i) + std::string(".pq");
-
-    if (exists(path_lpq.c_str()) && exists(path_norm_lpq.c_str())) {
-        std::cout << "Loading PQ codebooks" << std::endl;
-        for (int i = 0 ; i < 4096; i++) {
-            index->pqs[i] = faiss::read_ProductQuantizer(path_lpq.c_str());
-            index->norm_pqs[i] = faiss::read_ProductQuantizer(path_norm_lpq.c_str());
-        }
-    } else {
-        std::vector<std::vector<float>> trainvecs(4096);
-
-        for (int i = 0 ; i < 4096; i++)
-            trainvecs[i].reserve(65536*opt.d);
-
+    {
         StopW stopw = StopW();
 
         int batch_size = 1000000;
@@ -164,7 +151,7 @@ int main(int argc, char **argv)
         int groups_per_iter = 100000;
 
         std::vector<float> batch(batch_size * opt.d);
-        std::vector<idx_t> idx_batch(batch_size);
+        std::vector <idx_t> idx_batch(batch_size);
 
         for (int ngroups_added = 0; ngroups_added < opt.nc; ngroups_added += groups_per_iter) {
             std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
@@ -185,7 +172,7 @@ int main(int argc, char **argv)
                         continue;
 
                     idx_t pq_idx = pq_idxs(idx_batch[i]);
-                    if (trainvecs[pq_idx].size() > 65536*opt.d)
+                    if (trainvecs[pq_idx].size() > opt.nt * opt.d)
                         continue;
 
                     for (int j = 0; j < opt.d; j++)
@@ -195,13 +182,23 @@ int main(int argc, char **argv)
             base_input.close();
             idx_input.close();
         }
+    }
+    for (int i = 0 ; i < 4096; i++) {
+        std::string path_lpq("/home/dbaranchuk/ivf-hnsw/models/DEEP1B/lpqs/lpq");
+        path_lpq += std::to_string(opt.code_size) + std::string("_") + std::to_string(i) + std::string(".pq");
 
-        std::cout << "Training PQ codebooks" << std::endl;
-        for (int i = 0; i < 4096; i++)
-            index->train_pq(opt.nsubt, trainvecs[i].data(), i);
+        std::string path_norm_lpq("/home/dbaranchuk/ivf-hnsw/models/DEEP1B/lpqs/norm_lpq");
+        path_norm_lpq += std::to_string(opt.code_size) + std::string("_") + std::to_string(i) + std::string(".pq");
 
-        std::cout << "Saving PQ codebooks" << std::endl;
-        for (int i = 0; i < 4096; i++) {
+        if (exists(path_lpq.c_str()) && exists(path_norm_lpq.c_str())) {
+            std::cout << "Loading PQ codebooks" << std::endl;
+            index->pqs[i] = faiss::read_ProductQuantizer(path_lpq.c_str());
+            index->norm_pqs[i] = faiss::read_ProductQuantizer(path_norm_lpq.c_str());
+        } else {
+            std::cout << "Training PQ codebooks" << std::endl;
+            index->train_pq(opt.nsubt, trainvecs[i].data(), ipq);
+
+            std::cout << "Saving PQ codebooks" << std::endl;
             faiss::write_ProductQuantizer(index->pqs[i], path_lpq.c_str());
             faiss::write_ProductQuantizer(index->norm_pqs[i], path_norm_lpq.c_str());
         }
