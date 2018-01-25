@@ -113,10 +113,9 @@ namespace ivfhnsw {
 
         // Encode norms
         std::vector <uint8_t> xnorm_codes(n);
-        std::vector <uint8_t> xcodes(n * code_size);
         for (int i = 0; i < n; i++) {
             idx_t pq_idx = pq_idxs[idx[i]];
-            norm_pqs[pq_idx]->compute_codes(norms.data()+i*d, xnorms.data()+i, 1);
+            norm_pqs[pq_idx]->compute_codes(norms.data()+i*d, xnorm_codes.data()+i, 1);
         }
 
         // Add vector indices and PQ codes for residuals and norms to Index
