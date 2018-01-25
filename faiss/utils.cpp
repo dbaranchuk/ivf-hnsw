@@ -1856,9 +1856,9 @@ void fvec_madd (size_t n, const float *a,
                        float bf, const float *b, float *c)
 {
     if ((n & 3) == 0 &&
-        ((((long)a) | ((long)b) | ((long)c)) & 15) == 0) {
+        ((((long)a) | ((long)b) | ((long)c)) & 15) == 0)
         fvec_madd_sse(n, a, bf, b, c);
-    else
+    else 
         fvec_madd_ref(n, a, bf, b, c);
 }
 
