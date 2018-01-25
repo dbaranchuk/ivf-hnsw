@@ -1,36 +1,17 @@
-#include "IndexIVF_HNSW.h"
+#include "IndexIVF_HNSW_LPQ.h"
 
 namespace ivfhnsw {
-//    void IndexIVF_HNSW::expand_vecs(int n, float *new_vs, const float *vs)
-//    {
-//        for (int i = 0; i < n; i++){
-//            float *new_v = new_vs + i * new_d;
-//            const float *v = vs + i * d;
-//            for (int j = 0; j < new_d-d; j++)
-//                new_v[j] = 0;
-//            for (int j=new_d-d; j < new_d; j++)
-//                new_v[j] = v[j+d-new_d];
-//        }
-//    }
-//
-//    void IndexIVF_HNSW::shrink_vecs(int n, const float *new_vs, float *vs)
-//    {
-//        for (int i = 0; i < n; i++){
-//            const float *new_v = new_vs + i * new_d;
-//            float *v = vs + i * d;
-//
-//            for (int j=new_d-d; j < new_d; j++)
-//                v[j+d-new_d] = new_v[j];
-//        }
-//    }
 
     //=========================
     // IVF_HNSW implementation 
     //=========================
-    IndexIVF_HNSW::IndexIVF_HNSW(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx):
+    IndexIVF_HNSW_LPQ::IndexIVF_HNSW_LPQ(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx):
             d(dim), nc(ncentroids)
     {
-        pq = new faiss::ProductQuantizer(d, bytes_per_code, nbits_per_idx);
+        npq = 4096;
+        pq_idxs.resize(nc);
+        for (int i = 0; i < npq; i++)
+            pqs[i] = new faiss:ProductQuantizer(d, bytes_per_code, nbits_per_idx);
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
 
         code_size = pq->code_size;
@@ -43,12 +24,10 @@ namespace ivfhnsw {
         ids.resize(nc);
     }
 
-    IndexIVF_HNSW::~IndexIVF_HNSW()
+    IndexIVF_HNSW_LPQ::~IndexIVF_HNSW_LPQ()
     {
         if (quantizer) delete quantizer;
-        if (pq) delete pq;
         if (norm_pq) delete norm_pq;
-        if (opq_matrix) delete opq_matrix;
 
         for (int i = 0; i < npq; i++)
             if (pqs[i]) delete pqs[i];
@@ -59,7 +38,7 @@ namespace ivfhnsw {
      * Construction time is still acceptable: ~5 minutes for 1 million 96-d vectors on Intel Xeon E5-2650 V2 2.60GHz.
      */
     // TODO: paralyze in the right way
-    void IndexIVF_HNSW::build_quantizer(const char *path_data, const char *path_info,
+    void IndexIVF_HNSW_LPQ::build_quantizer(const char *path_data, const char *path_info,
                                         const char *path_edges, int M, int efConstruction)
     {
         if (exists(path_info) && exists(path_edges)) {
@@ -86,14 +65,14 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW::assign(size_t n, const float *x, idx_t *labels, size_t k) {
+    void IndexIVF_HNSW_LPQ::assign(size_t n, const float *x, idx_t *labels, size_t k) {
 #pragma omp parallel for
         for (int i = 0; i < n; i++)
             labels[i] = quantizer->searchKnn(const_cast<float *>(x + i * d), k).top().second;
     }
 
 
-    void IndexIVF_HNSW::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *precomputed_idx)
+    void IndexIVF_HNSW_LPQ::add_batch(size_t n, const float *x, const idx_t *xids, const idx_t *precomputed_idx)
     {
         const idx_t *idx;
         // Check whether idxs are precomputed. If not, assign x
@@ -107,26 +86,18 @@ namespace ivfhnsw {
         std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), idx);
 
-        // If do_opq, rotate residuals
-        if (do_opq){
-            std::vector<float> copy_residuals(n * d);
-            memcpy(copy_residuals.data(), residuals.data(), n * d * sizeof(float));
-            opq_matrix->apply_noalloc(n, copy_residuals.data(), residuals.data());
-        }
-
         // Encode residuals
         std::vector <uint8_t> xcodes(n * code_size);
-        pq->compute_codes(residuals.data(), xcodes.data(), n);
+        for (int i = 0; i < n; i++) {
+            idx_t pq_idx = pq_idxs[idx[i]];
+            pqs[pq_idxs]->compute_codes(residuals.data()+i*d, xcodes.data()+i*code_size, 1);
+        }
 
         // Decode residuals
         std::vector<float> decoded_residuals(n * d);
-        pq->decode(xcodes.data(), decoded_residuals.data(), n);
-
-        // Reverse rotation
-        if (do_opq){
-            std::vector<float> copy_decoded_residuals(n * d);
-            memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), n * d * sizeof(float));
-            opq_matrix->transform_transpose(n, copy_decoded_residuals.data(), decoded_residuals.data());
+        for (int i = 0; i < n; i++) {
+            idx_t pq_idx = pq_idxs[idx[i]];
+            pqs[pq_idx]->decode(xcodes.data()+i*code_size, decoded_residuals.data()+i*d, 1);
         }
 
         // Reconstruct original vectors 
@@ -158,54 +129,6 @@ namespace ivfhnsw {
             delete idx;
     }
 
-    void IndexIVF_HNSW::rebuttal_search(size_t k, const float *x, float *distances, long *labels)
-    {
-        float query_centroid_dists[nprobe]; // Distances to the coarse centroids.
-        idx_t centroid_idxs[nprobe];        // Indices of the nearest coarse centroids
-
-        // Find the nearest coarse centroids to the query
-        auto coarse = quantizer->searchKnn(x, nprobe);
-        for (int i = nprobe - 1; i >= 0; i--) {
-            query_centroid_dists[i] = coarse.top().first;
-            centroid_idxs[i] = coarse.top().second;
-            coarse.pop();
-        }
-
-        // Compute residuals
-        std::vector<float> residuals(nprobe * d);
-        for (idx_t i = 0; i < nprobe; i++) {
-            float *centroid = quantizer->getDataByInternalId(centroid_idxs[i]);
-            faiss::fvec_madd(d, x, -1., centroid, residuals.data() + i*d);
-        }
-        // Prepare max heap with k answers
-        faiss::maxheap_heapify(k, distances, labels);
-
-        int ncode = 0;
-        for (int i = 0; i < nprobe; i++) {
-            idx_t centroid_idx = centroid_idxs[i];
-            int group_size = ids[centroid_idx].size();
-            if (group_size == 0)
-                continue;
-
-            const uint8_t *code = codes[centroid_idx].data();
-            const idx_t *id = ids[centroid_idx].data();
-
-            // Precompute distance table
-            pq->compute_distance_table (residuals.data()+i*d, precomputed_table.data());
-
-            for (int j = 0; j < group_size; j++) {
-                float dist = pq_L2sqr(code + j * code_size);
-                if (dist < distances[0]) {
-                    faiss::maxheap_pop(k, distances, labels);
-                    faiss::maxheap_push(k, distances, labels, dist, id[j]);
-                }
-            }
-            ncode += group_size;
-            if (ncode >= max_codes)
-                break;
-        }
-    }
-
     /** Search procedure
       *
       * During IVF-HNSW-PQ search we compute
@@ -234,13 +157,13 @@ namespace ivfhnsw {
       * sub-vectors and stored separately for each subvector.
       *
     */
-    void IndexIVF_HNSW::search(size_t k, const float *x, float *distances, long *labels)
+    void IndexIVF_HNSW_LPQ::search(size_t k, const float *x, float *distances, long *labels)
     {
         float query_centroid_dists[nprobe]; // Distances to the coarse centroids.
         idx_t centroid_idxs[nprobe];        // Indices of the nearest coarse centroids
 
         // For correct search using OPQ rotate a query
-        const float *query = (do_opq) ? opq_matrix->apply(1, x) : x;
+        const float *query = x;
 
         // Find the nearest coarse centroids to the query
         auto coarse = quantizer->searchKnn(query, nprobe);
@@ -249,9 +172,6 @@ namespace ivfhnsw {
             centroid_idxs[i] = coarse.top().second;
             coarse.pop();
         }
-
-        // Precompute table
-        pq->compute_inner_prod_table(query, precomputed_table.data());
 
         // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
@@ -262,6 +182,9 @@ namespace ivfhnsw {
             int group_size = norm_codes[centroid_idx].size();
             if (group_size == 0)
                 continue;
+
+            // Precompute table
+            pqs[centroid_idx]->compute_inner_prod_table(query, precomputed_table.data());
 
             const uint8_t *code = codes[centroid_idx].data();
             const uint8_t *norm_code = norm_codes[centroid_idx].data();
@@ -288,7 +211,7 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW::train_pq(size_t n, const float *x)
+    void IndexIVF_HNSW_LPQ::train_pq(size_t n, const float *x)
     {
         // Assign train vectors 
         std::vector <idx_t> assigned(n);
@@ -298,21 +221,6 @@ namespace ivfhnsw {
         std::vector<float> residuals(n * d);
         compute_residuals(n, x, residuals.data(), assigned.data());
 
-        // Train OPQ rotation matrix and rotate residuals
-        if (do_opq){
-            faiss::OPQMatrix *matrix = new faiss::OPQMatrix(d, pq->M);
-
-            std::cout << "Training OPQ Matrix" << std::endl;
-            matrix->verbose = true;
-            matrix->max_train_points = n;
-            matrix->niter = 70;
-            matrix->train(n, residuals.data());
-            opq_matrix = matrix;
-
-            std::vector<float> copy_residuals(n * d);
-            memcpy(copy_residuals.data(), residuals.data(), n * d * sizeof(float));
-            opq_matrix->apply_noalloc(n, copy_residuals.data(), residuals.data());
-        }
         // Train residual PQ
         printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", pq->M, pq->ksub, n, d);
         pq->verbose = true;
@@ -325,13 +233,6 @@ namespace ivfhnsw {
         // Decode residuals
         std::vector<float> decoded_residuals(n * d);
         pq->decode(xcodes.data(), decoded_residuals.data(), n);
-
-        // Reverse rotation
-        if (do_opq){
-            std::vector<float> copy_decoded_residuals(n * d);
-            memcpy(copy_decoded_residuals.data(), decoded_residuals.data(), n * d * sizeof(float));
-            opq_matrix->transform_transpose(n, copy_decoded_residuals.data(), decoded_residuals.data());
-        }
 
         // Reconstruct original vectors 
         std::vector<float> reconstructed_x(n * d);
@@ -348,7 +249,7 @@ namespace ivfhnsw {
     }
 
     // Write index 
-    void IndexIVF_HNSW::write(const char *path_index) {
+    void IndexIVF_HNSW_LPQ::write(const char *path_index) {
         FILE *fout = fopen(path_index, "wb");
 
         fwrite(&d, sizeof(size_t), 1, fout);
@@ -384,7 +285,7 @@ namespace ivfhnsw {
     }
 
     // Read index 
-    void IndexIVF_HNSW::read(const char *path_index)
+    void IndexIVF_HNSW_LPQ::read(const char *path_index)
     {
         FILE *fin = fopen(path_index, "rb");
 
@@ -424,7 +325,7 @@ namespace ivfhnsw {
         fclose(fin);
     }
 
-    void IndexIVF_HNSW::compute_centroid_norms()
+    void IndexIVF_HNSW_LPQ::compute_centroid_norms()
     {
         centroid_norms.resize(nc);
         for (int i = 0; i < nc; i++) {
@@ -433,20 +334,7 @@ namespace ivfhnsw {
         }
     }
 
-    void IndexIVF_HNSW::rotate_quantizer() {
-        if (!do_opq){
-            printf("OPQ encoding is turned off");
-            abort();
-        }
-        std::vector<float> copy_centroid(d);
-        for (int i = 0; i < nc; i++){
-            float *centroid = quantizer->getDataByInternalId(i);
-            memcpy(copy_centroid.data(), centroid, d * sizeof(float));
-            opq_matrix->apply_noalloc(1, copy_centroid.data(), centroid);
-        }
-    }
-
-    float IndexIVF_HNSW::pq_L2sqr(const uint8_t *code)
+    float IndexIVF_HNSW_LPQ::pq_L2sqr(const uint8_t *code)
     {
         float result = 0.;
         int dim = code_size >> 2;
@@ -461,7 +349,7 @@ namespace ivfhnsw {
     }
 
     // Private 
-    void IndexIVF_HNSW::reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys)
+    void IndexIVF_HNSW_LPQ::reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys)
     {
         for (idx_t i = 0; i < n; i++) {
             float *centroid = quantizer->getDataByInternalId(keys[i]);
@@ -469,7 +357,7 @@ namespace ivfhnsw {
         }
     }
 
-    void IndexIVF_HNSW::compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys)
+    void IndexIVF_HNSW_LPQ::compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys)
     {
         for (idx_t i = 0; i < n; i++) {
             float *centroid = quantizer->getDataByInternalId(keys[i]);

@@ -332,7 +332,6 @@ void ProductQuantizer::compute_code (const float * x, uint8_t * code)  const
           case 2:  ((uint16_t *) code)[m] = (uint16_t) idxm;  break;
         }
     }
-
 }
 
 void ProductQuantizer::decode (const uint8_t *code, float *x) const
