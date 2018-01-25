@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 
 
     std::vector<float> avdists(opt.nc);
-    std::ifstream avdists_file("group_dists.fvecs");
+    std::ifstream avdists_file("group_dists.fvecs", std::ios::binary);
     readXvec<idx_t>(avdists_file, avdists.data(), 1, opt.nc);
     avdists_file.close();
 
