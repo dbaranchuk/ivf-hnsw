@@ -12,7 +12,7 @@ using namespace hnswlib;
 using namespace ivfhnsw;
 
 //========================
-// Run IVF-HNSW on DEEP1B 
+// Run IVF-HNSW on SIFT1B
 //========================
 int main(int argc, char **argv)
 {
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     std::cout << "Loading queries from " << opt.path_q << std::endl;
     std::vector<float> massQ(opt.nq * opt.d);
     std::ifstream query_input(opt.path_q, ios::binary);
-    readXvec<float>(query_input, massQ.data(), opt.d, opt.nq);
+    readXvecFvec<uint8_t>(query_input, massQ.data(), opt.d, opt.nq);
     query_input.close();
 
     //==================
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 
         int batch_size = 1000000;
         int nbatches = opt.nb / batch_size;
-        int groups_per_iter = 100000;
+        int groups_per_iter = 200000;
 
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> idx_batch(batch_size);
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
             std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
 
             for (int b = 0; b < nbatches; b++) {
-                readXvec<float>(base_input, batch.data(), opt.d, batch_size);
+                readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
                 readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
 
                 for (int i = 0; i < batch_size; i++) {
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
         fclose(fout);
     }
 
-
+    exit(0);
     std::vector<float> avdists(opt.nc);
     std::ifstream avdists_file("av_dists.fvecs", std::ios::binary);
     readXvec<float>(avdists_file, avdists.data(), 1, opt.nc);
