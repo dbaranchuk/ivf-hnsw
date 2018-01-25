@@ -213,39 +213,39 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW_LPQ::train_pq(size_t n, const float *x)
     {
-        // Assign train vectors 
-        std::vector <idx_t> assigned(n);
-        assign(n, x, assigned.data());
-
-        // Compute residuals for original vectors
-        std::vector<float> residuals(n * d);
-        compute_residuals(n, x, residuals.data(), assigned.data());
-
-        // Train residual PQ
-        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", pq->M, pq->ksub, n, d);
-        pq->verbose = true;
-        pq->train(n, residuals.data());
-
-        // Encode residuals
-        std::vector <uint8_t> xcodes(n * code_size);
-        pq->compute_codes(residuals.data(), xcodes.data(), n);
-
-        // Decode residuals
-        std::vector<float> decoded_residuals(n * d);
-        pq->decode(xcodes.data(), decoded_residuals.data(), n);
-
-        // Reconstruct original vectors 
-        std::vector<float> reconstructed_x(n * d);
-        reconstruct(n, reconstructed_x.data(), decoded_residuals.data(), assigned.data());
-
-        // Compute l2 square norms of reconstructed vectors
-        std::vector<float> norms(n);
-        faiss::fvec_norms_L2sqr(norms.data(), reconstructed_x.data(), d, n);
-
-        // Train norm PQ
-        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", norm_pq->M, norm_pq->ksub, n, d);
-        norm_pq->verbose = true;
-        norm_pq->train(n, norms.data());
+//        // Assign train vectors
+//        std::vector <idx_t> assigned(n);
+//        assign(n, x, assigned.data());
+//
+//        // Compute residuals for original vectors
+//        std::vector<float> residuals(n * d);
+//        compute_residuals(n, x, residuals.data(), assigned.data());
+//
+//        // Train residual PQ
+//        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", pq->M, pq->ksub, n, d);
+//        pq->verbose = true;
+//        pq->train(n, residuals.data());
+//
+//        // Encode residuals
+//        std::vector <uint8_t> xcodes(n * code_size);
+//        pq->compute_codes(residuals.data(), xcodes.data(), n);
+//
+//        // Decode residuals
+//        std::vector<float> decoded_residuals(n * d);
+//        pq->decode(xcodes.data(), decoded_residuals.data(), n);
+//
+//        // Reconstruct original vectors
+//        std::vector<float> reconstructed_x(n * d);
+//        reconstruct(n, reconstructed_x.data(), decoded_residuals.data(), assigned.data());
+//
+//        // Compute l2 square norms of reconstructed vectors
+//        std::vector<float> norms(n);
+//        faiss::fvec_norms_L2sqr(norms.data(), reconstructed_x.data(), d, n);
+//
+//        // Train norm PQ
+//        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", norm_pq->M, norm_pq->ksub, n, d);
+//        norm_pq->verbose = true;
+//        norm_pq->train(n, norms.data());
     }
 
     // Write index 
