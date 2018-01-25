@@ -240,7 +240,6 @@ namespace ivfhnsw
                 continue;
 
             ////
-            std::cout << pq_idxs.size() << " " << centroid_idx << std:: endl;
             idx_t pq_idx = pq_idxs[centroid_idx];
             pqs[pq_idx]->compute_inner_prod_table(query, precomputed_table.data());
             ////
