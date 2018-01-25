@@ -226,7 +226,7 @@ namespace ivfhnsw {
         compute_residuals(n, x, residuals.data(), assigned.data());
 
         // Train residual PQ
-        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", pq->M, pq->ksub, n, d);
+        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", pqs[i]->M, pqs[i]->ksub, n, d);
         pq->verbose = true;
         pqs[i]->train(n, residuals.data());
 
@@ -247,7 +247,7 @@ namespace ivfhnsw {
         faiss::fvec_norms_L2sqr(norms.data(), reconstructed_x.data(), d, n);
 
         // Train norm PQ
-        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", norm_pq->M, norm_pq->ksub, n, d);
+        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", norm_pqs[i]->M, norm_pqs[i]->ksub, n, d);
         norm_pq->verbose = true;
         norm_pq->train(n, norms.data());
     }
