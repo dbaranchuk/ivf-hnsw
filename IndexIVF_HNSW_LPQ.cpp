@@ -11,13 +11,13 @@ namespace ivfhnsw {
         npq = 4096;
         pq_idxs.resize(nc);
         for (int i = 0; i < npq; i++)
-            pqs[i] = new faiss:ProductQuantizer(d, bytes_per_code, nbits_per_idx);
+            pqs[i] = new faiss::ProductQuantizer(d, bytes_per_code, nbits_per_idx);
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
 
-        code_size = pq->code_size;
+        code_size = pqs[0]->code_size;
         norms.resize(65536); // buffer for reconstructed base points at search time supposing that
                              // the max size of the list is less than 65536.
-        precomputed_table.resize(pq->ksub * pq->M);
+        precomputed_table.resize(pqs[0]->ksub * pqs[0]->M);
 
         codes.resize(nc);
         norm_codes.resize(nc);
@@ -123,7 +123,7 @@ namespace ivfhnsw {
 
             norm_codes[key].push_back(xnorm_codes[i]);
         }
-        
+
         // Free memory, if it is allocated 
         if (idx != precomputed_idx)
             delete idx;
