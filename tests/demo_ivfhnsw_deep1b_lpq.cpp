@@ -171,7 +171,7 @@ int main(int argc, char **argv)
                         idx_batch[i] >= ngroups_added + groups_per_iter)
                         continue;
 
-                    idx_t pq_idx = index->pq_idxs(idx_batch[i]);
+                    idx_t pq_idx = index->pq_idxs[idx_batch[i]];
                     if (trainvecs[pq_idx].size() > opt.nt * opt.d)
                         continue;
 
