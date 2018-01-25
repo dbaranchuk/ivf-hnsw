@@ -219,7 +219,6 @@ int main(int argc, char **argv)
         index->pqs[i] = faiss::read_ProductQuantizer(path_lpq.c_str());
         index->norm_pqs[i] = faiss::read_ProductQuantizer(path_norm_lpq.c_str());
     }
-
     //////////////////////////
 
     //===================

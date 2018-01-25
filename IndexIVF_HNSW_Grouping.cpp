@@ -241,6 +241,7 @@ namespace ivfhnsw
 
 
             ////
+            std::cout << "HUI0\n";
             idx_t pq_idx = pq_idxs[centroid_idx];
             pqs[pq_idx]->compute_inner_prod_table(query, precomputed_table.data());
             ////
@@ -270,6 +271,7 @@ namespace ivfhnsw
 
                     float term2 = alpha * (query_centroid_dists[nn_centroid_idx] - centroid_norms[nn_centroid_idx]);
 
+                    std::cout << "HUI1\n";
                     norm_pqs[pq_idx]->decode(norm_code, norms.data(), subgroup_size);
                     //norm_pq->decode(norm_code, norms.data(), subgroup_size);
 
