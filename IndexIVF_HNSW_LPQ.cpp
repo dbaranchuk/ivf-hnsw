@@ -137,6 +137,55 @@ namespace ivfhnsw {
             delete idx;
     }
 
+    void IndexIVF_HNSW::rebuttal_search(size_t k, const float *x, float *distances, long *labels)
+    {
+        float query_centroid_dists[nprobe]; // Distances to the coarse centroids.
+        idx_t centroid_idxs[nprobe];        // Indices of the nearest coarse centroids
+
+        // Find the nearest coarse centroids to the query
+        auto coarse = quantizer->searchKnn(x, nprobe);
+        for (int i = nprobe - 1; i >= 0; i--) {
+            query_centroid_dists[i] = coarse.top().first;
+            centroid_idxs[i] = coarse.top().second;
+            coarse.pop();
+        }
+
+        // Compute residuals
+        std::vector<float> residuals(nprobe * d);
+        for (idx_t i = 0; i < nprobe; i++) {
+            float *centroid = quantizer->getDataByInternalId(centroid_idxs[i]);
+            faiss::fvec_madd(d, x, -1., centroid, residuals.data() + i*d);
+        }
+        // Prepare max heap with k answers
+        faiss::maxheap_heapify(k, distances, labels);
+
+        int ncode = 0;
+        for (int i = 0; i < nprobe; i++) {
+            idx_t centroid_idx = centroid_idxs[i];
+            int group_size = ids[centroid_idx].size();
+            if (group_size == 0)
+                continue;
+
+            const uint8_t *code = codes[centroid_idx].data();
+            const idx_t *id = ids[centroid_idx].data();
+
+            // Precompute distance table
+            idx_t pq_idx = pq_idxs[centroid_idx];
+            pqs[pq_idx]->compute_distance_table (residuals.data()+i*d, precomputed_table.data());
+
+            for (int j = 0; j < group_size; j++) {
+                float dist = pq_L2sqr(code + j * code_size);
+                if (dist < distances[0]) {
+                    faiss::maxheap_pop(k, distances, labels);
+                    faiss::maxheap_push(k, distances, labels, dist, id[j]);
+                }
+            }
+            ncode += group_size;
+            if (ncode >= max_codes)
+                break;
+        }
+    }
+
     /** Search procedure
       *
       * During IVF-HNSW-PQ search we compute
