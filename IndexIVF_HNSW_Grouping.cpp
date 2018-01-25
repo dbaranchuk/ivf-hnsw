@@ -269,7 +269,6 @@ namespace ivfhnsw
 
                     float term2 = alpha * (query_centroid_dists[nn_centroid_idx] - centroid_norms[nn_centroid_idx]);
 
-                    std::cout << "HUI1\n";
                     norm_pqs[pq_idx]->decode(norm_code, norms.data(), subgroup_size);
                     //norm_pq->decode(norm_code, norms.data(), subgroup_size);
 
