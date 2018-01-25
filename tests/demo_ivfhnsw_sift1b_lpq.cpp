@@ -44,57 +44,56 @@ int main(int argc, char **argv)
     //==================
     IndexIVF_HNSW_LPQ *index = new IndexIVF_HNSW_LPQ(opt.d, opt.nc, opt.code_size, 8);
     index->build_quantizer(opt.path_centroids, opt.path_info, opt.path_edges, opt.M, opt.efConstruction);
-
-    {
-        std::vector<float> avdists(opt.nc);
-        std::vector<size_t> groupsizes(opt.nc);
-        for (int i = 0; i < opt.nc; i++) {
-            avdists[i] = 0.0;
-            groupsizes[i] = 0;
-        }
-
-        int batch_size = 1000000;
-        int nbatches = opt.nb / batch_size;
-
-        std::vector<float> batch(batch_size * opt.d);
-        std::vector<idx_t> idx_batch(batch_size);
-
-        std::ifstream base_input(opt.path_base, ios::binary);
-        std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
-
-        for (int b = 0; b < nbatches; b++) {
-            readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
-            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-
-            for (int i = 0; i < batch_size; i++) {
-                idx_t idx = idx_batch[i];
-                const float *centroid = index->quantizer->getDataByInternalId(idx);
-                avdists[idx] += fvec_L2sqr(centroid, batch.data() + i*opt.d, opt.d);
-                groupsizes[idx]++;
-            }
-        }
-        base_input.close();
-        idx_input.close();
-
-        for (int i = 0; i < opt.nc; i++) {
-                if (groupsizes[i] == 0)
-                    continue;
-                avdists[i] /= groupsizes[i];
-        }
-        // Cluster av dists
-        FILE *fout = fopen("sift_dists.fvecs", "wb");
-        for (int i = 0; i < opt.nc; i++){
-            int d = 1;
-            fwrite(&d, sizeof(int), 1, fout);
-            fwrite(avdists.data()+i*d, sizeof(float), d, fout);
-        }
-        fclose(fout);
-    }
-
-    std::vector<float> avdists(opt.nc);
-    std::ifstream avdists_file("sift_dists.fvecs", std::ios::binary);
-    readXvec<float>(avdists_file, avdists.data(), 1, opt.nc);
-    avdists_file.close();
+//    {
+//        std::vector<float> avdists(opt.nc);
+//        std::vector<size_t> groupsizes(opt.nc);
+//        for (int i = 0; i < opt.nc; i++) {
+//            avdists[i] = 0.0;
+//            groupsizes[i] = 0;
+//        }
+//
+//        int batch_size = 1000000;
+//        int nbatches = opt.nb / batch_size;
+//
+//        std::vector<float> batch(batch_size * opt.d);
+//        std::vector<idx_t> idx_batch(batch_size);
+//
+//        std::ifstream base_input(opt.path_base, ios::binary);
+//        std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
+//
+//        for (int b = 0; b < nbatches; b++) {
+//            readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
+//            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+//
+//            for (int i = 0; i < batch_size; i++) {
+//                idx_t idx = idx_batch[i];
+//                const float *centroid = index->quantizer->getDataByInternalId(idx);
+//                avdists[idx] += fvec_L2sqr(centroid, batch.data() + i*opt.d, opt.d);
+//                groupsizes[idx]++;
+//            }
+//        }
+//        base_input.close();
+//        idx_input.close();
+//
+//        for (int i = 0; i < opt.nc; i++) {
+//                if (groupsizes[i] == 0)
+//                    continue;
+//                avdists[i] /= groupsizes[i];
+//        }
+//        // Cluster av dists
+//        FILE *fout = fopen("sift_dists.fvecs", "wb");
+//        for (int i = 0; i < opt.nc; i++){
+//            int d = 1;
+//            fwrite(&d, sizeof(int), 1, fout);
+//            fwrite(avdists.data()+i*d, sizeof(float), d, fout);
+//        }
+//        fclose(fout);
+//    }
+//
+//    std::vector<float> avdists(opt.nc);
+//    std::ifstream avdists_file("sift_dists.fvecs", std::ios::binary);
+//    readXvec<float>(avdists_file, avdists.data(), 1, opt.nc);
+//    avdists_file.close();
 
     std::ifstream pq_idxs_file("sift_pq_idxs.ivecs");
     readXvec<idx_t>(pq_idxs_file, index->pq_idxs.data(), 1, opt.nc);
@@ -103,40 +102,39 @@ int main(int argc, char **argv)
     //==========
     // Train PQ 
     //==========
-    std::vector <std::vector<float>> trainvecs(512);
-    for (int i = 0; i < 512; i++)
-        trainvecs.reserve(opt.nsubt*opt.d);
-
-    {
-        StopW stopw = StopW();
-
-        int batch_size = 1000000;
-        int nbatches = opt.nb / batch_size;
-        int groups_per_iter = 100000;
-
-        std::vector<float> batch(batch_size * opt.d);
-        std::vector <idx_t> idx_batch(batch_size);
-
-        std::ifstream base_input(opt.path_base, ios::binary);
-        std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
-
-        for (int b = 0; b < nbatches; b++) {
-            readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
-            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-
-            for (int i = 0; i < batch_size; i++) {
-                idx_t pq_idx = index->pq_idxs[idx_batch[i]];
-                if (trainvecs[pq_idx].size() > opt.nsubt * opt.d)
-                    continue;
-
-                for (int j = 0; j < opt.d; j++)
-                    trainvecs[pq_idx].push_back(batch[i * opt.d + j]);
-            }
-        }
-        base_input.close();
-        idx_input.close();
-
-    }
+//    std::vector <std::vector<float>> trainvecs(512);
+//    for (int i = 0; i < 512; i++)
+//        trainvecs.reserve(opt.nsubt*opt.d);
+//    {
+//        StopW stopw = StopW();
+//
+//        int batch_size = 1000000;
+//        int nbatches = opt.nb / batch_size;
+//        int groups_per_iter = 100000;
+//
+//        std::vector<float> batch(batch_size * opt.d);
+//        std::vector <idx_t> idx_batch(batch_size);
+//
+//        std::ifstream base_input(opt.path_base, ios::binary);
+//        std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
+//
+//        for (int b = 0; b < nbatches; b++) {
+//            readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
+//            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+//
+//            for (int i = 0; i < batch_size; i++) {
+//                idx_t pq_idx = index->pq_idxs[idx_batch[i]];
+//                if (trainvecs[pq_idx].size() > opt.nsubt * opt.d)
+//                    continue;
+//
+//                for (int j = 0; j < opt.d; j++)
+//                    trainvecs[pq_idx].push_back(batch[i * opt.d + j]);
+//            }
+//        }
+//        base_input.close();
+//        idx_input.close();
+//
+//    }
     for (int i = 0 ; i < 512; i++) {
         if (trainvecs[i].size() == 0){
             std::cout << i << std::endl;
@@ -153,8 +151,8 @@ int main(int argc, char **argv)
             index->pqs[i] = faiss::read_ProductQuantizer(path_lpq.c_str());
             index->norm_pqs[i] = faiss::read_ProductQuantizer(path_norm_lpq.c_str());
         } else {
-            std::cout << "Training PQ codebooks" << std::endl;
-            index->train_pq(opt.nsubt, trainvecs[i].data(), i);
+            //std::cout << "Training PQ codebooks" << std::endl;
+            //index->train_pq(opt.nsubt, trainvecs[i].data(), i);
 
             std::cout << "Saving PQ codebooks" << std::endl;
             faiss::write_ProductQuantizer(index->pqs[i], path_lpq.c_str());
@@ -162,7 +160,6 @@ int main(int argc, char **argv)
         }
     }
 
-    exit(0);
     //==========================
     // Construct IVF-HNSW Index 
     //==========================
