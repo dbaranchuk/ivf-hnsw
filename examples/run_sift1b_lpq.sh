@@ -14,7 +14,7 @@ efConstruction="500"  # Max number of candidate vertices in priority queue to ob
 nb="1000000000"       # Number of base vectors
 
 nt="10000000"         # Number of learn vectors
-nsubt="65536"         # Number of learn vectors to train (random subset of the learn set)
+nsubt="16384"         # Number of learn vectors to train (random subset of the learn set)
 
 nc="993127"           # Number of centroids for HNSW quantizer
 
