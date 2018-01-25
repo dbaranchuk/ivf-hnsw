@@ -287,7 +287,7 @@ namespace ivfhnsw {
         fwrite(centroid_norms.data(), sizeof(float), nc, fout);
 
 
-        fwrite(pq_idxs.data(), sizeof(idx_t), npq, fout);
+        fwrite(pq_idxs.data(), sizeof(idx_t), nc, fout);
         fclose(fout);
     }
 
@@ -330,8 +330,8 @@ namespace ivfhnsw {
         centroid_norms.resize(nc);
         fread(centroid_norms.data(), sizeof(float), nc, fin);
         //
-        pq_idxs.resize(npq);
-        fread(pq_idxs.data(), sizeof(idx_t), npq, fin);
+        pq_idxs.resize(nc);
+        fread(pq_idxs.data(), sizeof(idx_t), nc, fin);
 
         fclose(fin);
     }
