@@ -184,22 +184,25 @@ namespace ivfhnsw {
         int ncode = 0;
         for (int i = 0; i < nprobe; i++) {
             idx_t centroid_idx = centroid_idxs[i];
-            idx_t pq_idx = pq_idxs[centroid_idx];
             int group_size = norm_codes[centroid_idx].size();
             if (group_size == 0)
                 continue;
 
             // Precompute table
+            //std::cout << "HUI1\n";
+            idx_t pq_idx = pq_idxs[centroid_idx];
             pqs[pq_idx]->compute_inner_prod_table(x, precomputed_table.data());
 
+            //std::cout << "HUI2\n";
             const uint8_t *code = codes[centroid_idx].data();
             const uint8_t *norm_code = norm_codes[centroid_idx].data();
             const idx_t *id = ids[centroid_idx].data();
             float term1 = query_centroid_dists[i] - centroid_norms[centroid_idx];
 
+            //std::cout << "HUI3\n";
             // Decode the norms of each vector in the list
             norm_pqs[pq_idx]->decode(norm_code, norms.data(), group_size);
-
+            //std::cout << "HUI4\n";
             for (int j = 0; j < group_size; j++) {
                 float term3 = 2 * pq_L2sqr(code + j * code_size);
                 float dist = term1 + norms[j] - term3; //term2 = norms[j]
@@ -330,8 +333,8 @@ namespace ivfhnsw {
         centroid_norms.resize(nc);
         fread(centroid_norms.data(), sizeof(float), nc, fin);
         //
-        pq_idxs.resize(nc);
-        fread(pq_idxs.data(), sizeof(idx_t), nc, fin);
+        pq_idxs.resize(npq);
+        fread(pq_idxs.data(), sizeof(idx_t), npq, fin);
 
         fclose(fin);
     }
