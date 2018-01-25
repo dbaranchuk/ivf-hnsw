@@ -57,7 +57,6 @@ int main(int argc, char **argv)
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> idx_batch(batch_size);
 
-        // Adding batches of groups to the index (batch size - <groups_per_iter> groups per iteration)
         for (int ngroups_added = 0; ngroups_added < opt.nc; ngroups_added += groups_per_iter) {
             std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
                       << ngroups_added << " / " << opt.nc << std::endl;

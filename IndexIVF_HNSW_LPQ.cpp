@@ -9,6 +9,7 @@ namespace ivfhnsw {
             d(dim), nc(ncentroids)
     {
         npq = 4096;
+        pqs.resize(npq);
         pq_idxs.resize(nc);
         for (int i = 0; i < npq; i++)
             pqs[i] = new faiss::ProductQuantizer(d, bytes_per_code, nbits_per_idx);
