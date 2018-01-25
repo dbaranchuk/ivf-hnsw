@@ -117,12 +117,14 @@ int main(int argc, char **argv)
     readXvec<float>(avdists_file, avdists.data(), 1, opt.nc);
     avdists_file.close();
 
+    int counter = 0;
     for (int i = 0; i < opt.nc; i++){
         if (isinf(avdists[i]) || avdists[i] == 2){
-            std::cout << i << std::endl;
+            counter++;
             avdists[i] = 0.;
         }
     }
+    std::cout << counter << std::endl;
 
     FILE *fout = fopen("av_dists.fvecs", "wb");
     for (int i = 0; i < opt.nc; i++){
