@@ -95,9 +95,9 @@ int main(int argc, char **argv)
 //    readXvec<float>(avdists_file, avdists.data(), 1, opt.nc);
 //    avdists_file.close();
 
-    std::ifstream pq_idxs_file("sift_pq_idxs.ivecs");
-    readXvec<idx_t>(pq_idxs_file, index->pq_idxs.data(), 1, opt.nc);
-    pq_idxs_file.close();
+    //std::ifstream pq_idxs_file("sift_pq_idxs.ivecs");
+    //readXvec<idx_t>(pq_idxs_file, index->pq_idxs.data(), 1, opt.nc);
+    //pq_idxs_file.close();
 
     //==========
     // Train PQ 
