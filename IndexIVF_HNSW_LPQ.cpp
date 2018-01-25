@@ -91,7 +91,6 @@ namespace ivfhnsw {
 
         // Encode residuals
         std::vector <uint8_t> xcodes(n * code_size);
-        std::cout << "HUI0\n";
 #pragma omp parallel for
         for (int i = 0; i < n; i++) {
             idx_t pq_idx = pq_idxs[idx[i]];
@@ -100,7 +99,6 @@ namespace ivfhnsw {
 
         // Decode residuals
         std::vector<float> decoded_residuals(n * d);
-        std::cout << "HUI1\n";
 #pragma omp parallel for
         for (int i = 0; i < n; i++) {
             idx_t pq_idx = pq_idxs[idx[i]];
@@ -117,14 +115,12 @@ namespace ivfhnsw {
 
         // Encode norms
         std::vector <uint8_t> xnorm_codes(n);
-        std::cout << "HUI2\n";
 #pragma omp parallel for
         for (int i = 0; i < n; i++) {
             idx_t pq_idx = pq_idxs[idx[i]];
-            norm_pqs[pq_idx]->compute_code(norms.data()+i*d, xnorm_codes.data()+i);
+            norm_pqs[pq_idx]->compute_code(norms.data()+i, xnorm_codes.data()+i);
         }
 
-        std::cout << "HUI3\n";
         // Add vector indices and PQ codes for residuals and norms to Index
         for (size_t i = 0; i < n; i++) {
             idx_t key = idx[i];
@@ -136,7 +132,6 @@ namespace ivfhnsw {
 
             norm_codes[key].push_back(xnorm_codes[i]);
         }
-        std::cout << "HUI4\n";
         // Free memory, if it is allocated 
         if (idx != precomputed_idx)
             delete idx;
