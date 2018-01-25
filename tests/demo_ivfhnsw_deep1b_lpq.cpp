@@ -117,7 +117,7 @@ int main(int argc, char **argv)
     //==========
     if (exists(opt.path_pq) && exists(opt.path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << opt.path_pq << std::endl;
-        index->pq = faiss::read_ProductQuantizer(opt.path_pq);
+        //index->pq = faiss::read_ProductQuantizer(opt.path_pq);
 
         std::cout << "Loading Norm PQ codebook from " << opt.path_norm_pq << std::endl;
         index->norm_pq = faiss::read_ProductQuantizer(opt.path_norm_pq);
@@ -135,7 +135,7 @@ int main(int argc, char **argv)
         index->train_pq(opt.nsubt, trainvecs_rnd_subset.data());
 
         std::cout << "Saving Residual PQ codebook to " << opt.path_pq << std::endl;
-        faiss::write_ProductQuantizer(index->pq, opt.path_pq);
+        //faiss::write_ProductQuantizer(index->pq, opt.path_pq);
 
         std::cout << "Saving Norm PQ codebook to " << opt.path_norm_pq << std::endl;
         faiss::write_ProductQuantizer(index->norm_pq, opt.path_norm_pq);
@@ -184,11 +184,6 @@ int main(int argc, char **argv)
         // Save index, pq and norm_pq 
         std::cout << "Saving index to " << opt.path_index << std::endl;
         index->write(opt.path_index);
-    }
-    // For correct search using OPQ encoding rotate points in the coarse quantizer
-    if (opt.do_opq) {
-        std::cout << "Rotating centroids"<< std::endl;
-        index->rotate_quantizer();
     }
     //===================
     // Parse groundtruth
