@@ -118,7 +118,7 @@ int main(int argc, char **argv)
     avdists_file.close();
 
     for (int i = 0; i < opt.nc; i++){
-        if (isinf(avdists[i])){
+        if (isinf(avdists[i]) || avdists[i] > 500){
             std::cout << i << std::endl;
             avdists[i] = 0.;
         }
