@@ -170,11 +170,8 @@ namespace ivfhnsw {
         float query_centroid_dists[nprobe]; // Distances to the coarse centroids.
         idx_t centroid_idxs[nprobe];        // Indices of the nearest coarse centroids
 
-        // For correct search using OPQ rotate a query
-        const float *query = x;
-
         // Find the nearest coarse centroids to the query
-        auto coarse = quantizer->searchKnn(query, nprobe);
+        auto coarse = quantizer->searchKnn(x, nprobe);
         for (int i = nprobe - 1; i >= 0; i--) {
             query_centroid_dists[i] = coarse.top().first;
             centroid_idxs[i] = coarse.top().second;
@@ -187,12 +184,13 @@ namespace ivfhnsw {
         int ncode = 0;
         for (int i = 0; i < nprobe; i++) {
             idx_t centroid_idx = centroid_idxs[i];
+            idx_t pq_idx = pq_idxs[centroid_idx];
             int group_size = norm_codes[centroid_idx].size();
             if (group_size == 0)
                 continue;
 
             // Precompute table
-            pqs[centroid_idx]->compute_inner_prod_table(query, precomputed_table.data());
+            pqs[pq_idx]->compute_inner_prod_table(x, precomputed_table.data());
 
             const uint8_t *code = codes[centroid_idx].data();
             const uint8_t *norm_code = norm_codes[centroid_idx].data();
@@ -200,7 +198,7 @@ namespace ivfhnsw {
             float term1 = query_centroid_dists[i] - centroid_norms[centroid_idx];
 
             // Decode the norms of each vector in the list
-            norm_pqs[centroid_idx]->decode(norm_code, norms.data(), group_size);
+            norm_pqs[pq_idx]->decode(norm_code, norms.data(), group_size);
 
             for (int j = 0; j < group_size; j++) {
                 float term3 = 2 * pq_L2sqr(code + j * code_size);
