@@ -71,7 +71,7 @@ int main(int argc, char **argv)
             for (int i = 0; i < batch_size; i++) {
                 idx_t idx = idx_batch[i];
                 const float *centroid = index->quantizer->getDataByInternalId(idx);
-                avdists[idx] += fvec_L2sqr(centroid, batch + i*opt.d, opt.d);
+                avdists[idx] += fvec_L2sqr(centroid, batch.data() + i*opt.d, opt.d);
                 groupsizes[idx]++;
             }
         }
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 
 
         for (int i = 0; i < opt.nc; i++) {
-                if (group_size == 0)
+                if (groupsizes[i] == 0)
                     continue;
                 avdists[i] /= groupsizes[i];
         }
