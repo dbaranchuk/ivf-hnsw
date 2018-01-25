@@ -39,7 +39,7 @@ namespace ivfhnsw {
       * Currently only asymmetric queries are supported:
       * database-to-database queries are not implemented.
     */
-    struct IndexIVF_HNSW
+    struct IndexIVF_HNSW_LPQ
     {
         typedef unsigned char uint8_t;  ///< all codes are this type
         typedef unsigned int idx_t;     ///< all indices are this type
@@ -69,8 +69,8 @@ namespace ivfhnsw {
         std::vector<float> centroid_norms;  ///< L2 square norms of coarse centroids
 
     public:
-        explicit IndexIVF_HNSW(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx);
-        virtual ~IndexIVF_HNSW();
+        explicit IndexIVF_HNSW_LPQ(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx);
+        virtual ~IndexIVF_HNSW_LPQ();
 
         /** Construct from stretch or load the existing quantizer (HNSW) instance
           *
