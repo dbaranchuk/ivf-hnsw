@@ -127,7 +127,7 @@ int main(int argc, char **argv)
     //==========
     std::vector <std::vector<float>> trainvecs(512);
     for (int i = 0; i < 512; i++)
-        trainvecs.reserve(opt.nt*opt.d);
+        trainvecs.reserve(opt.nsubt*opt.d);
 
     {
         StopW stopw = StopW();
@@ -158,7 +158,7 @@ int main(int argc, char **argv)
                         continue;
 
                     idx_t pq_idx = index->pq_idxs[idx_batch[i]];
-                    if (trainvecs[pq_idx].size() > opt.nt * opt.d)
+                    if (trainvecs[pq_idx].size() > opt.nsubt * opt.d)
                         continue;
 
                     for (int j = 0; j < opt.d; j++)
