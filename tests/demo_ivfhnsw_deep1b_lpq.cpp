@@ -140,10 +140,10 @@ int main(int argc, char **argv)
     // Train PQ 
     //==========
     std::string path_lpq("/home/dbaranchuk/ivf-hnsw/models/DEEP1B/lpqs/lpq");
-    path_lpq += std::string(opt.code_size) + std::string("_") + std::string(i) + std::string(".pq");
+    path_lpq += std::to_string(opt.code_size) + std::string("_") + std::to_string(i) + std::string(".pq");
 
     std::string path_norm_lpq("/home/dbaranchuk/ivf-hnsw/models/DEEP1B/lpqs/norm_lpq");
-    path_norm_lpq += std::string(opt.code_size) + std::string("_") + std::string(i) + std::string(".pq");
+    path_norm_lpq += std::to_string(opt.code_size) + std::string("_") + std::to_string(i) + std::string(".pq");
 
     if (exists(path_lpq.c_str()) && exists(path_norm_lpq.c_str())) {
         std::cout << "Loading PQ codebooks" << std::endl;
