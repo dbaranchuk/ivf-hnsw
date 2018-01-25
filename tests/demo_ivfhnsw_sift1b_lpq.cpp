@@ -175,14 +175,20 @@ int main(int argc, char **argv)
         std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
 
         size_t batch_size = 1000000;
-        size_t nbatch = opt.nb / batch_size;
+        size_t nbatches = opt.nb / batch_size;
         std::vector<float> batch(batch_size * opt.d);
         std::vector <idx_t> idx_batch(batch_size);
         std::vector <idx_t> ids_batch(batch_size);
 
-        for (int b = 0; b < nbatch; b++) {
-            if (b % 1 == 0) {
-                std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100. * b) / nbatch << "%\n";
+        for (int b = 0; b < nbatches; b++) {
+            if (b % 10 == 0) {
+                std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100. * b) / nbatches << "%\n";
+            }
+            for (int i = 0; i < batch_size; i++){
+                idx_t idx = index->pq_idxs[idx_batch[i]];
+                if (idx >= 512)
+                    std::cout << "wrong pq idx\n";
+
             }
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
             readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
