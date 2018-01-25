@@ -8,7 +8,7 @@ namespace ivfhnsw {
     IndexIVF_HNSW_LPQ::IndexIVF_HNSW_LPQ(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx):
             d(dim), nc(ncentroids)
     {
-        npq = 4096;
+        npq = 512;
         pqs.resize(npq);
         norm_pqs.resize(npq);
         pq_idxs.resize(nc);

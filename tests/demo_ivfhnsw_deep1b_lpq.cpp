@@ -113,36 +113,20 @@ int main(int argc, char **argv)
 
 
     std::vector<float> avdists(opt.nc);
-    std::ifstream avdists_file("group_dists.fvecs", std::ios::binary);
+    std::ifstream avdists_file("av_dists.fvecs", std::ios::binary);
     readXvec<float>(avdists_file, avdists.data(), 1, opt.nc);
     avdists_file.close();
 
-    int counter = 0;
-    for (int i = 0; i < opt.nc; i++){
-        if (isinf(avdists[i]) || avdists[i] == 2){
-            counter++;
-            avdists[i] = 0.;
-        }
-    }
-    std::cout << counter << std::endl;
 
-    FILE *fout = fopen("av_dists.fvecs", "wb");
-    for (int i = 0; i < opt.nc; i++){
-        int d = 1;
-        fwrite(&d, sizeof(int), 1, fout);
-        fwrite(avdists.data()+i*d, sizeof(float), d, fout);
-    }
-    fclose(fout);
-    exit(0);
-    //std::ifstream pq_idxs_file("pq_idxs.ivecs");
-    //readXvec<idx_t>(pq_idxs_file, index->pq_idxs.data(), 1, opt.nc);
-    //pq_idxs_file.close();
+    std::ifstream pq_idxs_file("pq_idxs.ivecs");
+    readXvec<idx_t>(pq_idxs_file, index->pq_idxs.data(), 1, opt.nc);
+    pq_idxs_file.close();
 
     //==========
     // Train PQ 
     //==========
-    std::vector <std::vector<float>> trainvecs(4096);
-    for (int i = 0; i < 4096; i++)
+    std::vector <std::vector<float>> trainvecs(512);
+    for (int i = 0; i < 512; i++)
         trainvecs.reserve(opt.nt*opt.d);
 
     {
@@ -185,7 +169,7 @@ int main(int argc, char **argv)
             idx_input.close();
         }
     }
-    for (int i = 0 ; i < 4096; i++) {
+    for (int i = 0 ; i < 512; i++) {
         std::string path_lpq("/home/dbaranchuk/ivf-hnsw/models/DEEP1B/lpqs/lpq");
         path_lpq += std::to_string(opt.code_size) + std::string("_") + std::to_string(i) + std::string(".pq");
 
