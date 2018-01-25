@@ -47,63 +47,45 @@ int main(int argc, char **argv)
 
     {
         std::vector<float> avdists(opt.nc);
+        std::vector<size_t> groupsizes(opt.nc);
+        for (int i = 0; i < opt.nc; i++) {
+            avdists[i] = 0.0;
+            groupsizes[i] = 0;
+        }
+
         StopW stopw = StopW();
 
         int batch_size = 1000000;
         int nbatches = opt.nb / batch_size;
-        int groups_per_iter = 250000;
 
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> idx_batch(batch_size);
 
-        for (int ngroups_added = 0; ngroups_added < opt.nc; ngroups_added += groups_per_iter) {
-            std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
-                      << ngroups_added << " / " << opt.nc << std::endl;
+        std::ifstream base_input(opt.path_base, ios::binary);
+        std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
 
-            std::vector <std::vector<float>> data(groups_per_iter);
+        for (int b = 0; b < nbatches; b++) {
+            readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
+            readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
 
-            std::ifstream base_input(opt.path_base, ios::binary);
-            std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
-
-            for (int b = 0; b < nbatches; b++) {
-                readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
-                readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-
-                for (int i = 0; i < batch_size; i++) {
-                    if (idx_batch[i] < ngroups_added ||
-                        idx_batch[i] >= ngroups_added + groups_per_iter)
-                        continue;
-
-                    idx_t idx = idx_batch[i] % groups_per_iter;
-                    for (int j = 0; j < opt.d; j++)
-                        data[idx].push_back(batch[i * opt.d + j]);
-                }
-            }
-            base_input.close();
-            idx_input.close();
-
-            // If <opt.nc> is not a multiple of groups_per_iter, change <groups_per_iter> on the last iteration
-            if (opt.nc - ngroups_added <= groups_per_iter)
-                groups_per_iter = opt.nc - ngroups_added;
-
-            for (int i = 0; i < groups_per_iter; i++) {
-                int group_size = data[i].size() / opt.d;
-                if (group_size == 0){
-                    avdists[ngroups_added+i] = 0.0;
-                    continue;
-                }
-                //Compute average distance in the group
-                float av_group_dist = 0.0;
-                for (int j = 0; j < group_size; j++){
-                    const float *centroid = index->quantizer->getDataByInternalId(i);
-                    av_group_dist += fvec_L2sqr(centroid, data[i].data()+j*opt.d, opt.d);
-                }
-                av_group_dist /= group_size;
-                avdists[ngroups_added+i] = av_group_dist;
+            for (int i = 0; i < batch_size; i++) {
+                idx_t idx = idx_batch[i];
+                const float *centroid = index->quantizer->getDataByInternalId(idx);
+                avdists[idx] += fvec_L2sqr(centroid, batch + i*opt.d, opt.d);
+                groupsizes[idx]++;
             }
         }
+        base_input.close();
+        idx_input.close();
+
+
+        for (int i = 0; i < opt.nc; i++) {
+                if (group_size == 0)
+                    continue;
+                avdists[i] /= groupsizes[i];
+        }
         // Cluster av dists
-        FILE *fout = fopen("group_dists.fvecs", "wb");
+        FILE *fout = fopen("sift_dists.fvecs", "wb");
         for (int i = 0; i < opt.nc; i++){
             int d = 1;
             fwrite(&d, sizeof(int), 1, fout);
