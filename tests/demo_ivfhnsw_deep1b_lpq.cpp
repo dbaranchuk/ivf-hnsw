@@ -171,7 +171,7 @@ int main(int argc, char **argv)
                         idx_batch[i] >= ngroups_added + groups_per_iter)
                         continue;
 
-                    idx_t pq_idx = pq_idxs(idx_batch[i]);
+                    idx_t pq_idx = index->pq_idxs(idx_batch[i]);
                     if (trainvecs[pq_idx].size() > opt.nt * opt.d)
                         continue;
 
@@ -196,7 +196,7 @@ int main(int argc, char **argv)
             index->norm_pqs[i] = faiss::read_ProductQuantizer(path_norm_lpq.c_str());
         } else {
             std::cout << "Training PQ codebooks" << std::endl;
-            index->train_pq(opt.nsubt, trainvecs[i].data(), ipq);
+            index->train_pq(opt.nsubt, trainvecs[i].data(), i);
 
             std::cout << "Saving PQ codebooks" << std::endl;
             faiss::write_ProductQuantizer(index->pqs[i], path_lpq.c_str());
