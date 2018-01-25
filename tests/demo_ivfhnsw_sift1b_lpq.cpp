@@ -147,7 +147,7 @@ int main(int argc, char **argv)
         path_norm_lpq += std::to_string(opt.code_size) + std::string("_") + std::to_string(i) + std::string(".pq");
 
         if (exists(path_lpq.c_str()) && exists(path_norm_lpq.c_str())) {
-            std::cout << "Loading PQ codebooks" << std::endl;
+            //std::cout << "Loading PQ codebooks" << std::endl;
             index->pqs[i] = faiss::read_ProductQuantizer(path_lpq.c_str());
             index->norm_pqs[i] = faiss::read_ProductQuantizer(path_norm_lpq.c_str());
         } else {
@@ -185,7 +185,7 @@ int main(int argc, char **argv)
                 std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100. * b) / nbatch << "%\n";
             }
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
-            readXvecFvec<float>(base_input, batch.data(), opt.d, batch_size);
+            readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
 
             for (size_t i = 0; i < batch_size; i++)
                 ids_batch[i] = batch_size * b + i;
