@@ -181,7 +181,7 @@ int main(int argc, char **argv)
         std::vector <idx_t> ids_batch(batch_size);
 
         for (int b = 0; b < nbatch; b++) {
-            if (b % 10 == 0) {
+            if (b % 1 == 0) {
                 std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100. * b) / nbatch << "%\n";
             }
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
