@@ -60,9 +60,9 @@ path_precomputed_idxs="$path_data/precomputed_idxs.ivecs"
 path_edges="$path_model/hnsw_M${M}_ef${efConstruction}.ivecs"
 path_info="$path_model/hnsw_M${M}_ef${efConstruction}.bin"
 
-path_pq="$path_model/pq$code_size.pq"
-path_norm_pq="$path_model/norm_pq$code_size.pq"
-path_index="$path_model/ivfhnsw_PQ$code_size.index"
+path_pq="$path_model/pq$code_size.lpq"
+path_norm_pq="$path_model/norm_pq$code_size.lpq"
+path_index="$path_model/ivfhnsw_LPQ$code_size.index"
 
 #######
 # Run #
