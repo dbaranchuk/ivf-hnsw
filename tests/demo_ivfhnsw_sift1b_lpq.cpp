@@ -136,10 +136,10 @@ int main(int argc, char **argv)
 //
 //    }
     for (int i = 0 ; i < 512; i++) {
-        if (trainvecs[i].size() == 0){
-            std::cout << i << std::endl;
-            continue;
-        }
+        //if (trainvecs[i].size() == 0){
+        //    std::cout << i << std::endl;
+        //    continue;
+        //}
         std::string path_lpq("/home/dbaranchuk/ivf-hnsw/models/SIFT1B/lpqs/lpq");
         path_lpq += std::to_string(opt.code_size) + std::string("_") + std::to_string(i) + std::string(".pq");
 
