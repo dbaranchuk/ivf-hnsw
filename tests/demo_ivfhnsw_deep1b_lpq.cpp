@@ -120,8 +120,8 @@ int main(int argc, char **argv)
     for (int i = 0; i < opt.nc; i++){
         if (isinf(avdists[i])){
             std::cout << i << std::endl;
+            avdists[i] = 0.;
         }
-        avdists[i] = 0.;
     }
 
     FILE *fout = fopen("av_dists.fvecs", "wb");
