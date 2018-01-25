@@ -91,16 +91,18 @@ namespace ivfhnsw {
 
         // Encode residuals
         std::vector <uint8_t> xcodes(n * code_size);
+#pragma omp parallel for
         for (int i = 0; i < n; i++) {
             idx_t pq_idx = pq_idxs[idx[i]];
-            pqs[pq_idx]->compute_codes(residuals.data()+i*d, xcodes.data()+i*code_size, 1);
+            pqs[pq_idx]->compute_code(residuals.data()+i*d, xcodes.data()+i*code_size);
         }
 
         // Decode residuals
         std::vector<float> decoded_residuals(n * d);
+#pragma omp parallel for
         for (int i = 0; i < n; i++) {
             idx_t pq_idx = pq_idxs[idx[i]];
-            pqs[pq_idx]->decode(xcodes.data()+i*code_size, decoded_residuals.data()+i*d, 1);
+            pqs[pq_idx]->decode(xcodes.data()+i*code_size, decoded_residuals.data()+i*d);
         }
 
         // Reconstruct original vectors 
@@ -113,9 +115,10 @@ namespace ivfhnsw {
 
         // Encode norms
         std::vector <uint8_t> xnorm_codes(n);
+#pragma omp parallel for
         for (int i = 0; i < n; i++) {
             idx_t pq_idx = pq_idxs[idx[i]];
-            norm_pqs[pq_idx]->compute_codes(norms.data()+i*d, xnorm_codes.data()+i, 1);
+            norm_pqs[pq_idx]->compute_code(norms.data()+i*d, xnorm_codes.data()+i);
         }
 
         // Add vector indices and PQ codes for residuals and norms to Index
