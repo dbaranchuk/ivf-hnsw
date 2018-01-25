@@ -168,11 +168,9 @@ int main(int argc, char **argv)
         std::cout << "Loading index from " << opt.path_index << std::endl;
         index->read(opt.path_index);
 
-        std::ifstream pq_idxs_file("sift_pq_idxs.ivecs");
-        readXvec<idx_t>(pq_idxs_file, index->pq_idxs.data(), 1, opt.nc);
-        pq_idxs_file.close();
-
-        index->write(opt.path_index);
+        //std::ifstream pq_idxs_file("sift_pq_idxs.ivecs");
+        //readXvec<idx_t>(pq_idxs_file, index->pq_idxs.data(), 1, opt.nc);
+        //pq_idxs_file.close();
     } else {
         // Add elements 
         StopW stopw = StopW();
