@@ -121,7 +121,7 @@ int main(int argc, char **argv)
         std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
 
         for (int b = 0; b < nbatches; b++) {
-            readXvec<float>(base_input, batch.data(), opt.d, batch_size);
+            readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
 
             for (int i = 0; i < batch_size; i++) {
