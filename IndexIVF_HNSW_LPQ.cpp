@@ -227,7 +227,7 @@ namespace ivfhnsw {
 
         // Train residual PQ
         printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", pqs[i]->M, pqs[i]->ksub, n, d);
-        pq->verbose = true;
+        pqs[i]->verbose = false;
         pqs[i]->train(n, residuals.data());
 
         // Encode residuals
@@ -248,8 +248,8 @@ namespace ivfhnsw {
 
         // Train norm PQ
         printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", norm_pqs[i]->M, norm_pqs[i]->ksub, n, d);
-        norm_pq->verbose = true;
-        norm_pq->train(n, norms.data());
+        norm_pqs[i]->verbose = false;
+        norm_pqs[i]->train(n, norms.data());
     }
 
     // Write index 

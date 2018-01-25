@@ -131,7 +131,7 @@ int main(int argc, char **argv)
         fwrite(avdists.data()+i*d, sizeof(float), d, fout);
     }
     fclose(fout);
-
+    exit(0);
     //std::ifstream pq_idxs_file("pq_idxs.ivecs");
     //readXvec<idx_t>(pq_idxs_file, index->pq_idxs.data(), 1, opt.nc);
     //pq_idxs_file.close();
@@ -197,11 +197,8 @@ int main(int argc, char **argv)
         }
 
         std::cout << "Training PQ codebooks" << std::endl;
-        for (int i = 0; i < 4096; i++) {
-            index->pqs[i]->verbose = false;
-            index->norm_pqs[i]->verbose = false;
+        for (int i = 0; i < 4096; i++)
             index->train_pq(opt.nsubt, trainvecs[i].data(), i);
-        }
 
         std::cout << "Saving PQ codebooks" << std::endl;
         for (int i = 0; i < 4096; i++) {
