@@ -90,7 +90,7 @@ namespace ivfhnsw {
         std::vector <uint8_t> xcodes(n * code_size);
         for (int i = 0; i < n; i++) {
             idx_t pq_idx = pq_idxs[idx[i]];
-            pqs[pq_idxs]->compute_codes(residuals.data()+i*d, xcodes.data()+i*code_size, 1);
+            (pqs[pq_idxs])->compute_codes(residuals.data()+i*d, xcodes.data()+i*code_size, 1);
         }
 
         // Decode residuals
