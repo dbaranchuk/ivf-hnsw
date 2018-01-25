@@ -238,11 +238,10 @@ namespace ivfhnsw
             size_t group_size = norm_codes[centroid_idx].size();
             if (group_size == 0)
                 continue;
-
-
+            
             ////
-            std::cout << "HUI0\n";
             idx_t pq_idx = pq_idxs[centroid_idx];
+            std::cout << "HUI0\n";
             pqs[pq_idx]->compute_inner_prod_table(query, precomputed_table.data());
             ////
 
