@@ -10,11 +10,12 @@ namespace ivfhnsw {
     {
         npq = 4096;
         pqs.resize(npq);
+        norm_pqs.resize(npq);
         pq_idxs.resize(nc);
-        for (int i = 0; i < npq; i++)
+        for (int i = 0; i < npq; i++) {
             pqs[i] = new faiss::ProductQuantizer(d, bytes_per_code, nbits_per_idx);
-        norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
-
+            norm_pqs[i] = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
+        }
         code_size = pqs[0]->code_size;
         norms.resize(65536); // buffer for reconstructed base points at search time supposing that
                              // the max size of the list is less than 65536.
@@ -28,10 +29,11 @@ namespace ivfhnsw {
     IndexIVF_HNSW_LPQ::~IndexIVF_HNSW_LPQ()
     {
         if (quantizer) delete quantizer;
-        if (norm_pq) delete norm_pq;
 
-        for (int i = 0; i < npq; i++)
+        for (int i = 0; i < npq; i++) {
             if (pqs[i]) delete pqs[i];
+            if (norm_pqs[i]) delete norm_pqs[i];
+        }
     }
 
     /**
@@ -111,7 +113,11 @@ namespace ivfhnsw {
 
         // Encode norms
         std::vector <uint8_t> xnorm_codes(n);
-        norm_pq->compute_codes(norms.data(), xnorm_codes.data(), n);
+        std::vector <uint8_t> xcodes(n * code_size);
+        for (int i = 0; i < n; i++) {
+            idx_t pq_idx = pq_idxs[idx[i]];
+            norm_pqs[pq_idx]->compute_codes(norms.data()+i*d, xnorms.data()+i, 1);
+        }
 
         // Add vector indices and PQ codes for residuals and norms to Index
         for (size_t i = 0; i < n; i++) {
@@ -193,7 +199,7 @@ namespace ivfhnsw {
             float term1 = query_centroid_dists[i] - centroid_norms[centroid_idx];
 
             // Decode the norms of each vector in the list
-            norm_pq->decode(norm_code, norms.data(), group_size);
+            norm_pqs[centroid_idx]->decode(norm_code, norms.data(), group_size);
 
             for (int j = 0; j < group_size; j++) {
                 float term3 = 2 * pq_L2sqr(code + j * code_size);
@@ -210,41 +216,41 @@ namespace ivfhnsw {
     }
 
 
-    void IndexIVF_HNSW_LPQ::train_pq(size_t n, const float *x)
+    void IndexIVF_HNSW_LPQ::train_pq(size_t n, const float *x, int i)
     {
-//        // Assign train vectors
-//        std::vector <idx_t> assigned(n);
-//        assign(n, x, assigned.data());
-//
-//        // Compute residuals for original vectors
-//        std::vector<float> residuals(n * d);
-//        compute_residuals(n, x, residuals.data(), assigned.data());
-//
-//        // Train residual PQ
-//        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", pq->M, pq->ksub, n, d);
-//        pq->verbose = true;
-//        pq->train(n, residuals.data());
-//
-//        // Encode residuals
-//        std::vector <uint8_t> xcodes(n * code_size);
-//        pq->compute_codes(residuals.data(), xcodes.data(), n);
-//
-//        // Decode residuals
-//        std::vector<float> decoded_residuals(n * d);
-//        pq->decode(xcodes.data(), decoded_residuals.data(), n);
-//
-//        // Reconstruct original vectors
-//        std::vector<float> reconstructed_x(n * d);
-//        reconstruct(n, reconstructed_x.data(), decoded_residuals.data(), assigned.data());
-//
-//        // Compute l2 square norms of reconstructed vectors
-//        std::vector<float> norms(n);
-//        faiss::fvec_norms_L2sqr(norms.data(), reconstructed_x.data(), d, n);
-//
-//        // Train norm PQ
-//        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", norm_pq->M, norm_pq->ksub, n, d);
-//        norm_pq->verbose = true;
-//        norm_pq->train(n, norms.data());
+        // Assign train vectors
+        std::vector <idx_t> assigned(n);
+        assign(n, x, assigned.data());
+
+        // Compute residuals for original vectors
+        std::vector<float> residuals(n * d);
+        compute_residuals(n, x, residuals.data(), assigned.data());
+
+        // Train residual PQ
+        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", pq->M, pq->ksub, n, d);
+        pq->verbose = true;
+        pqs[i]->train(n, residuals.data());
+
+        // Encode residuals
+        std::vector <uint8_t> xcodes(n * code_size);
+        pqs[i]->compute_codes(residuals.data(), xcodes.data(), n);
+
+        // Decode residuals
+        std::vector<float> decoded_residuals(n * d);
+        pqs[i]->decode(xcodes.data(), decoded_residuals.data(), n);
+
+        // Reconstruct original vectors
+        std::vector<float> reconstructed_x(n * d);
+        reconstruct(n, reconstructed_x.data(), decoded_residuals.data(), assigned.data());
+
+        // Compute l2 square norms of reconstructed vectors
+        std::vector<float> norms(n);
+        faiss::fvec_norms_L2sqr(norms.data(), reconstructed_x.data(), d, n);
+
+        // Train norm PQ
+        printf("Training %zdx%zd product quantizer on %ld vectors in %dD\n", norm_pq->M, norm_pq->ksub, n, d);
+        norm_pq->verbose = true;
+        norm_pq->train(n, norms.data());
     }
 
     // Write index 
@@ -280,6 +286,9 @@ namespace ivfhnsw {
 
         // Save centroid norms 
         fwrite(centroid_norms.data(), sizeof(float), nc, fout);
+        //
+        fwrite(pq_idxs.data(), sizeof(idx_t), nc, fout);
+
         fclose(fout);
     }
 
@@ -321,6 +330,10 @@ namespace ivfhnsw {
         // Read centroid norms 
         centroid_norms.resize(nc);
         fread(centroid_norms.data(), sizeof(float), nc, fin);
+        //
+        pq_idxs.resize(nc);
+        fread(pq_idxs.data(), sizeof(idx_t), nc, fin);
+
         fclose(fin);
     }
 

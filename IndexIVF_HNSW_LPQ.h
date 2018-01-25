@@ -50,11 +50,10 @@ namespace ivfhnsw {
 
         hnswlib::HierarchicalNSW *quantizer; ///< Quantizer that maps vectors to inverted lists (HNSW [Y.Malkov])
 
+        size_t npq;
         std::vector<idx_t> pq_idxs;
         std::vector<faiss::ProductQuantizer *> pqs;
-        size_t npq;
-
-        faiss::ProductQuantizer *norm_pq;    ///< Produces the norm codes of reconstructed base vectors
+        std::vector<faiss::ProductQuantizer *> norm_pqs;    ///< Produces the norm codes of reconstructed base vectors
 
         size_t nprobe;        ///< Number of probes at search time
         size_t max_codes;     ///< Max number of codes to visit to do a query
@@ -118,7 +117,7 @@ namespace ivfhnsw {
           * @param n     number of training vectors of dimension d
           * @param x     learn vectors, size n * d
         */
-        virtual void train_pq(size_t n, const float *x);
+        virtual void train_pq(size_t n, const float *x, int i);
 
         /// Write index to the path
         virtual void write(const char *path);

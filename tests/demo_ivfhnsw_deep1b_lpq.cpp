@@ -46,8 +46,117 @@ int main(int argc, char **argv)
     index->build_quantizer(opt.path_centroids, opt.path_info, opt.path_edges, opt.M, opt.efConstruction);
 
 
-    {
-        std::vector<float> avdists(opt.nc);
+//    {
+//        std::vector<float> avdists(opt.nc);
+//        StopW stopw = StopW();
+//
+//        int batch_size = 1000000;
+//        int nbatches = opt.nb / batch_size;
+//        int groups_per_iter = 100000;
+//
+//        std::vector<float> batch(batch_size * opt.d);
+//        std::vector<idx_t> idx_batch(batch_size);
+//
+//        for (int ngroups_added = 0; ngroups_added < opt.nc; ngroups_added += groups_per_iter) {
+//            std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
+//                      << ngroups_added << " / " << opt.nc << std::endl;
+//
+//            std::vector <std::vector<float>> data(groups_per_iter);
+//
+//            std::ifstream base_input(opt.path_base, ios::binary);
+//            std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
+//
+//            for (int b = 0; b < nbatches; b++) {
+//                readXvec<float>(base_input, batch.data(), opt.d, batch_size);
+//                readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
+//
+//                for (int i = 0; i < batch_size; i++) {
+//                    if (idx_batch[i] < ngroups_added ||
+//                        idx_batch[i] >= ngroups_added + groups_per_iter)
+//                        continue;
+//
+//                    idx_t idx = idx_batch[i] % groups_per_iter;
+//                    for (int j = 0; j < opt.d; j++)
+//                        data[idx].push_back(batch[i * opt.d + j]);
+//                }
+//            }
+//            base_input.close();
+//            idx_input.close();
+//
+//            // If <opt.nc> is not a multiple of groups_per_iter, change <groups_per_iter> on the last iteration
+//            if (opt.nc - ngroups_added <= groups_per_iter)
+//                groups_per_iter = opt.nc - ngroups_added;
+//
+//            for (int i = 0; i < groups_per_iter; i++) {
+//                int group_size = data[i].size() / opt.d;
+//
+//                //Compute average distance in the group
+//                float av_group_dist = 0.0;
+//                for (int j = 0; j < group_size; j++){
+//                    const float *centroid = index->quantizer->getDataByInternalId(i);
+//                    av_group_dist += fvec_L2sqr(centroid, data[i].data()+j*opt.d, opt.d);
+//                }
+//                av_group_dist /= group_size;
+//                avdists[ngroups_added+i] = av_group_dist;
+//            }
+//
+//        }
+//        // Cluster av dists
+//        FILE *fout = fopen("group_dists.fvecs", "wb");
+//        for (int i = 0; i < opt.nc; i++){
+//            int d = 1;
+//            fwrite(&d, sizeof(int), 1, fout);
+//            fwrite(avdists.data()+i*d, sizeof(float), d, fout);
+//        }
+//        fclose(fout);
+//    }
+
+
+    std::vector<float> avdists(opt.nc);
+    std::ifstream avdists_file("group_dists.fvecs");
+    readXvec<idx_t>(avdists_file, avdists.data(), 1, opt.nc);
+    avdists_file.close();
+
+    for (int i = 0; i < opt.nc; i++){
+        if (isnan(avdists[i])){
+            std::cout << i << std::endl;
+        }
+        avdists[i] = 0.;
+    }
+
+    FILE *fout = fopen("group_dists.fvecs", "wb");
+    for (int i = 0; i < opt.nc; i++){
+        int d = 1;
+        fwrite(&d, sizeof(int), 1, fout);
+        fwrite(avdists.data()+i*d, sizeof(float), d, fout);
+    }
+    fclose(fout);
+
+    //std::ifstream pq_idxs_file("pq_idxs.ivecs");
+    //readXvec<idx_t>(pq_idxs_file, index->pq_idxs.data(), 1, opt.nc);
+    //pq_idxs_file.close();
+
+    //==========
+    // Train PQ 
+    //==========
+    std::string path_lpq("/home/dbaranchuk/ivf-hnsw/models/DEEP1B/lpqs/lpq");
+    path_lpq += std::string(opt.code_size) + std::string("_") + std::string(i) + std::string(".pq");
+
+    std::string path_norm_lpq("/home/dbaranchuk/ivf-hnsw/models/DEEP1B/lpqs/norm_lpq");
+    path_norm_lpq += std::string(opt.code_size) + std::string("_") + std::string(i) + std::string(".pq");
+
+    if (exists(path_lpq.c_str()) && exists(path_norm_lpq.c_str())) {
+        std::cout << "Loading PQ codebooks" << std::endl;
+        for (int i = 0 ; i < 4096; i++) {
+            index->pqs[i] = faiss::read_ProductQuantizer(path_lpq.c_str());
+            index->norm_pqs[i] = faiss::read_ProductQuantizer(path_norm_lpq.c_str());
+        }
+    } else {
+        std::vector<std::vector<float>> trainvecs(4096);
+
+        for (int i = 0 ; i < 4096; i++)
+            trainvecs[i].reserve(65536*opt.d);
+
         StopW stopw = StopW();
 
         int batch_size = 1000000;
@@ -75,71 +184,33 @@ int main(int argc, char **argv)
                         idx_batch[i] >= ngroups_added + groups_per_iter)
                         continue;
 
-                    idx_t idx = idx_batch[i] % groups_per_iter;
+                    idx_t pq_idx = pq_idxs(idx_batch[i]);
+                    if (trainvecs[pq_idx].size() > 65536*opt.d)
+                        continue;
+
                     for (int j = 0; j < opt.d; j++)
-                        data[idx].push_back(batch[i * opt.d + j]);
+                        trainvecs[pq_idx].push_back(batch[i * opt.d + j]);
                 }
             }
             base_input.close();
             idx_input.close();
-
-            // If <opt.nc> is not a multiple of groups_per_iter, change <groups_per_iter> on the last iteration
-            if (opt.nc - ngroups_added <= groups_per_iter)
-                groups_per_iter = opt.nc - ngroups_added;
-
-            for (int i = 0; i < groups_per_iter; i++) {
-                int group_size = data[i].size() / opt.d;
-
-                //Compute average distance in the group
-                float av_group_dist = 0.0;
-                for (int j = 0; j < group_size; j++){
-                    const float *centroid = index->quantizer->getDataByInternalId(i);
-                    av_group_dist += fvec_L2sqr(centroid, data[i].data()+j*opt.d, opt.d);
-                }
-                av_group_dist /= group_size;
-                avdists[ngroups_added+i] = av_group_dist;
-            }
-
         }
-        // Cluster av dists
-        FILE *fout = fopen("group_dists.fvecs", "wb");
-        for (int i = 0; i < opt.nc; i++){
-            int d = 1;
-            fwrite(&d, sizeof(int), 1, fout);
-            fwrite(avdists.data()+i*d, sizeof(float), d, fout);
+
+        std::cout << "Training PQ codebooks" << std::endl;
+        for (int i = 0; i < 4096; i++) {
+            index->pqs[i]->verbose = false;
+            index->norm_pqs[i]->verbose = false;
+            index->train_pq(opt.nsubt, trainvecs[i].data(), i);
         }
-        fclose(fout);
+
+        std::cout << "Saving PQ codebooks" << std::endl;
+        for (int i = 0; i < 4096; i++) {
+            faiss::write_ProductQuantizer(index->pqs[i], path_lpq.c_str());
+            faiss::write_ProductQuantizer(index->norm_pqs[i], path_norm_lpq.c_str());
+        }
     }
+
     exit(0);
-    //==========
-    // Train PQ 
-    //==========
-    if (exists(opt.path_pq) && exists(opt.path_norm_pq)) {
-        std::cout << "Loading Residual PQ codebook from " << opt.path_pq << std::endl;
-        //index->pq = faiss::read_ProductQuantizer(opt.path_pq);
-
-        std::cout << "Loading Norm PQ codebook from " << opt.path_norm_pq << std::endl;
-        index->norm_pq = faiss::read_ProductQuantizer(opt.path_norm_pq);
-    }
-    else {
-        // Load learn set
-        std::ifstream learn_input(opt.path_learn, ios::binary);
-        std::vector<float> trainvecs(opt.nt * opt.d);
-        readXvec<float>(learn_input, trainvecs.data(), opt.d, opt.nt);
-        learn_input.close();
-
-        // Set Random Subset of sub_nt trainvecs
-        std::vector<float> trainvecs_rnd_subset(opt.nsubt * opt.d);
-        random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), opt.d, opt.nt, opt.nsubt);
-        index->train_pq(opt.nsubt, trainvecs_rnd_subset.data());
-
-        std::cout << "Saving Residual PQ codebook to " << opt.path_pq << std::endl;
-        //faiss::write_ProductQuantizer(index->pq, opt.path_pq);
-
-        std::cout << "Saving Norm PQ codebook to " << opt.path_norm_pq << std::endl;
-        faiss::write_ProductQuantizer(index->norm_pq, opt.path_norm_pq);
-    }
-
     //==========================
     // Construct IVF-HNSW Index 
     //==========================
