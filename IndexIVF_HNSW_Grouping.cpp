@@ -353,7 +353,7 @@ namespace ivfhnsw
         }
 
         // Precompute table
-        pq->compute_inner_prod_table(query, precomputed_table.data());
+        //pq->compute_inner_prod_table(query, precomputed_table.data());
 
         // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
@@ -366,8 +366,8 @@ namespace ivfhnsw
                 continue;
 
             ////
-            //idx_t pq_idx = pq_idxs[centroid_idx];
-            //pqs[pq_idx]->compute_inner_prod_table(query, precomputed_table.data());
+            idx_t pq_idx = pq_idxs[centroid_idx];
+            pqs[pq_idx]->compute_inner_prod_table(query, precomputed_table.data());
             ////
 
             float alpha = alphas[centroid_idx];
@@ -395,8 +395,8 @@ namespace ivfhnsw
 
                     float term2 = alpha * (query_centroid_dists[nn_centroid_idx] - centroid_norms[nn_centroid_idx]);
 
-                    //norm_pqs[pq_idx]->decode(norm_code, norms.data(), subgroup_size);
-                    norm_pq->decode(norm_code, norms.data(), subgroup_size);
+                    norm_pqs[pq_idx]->decode(norm_code, norms.data(), subgroup_size);
+                    //norm_pq->decode(norm_code, norms.data(), subgroup_size);
 
                     for (int j = 0; j < subgroup_size; j++) {
                         float term4 = 2 * pq_L2sqr(code + j * code_size);
