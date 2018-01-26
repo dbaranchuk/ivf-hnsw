@@ -232,7 +232,7 @@ namespace ivfhnsw
 
                     // Compute residuals
                     std::vector<float> residual(d);
-                    faiss::fvec_madd(d, x, -1., centroid, residual.data());
+                    faiss::fvec_madd(d, x, -1., subcentroid.data(), residual.data());
 
                     idx_t pq_idx = pq_idxs[centroid_idx];
                     pqs[pq_idx]->compute_distance_table(residual.data(), precomputed_table.data());
@@ -258,9 +258,6 @@ namespace ivfhnsw
         // Zero computed dists for later queries
         for (idx_t used_centroid_idx : used_centroid_idxs)
             query_centroid_dists[used_centroid_idx] = 0;
-
-        if (do_opq)
-            delete const_cast<float *>(query);
     }
 
     /** Search procedure

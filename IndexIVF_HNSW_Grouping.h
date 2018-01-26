@@ -38,6 +38,7 @@ namespace ivfhnsw{
                        double &baseline_average, double &modified_average);
 
         void search(size_t k, const float *x, float *distances, long *labels);
+        void rebuttal_search(size_t k, const float *x, float *distances, long *labels);
 
         void write(const char *path_index);
         void read(const char *path_index);
