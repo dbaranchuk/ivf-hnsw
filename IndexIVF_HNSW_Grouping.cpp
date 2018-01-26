@@ -196,9 +196,9 @@ namespace ivfhnsw
             threshold /= nsubgroups;
         }
 
-        std::vector<float> centroid_vector(d);
-        std::vector<float> subcentroid(d);
-        std::vector<float> residual(d);
+        float centroid_vector[d];
+        float subcentroid[d];
+        float residual[d];
 
         // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
@@ -210,7 +210,7 @@ namespace ivfhnsw
             if (group_size == 0)
                 continue;
 
-            float *centroid = quantizer->getDataByInternalId(centroid_idx);
+            const float *centroid = quantizer->getDataByInternalId(centroid_idx);
             float alpha = alphas[centroid_idx];
 
             const uint8_t *code = codes[centroid_idx].data();
@@ -226,16 +226,14 @@ namespace ivfhnsw
                 if (!do_pruning || r[i * nsubc + subc] < threshold) {
                     idx_t nn_centroid_idx = nn_centroid_idxs[centroid_idx][subc];
 
-                    float *neighbor_centroid = quantizer->getDataByInternalId(nn_centroid_idx);
-                    faiss::fvec_madd(d, neighbor_centroid, -1., centroid, centroid_vector.data());
-
+                    const float *neighbor_centroid = quantizer->getDataByInternalId(nn_centroid_idx);
+                    faiss::fvec_madd(d, neighbor_centroid, -1., centroid, centroid_vector);
                     // Compute final subcentroids
-                    faiss::fvec_madd(d, centroid, alpha, centroid_vector.data(), subcentroid.data());
-
+                    faiss::fvec_madd(d, centroid, alpha, centroid_vector, subcentroid);
                     // Compute residuals
-                    faiss::fvec_madd(d, x, -1., subcentroid.data(), residual.data());
+                    faiss::fvec_madd(d, x, -1., subcentroid, residual);
 
-                    pq->compute_distance_table(residual.data(), precomputed_table.data());
+                    pq->compute_distance_table(residual, precomputed_table.data());
                     //idx_t pq_idx = pq_idxs[centroid_idx];
                     //pqs[pq_idx]->compute_distance_table(residual.data(), precomputed_table.data());
 
