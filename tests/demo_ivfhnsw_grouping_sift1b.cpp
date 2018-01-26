@@ -270,10 +270,10 @@ int main(int argc, char **argv)
     std::cout << "Recall@" << opt.k << ": " << 1.0f * correct / opt.nq << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
 
-    for (int i = 0; i < 512; i++) {
-        if (index->pqs[i]) delete index->pqs[i];
-        if (index->norm_pqs[i]) delete index->norm_pqs[i];
-    }
+//    for (int i = 0; i < 512; i++) {
+//        if (index->pqs[i]) delete index->pqs[i];
+//        if (index->norm_pqs[i]) delete index->norm_pqs[i];
+//    }
     delete index;
     return 0;
 }
