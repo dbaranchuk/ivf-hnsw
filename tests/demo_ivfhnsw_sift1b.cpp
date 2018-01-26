@@ -158,6 +158,7 @@ int main(int argc, char **argv)
     //===================
     // Parse groundtruth
     //===================
+    std::cout << "Parsing groundtruth" << std::endl;
     std::vector<std::priority_queue< std::pair<float, idx_t >>> answers;
     (std::vector<std::priority_queue< std::pair<float, idx_t >>>(opt.nq)).swap(answers);
     for (int i = 0; i < opt.nq; i++)
