@@ -201,24 +201,24 @@ int main(int argc, char **argv)
 
 
     ////////////////////////////
-    index->pqs.resize(512);
-    index->norm_pqs.resize(512);
-    index->pq_idxs.resize(opt.nc);
-
-    std::ifstream pq_idxs_file("sift_pq_idxs.ivecs");
-    readXvec<idx_t>(pq_idxs_file, index->pq_idxs.data(), 1, opt.nc);
-    pq_idxs_file.close();
-
-    for (int i = 0 ; i < 512; i++) {
-        std::string path_lpq("/home/dbaranchuk/ivf-hnsw/models/SIFT1B/lpqs/lpq");
-        path_lpq += std::to_string(opt.code_size) + std::string("_") + std::to_string(i) + std::string(".pq");
-
-        std::string path_norm_lpq("/home/dbaranchuk/ivf-hnsw/models/SIFT1B/lpqs/norm_lpq");
-        path_norm_lpq += std::to_string(opt.code_size) + std::string("_") + std::to_string(i) + std::string(".pq");
-
-        index->pqs[i] = faiss::read_ProductQuantizer(path_lpq.c_str());
-        index->norm_pqs[i] = faiss::read_ProductQuantizer(path_norm_lpq.c_str());
-    }
+//    index->pqs.resize(512);
+//    index->norm_pqs.resize(512);
+//    index->pq_idxs.resize(opt.nc);
+//
+//    std::ifstream pq_idxs_file("sift_pq_idxs.ivecs");
+//    readXvec<idx_t>(pq_idxs_file, index->pq_idxs.data(), 1, opt.nc);
+//    pq_idxs_file.close();
+//
+//    for (int i = 0 ; i < 512; i++) {
+//        std::string path_lpq("/home/dbaranchuk/ivf-hnsw/models/SIFT1B/lpqs/lpq");
+//        path_lpq += std::to_string(opt.code_size) + std::string("_") + std::to_string(i) + std::string(".pq");
+//
+//        std::string path_norm_lpq("/home/dbaranchuk/ivf-hnsw/models/SIFT1B/lpqs/norm_lpq");
+//        path_norm_lpq += std::to_string(opt.code_size) + std::string("_") + std::to_string(i) + std::string(".pq");
+//
+//        index->pqs[i] = faiss::read_ProductQuantizer(path_lpq.c_str());
+//        index->norm_pqs[i] = faiss::read_ProductQuantizer(path_norm_lpq.c_str());
+//    }
     //////////////////////////
 
     //===================
@@ -247,7 +247,7 @@ int main(int argc, char **argv)
 
     StopW stopw = StopW();
     for (int i = 0; i < opt.nq; i++) {
-        index->search(opt.k, massQ.data() + i*opt.d, distances, labels);
+        index->rebuttal_search(opt.k, massQ.data() + i*opt.d, distances, labels);
 
         std::priority_queue<std::pair<float, idx_t >> gt(answers[i]);
         std::unordered_set<idx_t> g;
@@ -270,10 +270,10 @@ int main(int argc, char **argv)
     std::cout << "Recall@" << opt.k << ": " << 1.0f * correct / opt.nq << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
 
-    for (int i = 0; i < 512; i++) {
-        if (index->pqs[i]) delete index->pqs[i];
-        if (index->norm_pqs[i]) delete index->norm_pqs[i];
-    }
+//    for (int i = 0; i < 512; i++) {
+//        if (index->pqs[i]) delete index->pqs[i];
+//        if (index->norm_pqs[i]) delete index->norm_pqs[i];
+//    }
     delete index;
     return 0;
 }

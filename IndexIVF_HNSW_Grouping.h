@@ -17,10 +17,10 @@ namespace ivfhnsw{
         std::vector<float> alphas;    ///< Coefficients that determine the location of sub-centroids
 
         /////////
-        size_t npq = 512;
-        std::vector<idx_t> pq_idxs;
-        std::vector<faiss::ProductQuantizer *> pqs;
-        std::vector<faiss::ProductQuantizer *> norm_pqs;
+        //size_t npq = 512;
+        //std::vector<idx_t> pq_idxs;
+        //std::vector<faiss::ProductQuantizer *> pqs;
+        //std::vector<faiss::ProductQuantizer *> norm_pqs;
     public:
         IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
                                size_t nbits_per_idx, size_t nsubcentroids);
