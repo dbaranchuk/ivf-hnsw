@@ -196,6 +196,10 @@ namespace ivfhnsw
             threshold /= nsubgroups;
         }
 
+        std::vector<float> centroid_vector(d);
+        std::vector<float> subcentroid(d);
+        std::vector<float> residual(d);
+
         // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
 
@@ -222,16 +226,13 @@ namespace ivfhnsw
                 if (!do_pruning || r[i * nsubc + subc] < threshold) {
                     idx_t nn_centroid_idx = nn_centroid_idxs[centroid_idx][subc];
 
-                    std::vector<float> centroid_vector(d);
                     float *neighbor_centroid = quantizer->getDataByInternalId(nn_centroid_idx);
                     faiss::fvec_madd(d, neighbor_centroid, -1., centroid, centroid_vector.data());
 
                     // Compute final subcentroids
-                    std::vector<float> subcentroid(d);
                     faiss::fvec_madd(d, centroid, alpha, centroid_vector.data(), subcentroid.data());
 
                     // Compute residuals
-                    std::vector<float> residual(d);
                     faiss::fvec_madd(d, x, -1., subcentroid.data(), residual.data());
 
                     pq->compute_distance_table(residual.data(), precomputed_table.data());
