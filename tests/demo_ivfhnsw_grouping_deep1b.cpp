@@ -183,7 +183,7 @@ int main(int argc, char **argv)
                 }
                 int group_size = ids[i].size();
 
-                index->add_group(ngroups_added + i, group_size, data[i].data(), ids[i].data(), baseline_average, modified_average);
+                index->add_group(ngroups_added + i, group_size, data[i].data(), ids[i].data());
             }
         }
         // Computing centroid norms and inter-centroid distances
