@@ -177,7 +177,7 @@ int main(int argc, char **argv)
                 {
                     if (j % 10000 == 0) {
                         std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
-                                  << (100. * (ngroups_added+j1)) / 1000000 << "%" << std::endl;
+                                  << (100. * (ngroups_added+j)) / 1000000 << "%" << std::endl;
                     }
                     j++;
                 }
