@@ -128,7 +128,7 @@ int main(int argc, char **argv)
         std::vector <idx_t> idx_batch(batch_size);
         std::vector <idx_t> ids_batch(batch_size);
 
-        for (size_T b = 0; b < nbatch; b++) {
+        for (size_t b = 0; b < nbatch; b++) {
             if (b % 10 == 0) {
                 std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100. * b) / nbatch << "%\n";
             }
