@@ -163,7 +163,7 @@ int main(int argc, char **argv)
                 groups_per_iter = opt.nc - ngroups_added;
 
             int j1 = 0;
-            #pragma omp parallel for reduction(+:baseline_average, modified_average)
+            #pragma omp parallel for
             for (int i = 0; i < groups_per_iter; i++) {
                 #pragma omp critical
                 {
