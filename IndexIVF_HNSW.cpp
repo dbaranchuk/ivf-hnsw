@@ -183,10 +183,10 @@ namespace ivfhnsw {
         // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
 
-        uint32_t ncode = 0;
-        for (uint32_t i = 0; i < nprobe; i++) {
+        size_t ncode = 0;
+        for (size_t i = 0; i < nprobe; i++) {
             idx_t centroid_idx = centroid_idxs[i];
-            uint32_t group_size = norm_codes[centroid_idx].size();
+            size_t group_size = norm_codes[centroid_idx].size();
             if (group_size == 0)
                 continue;
 
@@ -292,14 +292,14 @@ namespace ivfhnsw {
         }
 
         // Save PQ codes
-        for (uint32_t i = 0; i < nc; i++) {
+        for (size_t i = 0; i < nc; i++) {
             size = codes[i].size();
             fwrite(&size, sizeof(size_t), 1, fout);
             fwrite(codes[i].data(), sizeof(uint8_t), size, fout);
         }
 
         // Save norm PQ codes
-        for (uint32_t i = 0; i < nc; i++) {
+        for (size_t i = 0; i < nc; i++) {
             size = norm_codes[i].size();
             fwrite(&size, sizeof(size_t), 1, fout);
             fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
@@ -354,7 +354,7 @@ namespace ivfhnsw {
     void IndexIVF_HNSW::compute_centroid_norms()
     {
         centroid_norms.resize(nc);
-        for (uint32_t i = 0; i < nc; i++) {
+        for (size_t i = 0; i < nc; i++) {
             const float *centroid = quantizer->getDataByInternalId(i);
             centroid_norms[i] = faiss::fvec_norm_L2sqr(centroid, d);
         }
@@ -366,7 +366,7 @@ namespace ivfhnsw {
             abort();
         }
         std::vector<float> copy_centroid(d);
-        for (uint32_t i = 0; i < nc; i++){
+        for (size_t i = 0; i < nc; i++){
             float *centroid = quantizer->getDataByInternalId(i);
             memcpy(copy_centroid.data(), centroid, d * sizeof(float));
             opq_matrix->apply_noalloc(1, copy_centroid.data(), centroid);
@@ -376,9 +376,9 @@ namespace ivfhnsw {
     float IndexIVF_HNSW::pq_L2sqr(const uint8_t *code)
     {
         float result = 0.;
-        size_t_t dim = code_size >> 2;
-        size_t_t m = 0;
-        for (uint32_t i = 0; i < dim; i++) {
+        size_t dim = code_size >> 2;
+        size_t m = 0;
+        for (size_t i = 0; i < dim; i++) {
             result += precomputed_table[pq->ksub * m + code[m]]; m++;
             result += precomputed_table[pq->ksub * m + code[m]]; m++;
             result += precomputed_table[pq->ksub * m + code[m]]; m++;
