@@ -225,7 +225,7 @@ namespace ivfhnsw
 
         // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
-
+        std::cout << "HUI]\n";
         size_t ncode = 0;
         for (size_t i = 0; i < nprobe; i++) {
             idx_t centroid_idx = centroid_idxs[i];
@@ -240,6 +240,7 @@ namespace ivfhnsw
             const uint8_t *norm_code = norm_codes[centroid_idx].data();
             const idx_t *id = ids[centroid_idx].data();
 
+            std::cout << "HUI]\n";
             for (size_t subc = 0; subc < nsubc; subc++) {
                 size_t subgroup_size = subgroup_sizes[centroid_idx][subc];
                 if (subgroup_size == 0)
@@ -260,6 +261,7 @@ namespace ivfhnsw
 
                     norm_pq->decode(norm_code, norms.data(), subgroup_size);
 
+                    std::cout << "HUI]\n";
                     for (size_t j = 0; j < subgroup_size; j++) {
                         float term4 = 2 * pq_L2sqr(code + j * code_size);
                         float dist = term1 + term2 + norms[j] - term4; //term3 = norms[j]
@@ -278,7 +280,7 @@ namespace ivfhnsw
             if (ncode >= max_codes)
                 break;
         }
-
+        std::cout << "HUI]\n";
         // Zero computed dists for later queries
         for (idx_t used_centroid_idx : used_centroid_idxs)
             query_centroid_dists[used_centroid_idx] = 0;
