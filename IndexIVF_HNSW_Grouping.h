@@ -13,7 +13,7 @@ namespace ivfhnsw{
         bool do_pruning;      ///< Turn on/off pruning
 
         std::vector<std::vector<idx_t> > nn_centroid_idxs;    ///< Indices of the <nsubc> nearest centroids for each centroid
-        std::vector<std::vector<int> > subgroup_sizes;        ///< Sizes of sub-groups for each group
+        std::vector<std::vector<idx_t> > subgroup_sizes;      ///< Sizes of sub-groups for each group
         std::vector<float> alphas;    ///< Coefficients that determine the location of sub-centroids
 
         /////////
@@ -32,7 +32,7 @@ namespace ivfhnsw{
           * @param x                 base vectors to add (size: group_size * d)
           * @param ids               ids to store for the vectors (size: groups_size)
         */
-        void add_group(int group_idx, int group_size, const float *x, const idx_t *ids);
+        void add_group(size_t group_idx, size_t group_size, const float *x, const idx_t *ids);
 
         void search(size_t k, const float *x, float *distances, long *labels);
 
@@ -59,10 +59,10 @@ namespace ivfhnsw{
                          const float *subcentroids, const idx_t *keys);
 
         void compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
-                                      const float *points, int group_size);
+                                      const float *points, size_t group_size);
 
         float compute_alpha(const float *centroid_vectors, const float *points,
-                            const float *centroid, const float *centroid_vector_norms_L2sqr, int group_size);
+                            const float *centroid, const float *centroid_vector_norms_L2sqr, size_t group_size);
     };
 }
 #endif //IVF_HNSW_LIB_INDEXIVF_HNSW_GROUPING_H

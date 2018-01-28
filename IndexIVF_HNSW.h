@@ -100,7 +100,7 @@ namespace ivfhnsw {
          * @param distances   output pairwise distances, size n * k
          * @param labels      output labels of the nearest neighbours, size n * k
          */
-        virtual void search(size_t k, const float *x, float *distances, int64_t *labels);
+        virtual void search(size_t k, const float *x, float *distances, long *labels);
 
         /** Add n vectors of dimension d to the index.
           *
