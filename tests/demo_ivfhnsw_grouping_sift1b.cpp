@@ -120,9 +120,6 @@ int main(int argc, char **argv)
         std::cout << "Adding groups to index" << std::endl;
         StopW stopw = StopW();
 
-        double baseline_average = 0.0;
-        double modified_average = 0.0;
-
         int batch_size = 1000000;
         int nbatches = opt.nb / batch_size;
         int groups_per_iter = 100000;
@@ -178,13 +175,9 @@ int main(int argc, char **argv)
                 }
                 int group_size = ids[i].size();
 
-                index->add_group(ngroups_added + i, group_size, data[i].data(), ids[i].data(), baseline_average, modified_average);
+                index->add_group(ngroups_added + i, group_size, data[i].data(), ids[i].data());
             }
         }
-
-        std::cout << "[Baseline] Average Distance: " << baseline_average / opt.nb << std::endl;
-        std::cout << "[Modified] Average Distance: " << modified_average / opt.nb << std::endl;
-
         // Computing centroid norms and inter-centroid distances
         std::cout << "Computing centroid norms"<< std::endl;
         index->compute_centroid_norms();

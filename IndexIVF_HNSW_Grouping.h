@@ -31,14 +31,10 @@ namespace ivfhnsw{
           * @param group_size        number of base vectors in the group
           * @param x                 base vectors to add (size: group_size * d)
           * @param ids               ids to store for the vectors (size: groups_size)
-          * TODO: remove last two parameters
         */
-        void add_group(int group_idx, int group_size,
-                       const float *x, const idx_t *ids,
-                       double &baseline_average, double &modified_average);
+        void add_group(int group_idx, int group_size, const float *x, const idx_t *ids);
 
         void search(size_t k, const float *x, float *distances, long *labels);
-        void rebuttal_search(size_t k, const float *x, float *distances, long *labels);
 
         void write(const char *path_index);
         void read(const char *path_index);
