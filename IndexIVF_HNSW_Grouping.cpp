@@ -160,7 +160,6 @@ namespace ivfhnsw
     */
     void IndexIVF_HNSW_Grouping::search(size_t k, const float *x, float *distances, long *labels)
     {
-        std::cout << "HUI\n";
         std::vector<float> r;
         // Indices of coarse centroids, which distances to the query are computed during the search time
         std::vector<idx_t> used_centroid_idxs;
@@ -172,7 +171,6 @@ namespace ivfhnsw
 
         // Find the nearest coarse centroids to the query
         auto coarse = quantizer->searchKnn(query, nprobe);
-        std::cout << nprobe << std::endl;
         for (int_fast32_t i = nprobe - 1; i >= 0; i--) {
             idx_t centroid_idx = coarse.top().second;
             centroid_idxs[i] = centroid_idx;
