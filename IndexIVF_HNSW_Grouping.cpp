@@ -587,7 +587,7 @@ namespace ivfhnsw
 
     float IndexIVF_HNSW_Grouping::compute_alpha(const float *centroid_vectors, const float *points,
                                                 const float *centroid, const float *centroid_vector_norms_L2sqr,
-                                                int group_size)
+                                                size_t group_size)
     {
         float group_numerator = 0.0;
         float group_denominator = 0.0;

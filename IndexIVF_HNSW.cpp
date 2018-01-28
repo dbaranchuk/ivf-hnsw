@@ -35,7 +35,7 @@ namespace ivfhnsw {
      */
     // TODO: paralyze in the right way
     void IndexIVF_HNSW::build_quantizer(const char *path_data, const char *path_info,
-                                        const char *path_edges, uint32_t M, uint32_t efConstruction)
+                                        const char *path_edges, size_t M, size_t efConstruction)
     {
         if (exists(path_info) && exists(path_edges)) {
             quantizer = new hnswlib::HierarchicalNSW(path_info, path_data, path_edges);
