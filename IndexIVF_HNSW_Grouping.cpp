@@ -172,15 +172,14 @@ namespace ivfhnsw
 
         // Find the nearest coarse centroids to the query
         auto coarse = quantizer->searchKnn(query, nprobe);
-        std::cout << "HUI]\n";
         for (size_t i = nprobe - 1; i >= 0; i--) {
+            std::cout << coarse.size() <<  "  " << i << std::endl;
             idx_t centroid_idx = coarse.top().second;
             centroid_idxs[i] = centroid_idx;
             query_centroid_dists[centroid_idx] = coarse.top().first;
             used_centroid_idxs.push_back(centroid_idx);
             coarse.pop();
         }
-        std::cout << "HUI]\n";
         // Computing threshold for pruning
         double threshold = 0.0;
         if (do_pruning) {
