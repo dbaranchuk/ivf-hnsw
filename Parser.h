@@ -2,13 +2,7 @@
 #define IVF_HNSW_LIB_PARSER_H
 
 #include <cstring>
-#include <cassert>
-
-static inline void read_int(const char *arg, int *x)
-{
-    int ret = sscanf(arg, "%d", x);
-    assert(ret);
-}
+#include <iostream>
 
 //==============
 // Parser Class
@@ -20,31 +14,31 @@ struct Parser
     //=================
     // HNSW parameters
     //=================
-    int M;               ///< Min number of edges per point
-    int efConstruction;  ///< Max number of candidate vertices in priority queue to observe during construction
+    uint32_t M;               ///< Min number of edges per point
+    uint32_t efConstruction;  ///< Max number of candidate vertices in priority queue to observe during construction
 
     //=================
     // Data parameters
     //=================
-    int nb;              ///< Number of base vectors
-    int nt;              ///< Number of learn vectors
-    int nsubt;           ///< Number of learn vectors to train (random subset of the learn set)
-    int nc;              ///< Number of centroids for HNSW quantizer
-    int nsubc;           ///< Number of subcentroids per group
-    int nq;              ///< Number of queries
-    int ngt;             ///< Number of groundtruth neighbours per query
-    int d;               ///< Vector dimension
-    int code_size;       ///< Code size per vector in bytes
-    bool do_opq;         ///< Turn on/off OPQ fine encoding
+    uint64_t nb;             ///< Number of base vectors
+    uint64_t nt;             ///< Number of learn vectors
+    uint64_t nsubt;          ///< Number of learn vectors to train (random subset of the learn set)
+    uint64_t nc;             ///< Number of centroids for HNSW quantizer
+    uint64_t nsubc;          ///< Number of subcentroids per group
+    uint64_t nq;             ///< Number of queries
+    uint64_t ngt;            ///< Number of groundtruth neighbours per query
+    uint32_t d;              ///< Vector dimension
+    uint32_t code_size;      ///< Code size per vector in bytes
+    bool do_opq;             ///< Turn on/off OPQ fine encoding
 
     //===================
     // Search parameters
     //===================
-    int k;               ///< Number of the closest vertices to search
-    int nprobe;          ///< Number of probes at query time
-    int max_codes;       ///< Max number of codes to visit to do a query
-    int efSearch;        ///< Max number of candidate vertices in priority queue to observe during searching
-    bool do_pruning;     ///< Turn on/off pruning in the grouping scheme
+    uint32_t k;              ///< Number of the closest vertices to search
+    uint32_t nprobe;         ///< Number of probes at query time
+    uint32_t max_codes;      ///< Max number of codes to visit to do a query
+    uint32_t efSearch;       ///< Max number of candidate vertices in priority queue to observe during searching
+    bool do_pruning;         ///< Turn on/off pruning in the grouping scheme
 
     //=======
     // Paths
@@ -65,14 +59,14 @@ struct Parser
     const char *path_norm_pq;          ///< Path to the product quantizer for norms of reconstructed base points
     const char *path_index;            ///< Path to the constructed index
 
-    Parser(int argc, char **argv)
+    Parser(uint32_t argc, char **argv)
     {
-        int ret;
+        uint32_t ret;
         cmd = argv[0];
         if (argc == 1)
             usage();
 
-        for (int i = 1 ; i < argc; i++) {
+        for (uint32_t i = 1 ; i < argc; i++) {
             char *a = argv[i];
 
             if (!strcmp (a, "-h") || !strcmp (a, "--help"))
@@ -84,30 +78,30 @@ struct Parser
             //=================
             // HNSW parameters
             //=================
-            if (!strcmp (a, "-M")) read_int(argv[++i], &M);
-            else if (!strcmp (a, "-efConstruction")) read_int(argv[++i], &efConstruction);
+            if (!strcmp (a, "-M")) sscanf(argv[++i], "%"SCNu32, &M);
+            else if (!strcmp (a, "-efConstruction")) sscanf(argv[++i], "%"SCNu32, &efConstruction);
 
             //=================
             // Data parameters
             //=================
-            else if (!strcmp (a, "-nb")) read_int(argv[++i], &nb);
-            else if (!strcmp (a, "-nc")) read_int(argv[++i], &nc);
-            else if (!strcmp (a, "-nsubc")) read_int(argv[++i], &nsubc);
-            else if (!strcmp (a, "-nt")) read_int(argv[++i], &nt);
-            else if (!strcmp (a, "-nsubt")) read_int(argv[++i], &nsubt);
-            else if (!strcmp (a, "-nq")) read_int(argv[++i], &nq);
-            else if (!strcmp (a, "-ngt")) read_int(argv[++i], &ngt);
-            else if (!strcmp (a, "-d")) read_int(argv[++i], &d);
-            else if (!strcmp (a, "-code_size")) read_int(argv[++i], &code_size);
+            else if (!strcmp (a, "-nb")) sscanf(argv[++i], "%"SCNu64, &nb);
+            else if (!strcmp (a, "-nc")) sscanf(argv[++i], "%d"SCNu64, &nc);
+            else if (!strcmp (a, "-nsubc")) sscanf(argv[++i], "%d"SCNu64, &nsubc);
+            else if (!strcmp (a, "-nt")) sscanf(argv[++i], "%d"SCNu64, &nt);
+            else if (!strcmp (a, "-nsubt")) sscanf(argv[++i], "%d"SCNu64, &nsubt);
+            else if (!strcmp (a, "-nq")) sscanf(argv[++i], "%d"SCNu64, &nq);
+            else if (!strcmp (a, "-ngt")) sscanf(argv[++i], "%d"SCNu64, &ngt);
+            else if (!strcmp (a, "-d")) sscanf(argv[++i], "%d"SCNu32, &d);
+            else if (!strcmp (a, "-code_size"))sscanf(argv[++i], "%d"SCNu32, &code_size);
             else if (!strcmp (a, "-opq")) do_opq = !strcmp(argv[++i], "on");
 
             //===================
             // Search parameters
             //===================
-            else if (!strcmp (a, "-k")) read_int(argv[++i], &k);
-            else if (!strcmp (a, "-nprobe")) read_int(argv[++i], &nprobe);
-            else if (!strcmp (a, "-max_codes")) read_int(argv[++i], &max_codes);
-            else if (!strcmp (a, "-efSearch")) read_int(argv[++i], &efSearch);
+            else if (!strcmp (a, "-k")) sscanf(argv[++i], "%d"SCNu32, &k);
+            else if (!strcmp (a, "-nprobe")) sscanf(argv[++i], "%d"SCNu32, &nprobe);
+            else if (!strcmp (a, "-max_codes")) sscanf(argv[++i], "%d"SCNu32, &max_codes);
+            else if (!strcmp (a, "-efSearch")) sscanf(argv[++i], "%d"SCNu32, &efSearch);
             else if (!strcmp (a, "-pruning")) do_pruning = !strcmp(argv[++i], "on");
 
             //=======

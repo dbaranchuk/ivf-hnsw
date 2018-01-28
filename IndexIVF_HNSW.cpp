@@ -35,7 +35,7 @@ namespace ivfhnsw {
      */
     // TODO: paralyze in the right way
     void IndexIVF_HNSW::build_quantizer(const char *path_data, const char *path_info,
-                                        const char *path_edges, int M, int efConstruction)
+                                        const char *path_edges, uint32_t M, uint32_t efConstruction)
     {
         if (exists(path_info) && exists(path_edges)) {
             quantizer = new hnswlib::HierarchicalNSW(path_info, path_data, path_edges);
@@ -48,7 +48,7 @@ namespace ivfhnsw {
         std::ifstream input(path_data, ios::binary);
 
         size_t report_every = 100000;
-        for (int i = 0; i < nc; i++) {
+        for (size_t i = 0; i < nc; i++) {
             float mass[d];
             readXvec<float>(input, mass, d);
             if (i % report_every == 0)
@@ -63,7 +63,7 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW::assign(size_t n, const float *x, idx_t *labels, size_t k) {
 #pragma omp parallel for
-        for (int i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
             labels[i] = quantizer->searchKnn(const_cast<float *>(x + i * d), k).top().second;
     }
 
@@ -171,7 +171,7 @@ namespace ivfhnsw {
 
         // Find the nearest coarse centroids to the query
         auto coarse = quantizer->searchKnn(query, nprobe);
-        for (int i = nprobe - 1; i >= 0; i--) {
+        for (size_t i = nprobe - 1; i >= 0; i--) {
             query_centroid_dists[i] = coarse.top().first;
             centroid_idxs[i] = coarse.top().second;
             coarse.pop();
@@ -183,10 +183,10 @@ namespace ivfhnsw {
         // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
 
-        int ncode = 0;
-        for (int i = 0; i < nprobe; i++) {
+        uint32_t ncode = 0;
+        for (uint32_t i = 0; i < nprobe; i++) {
             idx_t centroid_idx = centroid_idxs[i];
-            int group_size = norm_codes[centroid_idx].size();
+            uint32_t group_size = norm_codes[centroid_idx].size();
             if (group_size == 0)
                 continue;
 
@@ -198,7 +198,7 @@ namespace ivfhnsw {
             // Decode the norms of each vector in the list
             norm_pq->decode(norm_code, norms.data(), group_size);
 
-            for (int j = 0; j < group_size; j++) {
+            for (size_t j = 0; j < group_size; j++) {
                 float term3 = 2 * pq_L2sqr(code + j * code_size);
                 float dist = term1 + norms[j] - term3; //term2 = norms[j]
                 if (dist < distances[0]) {
@@ -292,14 +292,14 @@ namespace ivfhnsw {
         }
 
         // Save PQ codes
-        for (int i = 0; i < nc; i++) {
+        for (uint32_t i = 0; i < nc; i++) {
             size = codes[i].size();
             fwrite(&size, sizeof(size_t), 1, fout);
             fwrite(codes[i].data(), sizeof(uint8_t), size, fout);
         }
 
         // Save norm PQ codes
-        for (int i = 0; i < nc; i++) {
+        for (uint32_t i = 0; i < nc; i++) {
             size = norm_codes[i].size();
             fwrite(&size, sizeof(size_t), 1, fout);
             fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
@@ -354,7 +354,7 @@ namespace ivfhnsw {
     void IndexIVF_HNSW::compute_centroid_norms()
     {
         centroid_norms.resize(nc);
-        for (int i = 0; i < nc; i++) {
+        for (uint32_t i = 0; i < nc; i++) {
             const float *centroid = quantizer->getDataByInternalId(i);
             centroid_norms[i] = faiss::fvec_norm_L2sqr(centroid, d);
         }
@@ -366,7 +366,7 @@ namespace ivfhnsw {
             abort();
         }
         std::vector<float> copy_centroid(d);
-        for (int i = 0; i < nc; i++){
+        for (uint32_t i = 0; i < nc; i++){
             float *centroid = quantizer->getDataByInternalId(i);
             memcpy(copy_centroid.data(), centroid, d * sizeof(float));
             opq_matrix->apply_noalloc(1, copy_centroid.data(), centroid);
@@ -376,9 +376,9 @@ namespace ivfhnsw {
     float IndexIVF_HNSW::pq_L2sqr(const uint8_t *code)
     {
         float result = 0.;
-        int dim = code_size >> 2;
-        int m = 0;
-        for (int i = 0; i < dim; i++) {
+        size_t_t dim = code_size >> 2;
+        size_t_t m = 0;
+        for (uint32_t i = 0; i < dim; i++) {
             result += precomputed_table[pq->ksub * m + code[m]]; m++;
             result += precomputed_table[pq->ksub * m + code[m]]; m++;
             result += precomputed_table[pq->ksub * m + code[m]]; m++;
@@ -390,7 +390,7 @@ namespace ivfhnsw {
     // Private 
     void IndexIVF_HNSW::reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys)
     {
-        for (idx_t i = 0; i < n; i++) {
+        for (size_t i = 0; i < n; i++) {
             float *centroid = quantizer->getDataByInternalId(keys[i]);
             faiss::fvec_madd(d, decoded_residuals + i*d, 1., centroid, x + i*d);
         }
@@ -398,7 +398,7 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW::compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys)
     {
-        for (idx_t i = 0; i < n; i++) {
+        for (size_t i = 0; i < n; i++) {
             float *centroid = quantizer->getDataByInternalId(keys[i]);
             faiss::fvec_madd(d, x + i*d, -1., centroid, residuals + i*d);
         }

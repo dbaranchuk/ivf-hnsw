@@ -41,12 +41,11 @@ namespace ivfhnsw {
     */
     struct IndexIVF_HNSW
     {
-        typedef unsigned char uint8_t;  ///< all codes are this type
-        typedef unsigned int idx_t;     ///< all indices are this type
+        typedef uint32_t idx_t;     ///< all indices are this type
 
-        size_t d;             ///< Vector dimension
-        size_t nc;            ///< Number of centroids
-        size_t code_size;     ///< Code size per vector in bytes
+        size_t d;               ///< Vector dimension
+        size_t nc;              ///< Number of centroids
+        size_t code_size;       ///< Code size per vector in bytes
 
         hnswlib::HierarchicalNSW *quantizer; ///< Quantizer that maps vectors to inverted lists (HNSW [Y.Malkov])
 
@@ -80,7 +79,7 @@ namespace ivfhnsw {
           * @param efConstruction      max number of candidate vertices in queue to observe, default: 500
         */
         void build_quantizer(const char *path_data, const char *path_info, const char *path_edges,
-                            int M=16, int efConstruction = 500);
+                             size_t M=16, size_t efConstruction = 500);
 
         /** Return the indices of the k HNSW vertices closest to the query x.
           *
@@ -101,7 +100,7 @@ namespace ivfhnsw {
          * @param distances   output pairwise distances, size n * k
          * @param labels      output labels of the nearest neighbours, size n * k
          */
-        virtual void search(size_t k, const float *x, float *distances, long *labels);
+        virtual void search(size_t k, const float *x, float *distances, int64_t *labels);
 
         /** Add n vectors of dimension d to the index.
           *

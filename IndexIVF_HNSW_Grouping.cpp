@@ -17,7 +17,7 @@ namespace ivfhnsw
         std::fill(query_centroid_dists.begin(), query_centroid_dists.end(), 0);
     }
 
-    void IndexIVF_HNSW_Grouping::add_group(int centroid_idx, int group_size,
+    void IndexIVF_HNSW_Grouping::add_group(size_t centroid_idx, size_t group_size,
                                            const float *data, const idx_t *idxs)
     {
         // Find NN centroids to source centroid 
@@ -39,20 +39,20 @@ namespace ivfhnsw
 
         // Compute centroid-neighbor_centroid and centroid-group_point vectors
         std::vector<float> centroid_vectors(nsubc * d);
-        for (int subc = 0; subc < nsubc; subc++) {
+        for (size_t subc = 0; subc < nsubc; subc++) {
             float *neighbor_centroid = quantizer->getDataByInternalId(nn_centroids[subc]);
             faiss::fvec_madd(d, neighbor_centroid, -1., centroid, centroid_vectors.data() + subc * d);
         }
 
         // Compute alpha for group vectors
-        alphas[centroid_idx] = compute_alpha(centroid_vectors.data(), data, centroid,
-                                             centroid_vector_norms, group_size);
+        //alphas[centroid_idx] = compute_alpha(centroid_vectors.data(), data, centroid,
+        //                                     centroid_vector_norms, group_size);
 
-        //alphas[centroid_idx] = 0.39817;// DEEP: 0.383882;
+        alphas[centroid_idx] = 0.39817;// DEEP: 0.383882;
 
         // Compute final subcentroids
         std::vector<float> subcentroids(nsubc * d);
-        for (int subc = 0; subc < nsubc; subc++) {
+        for (size_t subc = 0; subc < nsubc; subc++) {
             const float *centroid_vector = centroid_vectors.data() + subc * d;
             float *subcentroid = subcentroids.data() + subc * d;
             faiss::fvec_madd(d, centroid, alphas[centroid_idx], centroid_vector, subcentroid);
@@ -105,23 +105,23 @@ namespace ivfhnsw
         std::vector<std::vector<idx_t> > construction_ids(nsubc);
         std::vector<std::vector<uint8_t> > construction_codes(nsubc);
         std::vector<std::vector<uint8_t> > construction_norm_codes(nsubc);
-        for (int i = 0; i < group_size; i++) {
+        for (size_t i = 0; i < group_size; i++) {
             idx_t idx = idxs[i];
             idx_t subcentroid_idx = subcentroid_idxs[i];
 
             construction_ids[subcentroid_idx].push_back(idx);
             construction_norm_codes[subcentroid_idx].push_back(xnorm_codes[i]);
-            for (int j = 0; j < code_size; j++)
+            for (size_t j = 0; j < code_size; j++)
                 construction_codes[subcentroid_idx].push_back(xcodes[i * code_size + j]);
         }
         // Add codes to the index
-        for (int subc = 0; subc < nsubc; subc++) {
+        for (size_t subc = 0; subc < nsubc; subc++) {
             idx_t subgroup_size = construction_norm_codes[subc].size();
             subgroup_sizes[centroid_idx].push_back(subgroup_size);
 
-            for (int i = 0; i < subgroup_size; i++) {
+            for (size_t i = 0; i < subgroup_size; i++) {
                 ids[centroid_idx].push_back(construction_ids[subc][i]);
-                for (int j = 0; j < code_size; j++)
+                for (size_t j = 0; j < code_size; j++)
                     codes[centroid_idx].push_back(construction_codes[subc][i * code_size + j]);
                 norm_codes[centroid_idx].push_back(construction_norm_codes[subc][i]);
             }
@@ -171,7 +171,7 @@ namespace ivfhnsw
 
         // Find the nearest coarse centroids to the query
         auto coarse = quantizer->searchKnn(query, nprobe);
-        for (int i = nprobe - 1; i >= 0; i--) {
+        for (size_t i = nprobe - 1; i >= 0; i--) {
             idx_t centroid_idx = coarse.top().second;
             centroid_idxs[i] = centroid_idx;
             query_centroid_dists[centroid_idx] = coarse.top().first;
@@ -182,13 +182,13 @@ namespace ivfhnsw
         // Computing threshold for pruning
         double threshold = 0.0;
         if (do_pruning) {
-            int ncode = 0;
-            int nsubgroups = 0;
+            size_t ncode = 0;
+            size_t nsubgroups = 0;
 
             r.resize(nsubc * nprobe);
-            for (int i = 0; i < nprobe; i++) {
+            for (size_t i = 0; i < nprobe; i++) {
                 idx_t centroid_idx = centroid_idxs[i];
-                int group_size = norm_codes[centroid_idx].size();
+                size_t group_size = norm_codes[centroid_idx].size();
                 if (group_size == 0)
                     continue;
 
@@ -196,7 +196,7 @@ namespace ivfhnsw
                 float alpha = alphas[centroid_idx];
                 float term1 = (1 - alpha) * query_centroid_dists[centroid_idx];
 
-                for (int subc = 0; subc < nsubc; subc++) {
+                for (size_t subc = 0; subc < nsubc; subc++) {
                     if (subgroup_sizes[centroid_idx][subc] == 0)
                         continue;
 
@@ -225,8 +225,8 @@ namespace ivfhnsw
         // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
 
-        int ncode = 0;
-        for (int i = 0; i < nprobe; i++) {
+        size_t ncode = 0;
+        for (size_t i = 0; i < nprobe; i++) {
             idx_t centroid_idx = centroid_idxs[i];
             size_t group_size = norm_codes[centroid_idx].size();
             if (group_size == 0)
@@ -239,8 +239,8 @@ namespace ivfhnsw
             const uint8_t *norm_code = norm_codes[centroid_idx].data();
             const idx_t *id = ids[centroid_idx].data();
 
-            for (int subc = 0; subc < nsubc; subc++) {
-                int subgroup_size = subgroup_sizes[centroid_idx][subc];
+            for (size_t subc = 0; subc < nsubc; subc++) {
+                size_t subgroup_size = subgroup_sizes[centroid_idx][subc];
                 if (subgroup_size == 0)
                     continue;
 
@@ -259,7 +259,7 @@ namespace ivfhnsw
 
                     norm_pq->decode(norm_code, norms.data(), subgroup_size);
 
-                    for (int j = 0; j < subgroup_size; j++) {
+                    for (size_t j = 0; j < subgroup_size; j++) {
                         float term4 = 2 * pq_L2sqr(code + j * code_size);
                         float dist = term1 + term2 + norms[j] - term4; //term3 = norms[j]
                         if (dist < distances[0]) {
@@ -303,25 +303,25 @@ namespace ivfhnsw
             fwrite(ids[i].data(), sizeof(idx_t), size, fout);
         }
         // Save PQ codes
-        for (int i = 0; i < nc; i++) {
+        for (size_t i = 0; i < nc; i++) {
             size = codes[i].size();
             fwrite(&size, sizeof(int), 1, fout);
             fwrite(codes[i].data(), sizeof(uint8_t), size, fout);
         }
         // Save norm PQ codes
-        for (int i = 0; i < nc; i++) {
+        for (size_t i = 0; i < nc; i++) {
             size = norm_codes[i].size();
             fwrite(&size, sizeof(int), 1, fout);
             fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
         }
         // Save NN centroid indices
-        for (int i = 0; i < nc; i++) {
+        for (size_t i = 0; i < nc; i++) {
             size = nn_centroid_idxs[i].size();
             fwrite(&size, sizeof(int), 1, fout);
             fwrite(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fout);
         }
         // Write group sizes
-        for (int i = 0; i < nc; i++) {
+        for (size_t i = 0; i < nc; i++) {
             size = subgroup_sizes[i].size();
             fwrite(&size, sizeof(int), 1, fout);
             fwrite(subgroup_sizes[i].data(), sizeof(int), size, fout);
@@ -333,7 +333,7 @@ namespace ivfhnsw
         fwrite(centroid_norms.data(), sizeof(float), nc, fout);
 
         // Save inter centroid distances
-        for (int i = 0; i < nc; i++) {
+        for (size_t i = 0; i < nc; i++) {
             size = inter_centroid_dists[i].size();
             fwrite(&size, sizeof(idx_t), 1, fout);
             fwrite(inter_centroid_dists[i].data(), sizeof(float), size, fout);
@@ -392,7 +392,7 @@ namespace ivfhnsw
 
         // Read inter centroid distances
         inter_centroid_dists.resize(nc);
-        for (int i = 0; i < nc; i++) {
+        for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(idx_t), 1, fin);
             inter_centroid_dists[i].resize(size);
             fread(inter_centroid_dists[i].data(), sizeof(float), size, fin);
@@ -414,9 +414,9 @@ namespace ivfhnsw
 
         std::unordered_map<idx_t, std::vector<float>> group_map;
 
-        for (int i = 0; i < n; i++) {
+        for (size_t i = 0; i < n; i++) {
             idx_t key = assigned[i];
-            for (int j = 0; j < d; j++)
+            for (size_t j = 0; j < d; j++)
                 group_map[key].push_back(x[i*d + j]);
         }
 
@@ -440,7 +440,7 @@ namespace ivfhnsw
 
             // Compute centroid-neighbor_centroid and centroid-group_point vectors
             std::vector<float> centroid_vectors(nsubc * d);
-            for (int subc = 0; subc < nsubc; subc++) {
+            for (size_t subc = 0; subc < nsubc; subc++) {
                 const float *nn_centroid = quantizer->getDataByInternalId(nn_centroid_idxs[subc]);
                 faiss::fvec_madd(d, nn_centroid, -1., centroid, centroid_vectors.data() + subc * d);
             }
@@ -451,7 +451,7 @@ namespace ivfhnsw
 
             // Compute final subcentroids 
             std::vector<float> subcentroids(nsubc * d);
-            for (int subc = 0; subc < nsubc; subc++)
+            for (size_t subc = 0; subc < nsubc; subc++)
                 faiss::fvec_madd(d, centroid, alpha, centroid_vectors.data() + subc*d, subcentroids.data() + subc*d);
 
             // Find subcentroid idx
@@ -462,9 +462,9 @@ namespace ivfhnsw
             std::vector<float> residuals(group_size * d);
             compute_residuals(group_size, data.data(), residuals.data(), subcentroids.data(), subcentroid_idxs.data());
 
-            for (int i = 0; i < group_size; i++) {
+            for (size_t i = 0; i < group_size; i++) {
                 idx_t subcentroid_idx = subcentroid_idxs[i];
-                for (int j = 0; j < d; j++) {
+                for (size_t j = 0; j < d; j++) {
                     train_subcentroids.push_back(subcentroids[subcentroid_idx*d + j]);
                     train_residuals.push_back(residuals[i*d + j]);
                 }
@@ -498,7 +498,7 @@ namespace ivfhnsw
 
         for (auto p : group_map) {
             const vector<float> data = p.second;
-            int group_size = data.size() / d;
+            size_t group_size = data.size() / d;
 
             // Compute Codes 
             std::vector<uint8_t> xcodes(group_size * code_size);
@@ -517,14 +517,14 @@ namespace ivfhnsw
 
             // Reconstruct Data 
             std::vector<float> reconstructed_x(group_size * d);
-            for (idx_t i = 0; i < group_size; i++)
+            for (size_t i = 0; i < group_size; i++)
                 faiss::fvec_madd(d, decoded_residuals.data() + i*d, 1., subcentroids+i*d, reconstructed_x.data() + i*d);
 
             // Compute norms 
             std::vector<float> group_norms(group_size);
             faiss::fvec_norms_L2sqr(group_norms.data(), reconstructed_x.data(), d, group_size);
 
-            for (int i = 0; i < group_size; i++)
+            for (size_t i = 0; i < group_size; i++)
                 train_norms.push_back(group_norms[i]);
 
             residuals += group_size * d;
@@ -538,10 +538,10 @@ namespace ivfhnsw
     void IndexIVF_HNSW_Grouping::compute_inter_centroid_dists()
     {
         inter_centroid_dists.resize(nc);
-        for (int i = 0; i < nc; i++) {
+        for (size_t i = 0; i < nc; i++) {
             const float *centroid = quantizer->getDataByInternalId(i);
             inter_centroid_dists[i].resize(nsubc);
-            for (int subc = 0; subc < nsubc; subc++) {
+            for (size_t subc = 0; subc < nsubc; subc++) {
                 idx_t nn_centroid_idx = nn_centroid_idxs[i][subc];
                 const float *nn_centroid = quantizer->getDataByInternalId(nn_centroid_idx);
                 inter_centroid_dists[i][subc] = fvec_L2sqr(nn_centroid, centroid, d);
@@ -552,7 +552,7 @@ namespace ivfhnsw
     void IndexIVF_HNSW_Grouping::compute_residuals(size_t n, const float *x, float *residuals,
                                                    const float *subcentroids, const idx_t *keys)
     {
-        for (idx_t i = 0; i < n; i++) {
+        for (size_t i = 0; i < n; i++) {
             const float *subcentroid = subcentroids + keys[i]*d;
             faiss::fvec_madd(d, x + i*d, -1., subcentroid, residuals + i*d);
         }
@@ -561,19 +561,19 @@ namespace ivfhnsw
     void IndexIVF_HNSW_Grouping::reconstruct(size_t n, float *x, const float *decoded_residuals,
                                              const float *subcentroids, const idx_t *keys)
     {
-        for (idx_t i = 0; i < n; i++) {
+        for (size_t i = 0; i < n; i++) {
             const float *subcentroid = subcentroids + keys[i] * d;
             faiss::fvec_madd(d, decoded_residuals + i*d, 1., subcentroid, x + i*d);
         }
     }
 
     void IndexIVF_HNSW_Grouping::compute_subcentroid_idxs(idx_t *subcentroid_idxs, const float *subcentroids,
-                                                          const float *x, int group_size)
+                                                          const float *x, size_t group_size)
     {
-        for (int i = 0; i < group_size; i++) {
+        for (size_t i = 0; i < group_size; i++) {
             float min_dist = 0.0;
             idx_t min_idx = -1;
-            for (int subc = 0; subc < nsubc; subc++) {
+            for (size_t subc = 0; subc < nsubc; subc++) {
                 const float *subcentroid = subcentroids + subc * d;
                 float dist = fvec_L2sqr(subcentroid, x + i*d, d);
                 if (min_idx == -1 || dist < min_dist){
@@ -593,16 +593,16 @@ namespace ivfhnsw
         float group_denominator = 0.0;
 
         std::vector<float> point_vectors(group_size * d);
-        for (int i = 0; i < group_size; i++)
+        for (size_t i = 0; i < group_size; i++)
             faiss::fvec_madd(d, points + i*d , -1., centroid, point_vectors.data() + i*d);
 
-        for (int i = 0; i < group_size; i++) {
+        for (size_t i = 0; i < group_size; i++) {
             const float *point_vector = point_vectors.data() + i * d;
             const float *point = points + i * d;
 
             std::priority_queue<std::pair<float, std::pair<float, float>>> maxheap;
 
-            for (int subc = 0; subc < nsubc; subc++) {
+            for (size_t subc = 0; subc < nsubc; subc++) {
                 const float *centroid_vector = centroid_vectors + subc * d;
 
                 float numerator = faiss::fvec_inner_product(centroid_vector, point_vector, d);
