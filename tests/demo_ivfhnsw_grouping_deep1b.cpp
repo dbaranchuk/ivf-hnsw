@@ -128,14 +128,14 @@ int main(int argc, char **argv)
         StopW stopw = StopW();
 
         int batch_size = 1000000;
-        int nbatches = opt.nb / batch_size;
-        int groups_per_iter = 250000;
+        size_t nbatches = opt.nb / batch_size;
+        size_t groups_per_iter = 250000;
 
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> idx_batch(batch_size);
 
         // Adding batches of groups to the index (batch size - <groups_per_iter> groups per iteration)
-        for (int ngroups_added = 0; ngroups_added < opt.nc; ngroups_added += groups_per_iter)
+        for (size_t ngroups_added = 0; ngroups_added < opt.nc; ngroups_added += groups_per_iter)
         {
             std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
                       << ngroups_added << " / " << opt.nc << std::endl;
@@ -148,17 +148,17 @@ int main(int argc, char **argv)
             std::ifstream base_input(opt.path_base, ios::binary);
             std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
 
-            for (int b = 0; b < nbatches; b++) {
+            for (size_t b = 0; b < nbatches; b++) {
                 readXvec<float>(base_input, batch.data(), opt.d, batch_size);
                 readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
 
-                for (int i = 0; i < batch_size; i++) {
+                for (size_t i = 0; i < batch_size; i++) {
                     if (idx_batch[i] < ngroups_added ||
                         idx_batch[i] >= ngroups_added + groups_per_iter)
                         continue;
 
                     idx_t idx = idx_batch[i] % groups_per_iter;
-                    for (int j = 0; j < opt.d; j++)
+                    for (size_t j = 0; j < opt.d; j++)
                         data[idx].push_back(batch[i * opt.d + j]);
                     ids[idx].push_back(b * batch_size + i);
                 }
@@ -170,19 +170,18 @@ int main(int argc, char **argv)
             if (opt.nc - ngroups_added <= groups_per_iter)
                 groups_per_iter = opt.nc - ngroups_added;
 
-            int j1 = 0;
+            size_t j = 0;
 #pragma omp parallel for
-            for (int i = 0; i < groups_per_iter; i++) {
+            for (size_t i = 0; i < groups_per_iter; i++) {
 #pragma omp critical
                 {
-                    if (j1 % 10000 == 0) {
+                    if (j % 10000 == 0) {
                         std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
                                   << (100. * (ngroups_added+j1)) / 1000000 << "%" << std::endl;
                     }
-                    j1++;
+                    j++;
                 }
-                int group_size = ids[i].size();
-
+                size_t group_size = ids[i].size();
                 index->add_group(ngroups_added + i, group_size, data[i].data(), ids[i].data());
             }
         }
@@ -207,7 +206,7 @@ int main(int argc, char **argv)
     std::cout << "Parsing groundtruth" << std::endl;
     std::vector<std::priority_queue< std::pair<float, idx_t >>> answers;
     (std::vector<std::priority_queue< std::pair<float, idx_t >>>(opt.nq)).swap(answers);
-    for (int i = 0; i < opt.nq; i++)
+    for (size_t i = 0; i < opt.nq; i++)
         answers[i].emplace(0.0f, massQA[opt.ngt*i]);
 
     //=======================
@@ -221,12 +220,12 @@ int main(int argc, char **argv)
     //========
     // Search 
     //========
-    int correct = 0;
+    size_t correct = 0;
     float distances[opt.k];
     long labels[opt.k];
 
     StopW stopw = StopW();
-    for (int i = 0; i < opt.nq; i++) {
+    for (size_t i = 0; i < opt.nq; i++) {
         index->search(opt.k, massQ.data() + i*opt.d, distances, labels);
 
         std::priority_queue<std::pair<float, idx_t >> gt(answers[i]);
@@ -237,7 +236,7 @@ int main(int argc, char **argv)
             gt.pop();
         }
 
-        for (int j = 0; j < opt.k; j++)
+        for (size_t j = 0; j < opt.k; j++)
             if (g.count(labels[j]) != 0) {
                 correct++;
                 break;

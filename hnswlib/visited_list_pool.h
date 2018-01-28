@@ -4,15 +4,16 @@
 #include <deque>
 
 namespace hnswlib{
-typedef unsigned short vl_type;
+
+	typedef uint16_t vl_type;
 
 class VisitedList {
 public:
 	vl_type curV;
 	vl_type *mass;
-	unsigned int numelements;
+	size_t numelements;
 
-	VisitedList(unsigned int numelements1)
+	VisitedList(size_t numelements1)
 	{
 		curV = -1;
 		numelements = numelements1;
@@ -27,6 +28,7 @@ public:
 			curV++;
 		}
 	};
+
 	~VisitedList() { delete mass; }
 };
 
@@ -39,16 +41,17 @@ public:
 class VisitedListPool {
 	std::deque<VisitedList *> pool;
 	std::mutex poolguard;
-	int maxpools;
-	int numelements;
+	size_t maxpools;
+	size_t numelements;
 
 public:
-	VisitedListPool(int initmaxpools, int numelements1)
+	VisitedListPool(size_t initmaxpools, size_t numelements1)
 	{
 		numelements = numelements1;
-		for (int i = 0; i < initmaxpools; i++)
+		for (size_t i = 0; i < initmaxpools; i++)
 			pool.push_front(new VisitedList(numelements));
 	}
+
 	VisitedList *getFreeVisitedList()
 	{
 		VisitedList *rez;
@@ -65,11 +68,13 @@ public:
 		rez->reset();
 		return rez;
 	};
+
 	void releaseVisitedList(VisitedList *vl)
 	{
 		std::unique_lock<std::mutex> lock(poolguard);
 		pool.push_front(vl);
 	};
+
 	~VisitedListPool()
 	{
 		while (pool.size()) {

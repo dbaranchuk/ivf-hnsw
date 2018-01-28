@@ -94,14 +94,14 @@ int main(int argc, char **argv)
         std::ifstream input(opt.path_base, ios::binary);
         std::ofstream output(opt.path_precomputed_idxs, ios::binary);
 
-        int batch_size = 1000000;
-        int nbatches = opt.nb / batch_size;
+        uint32_t batch_size = 1000000;
+        size_t nbatches = opt.nb / batch_size;
 
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> precomputed_idx(batch_size);
 
         index->quantizer->efSearch = 220;
-        for (int i = 0; i < nbatches; i++) {
+        for (size_t i = 0; i < nbatches; i++) {
             if (i % 10 == 0) {
                 std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
                           << (100.*i) / nbatches << "%" << std::endl;
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
             readXvec<float>(input, batch.data(), opt.d, batch_size);
             index->assign(batch_size, batch.data(), precomputed_idx.data());
 
-            output.write((char *) &batch_size, sizeof(int));
+            output.write((char *) &batch_size, sizeof(uint32_t));
             output.write((char *) precomputed_idx.data(), batch_size * sizeof(idx_t));
         }
         input.close();
@@ -136,7 +136,7 @@ int main(int argc, char **argv)
         std::vector <idx_t> idx_batch(batch_size);
         std::vector <idx_t> ids_batch(batch_size);
 
-        for (int b = 0; b < nbatch; b++) {
+        for (size_t b = 0; b < nbatch; b++) {
             if (b % 10 == 0) {
                 std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100. * b) / nbatch << "%\n";
             }
@@ -171,7 +171,7 @@ int main(int argc, char **argv)
     std::cout << "Parsing groundtruth" << std::endl;
     std::vector<std::priority_queue< std::pair<float, idx_t >>> answers;
     (std::vector<std::priority_queue< std::pair<float, idx_t >>>(opt.nq)).swap(answers);
-    for (int i = 0; i < opt.nq; i++)
+    for (size_t i = 0; i < opt.nq; i++)
         answers[i].emplace(0.0f, massQA[opt.ngt*i]);
 
     //=======================
@@ -184,12 +184,12 @@ int main(int argc, char **argv)
     //========
     // Search 
     //========
-    int correct = 0;
+    size_t correct = 0;
     float distances[opt.k];
     long labels[opt.k];
 
     StopW stopw = StopW();
-    for (int i = 0; i < opt.nq; i++) {
+    for (size_t i = 0; i < opt.nq; i++) {
         index->search(opt.k, massQ.data() + i*opt.d, distances, labels);
 
         std::priority_queue<std::pair<float, idx_t >> gt(answers[i]);
@@ -200,7 +200,7 @@ int main(int argc, char **argv)
             gt.pop();
         }
 
-        for (int j = 0; j < opt.k; j++)
+        for (size_t j = 0; j < opt.k; j++)
             if (g.count(labels[j]) != 0) {
                 correct++;
                 break;
