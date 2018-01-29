@@ -50,54 +50,69 @@ namespace ivfhnsw {
 
 
     template<typename T>
-    void readXval(std::istream &in, T &podRef) {
+    void read_value(std::istream &in, T &podRef) {
         in.read((char *) &podRef, sizeof(T));
     }
 
+    template<typename T>
+    void read_vector(std::istream &in, std::vector<T> &vec) {
+        uint32_t size;
+        in.read((char *) &size, sizeof(uint32_t));
+        vec.resize(size);
+        in.read((char *) vec.data(), size * sizeof(T));
+    }
 
     template<typename T>
-    void writeXval(std::ostream &out, const T &podRef) {
-        out.write((char *) &podRef, sizeof(T));
+    void write_value(std::ostream &out, const T &val) {
+        out.write((char *) &val, sizeof(T));
+    }
+
+    template<typename T>
+    void write_vector(std::ostream &out, std::vector<T> &vec) {
+        uint32_t size = vec.size();
+        out.write((char *) &size, sizeof(uint32_t));
+        out.write((char *) vec.data(), size * sizeof(T));
     }
 
 
     template<typename T>
-    void readXvec(std::ifstream &in, T *data, const int d, const int n = 1) {
-        int D = 0;
-        for (int i = 0; i < n; i++) {
-            in.read((char *) &D, sizeof(int));
-            if (D != d) {
+    void readXvec(std::ifstream &in, T *data, const size_t d, const size_t n = 1) {
+        uint32_t dim = 0;
+        for (size_t i = 0; i < n; i++) {
+            in.read((char *) &dim, sizeof(uint32_t));
+            if (dim != d) {
                 std::cout << "file error\n";
                 exit(1);
             }
-            in.read((char *) (data + i * d), d * sizeof(T));
+            in.read((char *) (data + i * dim), dim * sizeof(T));
         }
     }
 
 
     template<typename T>
-    void writeXvec(std::ofstream &out, T *data, const int d, const int n = 1) {
-        for (int i = 0; i < n; i++) {
-            out.write((char *) &d, sizeof(int));
-            out.write((char *) (data + i * d), d * sizeof(T));
+    void writeXvec(std::ofstream &out, T *data, const size_t d, const size_t n = 1) {
+        uint32_t dim = d;
+        for (size_t i = 0; i < n; i++) {
+            out.write((char *) &dim, sizeof(uint32_t));
+            out.write((char *) (data + i * dim), dim * sizeof(T));
         }
     }
 
 
     template<typename T>
-    void readXvecFvec(std::ifstream &in, float *data, const int d, const int n = 1) {
-        int D = 0;
-        T mass[d];
+    void readXvecFvec(std::ifstream &in, float *data, const size_t d, const size_t n = 1) {
+        uint32_t dim = 0;
+        T mass[dim];
 
-        for (int i = 0; i < n; i++) {
-            in.read((char *) &D, sizeof(int));
-            if (D != d) {
+        for (size_t i = 0; i < n; i++) {
+            in.read((char *) &dim, sizeof(uint32_t));
+            if (dim != d) {
                 std::cout << "file error\n";
                 exit(1);
             }
-            in.read((char *) mass, d * sizeof(T));
-            for (int j = 0; j < d; j++)
-                data[i * d + j] = (1.0) * mass[j];
+            in.read((char *) mass, dim * sizeof(T));
+            for (size_t j = 0; j < d; j++)
+                data[i * dim + j] = (1.0) * mass[j];
         }
     }
 
@@ -106,7 +121,7 @@ namespace ivfhnsw {
         return f.good();
     }
 
-    void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx);
+    void random_subset(const float *x, float *x_out, size_t d, size_t nx, size_t sub_nx);
 
     float fvec_L2sqr(const float *x, const float *y, size_t d);
 }

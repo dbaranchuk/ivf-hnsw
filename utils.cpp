@@ -3,12 +3,12 @@
 
 namespace ivfhnsw {
 
-    void random_subset(const float *x, float *x_out, int d, int nx, int sub_nx) {
-        int seed = 1234;
+    void random_subset(const float *x, float *x_out, size_t d, size_t nx, size_t sub_nx) {
+        long seed = 1234;
         std::vector<int> perm(nx);
         faiss::rand_perm(perm.data(), nx, seed);
 
-        for (int i = 0; i < sub_nx; i++)
+        for (size_t i = 0; i < sub_nx; i++)
             memcpy(x_out + i * d, x + perm[i] * d, sizeof(x_out[0]) * d);
     }
 

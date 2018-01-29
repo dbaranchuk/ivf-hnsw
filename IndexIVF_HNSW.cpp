@@ -19,6 +19,7 @@ namespace ivfhnsw {
         codes.resize(nc);
         norm_codes.resize(nc);
         ids.resize(nc);
+        centroid_norms.resize(nc);
     }
 
     IndexIVF_HNSW::~IndexIVF_HNSW()
@@ -322,7 +323,6 @@ namespace ivfhnsw {
 
         size_t size;
         // Read vector indices
-        ids = std::vector < std::vector < idx_t >> (nc);
         for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(size_t), 1, fin);
             ids[i].resize(size);
@@ -330,7 +330,6 @@ namespace ivfhnsw {
         }
 
         // Read PQ codes
-        codes = std::vector<std::vector<uint8_t>> (nc);
         for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(size_t), 1, fin);
             codes[i].resize(size);
@@ -338,15 +337,13 @@ namespace ivfhnsw {
         }
 
         // Read norm PQ codes
-        norm_codes = std::vector<std::vector<uint8_t>> (nc);
         for (size_t i = 0; i < nc; i++) {
             fread(&size, sizeof(size_t), 1, fin);
             norm_codes[i].resize(size);
             fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
         }
 
-        // Read centroid norms 
-        centroid_norms.resize(nc);
+        // Read centroid norms
         fread(centroid_norms.data(), sizeof(float), nc, fin);
         fclose(fin);
     }

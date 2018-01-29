@@ -15,6 +15,7 @@ namespace ivfhnsw
 
         query_centroid_dists.resize(nc);
         std::fill(query_centroid_dists.begin(), query_centroid_dists.end(), 0);
+        inter_centroid_dists.resize(nc);
     }
 
     void IndexIVF_HNSW_Grouping::add_group(size_t centroid_idx, size_t group_size,
@@ -45,10 +46,8 @@ namespace ivfhnsw
         }
 
         // Compute alpha for group vectors
-        //alphas[centroid_idx] = compute_alpha(centroid_vectors.data(), data, centroid,
-        //                                     centroid_vector_norms, group_size);
-
-        alphas[centroid_idx] = 0.383882; //SIFT: 0.39817;
+        alphas[centroid_idx] = compute_alpha(centroid_vectors.data(), data, centroid,
+                                             centroid_vector_norms, group_size);
 
         // Compute final subcentroids
         std::vector<float> subcentroids(nsubc * d);
@@ -293,7 +292,7 @@ namespace ivfhnsw
         fwrite(&nc, sizeof(size_t), 1, fout);
         fwrite(&nsubc, sizeof(size_t), 1, fout);
 
-        int size;
+        uint32_t size;
         // Save vector indices
         for (size_t i = 0; i < nc; i++) {
             size = ids[i].size();
@@ -342,60 +341,43 @@ namespace ivfhnsw
     // TODO: rewrite with readXvec
     void IndexIVF_HNSW_Grouping::read(const char *path_index)
     {
-        FILE *fin = fopen(path_index, "rb");
+        std::istream input = open(path_index, std::ios::binary);
 
-        fread(&d, sizeof(size_t), 1, fin);
-        fread(&nc, sizeof(size_t), 1, fin);
-        fread(&nsubc, sizeof(size_t), 1, fin);
+        read_value(input, d);
+        read_value(input, nc);
+        read_value(input, nsubc);
 
-        int size;
-        // Read indices
-        for (size_t i = 0; i < nc; i++) {
-            fread(&size, sizeof(int), 1, fin);
-            ids[i].resize(size);
-            fread(ids[i].data(), sizeof(idx_t), size, fin);
-        }
+        // Read ids
+        for (size_t i = 0; i < nc; i++)
+            read_vector(input, ids[i]);
+
         // Read PQ codes
-        for (size_t i = 0; i < nc; i++) {
-            fread(&size, sizeof(int), 1, fin);
-            codes[i].resize(size);
-            fread(codes[i].data(), sizeof(uint8_t), size, fin);
-        }
+        for (size_t i = 0; i < nc; i++)
+            read_vector(input, codes[i]);
+
         // Read norm PQ codes
-        for (size_t i = 0; i < nc; i++) {
-            fread(&size, sizeof(int), 1, fin);
-            norm_codes[i].resize(size);
-            fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
-        }
+        for (size_t i = 0; i < nc; i++)
+            read_vector(input, norm_codes[i]);
+
         // Read NN centroid indices
-        for (size_t i = 0; i < nc; i++) {
-            fread(&size, sizeof(int), 1, fin);
-            nn_centroid_idxs[i].resize(size);
-            fread(nn_centroid_idxs[i].data(), sizeof(idx_t), size, fin);
-        }
+        for (size_t i = 0; i < nc; i++)
+            read_vector(input, nn_centroid_idxs[i]);
+
         // Read group sizes
-        for (size_t i = 0; i < nc; i++) {
-            fread(&size, sizeof(int), 1, fin);
-            subgroup_sizes[i].resize(size);
-            fread(subgroup_sizes[i].data(), sizeof(int), size, fin);
-        }
+        for (size_t i = 0; i < nc; i++)
+            read_vector(input, subgroup_sizes[i]);
 
         // Read alphas
-        alphas.resize(nc);
-        fread(alphas.data(), sizeof(float), nc, fin);
+        input.read((char *) alphas.data(), sizeof(float) * nc);
 
         // Read centroid norms
-        centroid_norms.resize(nc);
-        fread(centroid_norms.data(), sizeof(float), nc, fin);
+        input.read((char *) centroid_norms.data(), sizeof(float) * nc);
 
         // Read inter centroid distances
-        inter_centroid_dists.resize(nc);
-        for (size_t i = 0; i < nc; i++) {
-            fread(&size, sizeof(idx_t), 1, fin);
-            inter_centroid_dists[i].resize(size);
-            fread(inter_centroid_dists[i].data(), sizeof(float), size, fin);
-        }
-        fclose(fin);
+        for (size_t i = 0; i < nc; i++)
+            read_vector(input, inter_centroid_dists[i]);
+
+        input.close();
     }
 
 
@@ -535,7 +517,6 @@ namespace ivfhnsw
 
     void IndexIVF_HNSW_Grouping::compute_inter_centroid_dists()
     {
-        inter_centroid_dists.resize(nc);
         for (size_t i = 0; i < nc; i++) {
             const float *centroid = quantizer->getDataByInternalId(i);
             inter_centroid_dists[i].resize(nsubc);
