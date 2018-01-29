@@ -63,6 +63,14 @@ namespace ivfhnsw {
     }
 
     template<typename T>
+    void read_vector2(std::istream &in, std::vector<T> &vec) {
+        size_t size;
+        in.read((char *) &size, sizeof(size_t));
+        vec.resize(size);
+        in.read((char *) vec.data(), size * sizeof(T));
+    }
+
+    template<typename T>
     void write_value(std::ostream &out, const T &val) {
         out.write((char *) &val, sizeof(T));
     }

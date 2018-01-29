@@ -313,15 +313,15 @@ namespace ivfhnsw {
 
         // Read vector indices
         for (size_t i = 0; i < nc; i++)
-            read_vector(input, ids[i]);
+            read_vector2(input, ids[i]);
 
         // Read PQ codes
         for (size_t i = 0; i < nc; i++)
-            read_vector(input, codes[i]);
+            read_vector2(input, codes[i]);
 
         // Read norm PQ codes
         for (size_t i = 0; i < nc; i++)
-            read_vector(input, norm_codes[i]);
+            read_vector2(input, norm_codes[i]);
 
         // Read centroid norms
         input.read((char *) centroid_norms.data(), sizeof(float)*nc);
