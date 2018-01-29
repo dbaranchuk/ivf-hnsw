@@ -293,7 +293,7 @@ namespace ivfhnsw
 
         // Save vector indices
         for (size_t i = 0; i < nc; i++)
-            write_vector(ids[i]);
+            write_vector(output, ids[i]);
 
         // Save PQ codes
         for (size_t i = 0; i < nc; i++)
