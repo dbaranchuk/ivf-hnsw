@@ -110,7 +110,7 @@ namespace ivfhnsw {
     template<typename T>
     void readXvecFvec(std::ifstream &in, float *data, const size_t d, const size_t n = 1) {
         uint32_t dim = 0;
-        T mass[dim];
+        T mass[d];
 
         for (size_t i = 0; i < n; i++) {
             in.read((char *) &dim, sizeof(uint32_t));
