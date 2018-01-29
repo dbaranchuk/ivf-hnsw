@@ -201,8 +201,6 @@ int main(int argc, char **argv)
         index->rotate_quantizer();
     }
 
-    index->write(opt.path_index);
-
     //===================
     // Parse groundtruth
     //===================
