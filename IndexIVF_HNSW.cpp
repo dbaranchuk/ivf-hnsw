@@ -331,7 +331,6 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW::compute_centroid_norms()
     {
-        centroid_norms.resize(nc);
         for (size_t i = 0; i < nc; i++) {
             const float *centroid = quantizer->getDataByInternalId(i);
             centroid_norms[i] = faiss::fvec_norm_L2sqr(centroid, d);
