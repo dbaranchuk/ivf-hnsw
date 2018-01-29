@@ -155,6 +155,8 @@ int main(int argc, char **argv)
     if (opt.do_opq)
         index->rotate_quantizer();
 
+    index->write(opt.path_index);
+
     //===================
     // Parse groundtruth
     //===================

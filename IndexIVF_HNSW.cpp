@@ -276,76 +276,57 @@ namespace ivfhnsw {
     }
 
     // Write index 
-    void IndexIVF_HNSW::write(const char *path_index) {
-        FILE *fout = fopen(path_index, "wb");
+    void IndexIVF_HNSW::write(const char *path_index)
+    {
+        std::ofstream output(path_index, std::ios::binary);
 
-        fwrite(&d, sizeof(size_t), 1, fout);
-        fwrite(&nc, sizeof(size_t), 1, fout);
-        fwrite(&nprobe, sizeof(size_t), 1, fout);
-        fwrite(&max_codes, sizeof(size_t), 1, fout);
+        write_value(output, d);
+        write_value(output, nc);
 
-        size_t size;
         // Save vector indices
-        for (size_t i = 0; i < nc; i++) {
-            size = ids[i].size();
-            fwrite(&size, sizeof(size_t), 1, fout);
-            fwrite(ids[i].data(), sizeof(idx_t), size, fout);
-        }
+        for (size_t i = 0; i < nc; i++)
+            write_vector(output, ids[i]);
 
         // Save PQ codes
-        for (size_t i = 0; i < nc; i++) {
-            size = codes[i].size();
-            fwrite(&size, sizeof(size_t), 1, fout);
-            fwrite(codes[i].data(), sizeof(uint8_t), size, fout);
-        }
+        for (size_t i = 0; i < nc; i++)
+            write_vector(output, codes[i]);
 
         // Save norm PQ codes
-        for (size_t i = 0; i < nc; i++) {
-            size = norm_codes[i].size();
-            fwrite(&size, sizeof(size_t), 1, fout);
-            fwrite(norm_codes[i].data(), sizeof(uint8_t), size, fout);
-        }
+        for (size_t i = 0; i < nc; i++)
+            write_vector(output, norm_codes[i]);
 
-        // Save centroid norms 
-        fwrite(centroid_norms.data(), sizeof(float), nc, fout);
-        fclose(fout);
+        // Save centroid norms
+        write_vector(output, centroid_norms);
+
+        output.close();
     }
 
     // Read index 
     void IndexIVF_HNSW::read(const char *path_index)
     {
-        FILE *fin = fopen(path_index, "rb");
+        std::ifstream input(path_index, std::ios::binary);
 
-        fread(&d, sizeof(size_t), 1, fin);
-        fread(&nc, sizeof(size_t), 1, fin);
-        fread(&nprobe, sizeof(size_t), 1, fin);
-        fread(&max_codes, sizeof(size_t), 1, fin);
+        read_value(input, d);
+        read_value(input, nc);
+        read_value(input, nprobe);
+        read_value(input, max_codes);
 
-        size_t size;
         // Read vector indices
-        for (size_t i = 0; i < nc; i++) {
-            fread(&size, sizeof(size_t), 1, fin);
-            ids[i].resize(size);
-            fread(ids[i].data(), sizeof(idx_t), size, fin);
-        }
+        for (size_t i = 0; i < nc; i++)
+            read_vector(input, ids[i]);
 
         // Read PQ codes
-        for (size_t i = 0; i < nc; i++) {
-            fread(&size, sizeof(size_t), 1, fin);
-            codes[i].resize(size);
-            fread(codes[i].data(), sizeof(uint8_t), size, fin);
-        }
+        for (size_t i = 0; i < nc; i++)
+            read_vector(input, codes[i]);
 
         // Read norm PQ codes
-        for (size_t i = 0; i < nc; i++) {
-            fread(&size, sizeof(size_t), 1, fin);
-            norm_codes[i].resize(size);
-            fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
-        }
+        for (size_t i = 0; i < nc; i++)
+            read_vector(input, norm_codes[i]);
 
         // Read centroid norms
-        fread(centroid_norms.data(), sizeof(float), nc, fin);
-        fclose(fin);
+        input.read((char *) centroid_norms.data(), sizeof(float)*nc);
+
+        input.close();
     }
 
     void IndexIVF_HNSW::compute_centroid_norms()
