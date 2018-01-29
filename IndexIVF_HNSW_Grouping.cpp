@@ -354,10 +354,10 @@ namespace ivfhnsw
             read_vector(input, subgroup_sizes[i]);
 
         // Read alphas
-        input.read((char *) alphas.data(), sizeof(float) * nc);
+        read_vector(input, alphas);
 
         // Read centroid norms
-        input.read((char *) centroid_norms.data(), sizeof(float) * nc);
+        read_vector(input, centroid_norms);
 
         // Read inter centroid distances
         for (size_t i = 0; i < nc; i++)

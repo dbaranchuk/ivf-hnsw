@@ -308,23 +308,21 @@ namespace ivfhnsw {
 
         read_value(input, d);
         read_value(input, nc);
-        read_value(input, nprobe);
-        read_value(input, max_codes);
 
         // Read vector indices
         for (size_t i = 0; i < nc; i++)
-            read_vector2(input, ids[i]);
+            read_vector(input, ids[i]);
 
         // Read PQ codes
         for (size_t i = 0; i < nc; i++)
-            read_vector2(input, codes[i]);
+            read_vector(input, codes[i]);
 
         // Read norm PQ codes
         for (size_t i = 0; i < nc; i++)
-            read_vector2(input, norm_codes[i]);
+            read_vector(input, norm_codes[i]);
 
         // Read centroid norms
-        input.read((char *) centroid_norms.data(), sizeof(float)*nc);
+        read_vector(input, centroid_norms);
 
         input.close();
     }
