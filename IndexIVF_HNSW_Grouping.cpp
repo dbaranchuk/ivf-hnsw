@@ -324,7 +324,6 @@ namespace ivfhnsw
         output.close();
     }
 
-    // TODO: rewrite with readXvec
     void IndexIVF_HNSW_Grouping::read(const char *path_index)
     {
         std::ifstream input(path_index, std::ios::binary);

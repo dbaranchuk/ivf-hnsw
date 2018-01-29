@@ -165,7 +165,7 @@ int main(int argc, char **argv)
         std::cout << "Rotating centroids"<< std::endl;
         index->rotate_quantizer();
     }
-    
+
     //===================
     // Parse groundtruth
     //===================
