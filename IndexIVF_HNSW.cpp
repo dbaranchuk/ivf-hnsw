@@ -342,7 +342,7 @@ namespace ivfhnsw {
         }
         std::vector<float> copy_centroid(d);
         for (size_t i = 0; i < nc; i++){
-            const float *centroid = quantizer->getDataByInternalId(i);
+            float *centroid = quantizer->getDataByInternalId(i);
             memcpy(copy_centroid.data(), centroid, d * sizeof(float));
             opq_matrix->apply_noalloc(1, copy_centroid.data(), centroid);
         }
