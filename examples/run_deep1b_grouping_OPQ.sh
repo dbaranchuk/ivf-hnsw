@@ -63,9 +63,9 @@ path_base="/home/arbabenko/Bigann/deep1B_base.fvecs"
 path_learn="/home/arbabenko/Bigann/deep1B_learn.fvecs"
 path_gt="${path_data}/deep1B_groundtruth.ivecs"
 path_q="${path_data}/deep1B_queries.fvecs"
-path_centroids="${path_data}/centroids.fvecs"
+path_centroids="${path_data}/centroids_deep1b.fvecs"
 
-path_precomputed_idxs="${path_data}/precomputed_idxs.ivecs"
+path_precomputed_idxs="${path_data}/precomputed_idxs_deep1b.ivecs"
 
 path_edges="${path_model}/hnsw_M${M}_ef${efConstruction}.ivecs"
 path_info="${path_model}/hnsw_M${M}_ef${efConstruction}.bin"
