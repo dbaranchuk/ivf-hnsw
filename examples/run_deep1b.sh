@@ -22,6 +22,11 @@ nq="10000"            # Number of queries
 ngt="1"               # Number of groundtruth neighbours per query
 
 d="96"                # Vector dimension
+
+#################
+# PQ parameters #
+#################
+
 code_size="16"        # Code size per vector in bytes
 opq="off"             # Turn on/off opq encoding
 
