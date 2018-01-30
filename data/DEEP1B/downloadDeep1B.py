@@ -8,7 +8,7 @@ command = 'curl ' + '"https://cloud-api.yandex.net/v1/disk/public/resources/down
 process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
 (out, err) = process.communicate()
 wgetLink = out.split(',')[0][8:]
-wgetCommand = 'wget ' + wgetLink
+wgetCommand = 'wget ' + wgetLink + ' -O deep1B_groundtruth.ivecs'
 print "Downloading groundtruth ..."
 process = subprocess.Popen(wgetCommand, stdin=subprocess.PIPE, shell=True)
 process.stdin.write('e')
@@ -20,7 +20,7 @@ command = 'curl ' + '"https://cloud-api.yandex.net/v1/disk/public/resources/down
 process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
 (out, err) = process.communicate()
 wgetLink = out.split(',')[0][8:]
-wgetCommand = 'wget ' + wgetLink
+wgetCommand = 'wget ' + wgetLink + ' -O deep1B_queries.fvecs'
 print "Downloading queries ..."
 process = subprocess.Popen(wgetCommand, stdin=subprocess.PIPE, shell=True)
 process.stdin.write('e')
