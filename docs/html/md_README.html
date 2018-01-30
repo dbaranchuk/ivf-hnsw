@@ -78,10 +78,30 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">README </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"></div></div><!-- contents -->
+<div class="textblock"><p>#DRAFT</p>
+<h2>Revisiting the Inverted Indices for Billion-Scale Approximate Nearest Neighbors</h2>
+<h3>Build</h3>
+<p>Today we provide the C++ implementation supporting only the CPU version, which requires a BLAS library.</p>
+<p>The code requires a C++ compiler that understands:</p>
+<ul>
+<li>the Intel intrinsics for SSE instructions</li>
+<li>the GCC intrinsic for the popcount instruction</li>
+<li>basic OpenMP</li>
+</ul>
+<p>1) Configure FAISS</p>
+<p>There are a few models for makefile.inc in the faiss/example_makefiles/ subdirectory. Copy the relevant one for your system to faiss/ and adjust to your needs. In particular, you need to set a proper BLAS library paths. There are also indications for specific configurations in the troubleshooting section of the FAISS wiki.</p>
+<p><a href="https://github.com/facebookresearch/faiss/wiki/Troubleshooting">https://github.com/facebookresearch/faiss/wiki/Troubleshooting</a></p>
+<p>2) Replace FAISS CMakeList.txt Replace faiss/CMakeList.txt with CMakeList.txt.faiss in order to deactivate building of unnecessary tests and the GPU version.</p>
+<p>3) Build project ``` cmake . make ```</p>
+<h3>Data</h3>
+<ul>
+<li>The proposed methods are tested on two 1 billion datasets: SIFT1B and DEEP1B. For proposed examples, all data files have to be in data/SIFT1B and data/DEEP1B. ``` cd data/SIFT1B bash load_sift1b.sh <code> </code> cd data/DEEP1B python load_deep1b.py ```</li>
+<li>We also provide learned centroids and labels of base points assigned to particular centroid for both datasets. ``` TODO ``` </li>
+</ul>
+</div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Jan 13 2018 23:54:13 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jan 30 2018 19:52:54 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

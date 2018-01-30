@@ -110,8 +110,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a6fb0707ecef8bfc40a1ea2e6367bf481"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6fb0707ecef8bfc40a1ea2e6367bf481"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>IndexIVF_HNSW_Grouping</b> (size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx, size_t nsubcentroids)</td></tr>
 <tr class="separator:a6fb0707ecef8bfc40a1ea2e6367bf481"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8bb4ccf71219823d10113f13ad607b85"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a8bb4ccf71219823d10113f13ad607b85">add_group</a> (int group_idx, int group_size, const float *x, const <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a> *<a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#ad40193d01d98d4a55847638581d610bb">ids</a>, double &amp;baseline_average, double &amp;modified_average)</td></tr>
-<tr class="separator:a8bb4ccf71219823d10113f13ad607b85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d1842d6849fbab97bb2daf022f4a940"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a0d1842d6849fbab97bb2daf022f4a940">add_group</a> (size_t group_idx, size_t group_size, const float *x, const <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a7c6fb7b945eba6a48d28ea36db5809fc">idx_t</a> *<a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#ad40193d01d98d4a55847638581d610bb">ids</a>)</td></tr>
+<tr class="separator:a0d1842d6849fbab97bb2daf022f4a940"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a399996617a43e549ee886dcd57424b45"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a399996617a43e549ee886dcd57424b45">search</a> (size_t k, const float *x, float *distances, long *labels)</td></tr>
 <tr class="separator:a399996617a43e549ee886dcd57424b45"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a48a6813044ff0012b125297e272544ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a48a6813044ff0012b125297e272544ba"></a>
@@ -132,16 +132,20 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stru
 <tr class="memitem:ae2ed5c24f208a3971e86eff84c2d95ba inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae2ed5c24f208a3971e86eff84c2d95ba"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>IndexIVF_HNSW</b> (size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx)</td></tr>
 <tr class="separator:ae2ed5c24f208a3971e86eff84c2d95ba inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad74cc7964cf51f4185bbd9f902631788 inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#ad74cc7964cf51f4185bbd9f902631788">build_quantizer</a> (const char *path_data, const char *path_info, const char *path_edges, int M=16, int efConstruction=500)</td></tr>
-<tr class="separator:ad74cc7964cf51f4185bbd9f902631788 inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a16438e89ea04032d43b7fea4854fdb09 inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a16438e89ea04032d43b7fea4854fdb09">assign</a> (size_t n, const float *x, <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a> *labels, size_t k=1)</td></tr>
+<tr class="memitem:ad8520f5a9a46864c038b74116b6d0ba8 inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#ad8520f5a9a46864c038b74116b6d0ba8">build_quantizer</a> (const char *path_data, const char *path_info, const char *path_edges, size_t M=16, size_t efConstruction=500)</td></tr>
+<tr class="separator:ad8520f5a9a46864c038b74116b6d0ba8 inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16438e89ea04032d43b7fea4854fdb09 inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a16438e89ea04032d43b7fea4854fdb09">assign</a> (size_t n, const float *x, <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a7c6fb7b945eba6a48d28ea36db5809fc">idx_t</a> *labels, size_t k=1)</td></tr>
 <tr class="separator:a16438e89ea04032d43b7fea4854fdb09 inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a750c9093b1fa5adf7d80a9ca6aec5de4 inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a750c9093b1fa5adf7d80a9ca6aec5de4">add_batch</a> (size_t n, const float *x, const <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a> *xids, const <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a> *precomputed_idx=nullptr)</td></tr>
+<tr class="memitem:a750c9093b1fa5adf7d80a9ca6aec5de4 inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a750c9093b1fa5adf7d80a9ca6aec5de4">add_batch</a> (size_t n, const float *x, const <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a7c6fb7b945eba6a48d28ea36db5809fc">idx_t</a> *xids, const <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a7c6fb7b945eba6a48d28ea36db5809fc">idx_t</a> *precomputed_idx=nullptr)</td></tr>
 <tr class="separator:a750c9093b1fa5adf7d80a9ca6aec5de4 inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac5a4b723f412d1a54ddee29db4d6a594 inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac5a4b723f412d1a54ddee29db4d6a594"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#ac5a4b723f412d1a54ddee29db4d6a594">compute_centroid_norms</a> ()</td></tr>
 <tr class="memdesc:ac5a4b723f412d1a54ddee29db4d6a594 inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute norms of the HNSW vertices. <br/></td></tr>
 <tr class="separator:ac5a4b723f412d1a54ddee29db4d6a594 inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a283b84e2daa00165d08e2ed8a1c775ac inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a283b84e2daa00165d08e2ed8a1c775ac"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a283b84e2daa00165d08e2ed8a1c775ac">rotate_quantizer</a> ()</td></tr>
+<tr class="memdesc:a283b84e2daa00165d08e2ed8a1c775ac inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="mdescLeft">&#160;</td><td class="mdescRight">For correct search using OPQ encoding rotate points in the coarse quantizer. <br/></td></tr>
+<tr class="separator:a283b84e2daa00165d08e2ed8a1c775ac inherit pub_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -154,13 +158,13 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stru
 <tr class="memdesc:a1a5ca7b0618e58131bf1bebd76bc0547"><td class="mdescLeft">&#160;</td><td class="mdescRight">Turn on/off pruning. <br/></td></tr>
 <tr class="separator:a1a5ca7b0618e58131bf1bebd76bc0547"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b0be75945927e8c187b4fda4b3abd12"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3b0be75945927e8c187b4fda4b3abd12"></a>
-std::vector&lt; std::vector&lt; <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a3b0be75945927e8c187b4fda4b3abd12">nn_centroid_idxs</a></td></tr>
+std::vector&lt; std::vector&lt; <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a7c6fb7b945eba6a48d28ea36db5809fc">idx_t</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a3b0be75945927e8c187b4fda4b3abd12">nn_centroid_idxs</a></td></tr>
 <tr class="memdesc:a3b0be75945927e8c187b4fda4b3abd12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indices of the &lt;nsubc&gt; nearest centroids for each centroid. <br/></td></tr>
 <tr class="separator:a3b0be75945927e8c187b4fda4b3abd12"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a1d1cf68818a4671fc47e0a0f56d5a8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3a1d1cf68818a4671fc47e0a0f56d5a8"></a>
-std::vector&lt; std::vector&lt; int &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a3a1d1cf68818a4671fc47e0a0f56d5a8">subgroup_sizes</a></td></tr>
-<tr class="memdesc:a3a1d1cf68818a4671fc47e0a0f56d5a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sizes of sub-groups for each group. <br/></td></tr>
-<tr class="separator:a3a1d1cf68818a4671fc47e0a0f56d5a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11c3fd0ab12ee9be4aec1bf44b8a5615"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a11c3fd0ab12ee9be4aec1bf44b8a5615"></a>
+std::vector&lt; std::vector&lt; <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a7c6fb7b945eba6a48d28ea36db5809fc">idx_t</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a11c3fd0ab12ee9be4aec1bf44b8a5615">subgroup_sizes</a></td></tr>
+<tr class="memdesc:a11c3fd0ab12ee9be4aec1bf44b8a5615"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sizes of sub-groups for each group. <br/></td></tr>
+<tr class="separator:a11c3fd0ab12ee9be4aec1bf44b8a5615"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a54c5fa227e3c10eaec992e3af39b6e06"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a54c5fa227e3c10eaec992e3af39b6e06"></a>
 std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW__Grouping.html#a54c5fa227e3c10eaec992e3af39b6e06">alphas</a></td></tr>
 <tr class="memdesc:a54c5fa227e3c10eaec992e3af39b6e06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coefficients that determine the location of sub-centroids. <br/></td></tr>
@@ -190,6 +194,14 @@ faiss::ProductQuantizer *&#160;</td><td class="memItemRight" valign="bottom"><a 
 faiss::ProductQuantizer *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#acff5d189392af6d63db5d782df89f79b">norm_pq</a></td></tr>
 <tr class="memdesc:acff5d189392af6d63db5d782df89f79b inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the norm codes of reconstructed base vectors. <br/></td></tr>
 <tr class="separator:acff5d189392af6d63db5d782df89f79b inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45f738ebf5e73b87a11983911d54dd8b inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a45f738ebf5e73b87a11983911d54dd8b"></a>
+faiss::LinearTransform *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a45f738ebf5e73b87a11983911d54dd8b">opq_matrix</a></td></tr>
+<tr class="memdesc:a45f738ebf5e73b87a11983911d54dd8b inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rotation matrix for OPQ encoding. <br/></td></tr>
+<tr class="separator:a45f738ebf5e73b87a11983911d54dd8b inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9660b70f02a7b529ef7e997a685e1f5e inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9660b70f02a7b529ef7e997a685e1f5e"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a9660b70f02a7b529ef7e997a685e1f5e">do_opq</a></td></tr>
+<tr class="memdesc:a9660b70f02a7b529ef7e997a685e1f5e inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="mdescLeft">&#160;</td><td class="mdescRight">Turn on/off OPQ encoding. <br/></td></tr>
+<tr class="separator:a9660b70f02a7b529ef7e997a685e1f5e inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0be6e0ce24b188401271104857283d48 inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0be6e0ce24b188401271104857283d48"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a0be6e0ce24b188401271104857283d48">nprobe</a></td></tr>
 <tr class="memdesc:a0be6e0ce24b188401271104857283d48 inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of probes at search time. <br/></td></tr>
@@ -199,17 +211,17 @@ size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 <tr class="memdesc:a23f33c7f1b7707580f61c1e69f1373e1 inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="mdescLeft">&#160;</td><td class="mdescRight">Max number of codes to visit to do a query. <br/></td></tr>
 <tr class="separator:a23f33c7f1b7707580f61c1e69f1373e1 inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad40193d01d98d4a55847638581d610bb inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad40193d01d98d4a55847638581d610bb"></a>
-std::vector&lt; std::vector&lt; <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#ad40193d01d98d4a55847638581d610bb">ids</a></td></tr>
+std::vector&lt; std::vector&lt; <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a7c6fb7b945eba6a48d28ea36db5809fc">idx_t</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#ad40193d01d98d4a55847638581d610bb">ids</a></td></tr>
 <tr class="memdesc:ad40193d01d98d4a55847638581d610bb inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inverted lists for indexes. <br/></td></tr>
 <tr class="separator:ad40193d01d98d4a55847638581d610bb inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad2ca994b4a3bf65a3fe7d1cf863a0da1 inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad2ca994b4a3bf65a3fe7d1cf863a0da1"></a>
 std::vector&lt; std::vector<br class="typebreak"/>
-&lt; <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aa2ef8578874419ee182bedd2c4a47525">uint8_t</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#ad2ca994b4a3bf65a3fe7d1cf863a0da1">codes</a></td></tr>
+&lt; uint8_t &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#ad2ca994b4a3bf65a3fe7d1cf863a0da1">codes</a></td></tr>
 <tr class="memdesc:ad2ca994b4a3bf65a3fe7d1cf863a0da1 inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="mdescLeft">&#160;</td><td class="mdescRight">PQ codes of residuals. <br/></td></tr>
 <tr class="separator:ad2ca994b4a3bf65a3fe7d1cf863a0da1 inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a569a6cca33552f450f253f4d667b6bc4 inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a569a6cca33552f450f253f4d667b6bc4"></a>
 std::vector&lt; std::vector<br class="typebreak"/>
-&lt; <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aa2ef8578874419ee182bedd2c4a47525">uint8_t</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a569a6cca33552f450f253f4d667b6bc4">norm_codes</a></td></tr>
+&lt; uint8_t &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a569a6cca33552f450f253f4d667b6bc4">norm_codes</a></td></tr>
 <tr class="memdesc:a569a6cca33552f450f253f4d667b6bc4 inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="mdescLeft">&#160;</td><td class="mdescRight">PQ codes of norms of reconstructed base vectors. <br/></td></tr>
 <tr class="separator:a569a6cca33552f450f253f4d667b6bc4 inherit pub_attribs_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -240,35 +252,31 @@ std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pub_types_structivfhnsw_1_1IndexIVF__HNSW"><td colspan="2" onclick="javascript:toggleInherit('pub_types_structivfhnsw_1_1IndexIVF__HNSW')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html">ivfhnsw::IndexIVF_HNSW</a></td></tr>
-<tr class="memitem:aa2ef8578874419ee182bedd2c4a47525 inherit pub_types_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa2ef8578874419ee182bedd2c4a47525"></a>
-typedef unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aa2ef8578874419ee182bedd2c4a47525">uint8_t</a></td></tr>
-<tr class="memdesc:aa2ef8578874419ee182bedd2c4a47525 inherit pub_types_structivfhnsw_1_1IndexIVF__HNSW"><td class="mdescLeft">&#160;</td><td class="mdescRight">all codes are this type <br/></td></tr>
-<tr class="separator:aa2ef8578874419ee182bedd2c4a47525 inherit pub_types_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae1bb396904d68f1a64dde1fda0eff29 inherit pub_types_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aae1bb396904d68f1a64dde1fda0eff29"></a>
-typedef unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a></td></tr>
-<tr class="memdesc:aae1bb396904d68f1a64dde1fda0eff29 inherit pub_types_structivfhnsw_1_1IndexIVF__HNSW"><td class="mdescLeft">&#160;</td><td class="mdescRight">all indices are this type <br/></td></tr>
-<tr class="separator:aae1bb396904d68f1a64dde1fda0eff29 inherit pub_types_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c6fb7b945eba6a48d28ea36db5809fc inherit pub_types_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7c6fb7b945eba6a48d28ea36db5809fc"></a>
+typedef uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a7c6fb7b945eba6a48d28ea36db5809fc">idx_t</a></td></tr>
+<tr class="memdesc:a7c6fb7b945eba6a48d28ea36db5809fc inherit pub_types_structivfhnsw_1_1IndexIVF__HNSW"><td class="mdescLeft">&#160;</td><td class="mdescRight">all indices are this type <br/></td></tr>
+<tr class="separator:a7c6fb7b945eba6a48d28ea36db5809fc inherit pub_types_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_structivfhnsw_1_1IndexIVF__HNSW"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_structivfhnsw_1_1IndexIVF__HNSW')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html">ivfhnsw::IndexIVF_HNSW</a></td></tr>
 <tr class="memitem:abd20f0d5f3a516996267961a578cd584 inherit pro_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abd20f0d5f3a516996267961a578cd584"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#abd20f0d5f3a516996267961a578cd584">pq_L2sqr</a> (const <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aa2ef8578874419ee182bedd2c4a47525">uint8_t</a> *code)</td></tr>
+float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#abd20f0d5f3a516996267961a578cd584">pq_L2sqr</a> (const uint8_t *code)</td></tr>
 <tr class="memdesc:abd20f0d5f3a516996267961a578cd584 inherit pro_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="mdescLeft">&#160;</td><td class="mdescRight">L2 sqr distance function for PQ codes. <br/></td></tr>
 <tr class="separator:abd20f0d5f3a516996267961a578cd584 inherit pro_methods_structivfhnsw_1_1IndexIVF__HNSW"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a8bb4ccf71219823d10113f13ad607b85"></a>
+<a class="anchor" id="a0d1842d6849fbab97bb2daf022f4a940"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void ivfhnsw::IndexIVF_HNSW_Grouping::add_group </td>
           <td>(</td>
-          <td class="paramtype">int&#160;</td>
+          <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>group_idx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
+          <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>group_size</em>, </td>
         </tr>
         <tr>
@@ -280,20 +288,8 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="str
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#aae1bb396904d68f1a64dde1fda0eff29">idx_t</a> *&#160;</td>
-          <td class="paramname"><em>ids</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double &amp;&#160;</td>
-          <td class="paramname"><em>baseline_average</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double &amp;&#160;</td>
-          <td class="paramname"><em>modified_average</em>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structivfhnsw_1_1IndexIVF__HNSW.html#a7c6fb7b945eba6a48d28ea36db5809fc">idx_t</a> *&#160;</td>
+          <td class="paramname"><em>ids</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -308,7 +304,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="str
     <tr><td class="paramname">group_idx</td><td>index of the group </td></tr>
     <tr><td class="paramname">group_size</td><td>number of base vectors in the group </td></tr>
     <tr><td class="paramname">x</td><td>base vectors to add (size: group_size * d) </td></tr>
-    <tr><td class="paramname">ids</td><td>ids to store for the vectors (size: groups_size) TODO: remove last two parameters </td></tr>
+    <tr><td class="paramname">ids</td><td>ids to store for the vectors (size: groups_size) </td></tr>
   </table>
   </dd>
 </dl>
@@ -430,7 +426,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="str
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Jan 13 2018 23:54:13 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jan 30 2018 19:52:54 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>
