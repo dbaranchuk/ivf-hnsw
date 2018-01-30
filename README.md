@@ -1,4 +1,4 @@
-#DRAFT
+# DRAFT
 
 ## Revisiting the Inverted Indices for Billion-Scale Approximate Nearest Neighbors
 
