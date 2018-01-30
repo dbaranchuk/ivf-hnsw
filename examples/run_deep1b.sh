@@ -34,7 +34,7 @@ opq="off"             # Turn on/off opq encoding
 # (<nprobe>, <max_codes>, <efSearch>) #
 # (   32,       10000,        80    ) #
 # (   64,       30000,       100    ) #
-# (  128,       50000,       130    ) #
+# (  128,      100000,       130    ) #
 #######################################
 
 k="100"               # Number of the closest vertices to search

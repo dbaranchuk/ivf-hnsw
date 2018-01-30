@@ -9,7 +9,7 @@
 //==============
 struct Parser
 {
-    const char *cmd;     ///< main command - argv[0]
+    const char *cmd;        ///< main command - argv[0]
 
     //=================
     // HNSW parameters
@@ -28,8 +28,12 @@ struct Parser
     size_t nq;             ///< Number of queries
     size_t ngt;            ///< Number of groundtruth neighbours per query
     size_t d;              ///< Vector dimension
+
+    //=================
+    // PQ parameters
+    //=================
     size_t code_size;      ///< Code size per vector in bytes
-    bool do_opq;             ///< Turn on/off OPQ fine encoding
+    bool do_opq;           ///< Turn on/off OPQ fine encoding
 
     //===================
     // Search parameters
@@ -38,7 +42,7 @@ struct Parser
     size_t nprobe;         ///< Number of probes at query time
     size_t max_codes;      ///< Max number of codes to visit to do a query
     size_t efSearch;       ///< Max number of candidate vertices in priority queue to observe during searching
-    bool do_pruning;         ///< Turn on/off pruning in the grouping scheme
+    bool do_pruning;       ///< Turn on/off pruning in the grouping scheme
 
     //=======
     // Paths
@@ -91,6 +95,10 @@ struct Parser
             else if (!strcmp (a, "-nq")) sscanf(argv[++i], "%zu", &nq);
             else if (!strcmp (a, "-ngt")) sscanf(argv[++i], "%zu", &ngt);
             else if (!strcmp (a, "-d")) sscanf(argv[++i], "%zu", &d);
+
+            //===============
+            // PQ parameters
+            //===============
             else if (!strcmp (a, "-code_size"))sscanf(argv[++i], "%zu", &code_size);
             else if (!strcmp (a, "-opq")) do_opq = !strcmp(argv[++i], "on");
 
@@ -143,7 +151,11 @@ struct Parser
                 "    -nq #                 Number of queries\n"
                 "    -ngt #                Number of groundtruth neighbours per query\n"
                 "    -d #                  Vector dimension\n"
+                "#################\n"
+                "# PQ Parameters #\n"
+                "#################\n"
                 "    -code_size #          Code size per vector in bytes\n"
+                "    -opq on/off           Turn on/off OPQ compression\n"
                 "####################\n"
                 "# Search Parameters #\n"
                 "#####################\n"
@@ -151,7 +163,7 @@ struct Parser
                 "    -nprobe #             Number of probes at query time\n"
                 "    -max_codes #          Max number of codes to visit to do a query\n"
                 "    -efSearch #           Max number of candidate vertices in priority queue to observe during searching\n"
-                "    -pruning              Turn on pruning in the grouping scheme\n"
+                "    -pruning on/off       Turn on/off pruning in the grouping scheme\n"
                 "#########\n"
                 "# Paths #\n"
                 "#########\n"
@@ -167,7 +179,9 @@ struct Parser
                 "    -path_edges filename              Path to edges of HNSW graph\n"
                 "                        \n"
                 "    -path_pq filename                 Path to the product quantizer for residuals\n"
+                "    -path_opq_matrix filename         Path to the rotation matrix for OPQ compression\n"
                 "    -path_norm_pq filename            Path to the product quantizer for norms of reconstructed base points\n"
+                "    "
                 "    -path_index filename              Path to the constructed index\n"
         );
         exit(0);

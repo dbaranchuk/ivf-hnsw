@@ -34,7 +34,10 @@ code_size="16"        # Code size per vector in bytes
 # (<nprobe>, <max_codes>, <efSearch>) #
 # (   32,       10000,        80    ) #
 # (   64,       30000,       100    ) #
-# (  128,       50000,       130    ) #
+# (       IVFADC + Grouping         ) #
+# (  128,      100000,       130    ) #
+# (  IVFADC + Grouping + Pruning    ) #
+# (  210,      100000,       210    ) #
 #######################################
 
 k="1"               # Number of the closest vertices to search

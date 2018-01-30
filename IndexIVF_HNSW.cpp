@@ -119,10 +119,10 @@ namespace ivfhnsw {
 
         // Add vector indices and PQ codes for residuals and norms to Index
         for (size_t i = 0; i < n; i++) {
-            idx_t key = idx[i];
-            idx_t id = xids[i];
+            const idx_t key = idx[i];
+            const idx_t id = xids[i];
             ids[key].push_back(id);
-            uint8_t *code = xcodes.data() + i * code_size;
+            const uint8_t *code = xcodes.data() + i * code_size;
             for (size_t j = 0; j < code_size; j++)
                 codes[key].push_back(code[j]);
 
@@ -186,22 +186,22 @@ namespace ivfhnsw {
 
         size_t ncode = 0;
         for (size_t i = 0; i < nprobe; i++) {
-            idx_t centroid_idx = centroid_idxs[i];
-            size_t group_size = norm_codes[centroid_idx].size();
+            const idx_t centroid_idx = centroid_idxs[i];
+            const size_t group_size = norm_codes[centroid_idx].size();
             if (group_size == 0)
                 continue;
 
             const uint8_t *code = codes[centroid_idx].data();
             const uint8_t *norm_code = norm_codes[centroid_idx].data();
             const idx_t *id = ids[centroid_idx].data();
-            float term1 = query_centroid_dists[i] - centroid_norms[centroid_idx];
+            const float term1 = query_centroid_dists[i] - centroid_norms[centroid_idx];
 
             // Decode the norms of each vector in the list
             norm_pq->decode(norm_code, norms.data(), group_size);
 
             for (size_t j = 0; j < group_size; j++) {
-                float term3 = 2 * pq_L2sqr(code + j * code_size);
-                float dist = term1 + norms[j] - term3; //term2 = norms[j]
+                const float term3 = 2 * pq_L2sqr(code + j * code_size);
+                const float dist = term1 + norms[j] - term3; //term2 = norms[j]
                 if (dist < distances[0]) {
                     faiss::maxheap_pop(k, distances, labels);
                     faiss::maxheap_push(k, distances, labels, dist, id[j]);
@@ -280,8 +280,8 @@ namespace ivfhnsw {
     {
         std::ofstream output(path_index, std::ios::binary);
 
-        write_value(output, d);
-        write_value(output, nc);
+        write_variable(output, d);
+        write_variable(output, nc);
 
         // Save vector indices
         for (size_t i = 0; i < nc; i++)
@@ -306,8 +306,8 @@ namespace ivfhnsw {
     {
         std::ifstream input(path_index, std::ios::binary);
 
-        read_value(input, d);
-        read_value(input, nc);
+        read_variable(input, d);
+        read_variable(input, nc);
 
         // Read vector indices
         for (size_t i = 0; i < nc; i++)
@@ -342,7 +342,7 @@ namespace ivfhnsw {
         }
         std::vector<float> copy_centroid(d);
         for (size_t i = 0; i < nc; i++){
-            float *centroid = quantizer->getDataByInternalId(i);
+            const float *centroid = quantizer->getDataByInternalId(i);
             memcpy(copy_centroid.data(), centroid, d * sizeof(float));
             opq_matrix->apply_noalloc(1, copy_centroid.data(), centroid);
         }
@@ -351,7 +351,7 @@ namespace ivfhnsw {
     float IndexIVF_HNSW::pq_L2sqr(const uint8_t *code)
     {
         float result = 0.;
-        size_t dim = code_size >> 2;
+        const size_t dim = code_size >> 2;
         size_t m = 0;
         for (size_t i = 0; i < dim; i++) {
             result += precomputed_table[pq->ksub * m + code[m]]; m++;
@@ -366,7 +366,7 @@ namespace ivfhnsw {
     void IndexIVF_HNSW::reconstruct(size_t n, float *x, const float *decoded_residuals, const idx_t *keys)
     {
         for (size_t i = 0; i < n; i++) {
-            float *centroid = quantizer->getDataByInternalId(keys[i]);
+            const float *centroid = quantizer->getDataByInternalId(keys[i]);
             faiss::fvec_madd(d, decoded_residuals + i*d, 1., centroid, x + i*d);
         }
     }
@@ -374,7 +374,7 @@ namespace ivfhnsw {
     void IndexIVF_HNSW::compute_residuals(size_t n, const float *x, float *residuals, const idx_t *keys)
     {
         for (size_t i = 0; i < n; i++) {
-            float *centroid = quantizer->getDataByInternalId(keys[i]);
+            const float *centroid = quantizer->getDataByInternalId(keys[i]);
             faiss::fvec_madd(d, x + i*d, -1., centroid, residuals + i*d);
         }
     }
