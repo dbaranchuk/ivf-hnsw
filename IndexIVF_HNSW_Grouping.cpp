@@ -155,7 +155,6 @@ namespace ivfhnsw
       *
       * Since y_R defined by a product quantizer, it is split across
       * sub-vectors and stored separately for each sub-vector.
-      *
     */
     void IndexIVF_HNSW_Grouping::search(size_t k, const float *x, float *distances, long *labels)
     {
