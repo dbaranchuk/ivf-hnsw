@@ -53,28 +53,40 @@ make
 The proposed methods are tested on two 1 billion datasets: SIFT1B and DEEP1B. 
 For using provided examples, all data files have to be in data/SIFT1B and data/DEEP1B.
 
-Data files:
-* SIFT1B:
-   - dataset [Datasets for approximate nearest neighbor search](http://corpus-texmex.irisa.fr/)
+##### Data files:
+##### * SIFT1B:
+   - dataset, [Datasets for approximate nearest neighbor search](http://corpus-texmex.irisa.fr/)
    ```
    cd data/SIFT1B
    bash load_sift1b.sh
    ```
-   - learned 993127 centroids [GoogleDrive](https://drive.google.com/file/d/1p9Aq5lTiXzmuP1ftJAIqKYEEN5EVBZsS/view?usp=sharing)
-   - centroid labels for assigned base points [GoogleDrive]()
-* DEEP1B:
-   - dataset [YandexDrive](https://yadi.sk/d/11eDCm7Dsn9GA)
+   - learned 993127 centroids, [GoogleDrive](https://drive.google.com/file/d/1p9Aq5lTiXzmuP1ftJAIqKYEEN5EVBZsS/view?usp=sharing)
+   - centroid labels for assigned base points, [GoogleDrive]()
+##### * DEEP1B:
+   - dataset, [YandexDrive](https://yadi.sk/d/11eDCm7Dsn9GA)
    ```
    cd data/DEEP1B
    python load_deep1b.py
    ```
-   - learned 999973 centroids [GoogleDrive](https://drive.google.com/file/d/1loJ0rEIBORM34vsVSZrNeJrq1OtrcmKu/view?usp=sharing)
-   - centroid labels for assigned base points [GoogleDrive]() 
+   - learned 999973 centroids, [GoogleDrive](https://drive.google.com/file/d/1loJ0rEIBORM34vsVSZrNeJrq1OtrcmKu/view?usp=sharing)
+   - centroid labels for assigned base points, [GoogleDrive]() 
     
 Note: centroid labels are optional, as it just lets avoid assigning step, which takes about 2-3 days for 2^20 centroids.
 
 ### Run
+tests/ provides two tests for each dataset: 
+- IVFADC
+- IVFADC + Grouping (+ Pruning)
 
+Each test requires many options, so we provide bash scripts in examples/, 
+exploiting these tests. Scripts are commented and 
+the Parser class provides short descriptions for each option.  
+  
+Make sure that models/SIFT1B/ and models/DEEP1B/ exist, 
+the data is placed to the data/SIFT1B/ and data/DEEP1B/ respectively 
+(or just make symbolic links), and run, for example,
+
+```bash examples/run_deep1b_grouping_OPQ.sh```
 
 ### Documentation
 

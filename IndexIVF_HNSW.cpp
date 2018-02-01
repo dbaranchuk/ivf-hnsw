@@ -302,29 +302,69 @@ namespace ivfhnsw {
     }
 
     // Read index 
+//    void IndexIVF_HNSW::read(const char *path_index)
+//    {
+//        std::ifstream input(path_index, std::ios::binary);
+//
+//        read_variable(input, d);
+//        read_variable(input, nc);
+//
+//        // Read vector indices
+//        for (size_t i = 0; i < nc; i++)
+//            read_vector(input, ids[i]);
+//
+//        // Read PQ codes
+//        for (size_t i = 0; i < nc; i++)
+//            read_vector(input, codes[i]);
+//
+//        // Read norm PQ codes
+//        for (size_t i = 0; i < nc; i++)
+//            read_vector(input, norm_codes[i]);
+//
+//        // Read centroid norms
+//        read_vector(input, centroid_norms);
+//
+//        input.close();
+//    }
     void IndexIVF_HNSW::read(const char *path_index)
     {
-        std::ifstream input(path_index, std::ios::binary);
+        FILE *fin = fopen(path_index, "rb");
 
-        read_variable(input, d);
-        read_variable(input, nc);
+        std::cout << "HUI" << std::endl;
+        fread(&d, sizeof(size_t), 1, fin);
+        fread(&nc, sizeof(size_t), 1, fin);
+        fread(&nprobe, sizeof(size_t), 1, fin);
+        fread(&max_codes, sizeof(size_t), 1, fin);
 
+        size_t size;
         // Read vector indices
-        for (size_t i = 0; i < nc; i++)
-            read_vector(input, ids[i]);
+        ids = std::vector < std::vector < idx_t >> (nc);
+        for (size_t i = 0; i < nc; i++) {
+            fread(&size, sizeof(size_t), 1, fin);
+            ids[i].resize(size);
+            fread(ids[i].data(), sizeof(idx_t), size, fin);
+        }
 
         // Read PQ codes
-        for (size_t i = 0; i < nc; i++)
-            read_vector(input, codes[i]);
+        codes = std::vector<std::vector<uint8_t>> (nc);
+        for (size_t i = 0; i < nc; i++) {
+            fread(&size, sizeof(size_t), 1, fin);
+            codes[i].resize(size);
+            fread(codes[i].data(), sizeof(uint8_t), size, fin);
+        }
 
         // Read norm PQ codes
-        for (size_t i = 0; i < nc; i++)
-            read_vector(input, norm_codes[i]);
+        norm_codes = std::vector<std::vector<uint8_t>> (nc);
+        for (size_t i = 0; i < nc; i++) {
+            fread(&size, sizeof(size_t), 1, fin);
+            norm_codes[i].resize(size);
+            fread(norm_codes[i].data(), sizeof(uint8_t), size, fin);
+        }
 
         // Read centroid norms
-        read_vector(input, centroid_norms);
-
-        input.close();
+        centroid_norms.resize(nc);
+        fread(centroid_norms.data(), sizeof(float), nc, fin);
+        fclose(fin);
     }
 
     void IndexIVF_HNSW::compute_centroid_norms()
