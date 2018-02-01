@@ -60,7 +60,7 @@ namespace ivfhnsw {
         std::vector<std::vector<idx_t> > ids;           ///< Inverted lists for indexes
         std::vector<std::vector<uint8_t> > codes;       ///< PQ codes of residuals
         std::vector<std::vector<uint8_t> > norm_codes;  ///< PQ codes of norms of reconstructed base vectors
-        
+
     protected:
         std::vector<float> norms;           ///< L2 square norms of reconstructed base vectors
         std::vector<float> centroid_norms;  ///< L2 square norms of coarse centroids

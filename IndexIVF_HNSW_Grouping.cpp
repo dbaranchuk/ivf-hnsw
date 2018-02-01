@@ -158,7 +158,9 @@ namespace ivfhnsw
     */
     void IndexIVF_HNSW_Grouping::search(size_t k, const float *x, float *distances, long *labels)
     {
-        std::vector<float> r;
+        // Distances to subcentroids. Used for pruning.
+        std::vector<float> query_subcentroid_dists;
+
         // Indices of coarse centroids, which distances to the query are computed during the search time
         std::vector<idx_t> used_centroid_idxs;
         used_centroid_idxs.reserve(nsubc * nprobe);
@@ -182,14 +184,15 @@ namespace ivfhnsw
             size_t ncode = 0;
             size_t nsubgroups = 0;
 
-            r.resize(nsubc * nprobe);
+            query_subcentroid_dists.resize(nsubc * nprobe);
+            float *qsd = query_subcentroid_dists.data();
+
             for (size_t i = 0; i < nprobe; i++) {
                 const idx_t centroid_idx = centroid_idxs[i];
                 const size_t group_size = norm_codes[centroid_idx].size();
                 if (group_size == 0)
                     continue;
 
-                float *subr = r.data() + i*nsubc;
                 const float alpha = alphas[centroid_idx];
                 const float term1 = (1 - alpha) * query_centroid_dists[centroid_idx];
 
@@ -204,12 +207,13 @@ namespace ivfhnsw
                         query_centroid_dists[nn_centroid_idx] = fvec_L2sqr(query, nn_centroid, d);
                         used_centroid_idxs.push_back(nn_centroid_idx);
                     }
-                    subr[subc] = term1 - alpha * ((1 - alpha) * inter_centroid_dists[centroid_idx][subc]
-                                 - query_centroid_dists[nn_centroid_idx]);
-                    threshold += subr[subc];
+                    qsd[subc] = term1 - alpha * ((1 - alpha) * inter_centroid_dists[centroid_idx][subc]
+                                                 - query_centroid_dists[nn_centroid_idx]);
+                    threshold += qsd[subc];
                     nsubgroups++;
                 }
                 ncode += group_size;
+                qsd += nsubc;
                 if (ncode >= 2 * max_codes)
                     break;
             }
@@ -223,6 +227,8 @@ namespace ivfhnsw
         faiss::maxheap_heapify(k, distances, labels);
 
         size_t ncode = 0;
+        const float *qsd = query_subcentroid_dists.data();
+
         for (size_t i = 0; i < nprobe; i++) {
             const idx_t centroid_idx = centroid_idxs[i];
             const size_t group_size = norm_codes[centroid_idx].size();
@@ -242,7 +248,7 @@ namespace ivfhnsw
                     continue;
 
                 // Check pruning condition
-                if (!do_pruning || r[i * nsubc + subc] < threshold) {
+                if (!do_pruning || qsd[subc] < threshold) {
                     const idx_t nn_centroid_idx = nn_centroid_idxs[centroid_idx][subc];
 
                     // Compute the distance to the coarse centroid if it is not computed
@@ -253,7 +259,6 @@ namespace ivfhnsw
                     }
 
                     const float term2 = alpha * (query_centroid_dists[nn_centroid_idx] - centroid_norms[nn_centroid_idx]);
-
                     norm_pq->decode(norm_code, norms.data(), subgroup_size);
 
                     for (size_t j = 0; j < subgroup_size; j++) {
@@ -273,6 +278,8 @@ namespace ivfhnsw
             }
             if (ncode >= max_codes)
                 break;
+            if (do_pruning)
+                qsd += nsubc;
         }
         // Zero computed dists for later queries
         for (idx_t used_centroid_idx : used_centroid_idxs)

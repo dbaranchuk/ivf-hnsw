@@ -12,8 +12,8 @@ namespace ivfhnsw {
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
 
         code_size = pq->code_size;
-        norms.resize(65536); // buffer for reconstructed base points at search time supposing that
-                             // the max size of the list is less than 65536.
+        norms.resize(65536); // buffer for reconstructed base point norms supposing that
+                             // the max size of the list is less than 65536. It is used at search time.
         precomputed_table.resize(pq->ksub * pq->M);
 
         codes.resize(nc);
