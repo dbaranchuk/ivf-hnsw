@@ -51,10 +51,7 @@ int main(int argc, char **argv)
     if (exists(opt.path_pq) && exists(opt.path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << opt.path_pq << std::endl;
         index->pq = faiss::read_ProductQuantizer(opt.path_pq);
-
-        for (int i = 0; i < 8192; i++){
-            index->pqs[i] = faiss::read_ProductQuantizer(opt.path_pq);
-        }
+        
         std::cout << "Loading Norm PQ codebook from " << opt.path_norm_pq << std::endl;
         index->norm_pq = faiss::read_ProductQuantizer(opt.path_norm_pq);
     }
@@ -183,7 +180,7 @@ int main(int argc, char **argv)
 
     StopW stopw = StopW();
     for (size_t i = 0; i < opt.nq; i++) {
-        index->rebuttal_search(opt.k, massQ.data() + i*opt.d, distances, labels);
+        index->search(opt.k, massQ.data() + i*opt.d, distances, labels);
 
         std::priority_queue<std::pair<float, idx_t >> gt(answers[i]);
         std::unordered_set<idx_t> g;

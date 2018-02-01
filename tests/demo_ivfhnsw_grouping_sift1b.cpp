@@ -52,9 +52,6 @@ int main(int argc, char **argv)
         std::cout << "Loading Residual PQ codebook from " << opt.path_pq << std::endl;
         index->pq = faiss::read_ProductQuantizer(opt.path_pq);
 
-        for (int i = 0; i < 8192; i++){
-            index->pqs[i] = faiss::read_ProductQuantizer(opt.path_pq);
-        }
         std::cout << "Loading Norm PQ codebook from " << opt.path_norm_pq << std::endl;
         index->norm_pq = faiss::read_ProductQuantizer(opt.path_norm_pq);
     }
