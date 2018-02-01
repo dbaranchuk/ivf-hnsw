@@ -217,7 +217,7 @@ namespace ivfhnsw
         }
 
         // Precompute table
-        //pq->compute_inner_prod_table(query, precomputed_table.data());
+        pq->compute_inner_prod_table(query, precomputed_table.data());
 
         // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
@@ -235,8 +235,6 @@ namespace ivfhnsw
             const uint8_t *code = codes[centroid_idx].data();
             const uint8_t *norm_code = norm_codes[centroid_idx].data();
             const idx_t *id = ids[centroid_idx].data();
-
-            pqs[pq_idxs[centroid_idx]]->compute_inner_prod_table(query, precomputed_table.data());
 
             for (size_t subc = 0; subc < nsubc; subc++) {
                 const size_t subgroup_size = subgroup_sizes[centroid_idx][subc];
