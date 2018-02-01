@@ -237,7 +237,7 @@ namespace ivfhnsw
             const idx_t *id = ids[centroid_idx].data();
 
             pqs[pq_idxs[centroid_idx]]->compute_inner_prod_table(query, precomputed_table.data());
-            
+
             for (size_t subc = 0; subc < nsubc; subc++) {
                 const size_t subgroup_size = subgroup_sizes[centroid_idx][subc];
                 if (subgroup_size == 0)
