@@ -39,6 +39,9 @@ troubleshooting section of the [FAISS wiki](https://github.com/facebookresearch/
 
 Replace faiss/CMakeList.txt with CMakeList.txt.faiss in order to 
 deactivate building of unnecessary tests and the GPU version.   
+```
+mv CMakeLists.txt.faiss faiss/CMakeLists.txt
+```
 
 4) Build project
 ```
