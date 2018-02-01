@@ -53,8 +53,8 @@ make
 The proposed methods are tested on two 1 billion datasets: SIFT1B and DEEP1B. 
 For using provided examples, all data files have to be in data/SIFT1B and data/DEEP1B.
 
-##### Data files:
-##### * SIFT1B:
+#### Data files:
+* SIFT1B:
    - dataset, [Datasets for approximate nearest neighbor search](http://corpus-texmex.irisa.fr/)
    ```
    cd data/SIFT1B
@@ -62,7 +62,7 @@ For using provided examples, all data files have to be in data/SIFT1B and data/D
    ```
    - learned 993127 centroids, [GoogleDrive](https://drive.google.com/file/d/1p9Aq5lTiXzmuP1ftJAIqKYEEN5EVBZsS/view?usp=sharing)
    - centroid labels for assigned base points, [GoogleDrive]()
-##### * DEEP1B:
+* DEEP1B:
    - dataset, [YandexDrive](https://yadi.sk/d/11eDCm7Dsn9GA)
    ```
    cd data/DEEP1B
