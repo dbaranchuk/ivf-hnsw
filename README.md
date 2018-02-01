@@ -9,7 +9,7 @@ This is the code for the paper:
 Dmitry Baranchuk, Artem Babenko, Yury Malkov
 
 
-The code is developed upon [FAISS](https://github.com/facebookresearch/faiss) Library
+The code is developed upon the [FAISS](https://github.com/facebookresearch/faiss) Library
 
 ### Build
 
@@ -17,12 +17,17 @@ Today we provide the C++ implementation supporting only the CPU version,
 which requires a BLAS library. 
 
 The code requires a C++ compiler that understands: 
-<br>
+
 - the Intel intrinsics for SSE instructions
 - the GCC intrinsic for the popcount instruction
 - basic OpenMP
 
-1) Configure FAISS
+#### Installation instructions
+1) Clone repository
+```
+git clone https://github.com/dbaranchuk/ivf-hnsw --recursive
+```
+2) Configure FAISS
 
 There are a few models for makefile.inc in the faiss/example_makefiles/
 subdirectory. Copy the relevant one for your system to faiss/ and adjust to your
@@ -30,12 +35,12 @@ needs. In particular, for ivf-hnsw project, you need to set a proper BLAS librar
 There are also indications for specific configurations in the
 troubleshooting section of the [FAISS wiki](https://github.com/facebookresearch/faiss/wiki/Troubleshooting)
 
-2) Replace FAISS CMakeList.txt
+3) Replace FAISS CMakeList.txt
 
 Replace faiss/CMakeList.txt with CMakeList.txt.faiss in order to 
 deactivate building of unnecessary tests and the GPU version.   
 
-3) Build project
+4) Build project
 ```
 cmake .
 make
