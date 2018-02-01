@@ -22,7 +22,8 @@ troubleshooting section of the FAISS wiki.
 
 https://github.com/facebookresearch/faiss/wiki/Troubleshooting
 
-2) Replace FAISS CMakeList.txt 
+2) Replace FAISS CMakeList.txt
+
 Replace faiss/CMakeList.txt with CMakeList.txt.faiss in order to 
 deactivate building of unnecessary tests and the GPU version.   
 
