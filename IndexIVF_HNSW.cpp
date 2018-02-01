@@ -26,10 +26,8 @@ namespace ivfhnsw {
 
         faiss::RandomGenerator randomGenerator;
         pq_idxs.resize(nc);
-        for (int i = 0; i < nc; i++) {
+        for (int i = 0; i < nc; i++)
             pq_idxs[i] = randomGenerator.rand_int(8192);
-            std::cout << pq_idxs[i] << " ";
-        }
     }
 
     IndexIVF_HNSW::~IndexIVF_HNSW()
