@@ -53,27 +53,22 @@ For using provided examples, all data files have to be in data/SIFT1B and data/D
 Data files:
 * SIFT1B:
    - dataset [Datasets for approximate nearest neighbor search](http://corpus-texmex.irisa.fr/)
-   - learned 2^20 centroids [GoogleDrive](https://drive.google.com/open?id=1p9Aq5lTiXzmuP1ftJAIqKYEEN5EVBZsS)
+   ```
+   cd data/SIFT1B
+   bash load_sift1b.sh
+   ```
+   - learned 993127 centroids [GoogleDrive](https://drive.google.com/file/d/1p9Aq5lTiXzmuP1ftJAIqKYEEN5EVBZsS/view?usp=sharing)
    - centroid labels for assigned base points [GoogleDrive]()
 * DEEP1B:
    - dataset [YandexDrive](https://yadi.sk/d/11eDCm7Dsn9GA)
-   - learned 2^20 centroids [GoogleDrive](https://drive.google.com/drive/folders/1lW6zTpW8doSItU2HYUzoKWLTG_rjtYEV)
+   ```
+   cd data/DEEP1B
+   python load_deep1b.py
+   ```
+   - learned 999973 centroids [GoogleDrive](https://drive.google.com/file/d/1loJ0rEIBORM34vsVSZrNeJrq1OtrcmKu/view?usp=sharing)
    - centroid labels for assigned base points [GoogleDrive]() 
     
 Note: centroid labels are optional, as it just lets avoid assigning step, which takes about 2-3 days for 2^20 centroids.
-
-We provide scripts loading all necessary files, including centroid labels.
-
-##### SIFT1B:
-```
-cd data/SIFT1B
-bash load_sift1b.sh
-```
-##### DEEP1B:
-```
-cd data/DEEP1B
-python load_deep1b.py
-```
 
 ### Run
 
