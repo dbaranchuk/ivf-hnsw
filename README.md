@@ -50,12 +50,12 @@ Note: centroid labels are optional, as it just lets avoid assigning step, which 
 
 We provide scripts loading all necessary files, including centroid labels.
 
-#####SIFT1B:
+##### SIFT1B:
 ```
 cd data/SIFT1B
 bash load_sift1b.sh
 ```
-#####DEEP1B:
+##### DEEP1B:
 ```
 cd data/DEEP1B
 python load_deep1b.py
