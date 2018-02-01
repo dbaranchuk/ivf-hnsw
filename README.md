@@ -62,6 +62,21 @@ cd data/DEEP1B
 python load_deep1b.py
 ```
 
+### Run
+
+
+### Documentation
+
+
+### Citing
+
+@inproceedings{,
+	author = {},
+	title = {},
+	booktitle = {},
+	year = {2018},
+	url = {}
+}
 
  
 

@@ -3,8 +3,6 @@ cmake_minimum_required (VERSION 2.8)
 # ivf-hnsw project
 project(ivf-hnsw C CXX)
 
-option(BUILD_TEST "Build tests" ON)
-
 include_directories("${PROJECT_BINARY_DIR}")
 
 add_subdirectory(faiss)
@@ -25,6 +23,4 @@ SET( CMAKE_CXX_FLAGS  "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -mar
 target_link_libraries(ivf-hnsw faiss hnswlib)
 
 # build tests
-#if(BUILD_TEST)
-    add_subdirectory(tests)
-#endif(BUILD_TEST)
+add_subdirectory(tests)
