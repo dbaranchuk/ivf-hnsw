@@ -2,6 +2,11 @@
 
 ## Revisiting the Inverted Indices for Billion-Scale Approximate Nearest Neighbors
 
+This is the code for the paper:
+
+[Revisiting the Inverted Indices for Billion-Scale Approximate Nearest Neighbors](),
+
+Dmitry Baranchuk, Artem Babenko, Yury Malkov
 
 ### Build
 Today we provide the C++ implementation supporting only the CPU version, 
@@ -69,6 +74,8 @@ python load_deep1b.py
 
 
 ### Citing
+
+If you find this code useful in your research, please cite:
 
 @inproceedings{,
 	author = {},
