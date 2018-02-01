@@ -330,7 +330,6 @@ namespace ivfhnsw {
     {
         FILE *fin = fopen(path_index, "rb");
 
-        std::cout << "HUI" << std::endl;
         fread(&d, sizeof(size_t), 1, fin);
         fread(&nc, sizeof(size_t), 1, fin);
         fread(&nprobe, sizeof(size_t), 1, fin);
