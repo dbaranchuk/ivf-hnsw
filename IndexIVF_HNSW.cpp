@@ -237,7 +237,7 @@ namespace ivfhnsw {
         }
 
         // Precompute table
-        pq->compute_inner_prod_table(query, precomputed_table.data());
+        //pq->compute_inner_prod_table(query, precomputed_table.data());
 
         // Prepare max heap with k answers
         faiss::maxheap_heapify(k, distances, labels);
@@ -254,6 +254,7 @@ namespace ivfhnsw {
             const idx_t *id = ids[centroid_idx].data();
             const float term1 = query_centroid_dists[i] - centroid_norms[centroid_idx];
 
+            pqs[pq_idxs[centroid_idx]]->compute_inner_prod_table(query, precomputed_table.data());
             // Decode the norms of each vector in the list
             norm_pq->decode(norm_code, norms.data(), group_size);
 
