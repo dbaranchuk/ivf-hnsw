@@ -5,14 +5,19 @@
 This is the code for the paper:
 
 [Revisiting the Inverted Indices for Billion-Scale Approximate Nearest Neighbors](),
-
+<br>
 Dmitry Baranchuk, Artem Babenko, Yury Malkov
 
+
+The code is developed upon [FAISS](https://github.com/facebookresearch/faiss) Library
+
 ### Build
+
 Today we provide the C++ implementation supporting only the CPU version, 
 which requires a BLAS library. 
 
-The code requires a C++ compiler that understands:
+The code requires a C++ compiler that understands: 
+<br>
 - the Intel intrinsics for SSE instructions
 - the GCC intrinsic for the popcount instruction
 - basic OpenMP
@@ -23,9 +28,7 @@ There are a few models for makefile.inc in the faiss/example_makefiles/
 subdirectory. Copy the relevant one for your system to faiss/ and adjust to your
 needs. In particular, for ivf-hnsw project, you need to set a proper BLAS library paths.
 There are also indications for specific configurations in the
-troubleshooting section of the FAISS wiki.
-
-https://github.com/facebookresearch/faiss/wiki/Troubleshooting
+troubleshooting section of the [FAISS wiki](https://github.com/facebookresearch/faiss/wiki/Troubleshooting)
 
 2) Replace FAISS CMakeList.txt
 
