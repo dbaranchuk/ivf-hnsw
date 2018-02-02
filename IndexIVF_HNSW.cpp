@@ -184,7 +184,6 @@ namespace ivfhnsw {
         faiss::maxheap_heapify(k, distances, labels);
 
         size_t ncode = 0;
-        std::cout << nprobe << std::endl;
         for (size_t i = 0; i < nprobe; i++) {
             const idx_t centroid_idx = centroid_idxs[i];
             const size_t group_size = norm_codes[centroid_idx].size();
@@ -196,11 +195,9 @@ namespace ivfhnsw {
             const idx_t *id = ids[centroid_idx].data();
             const float term1 = query_centroid_dists[i] - centroid_norms[centroid_idx];
 
-            std::cout << group_size << std::endl;
             // Decode the norms of each vector in the list
             norm_pq->decode(norm_code, norms.data(), group_size);
 
-            std::cout << "HUI4\n";
             for (size_t j = 0; j < group_size; j++) {
                 const float term3 = 2 * pq_L2sqr(code + j * code_size);
                 const float dist = term1 + norms[j] - term3; //term2 = norms[j]
@@ -209,7 +206,6 @@ namespace ivfhnsw {
                     faiss::maxheap_push(k, distances, labels, dist, id[j]);
                 }
             }
-            std::cout << "HUI5\n";
             ncode += group_size;
             if (ncode >= max_codes)
                 break;
