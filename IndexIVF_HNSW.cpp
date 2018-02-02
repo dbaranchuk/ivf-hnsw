@@ -169,7 +169,7 @@ namespace ivfhnsw {
 
         // For correct search using OPQ rotate a query
         const float *query = (do_opq) ? opq_matrix->apply(1, x) : x;
-
+        std::cout << "HUI1\n";
         // Find the nearest coarse centroids to the query
         auto coarse = quantizer->searchKnn(query, nprobe);
         for (int_fast32_t i = nprobe - 1; i >= 0; i--) {
@@ -177,7 +177,7 @@ namespace ivfhnsw {
             centroid_idxs[i] = coarse.top().second;
             coarse.pop();
         }
-
+        std::cout << "HUI2\n";
         // Precompute table
         pq->compute_inner_prod_table(query, precomputed_table.data());
 
@@ -185,6 +185,7 @@ namespace ivfhnsw {
         faiss::maxheap_heapify(k, distances, labels);
 
         size_t ncode = 0;
+        std::cout << "HUI3\n";
         for (size_t i = 0; i < nprobe; i++) {
             const idx_t centroid_idx = centroid_idxs[i];
             const size_t group_size = norm_codes[centroid_idx].size();
@@ -211,8 +212,10 @@ namespace ivfhnsw {
             if (ncode >= max_codes)
                 break;
         }
+        std::cout << "HUI4\n";
         if (do_opq)
             delete const_cast<float *>(query);
+        std::cout << "HUI5\n";
     }
 
 

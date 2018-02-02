@@ -195,7 +195,7 @@ int main(int argc, char **argv)
                 break;
             }
     }
-    std::cout << "HUI\n";
+
     //===================
     // Represent results
     //===================
