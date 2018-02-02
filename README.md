@@ -1,6 +1,6 @@
 # DRAFT
 
-## Revisiting the Inverted Indices for Billion-Scale Approximate Nearest Neighbors
+# Revisiting the Inverted Indices for Billion-Scale Approximate Nearest Neighbors
 
 This is the code for the paper:
 

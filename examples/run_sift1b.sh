@@ -51,23 +51,23 @@ efSearch="100"        # Max number of candidate vertices in priority queue to ob
 # Paths #
 #########
 
-path_data="$PWD/data/SIFT1B"
-path_model="$PWD/models/SIFT1B"
+path_data="${PWD}/data/SIFT1B"
+path_model="${PWD}/models/SIFT1B"
 
-path_base="$path_data/bigann_base.bvecs"
-path_learn="$path_data/bigann_learn.bvecs"
-path_gt="$path_data/gnd/idx_1000M.ivecs"
-path_q="$path_data/bigann_query.bvecs"
-path_centroids="$path_data/centroids_sift1b.fvecs"
+path_base="${path_data}/bigann_base.bvecs"
+path_learn="${path_data}/bigann_learn.bvecs"
+path_gt="${path_data}/gnd/idx_1000M.ivecs"
+path_q="${path_data}/bigann_query.bvecs"
+path_centroids="${path_data}/centroids_sift1b.fvecs"
 
-path_precomputed_idxs="$path_data/precomputed_idxs_sift1b.ivecs"
+path_precomputed_idxs="${path_data}/precomputed_idxs_sift1b.ivecs"
 
-path_edges="$path_model/hnsw_M${M}_ef${efConstruction}.ivecs"
-path_info="$path_model/hnsw_M${M}_ef${efConstruction}.bin"
+path_edges="${path_model}/hnsw_M${M}_ef${efConstruction}.ivecs"
+path_info="${path_model}/hnsw_M${M}_ef${efConstruction}.bin"
 
-path_pq="$path_model/pq$code_size.pq"
-path_norm_pq="$path_model/norm_pq$code_size.pq"
-path_index="$path_model/ivfhnsw_PQ$code_size.index"
+path_pq="${path_model}/pq${code_size}.pq"
+path_norm_pq="${path_model}/norm_pq${code_size}.pq"
+path_index="${path_model}/ivfhnsw_PQ${code_size}.index"
 
 #######
 # Run #
