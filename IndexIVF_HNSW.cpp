@@ -169,7 +169,7 @@ namespace ivfhnsw {
 
         // For correct search using OPQ rotate a query
         const float *query = (do_opq) ? opq_matrix->apply(1, x) : x;
-        std::cout << "HUI1\n";
+        
         // Find the nearest coarse centroids to the query
         auto coarse = quantizer->searchKnn(query, nprobe);
         for (int_fast32_t i = nprobe - 1; i >= 0; i--) {
@@ -177,7 +177,6 @@ namespace ivfhnsw {
             centroid_idxs[i] = coarse.top().second;
             coarse.pop();
         }
-        std::cout << "HUI2\n";
         // Precompute table
         pq->compute_inner_prod_table(query, precomputed_table.data());
 
@@ -192,12 +191,12 @@ namespace ivfhnsw {
             if (group_size == 0)
                 continue;
 
-            std::cout << "HUI3.5\n";
             const uint8_t *code = codes[centroid_idx].data();
             const uint8_t *norm_code = norm_codes[centroid_idx].data();
             const idx_t *id = ids[centroid_idx].data();
             const float term1 = query_centroid_dists[i] - centroid_norms[centroid_idx];
 
+            std::cout << "HUI3.5\n";
             // Decode the norms of each vector in the list
             norm_pq->decode(norm_code, norms.data(), group_size);
 
