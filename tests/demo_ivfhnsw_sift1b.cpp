@@ -180,8 +180,9 @@ int main(int argc, char **argv)
 
     StopW stopw = StopW();
     for (size_t i = 0; i < opt.nq; i++) {
+        std::cout << "HUI\n";
         index->search(opt.k, massQ.data() + i*opt.d, distances, labels);
-
+        std::cout << "HUI\n";
         std::priority_queue<std::pair<float, idx_t >> gt(answers[i]);
         std::unordered_set<idx_t> g;
 
