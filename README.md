@@ -9,7 +9,7 @@ This is the code for the paper:
 Dmitry Baranchuk, Artem Babenko, Yury Malkov
 
 
-The code is developed upon the [FAISS](https://github.com/facebookresearch/faiss) Library
+The code is developed upon the [FAISS](https://github.com/facebookresearch/faiss) library.
 
 ### Build
 
@@ -89,7 +89,8 @@ the data is placed to the data/SIFT1B/ and data/DEEP1B/ respectively
 ```bash examples/run_deep1b_grouping_OPQ.sh```
 
 ### Documentation
-
+The [doxygen documentation](https://cdn.rawgit.com/dbaranchuk/ivf-hnsw/fe2e4a85/docs/html/annotated.html) 
+gives per-class information
 
 ### Citing
 
