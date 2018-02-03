@@ -176,9 +176,7 @@ namespace ivfhnsw {
             query_centroid_dists[i] = coarse.top().first;
             centroid_idxs[i] = coarse.top().second;
             coarse.pop();
-            std::cout << centroid_idxs[i] << " ";
         }
-        std::cout << nprobe << std::endl;
         // Precompute table
         pq->compute_inner_prod_table(query, precomputed_table.data());
 

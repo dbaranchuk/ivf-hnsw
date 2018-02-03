@@ -134,7 +134,7 @@ int main(int argc, char **argv)
             }
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
             readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
-
+            
             for (size_t i = 0; i < batch_size; i++)
                 ids_batch[i] = batch_size * b + i;
 
