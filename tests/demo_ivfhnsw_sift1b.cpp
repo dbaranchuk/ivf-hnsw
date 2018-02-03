@@ -39,6 +39,10 @@ int main(int argc, char **argv)
     readXvecFvec<uint8_t>(query_input, massQ.data(), opt.d, opt.nq);
     query_input.close();
 
+    for (int i = 0; i < 100; i++){
+        std::cout << massQ[i] << " ";
+    }
+
     //==================
     // Initialize Index
     //==================
@@ -123,14 +127,14 @@ int main(int argc, char **argv)
         std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
 
         size_t batch_size = 1000000;
-        size_t nbatch = opt.nb / batch_size;
+        size_t nbatches = opt.nb / batch_size;
         std::vector<float> batch(batch_size * opt.d);
         std::vector <idx_t> idx_batch(batch_size);
         std::vector <idx_t> ids_batch(batch_size);
 
-        for (size_t b = 0; b < nbatch; b++) {
+        for (size_t b = 0; b < nbatches; b++) {
             if (b % 10 == 0) {
-                std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100. * b) / nbatch << "%\n";
+                std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100. * b) / nbatches << "%\n";
             }
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
             readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
