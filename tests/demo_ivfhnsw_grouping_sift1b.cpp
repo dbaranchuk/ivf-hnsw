@@ -11,9 +11,13 @@
 using namespace hnswlib;
 using namespace ivfhnsw;
 
-//===============================================
-// Run IVF-HNSW + Grouping (+ Pruning) on DEEP1B 
-//===============================================
+//===========================================
+// IVF-HNSW + Grouping (+ Pruning) on DEEP1B
+//===========================================
+// Note: during construction process,
+// we use <groups_per_iter> parameter.
+// Set it based on the capacity of your RAM
+//===========================================
 int main(int argc, char **argv)
 {
     //===============
@@ -86,8 +90,8 @@ int main(int argc, char **argv)
         std::ifstream input(opt.path_base, ios::binary);
         std::ofstream output(opt.path_precomputed_idxs, ios::binary);
 
-        uint32_t batch_size = 1000000;
-        size_t nbatches = opt.nb / batch_size;
+        const uint32_t batch_size = 1000000;
+        const size_t nbatches = opt.nb / batch_size;
 
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> precomputed_idx(batch_size);
@@ -120,9 +124,9 @@ int main(int argc, char **argv)
         std::cout << "Adding groups to index" << std::endl;
         StopW stopw = StopW();
 
-        size_t batch_size = 1000000;
-        size_t nbatches = opt.nb / batch_size;
-        size_t groups_per_iter = 250000;
+        const size_t batch_size = 1000000;
+        const size_t nbatches = opt.nb / batch_size;
+        const size_t groups_per_iter = 250000;
 
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> idx_batch(batch_size);
@@ -173,7 +177,7 @@ int main(int argc, char **argv)
                     }
                     j++;
                 }
-                size_t group_size = ids[i].size();
+                const size_t group_size = ids[i].size();
                 index->add_group(ngroups_added + i, group_size, data[i].data(), ids[i].data());
             }
         }
@@ -235,7 +239,7 @@ int main(int argc, char **argv)
     //===================
     // Represent results 
     //===================
-    float time_us_per_query = stopw.getElapsedTimeMicro() / opt.nq;
+    const float time_us_per_query = stopw.getElapsedTimeMicro() / opt.nq;
     std::cout << "Recall@" << opt.k << ": " << 1.0f * correct / opt.nq << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
 

@@ -11,9 +11,9 @@
 using namespace hnswlib;
 using namespace ivfhnsw;
 
-//========================
-// Run IVF-HNSW on SIFT1B
-//========================
+//====================
+// IVF-HNSW on SIFT1B
+//====================
 int main(int argc, char **argv)
 {
     //===============
@@ -86,8 +86,8 @@ int main(int argc, char **argv)
         std::ifstream input(opt.path_base, ios::binary);
         std::ofstream output(opt.path_precomputed_idxs, ios::binary);
 
-        uint32_t batch_size = 1000000;
-        size_t nbatches = opt.nb / batch_size;
+        const uint32_t batch_size = 1000000;
+        const size_t nbatches = opt.nb / batch_size;
 
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> precomputed_idx(batch_size);
@@ -122,8 +122,8 @@ int main(int argc, char **argv)
         std::ifstream base_input(opt.path_base, ios::binary);
         std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
 
-        size_t batch_size = 1000000;
-        size_t nbatches = opt.nb / batch_size;
+        const size_t batch_size = 1000000;
+        const size_t nbatches = opt.nb / batch_size;
         std::vector<float> batch(batch_size * opt.d);
         std::vector <idx_t> idx_batch(batch_size);
         std::vector <idx_t> ids_batch(batch_size);
@@ -199,7 +199,7 @@ int main(int argc, char **argv)
     //===================
     // Represent results
     //===================
-    float time_us_per_query = stopw.getElapsedTimeMicro() / opt.nq;
+    const float time_us_per_query = stopw.getElapsedTimeMicro() / opt.nq;
     std::cout << "Recall@" << opt.k << ": " << 1.0f * correct / opt.nq << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
 

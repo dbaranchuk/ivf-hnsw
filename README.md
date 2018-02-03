@@ -61,7 +61,7 @@ For using provided examples, all data files have to be in data/SIFT1B and data/D
    bash load_sift1b.sh
    ```
    - learned 993127 centroids, [GoogleDrive](https://drive.google.com/file/d/1p9Aq5lTiXzmuP1ftJAIqKYEEN5EVBZsS/view?usp=sharing)
-   - centroid labels for assigned base points, [GoogleDrive](https://drive.google.com/file/d/1iFgzY2niWsCwKCPpbsjZh1urudrswEyL/view?usp=sharing)
+   - precomputed indices of assigned base points, [GoogleDrive](https://drive.google.com/file/d/1iFgzY2niWsCwKCPpbsjZh1urudrswEyL/view?usp=sharing)
 * DEEP1B:
    - dataset, [YandexDrive](https://yadi.sk/d/11eDCm7Dsn9GA)
    ```
@@ -69,9 +69,9 @@ For using provided examples, all data files have to be in data/SIFT1B and data/D
    python load_deep1b.py
    ```
    - learned 999973 centroids, [GoogleDrive](https://drive.google.com/file/d/1loJ0rEIBORM34vsVSZrNeJrq1OtrcmKu/view?usp=sharing)
-   - centroid labels for assigned base points, [GoogleDrive](https://drive.google.com/file/d/10DMFnLUs5Fdr_BCht9nsa2vSyG1LKJeV/view?usp=sharing) 
+   - precomputed indices of assigned base points, [GoogleDrive](https://drive.google.com/file/d/10DMFnLUs5Fdr_BCht9nsa2vSyG1LKJeV/view?usp=sharing) 
     
-Note: centroid labels are optional, as it just lets avoid assigning step, which takes about 2-3 days for 2^20 centroids.
+Note: precomputed indices are optional, as it just lets avoid assigning step, which takes about 2-3 days for 2^20 centroids.
 
 ### Run
 tests/ provides two tests for each dataset: 

@@ -11,9 +11,9 @@
 using namespace hnswlib;
 using namespace ivfhnsw;
 
-//========================
-// Run IVF-HNSW on DEEP1B 
-//========================
+//====================
+// IVF-HNSW on DEEP1B
+//====================
 int main(int argc, char **argv)
 {
     //===============
@@ -94,8 +94,8 @@ int main(int argc, char **argv)
         std::ifstream input(opt.path_base, ios::binary);
         std::ofstream output(opt.path_precomputed_idxs, ios::binary);
 
-        uint32_t batch_size = 1000000;
-        size_t nbatches = opt.nb / batch_size;
+        const uint32_t batch_size = 1000000;
+        const size_t nbatches = opt.nb / batch_size;
 
         std::vector<float> batch(batch_size * opt.d);
         std::vector<idx_t> precomputed_idx(batch_size);
@@ -130,15 +130,15 @@ int main(int argc, char **argv)
         std::ifstream base_input(opt.path_base, ios::binary);
         std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
 
-        size_t batch_size = 1000000;
-        size_t nbatch = opt.nb / batch_size;
+        const size_t batch_size = 1000000;
+        const size_t nbatches = opt.nb / batch_size;
         std::vector<float> batch(batch_size * opt.d);
         std::vector <idx_t> idx_batch(batch_size);
         std::vector <idx_t> ids_batch(batch_size);
 
-        for (size_t b = 0; b < nbatch; b++) {
+        for (size_t b = 0; b < nbatches; b++) {
             if (b % 10 == 0) {
-                std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100. * b) / nbatch << "%\n";
+                std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] " << (100. * b) / nbatches << "%\n";
             }
             readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
             readXvec<float>(base_input, batch.data(), opt.d, batch_size);
@@ -210,7 +210,7 @@ int main(int argc, char **argv)
     //===================
     // Represent results 
     //===================
-    float time_us_per_query = stopw.getElapsedTimeMicro() / opt.nq;
+    const float time_us_per_query = stopw.getElapsedTimeMicro() / opt.nq;
     std::cout << "Recall@" << opt.k << ": " << 1.0f * correct / opt.nq << std::endl;
     std::cout << "Time per query: " << time_us_per_query << " us" << std::endl;
 
