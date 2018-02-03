@@ -74,7 +74,7 @@ namespace ivfhnsw {
     template<typename T>
     void write_vector(std::ostream &out, std::vector<T> &vec)
     {
-        uint32_t size = vec.size();
+        const uint32_t size = vec.size();
         out.write((char *) &size, sizeof(uint32_t));
         out.write((char *) vec.data(), size * sizeof(T));
     }
@@ -99,7 +99,7 @@ namespace ivfhnsw {
     template<typename T>
     void writeXvec(std::ofstream &out, T *data, const size_t d, const size_t n = 1)
     {
-        uint32_t dim = d;
+        const uint32_t dim = d;
         for (size_t i = 0; i < n; i++) {
             out.write((char *) &dim, sizeof(uint32_t));
             out.write((char *) (data + i * dim), dim * sizeof(T));
