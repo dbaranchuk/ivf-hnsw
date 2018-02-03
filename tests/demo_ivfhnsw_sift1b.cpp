@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     readXvecFvec<uint8_t>(query_input, massQ.data(), opt.d, opt.nq);
     query_input.close();
 
-    for (int i = 0; i < 100; i++){
+    for (int i = 512; i < 630; i++){
         std::cout << massQ[i] << " ";
     }
 
