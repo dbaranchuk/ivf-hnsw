@@ -39,10 +39,6 @@ int main(int argc, char **argv)
     readXvecFvec<uint8_t>(query_input, massQ.data(), opt.d, opt.nq);
     query_input.close();
 
-    for (int i = 1024; i < 1536; i++){
-        std::cout << massQ[i] << " ";
-    }
-
     //==================
     // Initialize Index
     //==================
