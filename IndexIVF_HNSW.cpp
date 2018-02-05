@@ -296,8 +296,6 @@ namespace ivfhnsw {
 
         // Save centroid norms
         write_vector(output, centroid_norms);
-
-        output.close();
     }
 
     // Read index 
@@ -322,8 +320,6 @@ namespace ivfhnsw {
 
         // Read centroid norms
         read_vector(input, centroid_norms);
-
-        input.close();
     }
 
     void IndexIVF_HNSW::compute_centroid_norms()

@@ -326,8 +326,6 @@ namespace ivfhnsw
         // Save inter centroid distances
         for (size_t i = 0; i < nc; i++)
             write_vector(output, inter_centroid_dists[i]);
-
-        output.close();
     }
 
     void IndexIVF_HNSW_Grouping::read(const char *path_index)
@@ -367,8 +365,6 @@ namespace ivfhnsw
         // Read inter centroid distances
         for (size_t i = 0; i < nc; i++)
             read_vector(input, inter_centroid_dists[i]);
-
-        input.close();
     }
 
 

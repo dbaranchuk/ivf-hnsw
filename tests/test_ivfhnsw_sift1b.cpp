@@ -26,19 +26,20 @@ int main(int argc, char **argv)
     //==================
     std::cout << "Loading groundtruth from " << opt.path_gt << std::endl;
     std::vector<idx_t> massQA(opt.nq * opt.ngt);
-    std::ifstream gt_input(opt.path_gt, ios::binary);
-    readXvec<idx_t>(gt_input, massQA.data(), opt.ngt, opt.nq);
-    gt_input.close();
+    {
+        std::ifstream gt_input(opt.path_gt, ios::binary);
+        readXvec<idx_t>(gt_input, massQA.data(), opt.ngt, opt.nq);
+    }
 
     //==============
     // Load Queries
     //==============
     std::cout << "Loading queries from " << opt.path_q << std::endl;
     std::vector<float> massQ(opt.nq * opt.d);
-    std::ifstream query_input(opt.path_q, ios::binary);
-    readXvecFvec<uint8_t>(query_input, massQ.data(), opt.d, opt.nq);
-    query_input.close();
-
+    {
+        std::ifstream query_input(opt.path_q, ios::binary);
+        readXvecFvec<uint8_t>(query_input, massQ.data(), opt.d, opt.nq);
+    }
     //==================
     // Initialize Index
     //==================
@@ -57,11 +58,11 @@ int main(int argc, char **argv)
     }
     else {
         // Load learn set
-        std::ifstream learn_input(opt.path_learn, ios::binary);
         std::vector<float> trainvecs(opt.nt * opt.d);
-        readXvecFvec<uint8_t>(learn_input, trainvecs.data(), opt.d, opt.nt);
-        learn_input.close();
-
+        {
+            std::ifstream learn_input(opt.path_learn, ios::binary);
+            readXvecFvec<uint8_t>(learn_input, trainvecs.data(), opt.d, opt.nt);
+        }
         // Set Random Subset of sub_nt trainvecs
         std::vector<float> trainvecs_rnd_subset(opt.nsubt * opt.d);
         random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), opt.d, opt.nt, opt.nsubt);
@@ -104,8 +105,6 @@ int main(int argc, char **argv)
             output.write((char *) &batch_size, sizeof(uint32_t));
             output.write((char *) precomputed_idx.data(), batch_size * sizeof(idx_t));
         }
-        input.close();
-        output.close();
     }
 
     /******************************/
@@ -140,8 +139,6 @@ int main(int argc, char **argv)
 
             index->add_batch(batch_size, batch.data(), ids_batch.data(), idx_batch.data());
         }
-        idx_input.close();
-        base_input.close();
 
         // Computing Centroid Norms
         std::cout << "Computing centroid norms"<< std::endl;
