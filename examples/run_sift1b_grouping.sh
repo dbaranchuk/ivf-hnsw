@@ -77,7 +77,7 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}.index"
 #######
 # Run #
 #######
-/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_grouping_sift1b \
+${PWD}/bin/test_ivfhnsw_grouping_sift1b \
                                                   -M ${M} \
                                                   -efConstruction ${efConstruction} \
                                                   -nb ${nb} \

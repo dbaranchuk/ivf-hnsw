@@ -74,7 +74,7 @@ path_index="${path_model}/ivfhnsw_OPQ${code_size}.index"
 #######
 # Run #
 #######
-/home/dbaranchuk/ivf-hnsw/bin/demo_ivfhnsw_deep1b -M ${M} \
+/home/dbaranchuk/ivf-hnsw/bin/test_ivfhnsw_deep1b -M ${M} \
                                                   -efConstruction ${efConstruction} \
                                                   -nb ${nb} \
                                                   -nt ${nt} \
