@@ -123,7 +123,7 @@ int main(int argc, char **argv) {
 
         const size_t batch_size = 1000000;
         const size_t nbatches = opt.nb / batch_size;
-        size_t groups_per_iter = 200000;
+        size_t groups_per_iter = 250000;
 
         std::vector<uint8_t> batch(batch_size * opt.d);
         std::vector<idx_t> idx_batch(batch_size);
