@@ -56,7 +56,6 @@ namespace ivfhnsw {
                 std::cout << i / (0.01 * nc) << " %\n";
             quantizer->addPoint(mass);
         }
-        input.close();
         quantizer->SaveInfo(path_info);
         quantizer->SaveEdges(path_edges);
     }
