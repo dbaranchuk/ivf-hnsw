@@ -56,8 +56,8 @@ pruning="on"           # Turn on/off pruning
 # Paths #
 #########
 
-path_data="$PWD/data/DEEP1B"
-path_model="$PWD/models/DEEP1B"
+path_data="${PWD}/data/DEEP1B"
+path_model="${PWD}/models/DEEP1B"
 
 path_base="${path_data}/deep1B_base.fvecs"
 path_learn="${path_data}/deep1B_learn.fvecs"
@@ -79,33 +79,33 @@ path_index="${path_model}/ivfhnsw_OPQ${code_size}_nsubc${nsubc}.index"
 #######
 # Run #
 #######
-/home/dbaranchuk/ivf-hnsw/bin/test_ivfhnsw_grouping_deep1b \
-                                                  -M ${M} \
-                                                  -efConstruction ${efConstruction} \
-                                                  -nb ${nb} \
-                                                  -nt ${nt} \
-                                                  -nsubt ${nsubt} \
-                                                  -nc ${nc} \
-                                                  -nsubc ${nsubc} \
-                                                  -nq ${nq} \
-                                                  -ngt ${ngt} \
-                                                  -d ${d} \
-                                                  -code_size ${code_size} \
-                                                  -opq ${opq} \
-                                                  -k ${k} \
-                                                  -nprobe ${nprobe} \
-                                                  -max_codes ${max_codes} \
-                                                  -efSearch ${efSearch} \
-                                                  -path_base ${path_base} \
-                                                  -path_learn ${path_learn} \
-                                                  -path_gt ${path_gt} \
-                                                  -path_q ${path_q} \
-                                                  -path_centroids ${path_centroids} \
-                                                  -path_precomputed_idx ${path_precomputed_idxs} \
-                                                  -path_edges ${path_edges} \
-                                                  -path_info ${path_info} \
-                                                  -path_pq ${path_pq} \
-                                                  -path_norm_pq ${path_norm_pq} \
-                                                  -path_opq_matrix ${path_opq_matrix} \
-                                                  -path_index ${path_index} \
-                                                  -pruning ${pruning}
+${PWD}/bin/test_ivfhnsw_grouping_deep1b \
+                                -M ${M} \
+                                -efConstruction ${efConstruction} \
+                                -nb ${nb} \
+                                -nt ${nt} \
+                                -nsubt ${nsubt} \
+                                -nc ${nc} \
+                                -nsubc ${nsubc} \
+                                -nq ${nq} \
+                                -ngt ${ngt} \
+                                -d ${d} \
+                                -code_size ${code_size} \
+                                -opq ${opq} \
+                                -k ${k} \
+                                -nprobe ${nprobe} \
+                                -max_codes ${max_codes} \
+                                -efSearch ${efSearch} \
+                                -path_base ${path_base} \
+                                -path_learn ${path_learn} \
+                                -path_gt ${path_gt} \
+                                -path_q ${path_q} \
+                                -path_centroids ${path_centroids} \
+                                -path_precomputed_idx ${path_precomputed_idxs} \
+                                -path_edges ${path_edges} \
+                                -path_info ${path_info} \
+                                -path_pq ${path_pq} \
+                                -path_norm_pq ${path_norm_pq} \
+                                -path_opq_matrix ${path_opq_matrix} \
+                                -path_index ${path_index} \
+                                -pruning ${pruning}

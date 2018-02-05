@@ -56,8 +56,8 @@ pruning="on"          # Turn on/off pruning
 # Paths #
 #########
 
-path_data="$PWD/data/SIFT1B"
-path_model="$PWD/models/SIFT1B"
+path_data="${PWD}/data/SIFT1B"
+path_model="${PWD}/models/SIFT1B"
 
 path_base="${path_data}/bigann_base.bvecs"
 path_learn="${path_data}/bigann_learn.bvecs"
@@ -78,31 +78,31 @@ path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}.index"
 # Run #
 #######
 ${PWD}/bin/test_ivfhnsw_grouping_sift1b \
-                                                  -M ${M} \
-                                                  -efConstruction ${efConstruction} \
-                                                  -nb ${nb} \
-                                                  -nt ${nt} \
-                                                  -nsubt ${nsubt} \
-                                                  -nc ${nc} \
-                                                  -nsubc ${nsubc} \
-                                                  -nq ${nq} \
-                                                  -ngt ${ngt} \
-                                                  -d ${d} \
-                                                  -code_size ${code_size} \
-                                                  -opq ${opq} \
-                                                  -k ${k} \
-                                                  -nprobe ${nprobe} \
-                                                  -max_codes ${max_codes} \
-                                                  -efSearch ${efSearch} \
-                                                  -path_base ${path_base} \
-                                                  -path_learn ${path_learn} \
-                                                  -path_gt ${path_gt} \
-                                                  -path_q ${path_q} \
-                                                  -path_centroids ${path_centroids} \
-                                                  -path_precomputed_idx ${path_precomputed_idxs} \
-                                                  -path_edges ${path_edges} \
-                                                  -path_info ${path_info} \
-                                                  -path_pq ${path_pq} \
-                                                  -path_norm_pq ${path_norm_pq} \
-                                                  -path_index ${path_index} \
-                                                  -pruning ${pruning}
+                                -M ${M} \
+                                -efConstruction ${efConstruction} \
+                                -nb ${nb} \
+                                -nt ${nt} \
+                                -nsubt ${nsubt} \
+                                -nc ${nc} \
+                                -nsubc ${nsubc} \
+                                -nq ${nq} \
+                                -ngt ${ngt} \
+                                -d ${d} \
+                                -code_size ${code_size} \
+                                -opq ${opq} \
+                                -k ${k} \
+                                -nprobe ${nprobe} \
+                                -max_codes ${max_codes} \
+                                -efSearch ${efSearch} \
+                                -path_base ${path_base} \
+                                -path_learn ${path_learn} \
+                                -path_gt ${path_gt} \
+                                -path_q ${path_q} \
+                                -path_centroids ${path_centroids} \
+                                -path_precomputed_idx ${path_precomputed_idxs} \
+                                -path_edges ${path_edges} \
+                                -path_info ${path_info} \
+                                -path_pq ${path_pq} \
+                                -path_norm_pq ${path_norm_pq} \
+                                -path_index ${path_index} \
+                                -pruning ${pruning}
