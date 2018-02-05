@@ -106,7 +106,7 @@ namespace ivfhnsw {
         }
     }
 
-    /// Read fvec/ivec/bvec format vectors and put them to float array
+    /// Read fvec/ivec/bvec format vectors and convert them to the float array
     template<typename T>
     void readXvecFvec(std::ifstream &in, float *data, const size_t d, const size_t n = 1)
     {
@@ -121,7 +121,7 @@ namespace ivfhnsw {
             }
             in.read((char *) mass, dim * sizeof(T));
             for (size_t j = 0; j < d; j++)
-                data[i * dim + j] = (1.0) * mass[j];
+                data[i * dim + j] = 1. * mass[j];
         }
     }
 

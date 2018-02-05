@@ -126,9 +126,9 @@ int main(int argc, char **argv)
 
         const size_t batch_size = 1000000;
         const size_t nbatches = opt.nb / batch_size;
-        size_t groups_per_iter = 100000;
+        size_t groups_per_iter = 200000;
 
-        std::vector<float> batch(batch_size * opt.d);
+        std::vector<uint8_t> batch(batch_size * opt.d);
         std::vector<idx_t> idx_batch(batch_size);
 
         for (size_t ngroups_added = 0; ngroups_added < opt.nc; ngroups_added += groups_per_iter)
@@ -136,7 +136,7 @@ int main(int argc, char **argv)
             std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
                       << ngroups_added << " / " << opt.nc << std::endl;
 
-            std::vector<std::vector<float>> data(groups_per_iter);
+            std::vector<std::vector<uint8_t>> data(groups_per_iter);
             std::vector<std::vector<idx_t>> ids(groups_per_iter);
 
             // Iterate through the dataset extracting points from groups,
@@ -145,7 +145,7 @@ int main(int argc, char **argv)
             std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
 
             for (size_t b = 0; b < nbatches; b++) {
-                readXvecFvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
+                readXvec<uint8_t>(base_input, batch.data(), opt.d, batch_size);
                 readXvec<idx_t>(idx_input, idx_batch.data(), batch_size, 1);
 
                 for (size_t i = 0; i < batch_size; i++) {
@@ -178,7 +178,12 @@ int main(int argc, char **argv)
                     j++;
                 }
                 const size_t group_size = ids[i].size();
-                index->add_group(ngroups_added + i, group_size, data[i].data(), ids[i].data());
+                std::vector<float> group_data(group_size);
+                // Convert bytes to floats
+                for (size_t k = 0; k < group_size; k++)
+                    group_data[k] = 1. *data[i][k];
+
+                index->add_group(ngroups_added + i, group_size, group_data.data(), ids[i].data());
             }
         }
         // Computing centroid norms and inter-centroid distances
