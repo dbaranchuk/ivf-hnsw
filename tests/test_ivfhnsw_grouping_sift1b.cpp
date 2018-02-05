@@ -178,9 +178,9 @@ int main(int argc, char **argv)
                     j++;
                 }
                 const size_t group_size = ids[i].size();
-                std::vector<float> group_data(group_size);
+                std::vector<float> group_data(group_size * opt.d);
                 // Convert bytes to floats
-                for (size_t k = 0; k < group_size; k++)
+                for (size_t k = 0; k < group_size * opt.d; k++)
                     group_data[k] = 1. *data[i][k];
 
                 index->add_group(ngroups_added + i, group_size, group_data.data(), ids[i].data());
