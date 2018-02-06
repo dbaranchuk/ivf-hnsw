@@ -248,8 +248,6 @@ void HierarchicalNSW::SaveInfo(const string &location)
     writeBinaryPOD(output, M_);
     writeBinaryPOD(output, maxM_);
     writeBinaryPOD(output, size_links_level0);
-
-    output.close();
 }
 
 
@@ -260,15 +258,15 @@ void HierarchicalNSW::SaveEdges(const string &location)
 
     for (size_t i = 0; i < maxelements_; i++) {
         uint8_t *ll_cur = get_linklist0(i);
-        int size = *ll_cur;
+        uint32_t size = *ll_cur;
 
-        fwrite((int *)&size, sizeof(int), 1, fout);
+        fwrite(&size, sizeof(uint32_t), 1, fout);
         idx_t *data = (idx_t *)(ll_cur + 1);
         fwrite(data, sizeof(idx_t), *ll_cur, fout);
     }
 }
 
-void HierarchicalNSW::LoadInfo(const string &location)
+void HierarchicalNSW::LoadInfo(const std::string &location)
 {
     std::cout << "Loading info from " << location << std::endl;
     std::ifstream input(location, std::ios::binary);
@@ -289,17 +287,16 @@ void HierarchicalNSW::LoadInfo(const string &location)
     cur_element_count = maxelements_;
 
     visitedlistpool = new VisitedListPool(1, maxelements_);
-    input.close();
 }
 
 void HierarchicalNSW::LoadData(const string &location)
 {
     cout << "Loading data from " << location << endl;
     FILE *fin = fopen(location.c_str(), "rb");
-    int dim;
+    uint32_t dim;
     float mass[d_];
     for (size_t i = 0; i < maxelements_; i++) {
-        fread((int *) &dim, sizeof(int), 1, fin);
+        fread(&dim, sizeof(uint32_t), 1, fin);
         if (dim != d_)
             cerr << "Wront data dim" << endl;
 
@@ -312,10 +309,10 @@ void HierarchicalNSW::LoadEdges(const string &location)
 {
     cout << "Loading edges from " << location << endl;
     FILE *fin = fopen(location.c_str(), "rb");
-    int size;
+    uint32_t size;
 
     for (size_t i = 0; i < maxelements_; i++) {
-        fread((int *)&size, sizeof(int), 1, fin);
+        fread(&size, sizeof(uint32_t), 1, fin);
         uint8_t *ll_cur = get_linklist0(i);
         *ll_cur = size;
         idx_t *data = (idx_t *)(ll_cur + 1);

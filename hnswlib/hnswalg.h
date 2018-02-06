@@ -55,7 +55,7 @@ namespace hnswlib {
         VisitedListPool *visitedlistpool;
 
         std::mutex cur_element_count_guard_;
-        int enterpoint_node;
+        idx_t enterpoint_node;
 
         size_t dist_calc;
 
