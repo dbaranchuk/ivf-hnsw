@@ -44,10 +44,10 @@ static void readBinaryPOD(std::istream &in, T &podRef) {
 }
 
 namespace hnswlib {
-    typedef uint32_t idx_t;
-
     struct HierarchicalNSW
     {
+        typedef uint32_t idx_t;
+
         size_t maxelements_;
         size_t cur_element_count;
         size_t efConstruction_;
@@ -71,7 +71,7 @@ namespace hnswlib {
         size_t efSearch;
 
     public:
-        HierarchicalNSW(const string &infoLocation, const string &dataLocation, const string &edgeLocation);
+        HierarchicalNSW(const std::string &infoLocation, const std::string &dataLocation, const std::string &edgeLocation);
         HierarchicalNSW(size_t d, size_t maxelements, size_t M, size_t maxM, size_t efConstruction = 500);
         ~HierarchicalNSW();
 
@@ -85,20 +85,20 @@ namespace hnswlib {
 
         std::priority_queue<std::pair<float, idx_t>> searchBaseLayer(const float *x, size_t ef);
 
-        void getNeighborsByHeuristic(std::priority_queue<std::pair<float, idx_t>> &topResults, const int NN);
+        void getNeighborsByHeuristic(std::priority_queue<std::pair<float, idx_t>> &topResults, size_t NN);
 
         void mutuallyConnectNewElement(const float *x, idx_t id, std::priority_queue<std::pair<float, idx_t>> topResults);
 
         void addPoint(const float *point);
 
-        std::priority_queue<std::pair<float, idx_t >> searchKnn(const float *query_data, int k);
+        std::priority_queue<std::pair<float, idx_t >> searchKnn(const float *query_data, size_t k);
 
-        void SaveInfo(const string &location);
-        void SaveEdges(const string &location);
+        void SaveInfo(const std::string &location);
+        void SaveEdges(const std::string &location);
 
-        void LoadInfo(const string &location);
-        void LoadData(const string &location);
-        void LoadEdges(const string &location);
+        void LoadInfo(const std::string &location);
+        void LoadData(const std::string &location);
+        void LoadEdges(const std::string &location);
         
         float fstdistfunc(const float *x, const float *y);
     };

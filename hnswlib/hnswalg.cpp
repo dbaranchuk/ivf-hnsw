@@ -79,7 +79,7 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(co
         _mm_prefetch(getDataByInternalId(*data), _MM_HINT_T0);
 
         for (size_t j = 0; j < size; ++j) {
-            int tnum = *(data + j);
+            size_t tnum = *(data + j);
 
             _mm_prefetch((char *) (massVisited + *(data + j + 1)), _MM_HINT_T0);
             _mm_prefetch(getDataByInternalId(*(data + j + 1)), _MM_HINT_T0);
@@ -109,7 +109,7 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchBaseLayer(co
 }
 
 
-void HierarchicalNSW::getNeighborsByHeuristic(std::priority_queue<std::pair<float, idx_t>> &topResults, const int NN)
+void HierarchicalNSW::getNeighborsByHeuristic(std::priority_queue<std::pair<float, idx_t>> &topResults, size_t NN)
 {
     if (topResults.size() < NN)
         return;
@@ -156,30 +156,28 @@ void HierarchicalNSW::mutuallyConnectNewElement(const float *point, idx_t cur_c,
     }
     {
         uint8_t *ll_cur = get_linklist0(cur_c);
-        if (*ll_cur) {
-            std::cout << (int)*ll_cur << std::endl;
-            std::cout << cur_c << std::endl;
-            throw runtime_error("Should be blank");
-        }
+        if (*ll_cur)
+            throw std::runtime_error("Should be blank");
+
         *ll_cur = res.size();
 
         idx_t *data = (idx_t *)(ll_cur + 1);
         for (size_t idx = 0; idx < res.size(); idx++) {
             if (data[idx])
-                throw runtime_error("Should be blank");
+                throw std::runtime_error("Should be blank");
             data[idx] = res[idx];
         }
     }
     for (size_t idx = 0; idx < res.size(); idx++) {
         if (res[idx] == cur_c)
-            throw runtime_error("Connection to the same element");
+            throw std::runtime_error("Connection to the same element");
 
         size_t resMmax = maxM_;
         uint8_t *ll_other = get_linklist0(res[idx]);
         uint8_t sz_link_list_other = *ll_other;
 
         if (sz_link_list_other > resMmax || sz_link_list_other < 0)
-            throw runtime_error("Bad sz_link_list_other");
+            throw std::runtime_error("Bad sz_link_list_other");
 
         if (sz_link_list_other < resMmax) {
             idx_t *data = (idx_t *) (ll_other + 1);
@@ -226,7 +224,7 @@ void HierarchicalNSW::addPoint(const float *point)
     }
 };
 
-std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(const float *query, int k)
+std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(const float *query, size_t k)
 {
     auto topResults = searchBaseLayer(query, efSearch);
     while (topResults.size() > k)
@@ -235,7 +233,7 @@ std::priority_queue<std::pair<float, idx_t>> HierarchicalNSW::searchKnn(const fl
     return topResults;
 };
 
-void HierarchicalNSW::SaveInfo(const string &location)
+void HierarchicalNSW::SaveInfo(const std::string &location)
 {
     std::cout << "Saving info to " << location << std::endl;
     std::ofstream output(location, std::ios::binary);
@@ -251,18 +249,18 @@ void HierarchicalNSW::SaveInfo(const string &location)
 }
 
 
-void HierarchicalNSW::SaveEdges(const string &location)
+void HierarchicalNSW::SaveEdges(const std::string &location)
 {
     std::cout << "Saving edges to " << location << std::endl;
-    FILE *fout = fopen(location.c_str(), "wb");
+    std::ofstream output(location, std::ios::binary);
 
     for (size_t i = 0; i < maxelements_; i++) {
         uint8_t *ll_cur = get_linklist0(i);
         uint32_t size = *ll_cur;
 
-        fwrite(&size, sizeof(uint32_t), 1, fout);
+        output.write((char *) &size, sizeof(uint32_t));
         idx_t *data = (idx_t *)(ll_cur + 1);
-        fwrite(data, sizeof(idx_t), *ll_cur, fout);
+        output.write((char *) data, sizeof(idx_t) * (*ll_cur));
     }
 }
 
@@ -289,35 +287,38 @@ void HierarchicalNSW::LoadInfo(const std::string &location)
     visitedlistpool = new VisitedListPool(1, maxelements_);
 }
 
-void HierarchicalNSW::LoadData(const string &location)
+void HierarchicalNSW::LoadData(const std::string &location)
 {
-    cout << "Loading data from " << location << endl;
-    FILE *fin = fopen(location.c_str(), "rb");
+    std::cout << "Loading data from " << location << std::endl;
+    std::ifstream input(location, std::ios::binary);
+
     uint32_t dim;
     float mass[d_];
     for (size_t i = 0; i < maxelements_; i++) {
-        fread(&dim, sizeof(uint32_t), 1, fin);
+        input.read((char *) &dim, sizeof(uint32_t));
         if (dim != d_)
             cerr << "Wront data dim" << endl;
 
-        fread(mass, sizeof(float), dim, fin);
+        input.read((char *) mass, dim * sizeof(float));
         memcpy(getDataByInternalId(i), mass, data_size_);
     }
 }
 
-void HierarchicalNSW::LoadEdges(const string &location)
+void HierarchicalNSW::LoadEdges(const std::string &location)
 {
-    cout << "Loading edges from " << location << endl;
-    FILE *fin = fopen(location.c_str(), "rb");
+    std::cout << "Loading edges from " << location << std::endl;
+    std::ifstream input(location, std::ios::binary);
+
     uint32_t size;
 
     for (size_t i = 0; i < maxelements_; i++) {
-        fread(&size, sizeof(uint32_t), 1, fin);
+        input.read((char *) &size, sizeof(uint32_t));
+
         uint8_t *ll_cur = get_linklist0(i);
         *ll_cur = size;
         idx_t *data = (idx_t *)(ll_cur + 1);
 
-        fread((idx_t *)data, sizeof(idx_t), size, fin);
+        input.read((char *) data, size * sizeof(idx_t));
     }
 }
 
