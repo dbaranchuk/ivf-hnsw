@@ -79,7 +79,6 @@ int main(int argc, char **argv)
             std::cout << "Saving OPQ rotation matrix to " << opt.path_opq_matrix << std::endl;
             faiss::write_VectorTransform(index->opq_matrix, opt.path_opq_matrix);
         }
-
         std::cout << "Saving Norm PQ codebook to " << opt.path_norm_pq << std::endl;
         faiss::write_ProductQuantizer(index->norm_pq, opt.path_norm_pq);
     }

@@ -72,7 +72,6 @@ int main(int argc, char **argv)
             std::ifstream learn_input(opt.path_learn, ios::binary);
             readXvec<float>(learn_input, trainvecs.data(), opt.d, opt.nt);
         }
-
         // Set Random Subset of sub_nt trainvecs
         std::vector<float> trainvecs_rnd_subset(opt.nsubt * opt.d);
         random_subset(trainvecs.data(), trainvecs_rnd_subset.data(), opt.d, opt.nt, opt.nsubt);
