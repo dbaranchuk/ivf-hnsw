@@ -331,7 +331,7 @@ namespace ivfhnsw {
 
     void IndexIVF_HNSW::rotate_quantizer() {
         if (!do_opq){
-            printf("OPQ encoding is turned off");
+            printf("OPQ encoding is turned off\n");
             abort();
         }
         std::vector<float> copy_centroid(d);

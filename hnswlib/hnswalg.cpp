@@ -260,7 +260,7 @@ void HierarchicalNSW::SaveEdges(const std::string &location)
 
         output.write((char *) &size, sizeof(uint32_t));
         idx_t *data = (idx_t *)(ll_cur + 1);
-        output.write((char *) data, sizeof(idx_t) * (*ll_cur));
+        output.write((char *) data, sizeof(idx_t) * size);
     }
 }
 

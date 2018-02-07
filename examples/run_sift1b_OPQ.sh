@@ -69,7 +69,7 @@ path_pq="${path_model}/pq${code_size}.opq"
 path_norm_pq="${path_model}/norm_pq${code_size}.opq"
 path_opq_matrix="${path_model}/matrix_pq${code_size}.opq"
 
-path_index="$path_model/ivfhnsw_OPQ${code_size}.index"
+path_index="${path_model}/ivfhnsw_OPQ${code_size}.index"
 
 #######
 # Run #
