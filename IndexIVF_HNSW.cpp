@@ -46,7 +46,7 @@ namespace ivfhnsw {
         quantizer = new hnswlib::HierarchicalNSW(d, nc, M, 2 * M, efConstruction);
 
         std::cout << "Constructing quantizer\n";
-        std::ifstream input(path_data, ios::binary);
+        std::ifstream input(path_data, std::ios::binary);
 
         size_t report_every = 100000;
         for (size_t i = 0; i < nc; i++) {
