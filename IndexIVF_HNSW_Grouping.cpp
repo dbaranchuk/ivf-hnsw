@@ -392,7 +392,7 @@ namespace ivfhnsw
         for (auto group : group_map) {
             const idx_t centroid_idx = group.first;
             const float *centroid = quantizer->getDataByInternalId(centroid_idx);
-            const vector<float> data = group.second;
+            const std::vector<float> data = group.second;
             const int group_size = data.size() / d;
 
             std::vector<idx_t> nn_centroid_idxs(nsubc);
@@ -464,7 +464,7 @@ namespace ivfhnsw
         const float *subcentroids = train_subcentroids.data();
 
         for (auto p : group_map) {
-            const vector<float> data = p.second;
+            const std::vector<float> data = p.second;
             const size_t group_size = data.size() / d;
 
             // Compute Codes 
