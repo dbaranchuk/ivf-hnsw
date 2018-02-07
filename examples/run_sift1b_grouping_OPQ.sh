@@ -70,11 +70,11 @@ path_precomputed_idxs="${path_data}/precomputed_idxs_sift1b.ivecs"
 path_edges="${path_model}/hnsw_M${M}_ef${efConstruction}.ivecs"
 path_info="${path_model}/hnsw_M${M}_ef${efConstruction}.bin"
 
-path_pq="${path_model}/pq${code_size}_nsubc${nsubc}.pq"
-path_norm_pq="${path_model}/norm_pq${code_size}_nsubc${nsubc}.pq"
+path_pq="${path_model}/pq${code_size}_nsubc${nsubc}.opq"
+path_norm_pq="${path_model}/norm_pq${code_size}_nsubc${nsubc}.opq"
 path_opq_matrix="${path_model}/matrix_pq${code_size}_nsubc${nsubc}.opq"
 
-path_index="${path_model}/ivfhnsw_PQ${code_size}_nsubc${nsubc}.index"
+path_index="${path_model}/ivfhnsw_OPQ${code_size}_nsubc${nsubc}.index"
 
 #######
 # Run #
