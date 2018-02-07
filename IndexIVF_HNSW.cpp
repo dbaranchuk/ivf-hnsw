@@ -5,15 +5,15 @@ namespace ivfhnsw {
     //=========================
     // IVF_HNSW implementation 
     //=========================
-    IndexIVF_HNSW::IndexIVF_HNSW(size_t dim, size_t ncentroids, size_t bytes_per_code, size_t nbits_per_idx):
+    IndexIVF_HNSW::IndexIVF_HNSW(size_t dim, size_t ncentroids, size_t bytes_per_code,
+                                 size_t nbits_per_idx, size_t max_group_size):
             d(dim), nc(ncentroids)
     {
         pq = new faiss::ProductQuantizer(d, bytes_per_code, nbits_per_idx);
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
 
         code_size = pq->code_size;
-        norms.resize(65536); // buffer for reconstructed base point norms supposing that
-                             // the max size of the list is less than 65536. It is used at search time.
+        norms.resize(max_group_size); // buffer for reconstructed base point norms. It is used at search time.
         precomputed_table.resize(pq->ksub * pq->M);
 
         codes.resize(nc);

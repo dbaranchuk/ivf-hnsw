@@ -17,8 +17,8 @@ namespace ivfhnsw{
         std::vector<float> alphas;    ///< Coefficients that determine the location of sub-centroids
 
     public:
-        IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
-                               size_t nbits_per_idx, size_t nsubcentroids);
+        explicit IndexIVF_HNSW_Grouping(size_t dim, size_t ncentroids, size_t bytes_per_code,
+                                        size_t nbits_per_idx, size_t nsubcentroids);
 
         /** Add <group_size> vectors of dimension <d> from the <group_idx>-th group to the index.
           *
