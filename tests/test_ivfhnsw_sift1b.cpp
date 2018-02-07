@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     std::cout << "Loading groundtruth from " << opt.path_gt << std::endl;
     std::vector<idx_t> massQA(opt.nq * opt.ngt);
     {
-        std::ifstream gt_input(opt.path_gt, ios::binary);
+        std::ifstream gt_input(opt.path_gt, std::ios::binary);
         readXvec<idx_t>(gt_input, massQA.data(), opt.ngt, opt.nq);
     }
 
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     std::cout << "Loading queries from " << opt.path_q << std::endl;
     std::vector<float> massQ(opt.nq * opt.d);
     {
-        std::ifstream query_input(opt.path_q, ios::binary);
+        std::ifstream query_input(opt.path_q, std::ios::binary);
         readXvecFvec<uint8_t>(query_input, massQ.data(), opt.d, opt.nq);
     }
     //==================
@@ -65,7 +65,7 @@ int main(int argc, char **argv)
         // Load learn set
         std::vector<float> trainvecs(opt.nt * opt.d);
         {
-            std::ifstream learn_input(opt.path_learn, ios::binary);
+            std::ifstream learn_input(opt.path_learn, std::ios::binary);
             readXvecFvec<uint8_t>(learn_input, trainvecs.data(), opt.d, opt.nt);
         }
         // Set Random Subset of sub_nt trainvecs
@@ -93,8 +93,8 @@ int main(int argc, char **argv)
         std::cout << "Precomputing indices" << std::endl;
         StopW stopw = StopW();
 
-        std::ifstream input(opt.path_base, ios::binary);
-        std::ofstream output(opt.path_precomputed_idxs, ios::binary);
+        std::ifstream input(opt.path_base, std::ios::binary);
+        std::ofstream output(opt.path_precomputed_idxs, std::ios::binary);
 
         const uint32_t batch_size = 1000000;
         const size_t nbatches = opt.nb / batch_size;
@@ -127,8 +127,8 @@ int main(int argc, char **argv)
         // Add elements
         StopW stopw = StopW();
 
-        std::ifstream base_input(opt.path_base, ios::binary);
-        std::ifstream idx_input(opt.path_precomputed_idxs, ios::binary);
+        std::ifstream base_input(opt.path_base, std::ios::binary);
+        std::ifstream idx_input(opt.path_precomputed_idxs, std::ios::binary);
 
         const size_t batch_size = 1000000;
         const size_t nbatches = opt.nb / batch_size;
