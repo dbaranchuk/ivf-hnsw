@@ -31,8 +31,6 @@
 #define PORTABLE_ALIGN32 __declspec(align(32))
 #endif
 
-using namespace std;
-
 template<typename T>
 static void writeBinaryPOD(std::ostream &out, const T &podRef) {
     out.write((char *) &podRef, sizeof(T));
