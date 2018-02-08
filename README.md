@@ -1,5 +1,3 @@
-# DRAFT
-
 # Revisiting the Inverted Indices for Billion-Scale Approximate Nearest Neighbors
 
 This is the code for the paper:
@@ -84,9 +82,8 @@ the Parser class provides short descriptions for each option.
   
 Make sure that:
 - models/SIFT1B/ and models/DEEP1B/ exist
-```
-mkdir models ; mkdir models/SIFT1B ; mkdir models/DEEP1B
-```
+
+```mkdir models ; mkdir models/SIFT1B ; mkdir models/DEEP1B```
 - the data is placed to the data/SIFT1B/ and data/DEEP1B/ respectively 
 (or just make symbolic links)
 - run, for example:
