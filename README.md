@@ -81,7 +81,7 @@ Make sure that:
 (or just make symbolic links)
 - run, for example:
 
-```bash examples/run_deep1b_grouping_OPQ.sh```
+```bash examples/run_deep1b_grouping.sh```
 
 ### Documentation
 The [doxygen documentation](https://cdn.rawgit.com/dbaranchuk/ivf-hnsw/fe2e4a85/docs/html/annotated.html) 
