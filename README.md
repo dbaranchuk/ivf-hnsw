@@ -4,7 +4,7 @@
 
 This is the code for the paper:
 
-[Revisiting the Inverted Indices for Billion-Scale Approximate Nearest Neighbors](),
+[Revisiting the Inverted Indices for Billion-Scale Approximate Nearest Neighbors](https://arxiv.org/abs/1802.02422),
 <br>
 Dmitry Baranchuk, Artem Babenko, Yury Malkov
 
@@ -82,9 +82,14 @@ Each test requires many options, so we provide bash scripts in examples/,
 exploiting these tests. Scripts are commented and 
 the Parser class provides short descriptions for each option.  
   
-Make sure that models/SIFT1B/ and models/DEEP1B/ exist, 
-the data is placed to the data/SIFT1B/ and data/DEEP1B/ respectively 
-(or just make symbolic links), and run, for example,
+Make sure that:
+- models/SIFT1B/ and models/DEEP1B/ exist
+```
+mkdir models ; mkdir models/SIFT1B ; mkdir models/DEEP1B
+```
+- the data is placed to the data/SIFT1B/ and data/DEEP1B/ respectively 
+(or just make symbolic links)
+- run, for example:
 
 ```bash examples/run_deep1b_grouping_OPQ.sh```
 

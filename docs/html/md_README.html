@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>IVF-HNSW: README</title>
+<title>IVF-HNSW: DRAFT</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -75,11 +75,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="headertitle">
-<div class="title">README </div>  </div>
+<div class="title">DRAFT </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>#DRAFT</p>
-<h2>Revisiting the Inverted Indices for Billion-Scale Approximate Nearest Neighbors</h2>
+<div class="textblock"><h1>Revisiting the Inverted Indices for Billion-Scale Approximate Nearest Neighbors</h1>
+<p>This is the code for the paper:</p>
+<p><a href="https://arxiv.org/abs/1802.02422">Revisiting the Inverted Indices for Billion-Scale Approximate Nearest Neighbors</a>, <br/>
+ Dmitry Baranchuk, Artem Babenko, Yury Malkov</p>
+<p>The code is developed upon the <a href="https://github.com/facebookresearch/faiss">FAISS</a> library.</p>
 <h3>Build</h3>
 <p>Today we provide the C++ implementation supporting only the CPU version, which requires a BLAS library.</p>
 <p>The code requires a C++ compiler that understands:</p>
@@ -88,20 +91,53 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>the GCC intrinsic for the popcount instruction</li>
 <li>basic OpenMP</li>
 </ul>
-<p>1) Configure FAISS</p>
-<p>There are a few models for makefile.inc in the faiss/example_makefiles/ subdirectory. Copy the relevant one for your system to faiss/ and adjust to your needs. In particular, you need to set a proper BLAS library paths. There are also indications for specific configurations in the troubleshooting section of the FAISS wiki.</p>
-<p><a href="https://github.com/facebookresearch/faiss/wiki/Troubleshooting">https://github.com/facebookresearch/faiss/wiki/Troubleshooting</a></p>
-<p>2) Replace FAISS CMakeList.txt Replace faiss/CMakeList.txt with CMakeList.txt.faiss in order to deactivate building of unnecessary tests and the GPU version.</p>
-<p>3) Build project ``` cmake . make ```</p>
+<h4>Installation instructions</h4>
+<p>1) Clone repository ``` git clone <a href="https://github.com/dbaranchuk/ivf-hnsw">https://github.com/dbaranchuk/ivf-hnsw</a> &ndash;recursive ``` 2) Configure FAISS</p>
+<p>There are a few models for makefile.inc in the faiss/example_makefiles/ subdirectory. Copy the relevant one for your system to faiss/ and adjust to your needs. In particular, for ivf-hnsw project, you need to set a proper BLAS library paths. There are also indications for specific configurations in the troubleshooting section of the <a href="https://github.com/facebookresearch/faiss/wiki/Troubleshooting">FAISS wiki</a></p>
+<p>3) Replace FAISS CMakeList.txt</p>
+<p>Replace faiss/CMakeList.txt with CMakeList.txt.faiss in order to deactivate building of unnecessary tests and the GPU version. ``` mv CMakeLists.txt.faiss faiss/CMakeLists.txt ```</p>
+<p>4) Build project ``` cmake . make ```</p>
 <h3>Data</h3>
+<p>The proposed methods are tested on two 1 billion datasets: SIFT1B and DEEP1B. For using provided examples, all data files have to be in data/SIFT1B and data/DEEP1B.</p>
+<h4>Data files:</h4>
 <ul>
-<li>The proposed methods are tested on two 1 billion datasets: SIFT1B and DEEP1B. For proposed examples, all data files have to be in data/SIFT1B and data/DEEP1B. ``` cd data/SIFT1B bash load_sift1b.sh <code> </code> cd data/DEEP1B python load_deep1b.py ```</li>
-<li>We also provide learned centroids and labels of base points assigned to particular centroid for both datasets. ``` TODO ``` </li>
+<li>SIFT1B:<ul>
+<li>dataset, <a href="http://corpus-texmex.irisa.fr/">Datasets for approximate nearest neighbor search</a> ``` cd data/SIFT1B bash load_sift1b.sh ```</li>
+<li>learned 993127 centroids, <a href="https://drive.google.com/file/d/1p9Aq5lTiXzmuP1ftJAIqKYEEN5EVBZsS/view?usp=sharing">GoogleDrive</a></li>
+<li>precomputed indices of assigned base points, <a href="https://drive.google.com/file/d/1iFgzY2niWsCwKCPpbsjZh1urudrswEyL/view?usp=sharing">GoogleDrive</a></li>
 </ul>
+</li>
+<li>DEEP1B:<ul>
+<li>dataset, <a href="https://yadi.sk/d/11eDCm7Dsn9GA">YandexDrive</a> ``` cd data/DEEP1B python load_deep1b.py ```</li>
+<li>learned 999973 centroids, <a href="https://drive.google.com/file/d/1loJ0rEIBORM34vsVSZrNeJrq1OtrcmKu/view?usp=sharing">GoogleDrive</a></li>
+<li>precomputed indices of assigned base points, <a href="https://drive.google.com/file/d/10DMFnLUs5Fdr_BCht9nsa2vSyG1LKJeV/view?usp=sharing">GoogleDrive</a></li>
+</ul>
+</li>
+</ul>
+<p>Note: precomputed indices are optional, as it just lets avoid assigning step, which takes about 2-3 days for 2^20 centroids.</p>
+<h3>Run</h3>
+<p>tests/ provides two tests for each dataset:</p>
+<ul>
+<li>IVFADC</li>
+<li>IVFADC + Grouping (+ Pruning)</li>
+</ul>
+<p>Each test requires many options, so we provide bash scripts in examples/, exploiting these tests. Scripts are commented and the <a class="el" href="structParser.html">Parser</a> class provides short descriptions for each option.</p>
+<p>Make sure that:</p>
+<ul>
+<li>models/SIFT1B/ and models/DEEP1B/ exist ``` mkdir models ; mkdir models/SIFT1B ; mkdir models/DEEP1B ```</li>
+<li>the data is placed to the data/SIFT1B/ and data/DEEP1B/ respectively (or just make symbolic links)</li>
+<li>run, for example:</li>
+</ul>
+<p><code>bash examples/run_deep1b_grouping_OPQ.sh</code></p>
+<h3>Documentation</h3>
+<p>The <a href="https://cdn.rawgit.com/dbaranchuk/ivf-hnsw/fe2e4a85/docs/html/annotated.html">doxygen documentation</a> gives per-class information</p>
+<h3>Citing</h3>
+<p>If you find this code useful in your research, please cite:</p>
+<p>{, author = {}, title = {}, booktitle = {}, year = {2018}, url = {} } </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 30 2018 19:52:54 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Feb 8 2018 16:55:50 for IVF-HNSW by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>
