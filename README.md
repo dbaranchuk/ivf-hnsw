@@ -24,6 +24,7 @@ The code requires a C++ compiler that understands:
 1) Clone repository
 
 ```git clone https://github.com/dbaranchuk/ivf-hnsw --recursive```
+
 2) Configure FAISS
 
 There are a few models for makefile.inc in the faiss/example_makefiles/
