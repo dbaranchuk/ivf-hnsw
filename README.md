@@ -86,18 +86,5 @@ Make sure that:
 ### Documentation
 The [doxygen documentation](https://cdn.rawgit.com/dbaranchuk/ivf-hnsw/fe2e4a85/docs/html/annotated.html) 
 gives per-class information
-
-### Citing
-
-If you find this code useful in your research, please cite:
-
-@inproceedings{,
-	author = {},
-	title = {},
-	booktitle = {},
-	year = {2018},
-	url = {}
-}
-
  
 
