@@ -28,10 +28,10 @@ int main(int argc, char **argv) {
     // Load Groundtruth 
     //==================
     std::cout << "Loading groundtruth from " << opt.path_gt << std::endl;
-    std::vector<int> massQA(opt.nq * opt.ngt);
+    std::vector<idx_t> massQA(opt.nq * opt.ngt);
     {
         std::ifstream gt_input(opt.path_gt, std::ios::binary);
-        readXvec<int>(gt_input, massQA.data(), opt.ngt, opt.nq);
+        readXvec<idx_t>(gt_input, massQA.data(), opt.ngt, opt.nq);
     }
     //==============
     // Load Queries 
@@ -54,6 +54,7 @@ int main(int argc, char **argv) {
     //==========
     if (exists(opt.path_pq) && exists(opt.path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << opt.path_pq << std::endl;
+        if (index->pq) delete index->pq;
         index->pq = faiss::read_ProductQuantizer(opt.path_pq);
 
         if (opt.do_opq){
@@ -61,6 +62,7 @@ int main(int argc, char **argv) {
             index->opq_matrix = dynamic_cast<faiss::LinearTransform *>(faiss::read_VectorTransform(opt.path_opq_matrix));
         }
         std::cout << "Loading Norm PQ codebook from " << opt.path_norm_pq << std::endl;
+        if (index->norm_pq) delete index->norm_pq;
         index->norm_pq = faiss::read_ProductQuantizer(opt.path_norm_pq);
     }
     else {
@@ -177,7 +179,7 @@ int main(int argc, char **argv) {
                 {
                     if (j % 10000 == 0) {
                         std::cout << "[" << stopw.getElapsedTimeMicro() / 1000000 << "s] "
-                                  << (100. * (ngroups_added + j)) / 1000000 << "%" << std::endl;
+                                  << (100. * (ngroups_added + j)) / opt.nc << "%" << std::endl;
                     }
                     j++;
                 }

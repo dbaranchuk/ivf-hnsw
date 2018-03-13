@@ -52,6 +52,7 @@ int main(int argc, char **argv)
     //==========
     if (exists(opt.path_pq) && exists(opt.path_norm_pq)) {
         std::cout << "Loading Residual PQ codebook from " << opt.path_pq << std::endl;
+        if (index->pq) delete index->pq;
         index->pq = faiss::read_ProductQuantizer(opt.path_pq);
 
         if (opt.do_opq){
@@ -59,6 +60,7 @@ int main(int argc, char **argv)
             index->opq_matrix = dynamic_cast<faiss::LinearTransform *>(faiss::read_VectorTransform(opt.path_opq_matrix));
         }
         std::cout << "Loading Norm PQ codebook from " << opt.path_norm_pq << std::endl;
+        if (index->norm_pq) delete index->norm_pq;
         index->norm_pq = faiss::read_ProductQuantizer(opt.path_norm_pq);
     }
     else {
