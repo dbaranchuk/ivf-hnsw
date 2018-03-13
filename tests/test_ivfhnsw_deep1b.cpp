@@ -1,11 +1,11 @@
 #include <iostream>
 #include <fstream>
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 #include <queue>
 #include <unordered_set>
 
-#include <ivfhnsw/IndexIVF_HNSW.h>
+#include <ivf-hnsw/IndexIVF_HNSW.h>
 #include <ivf-hnsw/Parser.h>
 
 using namespace hnswlib;

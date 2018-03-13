@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 #include <queue>
 #include <unordered_set>
