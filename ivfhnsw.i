@@ -10,4 +10,5 @@
 import_array();
 %}
 
+%apply (int DIM1, float* IN_ARRAY1) {(size_t n, const float* x)};
 %include "IndexIVF_HNSW.h"
