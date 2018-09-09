@@ -13,14 +13,24 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+set(CMAKE_SWIG_OUTDIR ${CMAKE_BINARY_DIR}/lib)
+
 # specify header and cpp files
 file(GLOB ivf-hnsw_cpu_headers ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 file(GLOB ivf-hnsw_cpu_cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
-add_library(ivf-hnsw STATIC ${ivf-hnsw_cpu_headers} ${ivf-hnsw_cpu_cpp})
+FIND_PACKAGE(SWIG REQUIRED)
+INCLUDE(${SWIG_USE_FILE})
 
-SET( CMAKE_CXX_FLAGS  "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -march=native -fpic -w -fopenmp -ftree-vectorize -ftree-vectorizer-verbose=0" )
-target_link_libraries(ivf-hnsw faiss hnswlib)
+FIND_PACKAGE(PythonLibs)
+INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR} ${PYTHON_INCLUDE_PATH} ${CMAKE_CURRENT_SOURCE_DIR})
 
-# build tests
-add_subdirectory(tests)
+file(DOWNLOAD https://raw.githubusercontent.com/numpy/numpy/master/tools/swig/numpy.i ./numpy.i)
+
+SET_SOURCE_FILES_PROPERTIES(ivfhnsw.i PROPERTIES CPLUSPLUS ON)
+
+SET(CMAKE_SWIG_FLAGS  "")
+SET(CMAKE_CXX_FLAGS "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -march=native -fpic -w -fopenmp -ftree-vectorize -ftree-vectorizer-verbose=0")
+
+swig_add_module(ivfhnsw python ivfhnsw.i IndexIVF_HNSW.cpp)
+swig_link_libraries(ivfhnsw faiss hnswlib ${PYTHON_LIBRARIES})
