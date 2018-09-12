@@ -49,7 +49,8 @@ class build_ext(build_ext_orig):
 setup(
     name='ivfhnsw',
     version='0.1',
-    packages=['ivfhnsw'],
+#    packages=['ivfhnsw'],
+#    package_dir={'': 'src'},
     ext_modules=[CMakeExtension('IndexIVF_HNSW')],
     cmdclass={
         'build_ext': build_ext,
