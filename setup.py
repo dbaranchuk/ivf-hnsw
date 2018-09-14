@@ -69,27 +69,38 @@ class custom_build_ext(build_ext):
         build_args = []
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
+        interface_temp = os.path.join(self.build_temp, 'interface')
+        os.makedirs(interface_temp, exist_ok=True)
+
+        urlretrieve('https://raw.githubusercontent.com/numpy/numpy/master/tools/swig/numpy.i',
+                    os.path.join(interface_temp, 'numpy.i'),)
         subprocess.check_call(['cmake', os.path.abspath(os.curdir)] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
         ext.library_dirs.append(os.path.join(self.build_temp, 'lib'))
-        return super().build_extension(ext)
+        ext.swig_opts.append('-I' + os.path.join(self.build_temp, 'interface'))
+        r = super().build_extension(ext)
+
+        self.distribution.py_modules.append('ivfhnsw')
+        self.run_command('build_py')
+        return r
+
 
 paths = ['interface/ivfhnsw.i']
 
 ext = [Extension(name='_' + os.path.splitext(os.path.basename(path))[0],
                  sources=[str(path)],
                  swig_opts=['-Iinclude', '-c++'],
-                 include_dirs=['include', 'faiss', 'hnswlib', os.curdir],
-                 libraries=['faiss', 'hnswlib'],
-                 library_dirs=['lib'],
-                 extra_compile_args=['-std=c++11'],)
+                 include_dirs=['include', os.curdir],
+                 libraries=['ivfhnsw', 'hnswlib', 'faiss', 'gomp', 'lapack',],
+                 extra_compile_args=['-std=c++11', '-static'],)
                  for path in paths]
 
 setup(
     name='ivfhnsw',
     version='0.1',
     ext_modules=ext,
-    packages=[],
+    package_dir={'': 'interface'},
+    py_modules=[],
     include_package_data=True,
     cmdclass={
         'build_ext': custom_build_ext,
