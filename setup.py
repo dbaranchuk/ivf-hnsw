@@ -1,3 +1,5 @@
+from pprint import pprint
+from urllib.request import urlretrieve
 import sys
 import platform
 import subprocess
@@ -33,7 +35,7 @@ class CMakeBuild(build_ext):
 
     def build_extension(self, ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
-        cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
+        cmake_args = ['-DCMAKE_SWIG_OUTDIR=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable]
 
         cfg = 'Debug' if self.debug else 'Release'
@@ -57,12 +59,39 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
 
+class custom_build_ext(build_ext):
+    def run(self):
+        super().run()
+
+    def build_extension(self, ext):
+        env = os.environ.copy()
+        cmake_args = []
+        build_args = []
+        if not os.path.exists(self.build_temp):
+            os.makedirs(self.build_temp)
+        subprocess.check_call(['cmake', os.path.abspath(os.curdir)] + cmake_args, cwd=self.build_temp, env=env)
+        subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
+        ext.library_dirs.append(os.path.join(self.build_temp, 'lib'))
+        return super().build_extension(ext)
+
+paths = ['interface/ivfhnsw.i']
+
+ext = [Extension(name='_' + os.path.splitext(os.path.basename(path))[0],
+                 sources=[str(path)],
+                 swig_opts=['-Iinclude', '-c++'],
+                 include_dirs=['include', 'faiss', 'hnswlib', os.curdir],
+                 libraries=['faiss', 'hnswlib'],
+                 library_dirs=['lib'],
+                 extra_compile_args=['-std=c++11'],)
+                 for path in paths]
+
 setup(
     name='ivfhnsw',
     version='0.1',
-    ext_modules=[CMakeExtension('IndexIVF_HNSW')],
-    packages=['ivfhnsw'],
+    ext_modules=ext,
+    packages=[],
+    include_package_data=True,
     cmdclass={
-        'build_ext': CMakeBuild,
+        'build_ext': custom_build_ext,
     }
 )
