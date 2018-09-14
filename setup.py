@@ -53,6 +53,11 @@ setup(
     ext_modules=ext,
     package_dir={'': 'interface'},
     py_modules=[],
+    setup_requires=['pytest-runner'],
+    install_requires=[
+        'numpy',
+    ],
+    tests_require=['pytest>2.8'],
     include_package_data=True,
     cmdclass={
         'build_ext': custom_build_ext,
