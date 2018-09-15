@@ -18,7 +18,7 @@ class custom_build_ext(build_ext):
     def build_extension(self, ext):
         env = os.environ.copy()
         cmake_args = []
-        build_args = []
+        build_args = ['--target', 'ivfhnsw']
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
         interface_temp = os.path.join(self.build_temp, 'interface')

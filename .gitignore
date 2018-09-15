@@ -16,3 +16,4 @@ build/
 dist/ 
 ivfhnsw.egg-info/ 
 venv/
+.eggs/
