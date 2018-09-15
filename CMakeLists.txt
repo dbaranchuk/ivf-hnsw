@@ -19,6 +19,6 @@ file(GLOB ivfhnsw_include ${PROJECT_SOURCE_DIR}/include/*.h)
 SET(CMAKE_CXX_FLAGS "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -march=native -fpic -w -fopenmp -ftree-vectorize -ftree-vectorizer-verbose=0")
 
 add_library(ivfhnsw STATIC ${ivfhnsw_src})
-link_libraries(ivfhnsw faiss hnswlib)
+target_link_libraries(ivfhnsw faiss hnswlib)
 
-
+add_subdirectory(tests)
