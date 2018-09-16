@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.8)
 file(GLOB srcs ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
 # Build each source file independently
-include_directories(${PROJECT_SOURCE_DIR})	# ivf-hnsw root directory
+include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)	# ivf-hnsw root directory
 
 foreach(source ${srcs})
     get_filename_component(name ${source} NAME_WE)
