@@ -32,10 +32,12 @@ if(SWIG_FOUND AND PythonLibs_FOUND)
 
   set(CMAKE_SWIG_OUTDIR ${CMAKE_BINARY_DIR}/lib)
   set(SWIG_FEATURES "-Iinclude")
-  SET_SOURCE_FILES_PROPERTIES(interface/index.i PROPERTIES CPLUSPLUS ON)
+  file(GLOB swig_interface interface/wrapper.i)
 
-  swig_add_module(index python interface/index.i src/IndexIVF_HNSW.cpp)
-  swig_link_libraries(index faiss hnswlib ${PYTHON_LIBRARIES})
+  SET_SOURCE_FILES_PROPERTIES(${swig_interface} PROPERTIES CPLUSPLUS ON)
+
+  swig_add_module(wrapper python ${swig_interface} ${ivfhnsw_src})
+  swig_link_libraries(wrapper faiss hnswlib ${PYTHON_LIBRARIES})
 
 endif()
 

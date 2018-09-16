@@ -36,11 +36,11 @@ class custom_build_ext(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
         ext.library_dirs.append(os.path.join(self.build_temp, 'lib'))
         ext.swig_opts.append('-I' + os.path.join(self.build_temp, 'interface'))
-        self._swig_generated_modules.append(ext.name)
+        self._swig_generated_modules.append(ext.name.lstrip('_'))
         return super().build_extension(ext)
 
 
-paths = ['interface/index.i']
+paths = ['interface/wrapper.i']
 
 ext = [Extension(name='_' + os.path.splitext(os.path.basename(path))[0],
                  sources=[str(path)],

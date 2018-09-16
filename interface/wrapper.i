@@ -1,7 +1,8 @@
-%module index
+%module wrapper
 %{
 #define SWIG_FILE_WITH_INIT
 #include "IndexIVF_HNSW.h"
+#include "IndexIVF_HNSW_Grouping.h"
 %}
 
 %include "numpy.i"
@@ -65,6 +66,7 @@ void _search(const float *x, size_t n, size_t d, float* distances, size_t k_, lo
 %ignore search;
 
 %include "IndexIVF_HNSW.h"
+%include "IndexIVF_HNSW_Grouping.h"
 
 %pythoncode %{
 import functools
