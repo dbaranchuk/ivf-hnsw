@@ -21,4 +21,22 @@ SET(CMAKE_CXX_FLAGS "-Ofast -lrt -DNDEBUG -std=c++11 -DHAVE_CXX0X -openmp -march
 add_library(ivfhnsw STATIC ${ivfhnsw_src})
 target_link_libraries(ivfhnsw faiss hnswlib)
 
+FIND_PACKAGE(SWIG)
+FIND_PACKAGE(PythonLibs)
+if(SWIG_FOUND AND PythonLibs_FOUND)
+  INCLUDE(${SWIG_USE_FILE})
+  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+
+  file(DOWNLOAD https://raw.githubusercontent.com/numpy/numpy/master/tools/swig/numpy.i ./numpy.i)
+  file(DOWNLOAD https://raw.githubusercontent.com/numpy/numpy/master/tools/swig/pyfragments.swg ./pyfragments.swg)
+
+  set(CMAKE_SWIG_OUTDIR ${CMAKE_BINARY_DIR}/lib)
+  set(SWIG_FEATURES "-Iinclude")
+  SET_SOURCE_FILES_PROPERTIES(interface/index.i PROPERTIES CPLUSPLUS ON)
+
+  swig_add_module(index python interface/index.i src/IndexIVF_HNSW.cpp)
+  swig_link_libraries(index faiss hnswlib ${PYTHON_LIBRARIES})
+
+endif()
+
 add_subdirectory(tests)

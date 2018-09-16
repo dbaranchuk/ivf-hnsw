@@ -1,4 +1,4 @@
-%module ivfhnsw
+%module index
 %{
 #define SWIG_FILE_WITH_INIT
 #include "IndexIVF_HNSW.h"

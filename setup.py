@@ -12,8 +12,14 @@ from distutils.version import LooseVersion
 
 
 class custom_build_ext(build_ext):
+    def __init__(self, *args, **kwargs):
+        self._swig_generated_modules = []
+        super().__init__(*args, **kwargs)
+
     def run(self):
         super().run()
+        self.distribution.py_modules.extend(self._swig_generated_modules)
+        self.run_command('build_py')
 
     def build_extension(self, ext):
         env = os.environ.copy()
@@ -30,14 +36,11 @@ class custom_build_ext(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
         ext.library_dirs.append(os.path.join(self.build_temp, 'lib'))
         ext.swig_opts.append('-I' + os.path.join(self.build_temp, 'interface'))
-        r = super().build_extension(ext)
-
-        self.distribution.py_modules.append('ivfhnsw')
-        self.run_command('build_py')
-        return r
+        self._swig_generated_modules.append(ext.name)
+        return super().build_extension(ext)
 
 
-paths = ['interface/ivfhnsw.i']
+paths = ['interface/index.i']
 
 ext = [Extension(name='_' + os.path.splitext(os.path.basename(path))[0],
                  sources=[str(path)],
