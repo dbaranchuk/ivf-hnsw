@@ -6,19 +6,14 @@ import subprocess
 import os
 import pathlib
 
-from setuptools import setup, Extension
+from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
 
 class custom_build_ext(build_ext):
-    def __init__(self, *args, **kwargs):
-        self._swig_generated_modules = []
-        super().__init__(*args, **kwargs)
-
     def run(self):
         super().run()
-        self.distribution.py_modules.extend(self._swig_generated_modules)
         self.run_command('build_py')
 
     def build_extension(self, ext):
@@ -36,26 +31,26 @@ class custom_build_ext(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
         ext.library_dirs.append(os.path.join(self.build_temp, 'lib'))
         ext.swig_opts.append('-I' + os.path.join(self.build_temp, 'interface'))
-        self._swig_generated_modules.append(ext.name.lstrip('_'))
         return super().build_extension(ext)
 
 
-paths = ['interface/wrapper.i']
-
-ext = [Extension(name='_' + os.path.splitext(os.path.basename(path))[0],
-                 sources=[str(path)],
-                 swig_opts=['-Iinclude', '-c++'],
+names = ['wrapper']
+python_src = 'python-src'
+ext = [Extension(name='.'.join(['ivfhnsw', '_' + name]),
+                 sources=[os.path.join('interface', '.'.join([name, 'i']))],
+                 swig_opts=['-Iinclude', '-c++', '-outdir', os.path.join(python_src, 'ivfhnsw')],
                  include_dirs=['include', os.curdir],
                  libraries=['ivfhnsw', 'hnswlib', 'faiss', 'gomp', 'lapack',],
                  extra_compile_args=['-std=c++11', '-static'],)
-                 for path in paths]
+                 for name in names]
+
 
 setup(
     name='ivfhnsw',
     version='0.1',
     ext_modules=ext,
-    package_dir={'': 'interface'},
-    py_modules=[],
+    package_dir={'': python_src},
+    packages=find_packages(python_src),
     setup_requires=['pytest-runner'],
     install_requires=[
         'numpy',
