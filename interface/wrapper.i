@@ -42,12 +42,12 @@ void assign_numpy(const float *x, size_t n, size_t d, idx_t *labels, size_t k) {
 /*
 Wrapper for IndexIVF_HNSW::search
 */
-%exception _search {
+%exception search {
     $action
     if (PyErr_Occurred()) SWIG_fail;
 }
 %extend ivfhnsw::IndexIVF_HNSW {
-void _search(const float *x, size_t n, size_t d, float* distances, size_t k_, long *labels, size_t k) {
+void search(const float *x, size_t n, size_t d, float* distances, size_t k_, long *labels, size_t k) {
     if (d != $self->d) {
         PyErr_Format(PyExc_ValueError,
                      "Query vectors must be of length d=%d, got %d",
@@ -67,22 +67,4 @@ void _search(const float *x, size_t n, size_t d, float* distances, size_t k_, lo
 
 %include "IndexIVF_HNSW.h"
 %include "IndexIVF_HNSW_Grouping.h"
-
-%pythoncode %{
-import functools
-
-cls = IndexIVF_HNSW
-
-@functools.wraps(cls._search)
-def search_wrapper(self, x, k):
-    """
-    Query n vectors of dimension d to the index.
-
-    Return at most k vectors. If there are not enough results for the query,
-    the result array is padded with -1s.
-    """
-    return self._search(x, k, k)
-
-cls.search = search_wrapper
-%}
 

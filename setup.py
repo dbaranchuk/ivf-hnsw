@@ -11,6 +11,9 @@ from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
 
+python_src = 'python-src'
+
+
 class custom_build_ext(build_ext):
     def run(self):
         super().run()
@@ -31,14 +34,17 @@ class custom_build_ext(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
         ext.library_dirs.append(os.path.join(self.build_temp, 'lib'))
         ext.swig_opts.append('-I' + os.path.join(self.build_temp, 'interface'))
+
+        ivfhnsw_package_path = os.path.join(self.build_temp, python_src, 'ivfhnsw')
+        os.makedirs(ivfhnsw_package_path, exist_ok=True)
+        ext.swig_opts.extend(['-outdir', ivfhnsw_package_path])
         return super().build_extension(ext)
 
 
 names = ['wrapper']
-python_src = 'python-src'
 ext = [Extension(name='.'.join(['ivfhnsw', '_' + name]),
                  sources=[os.path.join('interface', '.'.join([name, 'i']))],
-                 swig_opts=['-Iinclude', '-c++', '-outdir', os.path.join(python_src, 'ivfhnsw')],
+                 swig_opts=['-Iinclude', '-c++'],
                  include_dirs=['include', os.curdir],
                  libraries=['ivfhnsw', 'hnswlib', 'faiss', 'gomp', 'lapack',],
                  extra_compile_args=['-std=c++11', '-static'],)
