@@ -7,7 +7,8 @@ namespace ivfhnsw {
     //=========================
     IndexIVF_HNSW::IndexIVF_HNSW(size_t dim, size_t ncentroids, size_t bytes_per_code,
                                  size_t nbits_per_idx, size_t max_group_size):
-            d(dim), nc(ncentroids)
+            d(dim), nc(ncentroids), quantizer(nullptr), pq(nullptr), norm_pq(nullptr),
+            opq_matrix(nullptr)
     {
         pq = new faiss::ProductQuantizer(d, bytes_per_code, nbits_per_idx);
         norm_pq = new faiss::ProductQuantizer(1, 1, nbits_per_idx);
