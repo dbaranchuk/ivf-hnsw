@@ -34,7 +34,7 @@ class custom_build_ext(build_ext):
         ext.library_dirs.append(os.path.join(self.build_temp, 'lib'))
         ext.swig_opts.append('-I' + os.path.join(self.build_temp, 'interface'))
 
-        ivfhnsw_package_path = os.path.join(self.build_temp, python_src, 'ivfhnsw')
+        ivfhnsw_package_path = os.path.join(self.build_lib, 'ivfhnsw')
         os.makedirs(ivfhnsw_package_path, exist_ok=True)
         ext.swig_opts.extend(['-outdir', ivfhnsw_package_path])
         return super().build_extension(ext)
