@@ -1,3 +1,4 @@
+import numpy
 from pprint import pprint
 from urllib.request import urlretrieve
 import sys
@@ -44,7 +45,7 @@ names = ['wrapper']
 ext = [Extension(name='.'.join(['ivfhnsw', '_' + name]),
                  sources=[os.path.join('interface', '.'.join([name, 'i']))],
                  swig_opts=['-Iinclude', '-c++'],
-                 include_dirs=['include', os.curdir],
+                 include_dirs=['include', os.curdir, numpy.get_include()],
                  libraries=['ivfhnsw', 'hnswlib', 'faiss', 'gomp', 'lapack',],
                  extra_compile_args=['-std=c++11', '-static'],)
                  for name in names]
@@ -56,7 +57,10 @@ setup(
     ext_modules=ext,
     package_dir={'': python_src},
     packages=find_packages(python_src),
-    setup_requires=['pytest-runner'],
+    setup_requires=[
+        'pytest-runner',
+        'numpy',
+    ],
     install_requires=[
         'numpy',
     ],
