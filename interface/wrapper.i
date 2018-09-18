@@ -11,6 +11,7 @@
 import_array();
 %}
 
+%apply (float* IN_ARRAY1, int DIM1) {(const float *x, size_t d)};
 %apply (float* IN_ARRAY2, int DIM1, int DIM2) {(const float *x, size_t n, size_t d)};
 %apply (unsigned int* ARGOUT_ARRAY1, int DIM1) {(ivfhnsw::IndexIVF_HNSW::idx_t *labels, size_t k)};
 %apply (long* ARGOUT_ARRAY1, int DIM1) {(long *labels, size_t k)};
@@ -47,7 +48,7 @@ Wrapper for IndexIVF_HNSW::search
     if (PyErr_Occurred()) SWIG_fail;
 }
 %extend ivfhnsw::IndexIVF_HNSW {
-void search(const float *x, size_t n, size_t d, float* distances, size_t k_, long *labels, size_t k) {
+void search(const float *x, size_t d, float* distances, size_t k_, long *labels, size_t k) {
     if (d != $self->d) {
         PyErr_Format(PyExc_ValueError,
                      "Query vectors must be of length d=%d, got %d",
