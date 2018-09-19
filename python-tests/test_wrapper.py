@@ -13,7 +13,6 @@ def test_pipeline():
     index = Index(4,4,4,4)
     index.build_quantizer('', '', '')
     index.assign([[5,5,5,5]], 2)
-    distances, labels = index.search([[1,2,3,4],
-                                      [6,2,3,2]], 3)
+    distances, labels = index.search([1,2,3,4], 3)
     assert distances.shape[0] == 3
     assert labels.shape[0] == 3
