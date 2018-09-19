@@ -1,3 +1,4 @@
+import contextlib
 from pprint import pprint
 from urllib.request import urlretrieve
 import sys
@@ -7,36 +8,64 @@ import os
 
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
+from setuptools.command.install_scripts import install_scripts
 from distutils.version import LooseVersion
 
 
-python_src = 'python-src'
+project_dir = os.path.dirname(os.path.abspath(__file__))
+python_src = os.path.join(os.curdir, 'python-src')
+
+
+class custom_install_scripts(install_scripts):
+    def run(self):
+        print(self.build_dir)
+        super().run()
 
 
 class custom_build_ext(build_ext):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._swig_outdir = None
+
     def run(self):
+        # Store self.inplace flag because it gets overriden somehow
+        # by `python setup.py test` pipeline
+        self._real_inplace = self.inplace
+        print('Inplace:', self.inplace)
         super().run()
         self.run_command('build_py')
 
+    @contextlib.contextmanager
+    def set_inplace(self, inplace):
+        saved_inplace, self.inplace = self.inplace, inplace
+        yield
+        self.inplace = saved_inplace
+
     def build_extension(self, ext):
-        env = os.environ.copy()
-        cmake_args = []
-        build_args = ['--target', 'ivfhnsw']
-        if not os.path.exists(self.build_temp):
-            os.makedirs(self.build_temp)
         interface_temp = os.path.join(self.build_temp, 'interface')
         os.makedirs(interface_temp, exist_ok=True)
 
+        # Download numpy.i dependency to be used by swig
         urlretrieve('https://raw.githubusercontent.com/numpy/numpy/master/tools/swig/numpy.i',
                     os.path.join(interface_temp, 'numpy.i'),)
-        subprocess.check_call(['cmake', os.path.abspath(os.curdir)] + cmake_args, cwd=self.build_temp, env=env)
-        subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
+
+        # Build only ivfhnsw static library
+        build_args = ['--target', 'ivfhnsw']
+        cmake_args = []
+        env = os.environ.copy()
+        subprocess.check_call(['cmake', project_dir] + cmake_args, cwd=self.build_temp, env=env)
+        subprocess.check_call(['cmake', '--build', os.curdir] + build_args, cwd=self.build_temp)
+
+        # Add path to the compiled static libraries
         ext.library_dirs.append(os.path.join(self.build_temp, 'lib'))
+        # Add path to the temporary swig interface files directory
         ext.swig_opts.append('-I' + os.path.join(self.build_temp, 'interface'))
 
-        ivfhnsw_package_path = os.path.dirname(self.get_ext_fullpath(ext.name))
-        os.makedirs(ivfhnsw_package_path, exist_ok=True)
-        ext.swig_opts.extend(['-outdir', ivfhnsw_package_path])
+        with self.set_inplace(self._real_inplace):
+            _swig_outdir = os.path.dirname(self.get_ext_fullpath(ext.name))
+        os.makedirs(_swig_outdir, exist_ok=True)
+        ext.swig_opts.extend(['-outdir', _swig_outdir])
+        print('SWIG outdir:', _swig_outdir)
 
         import numpy
         ext.include_dirs.append(numpy.get_include())
@@ -70,5 +99,6 @@ setup(
     include_package_data=True,
     cmdclass={
         'build_ext': custom_build_ext,
+        'install_scripts': custom_install_scripts,
     }
 )
