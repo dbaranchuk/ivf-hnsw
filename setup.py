@@ -1,4 +1,3 @@
-import numpy
 from pprint import pprint
 from urllib.request import urlretrieve
 import sys
@@ -38,6 +37,9 @@ class custom_build_ext(build_ext):
         ivfhnsw_package_path = os.path.join(self.build_lib, 'ivfhnsw')
         os.makedirs(ivfhnsw_package_path, exist_ok=True)
         ext.swig_opts.extend(['-outdir', ivfhnsw_package_path])
+
+        import numpy
+        ext.include_dirs.append(numpy.get_include())
         return super().build_extension(ext)
 
 
@@ -45,7 +47,7 @@ names = ['wrapper']
 ext = [Extension(name='.'.join(['ivfhnsw', '_' + name]),
                  sources=[os.path.join('interface', '.'.join([name, 'i']))],
                  swig_opts=['-Iinclude', '-c++'],
-                 include_dirs=['include', os.curdir, numpy.get_include()],
+                 include_dirs=['include', os.curdir],
                  libraries=['ivfhnsw', 'hnswlib', 'faiss', 'gomp', 'lapack',],
                  extra_compile_args=['-std=c++11', '-static'],)
                  for name in names]
