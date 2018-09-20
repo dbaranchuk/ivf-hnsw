@@ -14,7 +14,7 @@ from distutils.version import LooseVersion
 
 project_dir = os.path.dirname(os.path.abspath(__file__))
 python_src = os.path.join(os.curdir, 'python-src')
-
+build_type = os.environ.get('CMAKE_BUILD_TYPE', 'release')
 
 class custom_install_scripts(install_scripts):
     def run(self):
@@ -51,7 +51,7 @@ class custom_build_ext(build_ext):
 
         # Build only ivfhnsw static library
         build_args = ['--target', 'ivfhnsw']
-        cmake_args = []
+        cmake_args = ['-DCMAKE_BUILD_TYPE={}'.format(build_type.upper())]
         env = os.environ.copy()
         subprocess.check_call(['cmake', project_dir] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', os.curdir] + build_args, cwd=self.build_temp)

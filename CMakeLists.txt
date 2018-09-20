@@ -3,6 +3,8 @@ cmake_minimum_required (VERSION 2.8)
 # ivf-hnsw project
 project(ivf-hnsw C CXX)
 
+message("Build type: ${CMAKE_BUILD_TYPE}")
+
 add_subdirectory(faiss)
 add_subdirectory(hnswlib)
 
