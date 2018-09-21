@@ -2,7 +2,7 @@
 
 This is the code for the current state-of-the-art billion-scale nearest neighbor search system presented in the paper:
 
-[Revisiting the Inverted Indices for Billion-Scale Approximate Nearest Neighbors](https://arxiv.org/abs/1802.02422),
+[Revisiting the Inverted Indices for Billion-Scale Approximate Nearest Neighbors](http://openaccess.thecvf.com/content_ECCV_2018/html/Dmitry_Baranchuk_Revisiting_the_Inverted_ECCV_2018_paper.html),
 <br>
 Dmitry Baranchuk, Artem Babenko, Yury Malkov
 
