@@ -41,6 +41,26 @@ void assign_numpy(const float *x, size_t n, size_t d, idx_t *labels, size_t k) {
 }
 %ignore assign;
 
+/*
+Wrapper for IndexIVF_HNSW::train_pq
+*/
+%exception train_pq {
+    $action
+    if (PyErr_Occurred()) SWIG_fail;
+}
+%extend ivfhnsw::IndexIVF_HNSW {
+void train_pq(const float *x, size_t n, size_t d) {
+    if (d != $self->d) {
+        PyErr_Format(PyExc_ValueError,
+                     "Query vectors must be of length d=%d, got %d",
+                     $self->d, d);
+        return;
+    }
+    return $self->train_pq(n, x);
+}
+}
+%ignore train_pq;
+
 
 /*
 Wrapper for IndexIVF_HNSW::search
