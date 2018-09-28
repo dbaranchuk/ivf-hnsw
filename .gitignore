@@ -9,3 +9,12 @@ CMakeCache.txt
 main
 *.swp
 
+__pycache__/
+lib/
+numpy.i
+build/ 
+dist/ 
+ivfhnsw.egg-info/ 
+venv/
+.eggs/
+.pytest_cache/

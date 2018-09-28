@@ -5,8 +5,8 @@
 #include <queue>
 #include <unordered_set>
 
-#include <ivf-hnsw/IndexIVF_HNSW_Grouping.h>
-#include <ivf-hnsw/Parser.h>
+#include "IndexIVF_HNSW_Grouping.h"
+#include "Parser.h"
 
 using namespace hnswlib;
 using namespace ivfhnsw;
