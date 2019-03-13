@@ -35,7 +35,6 @@ namespace ivfhnsw {
      * There has been removed parallel HNSW construction in order to make internal centroid ids equal to external ones.
      * Construction time is still acceptable: ~5 minutes for 1 million 96-d vectors on Intel Xeon E5-2650 V2 2.60GHz.
      */
-    // TODO: paralyze in the right way
     void IndexIVF_HNSW::build_quantizer(const char *path_data, const char *path_info,
                                         const char *path_edges, size_t M, size_t efConstruction)
     {

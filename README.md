@@ -42,7 +42,7 @@ deactivate building of unnecessary tests and the GPU version.
 
 4) Build project
 
-```cmake . ; make```
+```cmake . && make```
 
 ### Data
 The proposed methods are tested on two 1 billion datasets: SIFT1B and DEEP1B. 
@@ -52,13 +52,13 @@ For using provided examples, all data files have to be in data/SIFT1B and data/D
 * SIFT1B:
    - dataset, [Datasets for approximate nearest neighbor search](http://corpus-texmex.irisa.fr/)
    
-   ```cd data/SIFT1B ; bash load_sift1b.sh```
+   ```cd data/SIFT1B && bash load_sift1b.sh```
    - learned 993127 centroids, [GoogleDrive](https://drive.google.com/file/d/1p9Aq5lTiXzmuP1ftJAIqKYEEN5EVBZsS/view?usp=sharing)
    - precomputed indices of assigned base points, [GoogleDrive](https://drive.google.com/file/d/1iFgzY2niWsCwKCPpbsjZh1urudrswEyL/view?usp=sharing)
 * DEEP1B:
    - dataset, [YandexDrive](https://yadi.sk/d/11eDCm7Dsn9GA)
    
-   ```cd data/DEEP1B ; python load_deep1b.py```
+   ```cd data/DEEP1B && python load_deep1b.py```
    - learned 999973 centroids, [GoogleDrive](https://drive.google.com/file/d/1loJ0rEIBORM34vsVSZrNeJrq1OtrcmKu/view?usp=sharing)
    - precomputed indices of assigned base points, [GoogleDrive](https://drive.google.com/file/d/10DMFnLUs5Fdr_BCht9nsa2vSyG1LKJeV/view?usp=sharing) 
     
@@ -76,7 +76,7 @@ the Parser class provides short descriptions for each option.
 Make sure that:
 - models/SIFT1B/ and models/DEEP1B/ exist
 
-```mkdir models ; mkdir models/SIFT1B ; mkdir models/DEEP1B```
+```mkdir models && mkdir models/SIFT1B && mkdir models/DEEP1B```
 - the data is placed to data/SIFT1B/ and data/DEEP1B/ respectively 
 (or just make symbolic links)
 - run, for example:

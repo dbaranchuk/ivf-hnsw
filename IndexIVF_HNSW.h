@@ -97,9 +97,9 @@ namespace ivfhnsw {
          * query, the result array is padded with -1s.
          *
          * @param k           number of the closest vertices to search
-         * @param x           query vectors, size n * d
-         * @param distances   output pairwise distances, size n * k
-         * @param labels      output labels of the nearest neighbours, size n * k
+         * @param x           query vector, size d
+         * @param distances   output pairwise distances, size k
+         * @param labels      output labels of the nearest neighbours, size k
          */
         virtual void search(size_t k, const float *x, float *distances, long *labels);
 
