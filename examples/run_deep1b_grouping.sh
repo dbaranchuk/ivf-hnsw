@@ -60,7 +60,7 @@ path_data="${PWD}/data/DEEP1B"
 path_model="${PWD}/models/DEEP1B"
 
 path_base="${path_data}/deep1B_base.fvecs"
-path_learn="${path_data}/Bigann/deep1B_learn.fvecs"
+path_learn="${path_data}/deep1B_learn.fvecs"
 path_gt="${path_data}/deep1B_groundtruth.ivecs"
 path_q="${path_data}/deep1B_queries.fvecs"
 path_centroids="${path_data}/centroids_deep1b.fvecs"
